@@ -1,0 +1,19 @@
+# Cloudflare Pages config for the Coach Platform Next.js app.
+#
+# This file tells the @cloudflare/next-on-pages adapter how to build, and
+# tells `wrangler pages deploy` what flags to ship with. The Pages dashboard
+# also reads it during connected-Git deploys.
+#
+# After setup, "npx @cloudflare/next-on-pages" in the build command will
+# emit .vercel/output/static, which Pages publishes.
+
+name = "coach-app"
+compatibility_date = "2025-01-15"
+
+# nodejs_compat is REQUIRED for the Supabase SDK (uses node:crypto and node:buffer)
+# and for several Next.js runtime polyfills. Without it, server actions silently
+# fail with cryptic errors at first request.
+compatibility_flags = ["nodejs_compat"]
+
+# Where the build output lives. Standard for next-on-pages.
+pages_build_output_dir = ".vercel/output/static"

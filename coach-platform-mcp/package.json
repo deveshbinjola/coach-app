@@ -1,0 +1,42 @@
+{
+  "name": "@elevate-ai/coach-platform-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for ElevateAI Coach Platform. Plug your AI agent (Claude Desktop, Cursor, custom GPT, etc.) into your coach pipeline — read your focus queue, log messages, draft in your voice.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "coach-platform-mcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "typescript": "^5.6.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "coach-platform",
+    "elevate-ai",
+    "ai-agent",
+    "claude",
+    "cursor"
+  ],
+  "author": "Sunny Binjola <sunny.binjola@gmail.com>",
+  "homepage": "https://www.elevateaisystem.com/coach-platform"
+}

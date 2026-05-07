@@ -1,0 +1,297 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+/* Fraunces — editorial display face used ONLY on hero headlines (login
+   left pane, /command-center greeting, FirstRun, /welcome step titles).
+   Optical-size axis dialed up so the heavy weights have the chiseled,
+   carved feel that matches the men's-work voice. Body text stays Plus
+   Jakarta — pairing a soulful display with a clean grotesk is what
+   separates "product" from "Tailwind starter." */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =====================================================================
+   DESIGN TOKENS — single source of truth for color, spacing, type, etc.
+   Semantic naming so future themes (dark mode, white-label) are easy.
+
+   Inspired by:
+     Linear  — layout discipline, density, type rhythm
+     Granola — calm pacing, warm-but-premium tone
+     Attio   — pipeline patterns, inline-edit ergonomics
+
+   Components reference these tokens. NEVER hardcode hex/spacing in JSX.
+   ===================================================================== */
+:root {
+  /* ---------- Surface ---------- */
+  --surface:           #FAFAF8;  /* Page background */
+  --surface-elevated:  #FFFFFF;  /* Cards, modals, popovers */
+  --surface-deep:      #F2F2EE;  /* Subtle inset (input bg, code blocks) */
+  --surface-dark:      #0A0F1C;  /* Hero/dark sections */
+
+  /* ---------- Text ---------- */
+  --text:              #0A0F1C;  /* Primary, body text */
+  --text-muted:        #5A5A6E;  /* Secondary, captions */
+  --text-faint:        #9CA3AF;  /* Tertiary, placeholders */
+  --text-inverse:      #FAFAF8;  /* On dark surfaces */
+
+  /* ---------- Brand ---------- */
+  --brand:             #00FF41;  /* Primary accent */
+  --brand-strong:      #00CC34;  /* Hover/active states */
+  --brand-soft:        rgba(0, 255, 65, 0.12);  /* Tinted backgrounds */
+  --navy:              #0A0F1C;
+  --navy-soft:         #1A1F2C;
+
+  /* ---------- Semantic ----------
+     Apple polish: 3 tones, not 6. Warning + info now alias to neutral
+     grays so any leftover usage doesn't blow up — but visually they
+     read as quiet muted accents instead of yellow/blue noise. The only
+     real semantic colors left are brand (good) and danger (bad). */
+  --success:           #00CC34;
+  --success-soft:      rgba(0, 204, 52, 0.10);
+  --warning:           #5A5A6E;          /* aliased to text-muted (was #D97706) */
+  --warning-soft:      #F2F2EE;          /* aliased to surface-deep (was #FFF3D6) */
+  --danger:            #DC2626;
+  --danger-soft:       #FEE2E2;
+  /* --info un-aliased so the InsightQueue's Investigate lane is visually
+     distinct from Ignore. Restrained navy-blue, not a bright UI blue, so
+     it still reads as "this app", not "Bootstrap alert." */
+  --info:              #2A4A7F;
+  --info-soft:         #EEF2F8;
+
+  /* ---------- Border ---------- */
+  --border:            #E5E5DD;  /* Default border */
+  --border-strong:     #C9C9BD;  /* Emphasized */
+  --border-faint:      #F0F0EA;  /* Subtle dividers */
+
+  /* ---------- Spacing (8px grid; --s4 = 16px is the base) ----------
+     Apple polish: ~25% more white space at the larger end of the ramp.
+     Small spacing (--s1..s4) stays — it's content-level and fine.
+     Larger spacing (--s5..s9) gets bumped — that's where breathing room
+     lives. Result: cards/sections feel more expensive without changing
+     any markup. */
+  --s1:                0.25rem;  /*  4px */
+  --s2:                0.5rem;   /*  8px */
+  --s3:                0.75rem;  /* 12px */
+  --s4:                1rem;     /* 16px — base */
+  --s5:                1.75rem;  /* 28px (was 24) */
+  --s6:                2.5rem;   /* 40px (was 32) */
+  --s7:                3.5rem;   /* 56px (was 48) */
+  --s8:                5rem;     /* 80px (was 64) */
+  --s9:                7rem;     /* 112px (was 96) */
+
+  /* ---------- Typography ----------
+     Apple polish: 5 sizes, not 7.
+       - --t-h3 aliased to --t-h2 (one section-heading size, not two)
+       - --t-label aliased to --t-caption (kills magazine-style uppercase
+         labels — components keep the variable name but render at caption
+         size in sentence case; the uppercase utility class itself dies)
+     Existing components reference --t-h3 and --t-label still — they just
+     resolve to bigger / non-tiny values. No code churn needed. */
+  --t-display:         clamp(2.25rem, 4.5vw, 3.5rem);  /* Marketing-only hero */
+  --t-h1:              clamp(1.75rem, 3vw, 2.25rem);   /* Page heading */
+  --t-h2:              clamp(1.125rem, 1.6vw, 1.25rem);/* Section heading (one size) */
+  --t-h3:              clamp(1.125rem, 1.6vw, 1.25rem);/* aliased — same as --t-h2 */
+  --t-body:            0.9375rem;                      /* Default body */
+  --t-caption:         0.8125rem;                      /* Helper text */
+  --t-label:           0.8125rem;                      /* aliased — same as --t-caption */
+
+  --leading-tight:     1.2;
+  --leading-snug:      1.4;
+  --leading-base:      1.55;
+  --leading-relaxed:   1.7;
+
+  --font-sans:         "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-display:      "Fraunces", "Plus Jakarta Sans", Georgia, serif;
+  --font-mono:         ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* ---------- Radii ---------- */
+  --r-sm:              6px;
+  --r-md:              10px;
+  --r-lg:              14px;
+  --r-xl:              20px;
+  --r-pill:            9999px;
+
+  /* ---------- Elevation (shadows replace borders for cards) ---------- */
+  --shadow-sm:         0 1px 2px rgba(10, 15, 28, 0.04);
+  --shadow-md:         0 4px 12px rgba(10, 15, 28, 0.06);
+  --shadow-lg:         0 12px 36px rgba(10, 15, 28, 0.10);
+  --shadow-glow:       0 0 0 3px var(--brand-soft);  /* Focus ring */
+
+  /* ---------- Motion ---------- */
+  --t-fast:            120ms cubic-bezier(0.4, 0, 0.2, 1);
+  --t-base:            180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --t-slow:            280ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---------- Layout ---------- */
+  --container-md:      720px;
+  --container-lg:      1100px;
+  --container-xl:      1280px;
+}
+
+/* =====================================================================
+   BASE — applied to body/html. Components inherit.
+   ===================================================================== */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  /* Atmosphere gradient — flat #FAFAF8 read as "app." A vertical fade
+     toward --surface-deep with a faint warm glow at the top right gives
+     the page depth without competing with content. min-height ensures
+     short pages don't expose a hard bottom edge. */
+  background:
+    radial-gradient(ellipse 1200px 600px at 100% -10%, rgba(0, 255, 65, 0.05), transparent 60%),
+    linear-gradient(180deg, var(--surface) 0%, var(--surface-deep) 100%);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--t-body);
+  line-height: var(--leading-base);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Editorial display headlines. Apply via class — never via the body, so
+   tabular UI text stays in Plus Jakarta. Optical-size set high so the
+   weight feels carved, not delicate. */
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
+}
+
+/* Diagonal-stripe fill for "pending / future / scheduled" states.
+   Drop it on a pill or bar where you'd otherwise need a second color
+   to mean "this hasn't happened yet." */
+.fill-pending {
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--border-faint) 0,
+    var(--border-faint) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  background-color: var(--surface-deep);
+}
+
+/* Selection color matches brand */
+::selection {
+  background: var(--brand-soft);
+  color: var(--text);
+}
+
+/* Focus rings — keyboard-only, never on mouse click */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-glow);
+}
+
+/* =====================================================================
+   LEGACY UTILITY CLASSES — preserved for existing pages, rebuilt on
+   tokens. New code should prefer the <Button>, <Card>, <Badge>, etc.
+   primitives in components/ui/. These classes will be deprecated as
+   pages get refactored.
+   ===================================================================== */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  background: var(--navy);
+  color: var(--brand);
+  padding: var(--s3) var(--s5);
+  border-radius: var(--r-md);
+  font-weight: 700;
+  font-size: var(--t-body);
+  transition: transform var(--t-fast), background var(--t-fast);
+  border: none;
+  cursor: pointer;
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: var(--navy-soft);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  background: var(--surface-elevated);
+  color: var(--text);
+  padding: var(--s2) var(--s4);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  font-weight: 600;
+  font-size: var(--t-body);
+  transition: border-color var(--t-fast), background var(--t-fast);
+  cursor: pointer;
+}
+.btn-ghost:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  background: var(--surface-deep);
+}
+.btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Card — Linear/Granola style. Default flat with subtle border. Add
+   `card-elevated` modifier when you want shadow instead of border. */
+.card {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+}
+.card-elevated {
+  border: none;
+  box-shadow: var(--shadow-md);
+}
+
+.tag {
+  display: inline-block;
+  padding: var(--s1) var(--s2);
+  border-radius: var(--r-pill);
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--surface-deep);
+  color: var(--text);
+  border: 1px solid var(--border-faint);
+}
+.tag-hot   { background: var(--danger-soft);  color: #B42318; border-color: rgba(180,35,24,0.18); }
+.tag-warm  { background: var(--warning-soft); color: #936300; border-color: rgba(147,99,0,0.18); }
+.tag-cold  { background: var(--info-soft);    color: var(--info); border-color: rgba(25,87,176,0.18); }
+
+/* =====================================================================
+   UTILITIES — sparing. Most styling should go through components.
+   ===================================================================== */
+
+/* Truncate to N lines */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Reduce motion — respect users' system preference. Disables all
+   tweens but preserves opacity changes (so loading states still work). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

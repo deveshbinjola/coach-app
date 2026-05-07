@@ -1,0 +1,229 @@
+{
+  "status": "pass",
+  "started_at": "2026-05-01T06:00:50.259Z",
+  "finished_at": "2026-05-01T06:01:02.027Z",
+  "base_url": "http://127.0.0.1:3210",
+  "auth_mode": "anonymous",
+  "checks": [
+    {
+      "name": "build",
+      "status": "pass",
+      "ms": 9656
+    },
+    {
+      "name": "typecheck",
+      "status": "pass",
+      "ms": 1367
+    },
+    {
+      "name": "server",
+      "status": "pass",
+      "ms": 639
+    },
+    {
+      "name": "page /",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /analytics",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /api/docs",
+      "status": "pass",
+      "http_status": 200,
+      "expected": [
+        200
+      ]
+    },
+    {
+      "name": "page /command-center",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /compose",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /decisions",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /inbox",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /leads/capture",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /leads/import",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /leads/new",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /leads/voice-add",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /login",
+      "status": "pass",
+      "http_status": 200,
+      "expected": [
+        200
+      ]
+    },
+    {
+      "name": "page /memory",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /settings",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /today",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /voice",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /voice/mine",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page /welcome",
+      "status": "pass",
+      "http_status": 307,
+      "expected": [
+        307,
+        308
+      ]
+    },
+    {
+      "name": "page smoke",
+      "status": "pass",
+      "ms": 83
+    },
+    {
+      "name": "api GET /api/docs",
+      "status": "pass",
+      "http_status": 200,
+      "expected": [
+        200
+      ]
+    },
+    {
+      "name": "api GET /api/voice/training-sources",
+      "status": "pass",
+      "http_status": 405,
+      "expected": [
+        405
+      ]
+    },
+    {
+      "name": "api POST /api/voice/training-sources",
+      "status": "pass",
+      "http_status": 401,
+      "expected": [
+        401,
+        400
+      ]
+    },
+    {
+      "name": "api smoke",
+      "status": "pass",
+      "ms": 19
+    },
+    {
+      "name": "migration guard",
+      "status": "pass",
+      "ms": 0
+    }
+  ],
+  "warnings": [
+    "Skipped dynamic route /leads/:id/edit because QA_LEAD_ID is not set.",
+    "Skipped dynamic route /leads/:id because QA_LEAD_ID is not set."
+  ],
+  "failures": []
+}

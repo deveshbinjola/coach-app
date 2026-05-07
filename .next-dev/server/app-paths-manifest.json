@@ -1,0 +1,8 @@
+{
+  "/inbox/page": "app/inbox/page.js",
+  "/content/page": "app/content/page.js",
+  "/command-center/page": "app/command-center/page.js",
+  "/voice/page": "app/voice/page.js",
+  "/login/page": "app/login/page.js",
+  "/api/content/draft/route": "app/api/content/draft/route.js"
+}

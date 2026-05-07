@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coach Platform — 30/60/90 Day Roadmap · ElevateAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2300FF41' d='M17 8C8 10 5.9 16.2 3.8 21.4 4.6 22 5.4 22 6.2 22c5.2-2.1 11.4-4.2 13.4-13.2C18.6 8 17.6 8 17 8z'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --green:#00FF41;
+    --green-dim:#00c231;
+    --navy:#0A0F1C;
+    --bg:#FAFAF8;
+    --ink:#0A0F1C;
+    --mute:#6B7280;
+    --line:#E5E7EB;
+    --amber:#F59E0B;
+    --red:#DC2626;
+    --blue:#2563EB;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    font-family:'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.55;
+    font-weight:400;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:1200px; margin:0 auto; padding:48px 32px; }
+
+  /* hero */
+  .hero {
+    background:linear-gradient(135deg, var(--navy) 0%, #1a2033 100%);
+    color:#fff;
+    padding:72px 32px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::before {
+    content:"";
+    position:absolute;
+    top:-120px; right:-120px;
+    width:340px; height:340px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(0,255,65,0.25), transparent 70%);
+    filter:blur(20px);
+  }
+  .hero-inner { max-width:1200px; margin:0 auto; position:relative; z-index:1; }
+  .eyebrow {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--green);
+    margin-bottom:20px;
+  }
+  .eyebrow::before {
+    content:"";
+    width:24px; height:2px;
+    background:var(--green);
+  }
+  h1 {
+    font-size:56px;
+    font-weight:800;
+    line-height:1.05;
+    letter-spacing:-0.02em;
+    margin-bottom:20px;
+    max-width:900px;
+  }
+  h1 .green { color:var(--green); }
+  .hero-sub {
+    font-size:20px;
+    max-width:760px;
+    color:#D1D5DB;
+    font-weight:400;
+  }
+  .hero-meta {
+    display:flex;
+    gap:32px;
+    margin-top:40px;
+    flex-wrap:wrap;
+  }
+  .hero-meta-item { font-size:13px; color:#9CA3AF; }
+  .hero-meta-item strong { display:block; color:#fff; font-size:17px; font-weight:700; margin-top:2px; }
+
+  /* section */
+  section { padding:64px 0; border-bottom:1px solid var(--line); }
+  section:last-of-type { border-bottom:none; }
+  h2 {
+    font-size:32px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    margin-bottom:8px;
+  }
+  .section-sub { font-size:15px; color:var(--mute); margin-bottom:40px; max-width:720px; }
+
+  /* snapshot */
+  .snapshot-grid {
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:16px;
+  }
+  .stat {
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px;
+  }
+  .stat-num {
+    font-size:36px;
+    font-weight:800;
+    letter-spacing:-0.02em;
+    color:var(--navy);
+    line-height:1;
+    margin-bottom:6px;
+  }
+  .stat-num .green { color:var(--green-dim); }
+  .stat-label { font-size:12px; text-transform:uppercase; letter-spacing:0.08em; font-weight:600; color:var(--mute); }
+
+  /* timeline */
+  .milestone-grid {
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:0;
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    background:#fff;
+  }
+  .milestone {
+    padding:28px 24px;
+    border-right:1px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .milestone:last-child { border-right:none; }
+  .milestone.now { background:#F0FDF4; }
+  .milestone.d30 { background:#fff; }
+  .milestone.d60 { background:#fff; }
+  .milestone.d90 { background:linear-gradient(180deg, #fff 0%, #F8FAFC 100%); }
+  .milestone-head {
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:4px;
+  }
+  .milestone-title { font-size:11px; letter-spacing:0.12em; text-transform:uppercase; font-weight:700; color:var(--mute); }
+  .milestone.now .milestone-title { color:var(--green-dim); }
+  .milestone-date { font-size:11px; color:var(--mute); font-weight:500; }
+  .milestone-goal {
+    font-size:18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    line-height:1.2;
+  }
+  .milestone-metric {
+    font-size:13px;
+    color:var(--mute);
+    padding:10px 0;
+    border-top:1px dashed var(--line);
+    border-bottom:1px dashed var(--line);
+  }
+  .milestone-metric strong { color:var(--navy); font-weight:700; }
+  .ship-list { display:flex; flex-direction:column; gap:10px; }
+  .ship {
+    display:flex;
+    gap:10px;
+    font-size:13px;
+    align-items:flex-start;
+    line-height:1.4;
+  }
+  .ship-dot {
+    width:16px; height:16px;
+    border-radius:50%;
+    flex-shrink:0;
+    margin-top:1px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:10px;
+    font-weight:800;
+  }
+  .ship-dot.done { background:var(--green); color:var(--navy); }
+  .ship-dot.todo { background:#fff; border:2px solid var(--line); }
+  .ship-dot.active { background:var(--navy); color:var(--green); }
+  .ship-dot.later { background:#F3F4F6; color:var(--mute); }
+  .ship-text { flex:1; }
+  .ship-text strong { font-weight:700; }
+  .ship-note { display:block; font-size:11px; color:var(--mute); margin-top:2px; }
+
+  /* week timeline */
+  .weeks {
+    margin-top:40px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:32px;
+  }
+  .weeks-title { font-size:18px; font-weight:800; margin-bottom:24px; }
+  .week-row {
+    display:grid;
+    grid-template-columns:120px 1fr 100px;
+    gap:16px;
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+    align-items:center;
+  }
+  .week-row:last-child { border-bottom:none; }
+  .week-label {
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--mute);
+  }
+  .week-label strong { display:block; color:var(--navy); font-size:14px; margin-top:2px; }
+  .week-body { font-size:14px; }
+  .week-body strong { font-weight:700; }
+  .week-tag {
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    padding:4px 10px;
+    border-radius:100px;
+    text-align:center;
+    display:inline-block;
+  }
+  .tag-build { background:#EFF6FF; color:#1D4ED8; }
+  .tag-polish { background:#FEF3C7; color:#92400E; }
+  .tag-ship { background:#DCFCE7; color:#166534; }
+  .tag-scale { background:var(--navy); color:var(--green); }
+
+  /* revenue ladder */
+  .revenue {
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:32px;
+    margin-top:24px;
+  }
+  .rev-chart {
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:12px;
+    align-items:end;
+    height:220px;
+    margin:32px 0 12px;
+  }
+  .rev-bar {
+    background:linear-gradient(180deg, var(--green) 0%, var(--green-dim) 100%);
+    border-radius:8px 8px 0 0;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    align-items:center;
+    padding-bottom:8px;
+    color:var(--navy);
+    font-weight:800;
+    font-size:13px;
+  }
+  .rev-bar.today { background:linear-gradient(180deg, #D1D5DB 0%, #9CA3AF 100%); }
+  .rev-bar-label { position:absolute; top:-28px; font-size:18px; font-weight:800; color:var(--navy); }
+  .rev-bar-sub { font-size:10px; color:rgba(10,15,28,0.7); margin-top:2px; }
+  .rev-meta {
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:12px;
+    font-size:11px;
+    text-align:center;
+    color:var(--mute);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    font-weight:700;
+  }
+
+  /* ecosystem */
+  .eco {
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:16px;
+    margin-top:24px;
+  }
+  .eco-card {
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:24px;
+    position:relative;
+    overflow:hidden;
+  }
+  .eco-card::before {
+    content:"";
+    position:absolute;
+    top:0; left:0;
+    width:100%; height:3px;
+  }
+  .eco-card.brandos::before { background:var(--blue); }
+  .eco-card.buildbrand::before { background:var(--green); }
+  .eco-card.platform::before { background:var(--navy); }
+  .eco-head { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+  .eco-num {
+    width:28px; height:28px;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    font-weight:800;
+  }
+  .eco-title { font-size:17px; font-weight:800; letter-spacing:-0.01em; }
+  .eco-price {
+    font-size:12px;
+    color:var(--mute);
+    font-weight:600;
+    margin-bottom:16px;
+  }
+  .eco-role {
+    font-size:13px;
+    line-height:1.5;
+    color:var(--ink);
+  }
+  .eco-role strong { font-weight:700; }
+
+  /* pipeline flow */
+  .pipeline {
+    margin-top:32px;
+    padding:24px;
+    background:var(--navy);
+    color:#fff;
+    border-radius:12px;
+  }
+  .pipeline-title {
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.12em;
+    font-weight:700;
+    color:var(--green);
+    margin-bottom:16px;
+  }
+  .pipeline-flow {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .pipe-step {
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    padding:10px 16px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+  }
+  .pipe-step strong { color:var(--green); display:block; font-size:15px; font-weight:800; }
+  .pipe-step small { color:#9CA3AF; font-size:11px; }
+  .pipe-arrow { color:var(--green); font-weight:800; }
+
+  /* risks */
+  .risks {
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:16px;
+    margin-top:24px;
+  }
+  .risk {
+    background:#fff;
+    border:1px solid var(--line);
+    border-left:3px solid var(--amber);
+    border-radius:8px;
+    padding:20px;
+  }
+  .risk.high { border-left-color:var(--red); }
+  .risk.low { border-left-color:var(--blue); }
+  .risk-head {
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:8px;
+  }
+  .risk-title { font-size:15px; font-weight:800; }
+  .risk-sev {
+    font-size:10px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    padding:2px 8px;
+    border-radius:100px;
+  }
+  .sev-high { background:#FEE2E2; color:#991B1B; }
+  .sev-med { background:#FEF3C7; color:#92400E; }
+  .sev-low { background:#DBEAFE; color:#1E40AF; }
+  .risk-body { font-size:13px; color:var(--mute); line-height:1.5; }
+  .risk-body strong { color:var(--ink); font-weight:700; }
+
+  /* next action */
+  .next-action {
+    background:linear-gradient(135deg, var(--green) 0%, var(--green-dim) 100%);
+    color:var(--navy);
+    border-radius:16px;
+    padding:40px;
+    margin-top:48px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:32px;
+    align-items:center;
+  }
+  .na-eyebrow {
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.12em;
+    font-weight:800;
+    margin-bottom:8px;
+  }
+  .na-title { font-size:26px; font-weight:800; letter-spacing:-0.01em; line-height:1.2; margin-bottom:8px; }
+  .na-body { font-size:14px; max-width:560px; }
+  .na-date {
+    font-size:14px;
+    font-weight:800;
+    background:var(--navy);
+    color:var(--green);
+    padding:14px 22px;
+    border-radius:100px;
+    white-space:nowrap;
+  }
+
+  /* footer */
+  footer {
+    padding:32px;
+    text-align:center;
+    font-size:12px;
+    color:var(--mute);
+    border-top:1px solid var(--line);
+  }
+  footer a { color:var(--navy); text-decoration:none; font-weight:600; }
+
+  @media (max-width:900px) {
+    h1 { font-size:38px; }
+    .snapshot-grid, .milestone-grid, .eco, .risks, .rev-chart, .rev-meta { grid-template-columns:1fr 1fr; }
+    .milestone { border-right:none; border-bottom:1px solid var(--line); }
+    .next-action { grid-template-columns:1fr; }
+    .week-row { grid-template-columns:1fr; }
+    .pipeline-flow { flex-direction:column; align-items:stretch; }
+    .pipe-arrow { text-align:center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Coach Platform · Product Roadmap</div>
+    <h1>From <span class="green">internal CRM</span> to a <span class="green">100-coach</span> platform — in 90 days.</h1>
+    <p class="hero-sub">
+      Two milestones. 30 days to prove the model pays. 60 more to prove it scales past you.
+      Everything in between is real work, not slideware.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">Authored<strong>Apr 23, 2026</strong></div>
+      <div class="hero-meta-item">Owner<strong>Sunny Binjola</strong></div>
+      <div class="hero-meta-item">v1 target<strong>May 23, 2026</strong></div>
+      <div class="hero-meta-item">v2 target<strong>Jul 22, 2026</strong></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- SNAPSHOT -->
+<section>
+  <h2>Where we are today</h2>
+  <p class="section-sub">
+    Backend live, frontend usable, AI drafter in production. The platform works — for one user.
+    Not yet sellable because there's no billing, no real send, no onboarding.
+  </p>
+  <div class="snapshot-grid">
+    <div class="stat">
+      <div class="stat-num"><span class="green">5</span></div>
+      <div class="stat-label">Supabase tables w/ RLS</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num"><span class="green">7</span></div>
+      <div class="stat-label">Pain signals tracked</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num"><span class="green">4</span></div>
+      <div class="stat-label">Import formats live</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">$<span class="green">0</span></div>
+      <div class="stat-label">MRR (pre-billing)</div>
+    </div>
+  </div>
+</section>
+
+<!-- MILESTONE GRID -->
+<section>
+  <h2>The 30/60/90 milestones</h2>
+  <p class="section-sub">
+    Each column is a contract with yourself. Ship the row, then ship the next.
+    Don't skip ahead — 90-day bets compound on the 30-day foundation.
+  </p>
+
+  <div class="milestone-grid">
+
+    <!-- NOW -->
+    <div class="milestone now">
+      <div>
+        <div class="milestone-head">
+          <span class="milestone-title">Today · Shipped</span>
+          <span class="milestone-date">Apr 23</span>
+        </div>
+        <div class="milestone-goal">Internal CRM live for one coach (you)</div>
+      </div>
+      <div class="milestone-metric">
+        Status: <strong>Functional, not sellable</strong><br>
+        Users: <strong>1 (Sunny)</strong>
+      </div>
+      <div class="ship-list">
+        <div class="ship"><span class="ship-dot done">✓</span><span class="ship-text"><strong>Supabase backend</strong> — 5 cp_* tables, RLS, advisors clean</span></div>
+        <div class="ship"><span class="ship-dot done">✓</span><span class="ship-text"><strong>Auth</strong> — magic-link login</span></div>
+        <div class="ship"><span class="ship-dot done">✓</span><span class="ship-text"><strong>Inbox + Lead Detail</strong> — 5-col layout, pain signal chips</span></div>
+        <div class="ship"><span class="ship-dot done">✓</span><span class="ship-text"><strong>AI drafter v3</strong> — Claude Sonnet 4.6 w/ pain + action context</span></div>
+        <div class="ship"><span class="ship-dot done">✓</span><span class="ship-text"><strong>Import</strong> — CSV, Excel, Google Sheets, PDF</span></div>
+        <div class="ship"><span class="ship-dot done">✓</span><span class="ship-text"><strong>Bulk edit</strong> — pain signal multi-select replace/add</span></div>
+      </div>
+    </div>
+
+    <!-- D30 -->
+    <div class="milestone d30">
+      <div>
+        <div class="milestone-head">
+          <span class="milestone-title">Day 30 · v1 Sellable</span>
+          <span class="milestone-date">May 23</span>
+        </div>
+        <div class="milestone-goal">First paying coach on the platform</div>
+      </div>
+      <div class="milestone-metric">
+        Target: <strong>1–3 paying coaches</strong><br>
+        MRR: <strong>$297–$891</strong>
+      </div>
+      <div class="ship-list">
+        <div class="ship"><span class="ship-dot active">▸</span><span class="ship-text"><strong>Stripe paywall</strong> + pricing page<span class="ship-note">Checkout + webhook → gate /inbox access</span></span></div>
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Onboarding wizard</strong><span class="ship-note">Brand intel + 3 voice samples → voice_profiles</span></span></div>
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Email send</strong> via Resend<span class="ship-note">Replace "Mark as Sent" with actual delivery + unsub</span></span></div>
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Notion import Path A</strong><span class="ship-note">Paste token → query API → rows + page bodies</span></span></div>
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Mobile responsive</strong> polish<span class="ship-note">Phone is where coaches actually live</span></span></div>
+      </div>
+    </div>
+
+    <!-- D60 -->
+    <div class="milestone d60">
+      <div>
+        <div class="milestone-head">
+          <span class="milestone-title">Day 60 · v1.5 Sticky</span>
+          <span class="milestone-date">Jun 22</span>
+        </div>
+        <div class="milestone-goal">Coaches stay past month 2</div>
+      </div>
+      <div class="milestone-metric">
+        Target: <strong>5–8 paying coaches</strong><br>
+        MRR: <strong>$1.5K–$2.4K</strong> · Churn <20%
+      </div>
+      <div class="ship-list">
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Voice training per coach</strong><span class="ship-note">Fine-tune drafter from coach's own sent messages</span></span></div>
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Automated sequences</strong><span class="ship-note">Drip campaigns in coach's voice, not one-off drafts</span></span></div>
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Lead scoring</strong><span class="ship-note">Warmth × pain × engagement → priority queue</span></span></div>
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Analytics dashboard</strong><span class="ship-note">Response rate, booking rate, time-to-reply</span></span></div>
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Support docs</strong> + Loom walkthroughs</span></div>
+      </div>
+    </div>
+
+    <!-- D90 -->
+    <div class="milestone d90">
+      <div>
+        <div class="milestone-head">
+          <span class="milestone-title">Day 90 · v2 Scale-Ready</span>
+          <span class="milestone-date">Jul 22</span>
+        </div>
+        <div class="milestone-goal">Platform opens to 15+ coaches</div>
+      </div>
+      <div class="milestone-metric">
+        Target: <strong>15+ paying coaches</strong><br>
+        MRR: <strong>$5K+</strong> · Infra for 100
+      </div>
+      <div class="ship-list">
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Notion OAuth (Path B)</strong><span class="ship-note">One-click connect, no token-pasting</span></span></div>
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Multi-channel send</strong><span class="ship-note">IG DM (Meta API) + SMS (Twilio) + email</span></span></div>
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Trained VA layer</strong><span class="ship-note">Human-in-loop option — the optional VA from vision</span></span></div>
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Team / invite</strong> features<span class="ship-note">Coach + assistant + VA = multi-seat</span></span></div>
+        <div class="ship"><span class="ship-dot todo"></span><span class="ship-text"><strong>Public pricing tiers</strong><span class="ship-note">Starter / Pro / VA-assisted — volume on-ramp</span></span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- WEEK-BY-WEEK 30-DAY -->
+<section>
+  <h2>The 30-day sprint, week by week</h2>
+  <p class="section-sub">
+    Tight sequencing. Stripe has to ship before onboarding, onboarding has to ship before
+    you can sell to anyone but yourself, and polish has to ship before you invoice.
+  </p>
+
+  <div class="weeks">
+    <div class="weeks-title">Sprint 1 · Apr 24 → May 23 · "v1 Sellable"</div>
+
+    <div class="week-row">
+      <div class="week-label">Week 1<strong>Apr 24–30</strong></div>
+      <div class="week-body">
+        <strong>Stripe paywall + pricing page.</strong> Checkout session → webhook sets
+        <code>profiles.is_subscribed = true</code> → middleware gates <code>/inbox</code>. Pricing page
+        copy nailed down (tip: lean into "AI in your voice, not ChatGPT generic").
+      </div>
+      <div><span class="week-tag tag-build">Build</span></div>
+    </div>
+
+    <div class="week-row">
+      <div class="week-label">Week 2<strong>May 1–7</strong></div>
+      <div class="week-body">
+        <strong>Onboarding wizard.</strong> 5-step flow after signup: brand intel → ICP → 3 voice samples
+        (paste sent DMs) → pain signals they specialize in → calendar link. Populates
+        <code>voice_profiles</code> so the drafter stops sounding like Claude.
+      </div>
+      <div><span class="week-tag tag-build">Build</span></div>
+    </div>
+
+    <div class="week-row">
+      <div class="week-label">Week 3<strong>May 8–14</strong></div>
+      <div class="week-body">
+        <strong>Email send via Resend.</strong> Replace "Mark as Sent" with actual outbound delivery.
+        Domain auth (SPF/DKIM/DMARC), unsubscribe footer, bounce handling. Inbound (reply parsing) deferred to 60-day.
+      </div>
+      <div><span class="week-tag tag-build">Build</span></div>
+    </div>
+
+    <div class="week-row">
+      <div class="week-label">Week 4<strong>May 15–23</strong></div>
+      <div class="week-body">
+        <strong>Notion Path A + mobile polish + first coach onboarded.</strong> Paste-token Notion import
+        (~1 day). Mobile responsive pass on Inbox and Lead Detail (~2 days). Error states + empty states (~1 day).
+        Onboard 1 friend coach for real. Fix what breaks.
+      </div>
+      <div><span class="week-tag tag-ship">Ship</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- REVENUE LADDER -->
+<section>
+  <h2>Revenue ladder</h2>
+  <p class="section-sub">
+    Pricing assumption: <strong>$297/mo base</strong>. The ladder works at this rate because
+    coaches earning $10K+/mo absorb $297 without thinking — if the platform generates one booked call per month, it's paid for 3×.
+  </p>
+
+  <div class="revenue">
+    <div class="rev-chart">
+      <div class="rev-bar today" style="height:5%">
+        <span class="rev-bar-label">$0</span>
+        <span class="rev-bar-sub">MRR</span>
+      </div>
+      <div class="rev-bar" style="height:18%">
+        <span class="rev-bar-label">$891</span>
+        <span class="rev-bar-sub">3 coaches</span>
+      </div>
+      <div class="rev-bar" style="height:45%">
+        <span class="rev-bar-label">$2,376</span>
+        <span class="rev-bar-sub">8 coaches</span>
+      </div>
+      <div class="rev-bar" style="height:100%">
+        <span class="rev-bar-label">$4,455</span>
+        <span class="rev-bar-sub">15 coaches</span>
+      </div>
+    </div>
+    <div class="rev-meta">
+      <div>Today · Apr 23</div>
+      <div>Day 30 · May 23</div>
+      <div>Day 60 · Jun 22</div>
+      <div>Day 90 · Jul 22</div>
+    </div>
+  </div>
+  <p class="section-sub" style="margin-top:24px">
+    <strong>North Star beyond Day 90:</strong> 100 coaches × $297 = <strong style="color:var(--navy)">$29,700 MRR</strong>.
+    Add VA-assisted tier at $797/mo for half of them and you're at <strong style="color:var(--navy)">~$55K MRR</strong> — the "platform" outcome.
+  </p>
+</section>
+
+<!-- ECOSYSTEM -->
+<section>
+  <h2>Where Coach Platform fits in ElevateAI</h2>
+  <p class="section-sub">
+    Coach Platform is core product #3. It's the recurring-revenue layer underneath the
+    flagship — what keeps alumni around (and paying) after Build Your Brand ends.
+  </p>
+
+  <div class="eco">
+    <div class="eco-card brandos">
+      <div class="eco-head">
+        <div class="eco-num">1</div>
+        <div class="eco-title">Brand OS Agent</div>
+      </div>
+      <div class="eco-price">Free → $7 trip-wire → $2K cohort</div>
+      <div class="eco-role">
+        The 4-step AI tool: <strong>Avatar → Voice → Pillars → 30–45 days of content.</strong>
+        Top of funnel. Pulls coaches in, teaches them the method, preps them for the flagship.
+      </div>
+    </div>
+
+    <div class="eco-card buildbrand">
+      <div class="eco-head">
+        <div class="eco-num">2</div>
+        <div class="eco-title">Build Your Brand</div>
+      </div>
+      <div class="eco-price">$12,000 · 3 months · flagship</div>
+      <div class="eco-role">
+        Deep work: modules + breathwork + embodiment + systems integration. The transformation.
+        Coaches leave with a brand, a voice, a system, a pipeline. <strong>High-ticket, low-volume.</strong>
+      </div>
+    </div>
+
+    <div class="eco-card platform">
+      <div class="eco-head">
+        <div class="eco-num">3</div>
+        <div class="eco-title">Coach Platform</div>
+      </div>
+      <div class="eco-price">$297/mo · recurring · this roadmap</div>
+      <div class="eco-role">
+        CRM + AI outreach in their voice + optional VA. <strong>What alumni keep paying for</strong>
+        after Build Your Brand ends. Low-ticket, high-volume, compounds forever.
+      </div>
+    </div>
+  </div>
+
+  <div class="pipeline">
+    <div class="pipeline-title">The Compounding Pipeline</div>
+    <div class="pipeline-flow">
+      <div class="pipe-step"><small>Lead source</small><strong>Quiz</strong></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><small>Free product</small><strong>Brand OS</strong></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><small>Trip-wire</small><strong>$7</strong></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><small>Cohort</small><strong>$2K / 8 wk</strong></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><small>Flagship</small><strong>$12K / 3 mo</strong></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><small>Recurring</small><strong>$297/mo</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- RISKS -->
+<section>
+  <h2>Risk register</h2>
+  <p class="section-sub">
+    Things that could break the timeline. Catching them now is cheaper than catching them at Day 60.
+  </p>
+
+  <div class="risks">
+    <div class="risk high">
+      <div class="risk-head">
+        <div class="risk-title">Email deliverability</div>
+        <div class="risk-sev sev-high">High</div>
+      </div>
+      <div class="risk-body">
+        Resend setup + domain auth has a 1–2 week warm-up period. Start Week 1, not Week 3.
+        <strong>Mitigation:</strong> Begin DNS setup + warm-up sends on Apr 25.
+      </div>
+    </div>
+
+    <div class="risk high">
+      <div class="risk-head">
+        <div class="risk-title">Voice quality drift</div>
+        <div class="risk-sev sev-high">High</div>
+      </div>
+      <div class="risk-body">
+        The differentiator is "AI in <em>your</em> voice" — if drafts still sound generic after onboarding,
+        churn hits. <strong>Mitigation:</strong> Ship voice training (60-day) behind a private flag Day 30
+        and tune with your own data first.
+      </div>
+    </div>
+
+    <div class="risk">
+      <div class="risk-head">
+        <div class="risk-title">Scope creep from first users</div>
+        <div class="risk-sev sev-med">Medium</div>
+      </div>
+      <div class="risk-body">
+        First 3 coaches will each ask for different features. Saying yes to all of them delays everyone.
+        <strong>Mitigation:</strong> Requests only get built if 3+ coaches ask independently.
+      </div>
+    </div>
+
+    <div class="risk">
+      <div class="risk-head">
+        <div class="risk-title">Chief of Staff onboarding lag</div>
+        <div class="risk-sev sev-med">Medium</div>
+      </div>
+      <div class="risk-body">
+        Interviews Fri Apr 24 → likely hire Week 1 → 2–4 weeks to ramp. Don't build plans assuming
+        full leverage before Day 45. <strong>Mitigation:</strong> CoS owns onboarding docs + support,
+        not core build.
+      </div>
+    </div>
+
+    <div class="risk low">
+      <div class="risk-head">
+        <div class="risk-title">IG DM API access</div>
+        <div class="risk-sev sev-low">Low</div>
+      </div>
+      <div class="risk-body">
+        Meta's Instagram Graph API requires business verification + 1–2 week review. Only blocks the
+        Day 90 multi-channel work. <strong>Mitigation:</strong> Start Meta app review Day 60.
+      </div>
+    </div>
+
+    <div class="risk low">
+      <div class="risk-head">
+        <div class="risk-title">Agency revenue pulling focus</div>
+        <div class="risk-sev sev-low">Low</div>
+      </div>
+      <div class="risk-body">
+        Agency is runway — and can quietly consume 100% of the week. <strong>Mitigation:</strong> Block 3 build days/week
+        (e.g. Tue/Wed/Thu mornings) on calendar, non-negotiable.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEXT ACTION -->
+<section>
+  <h2>What to do Monday morning</h2>
+  <p class="section-sub">
+    Roadmaps are aspirations until the first commit hits. The cheapest, highest-leverage move right now is Stripe.
+  </p>
+
+  <div class="next-action">
+    <div>
+      <div class="na-eyebrow">Next action</div>
+      <div class="na-title">Ship Stripe Checkout + paywall middleware.</div>
+      <div class="na-body">
+        Uses the Stripe code we already drafted in task #9. Add pricing page with 1 tier at $297/mo.
+        Deploy to production. Test with your own card. <strong>End of Week 1 (Apr 30), /inbox is behind a paywall.</strong>
+      </div>
+    </div>
+    <div class="na-date">Due Apr 30</div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  Roadmap authored Apr 23, 2026 · Sunny Binjola, Founder · ElevateAI System ·
+  <a href="mailto:sunny.binjola@gmail.com">sunny.binjola@gmail.com</a>
+</footer>
+
+</body>
+</html>

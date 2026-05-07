@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Coach Platform — Thesis Coverage Map · 2026-04-23</title>
+<link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6 6 4 12 6 18c6-2 12-8 12-16-3 0-6 0-6 0z" fill="%2300FF41"/></svg>' />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --green: #00FF41;
+    --navy: #0A0F1C;
+    --bg: #FAFAF8;
+    --line: #E5E7EB;
+    --ink: #111827;
+    --muted: #6B7280;
+    --amber: #F59E0B;
+    --amber-bg: #FEF3C7;
+    --red: #DC2626;
+    --red-bg: #FEE2E2;
+    --green-bg: rgba(0, 255, 65, 0.12);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 1120px; margin: 0 auto; padding: 48px 24px 96px; }
+
+  /* Masthead */
+  .mast { border: 1px solid var(--navy); background: var(--navy); color: #fff; border-radius: 16px; padding: 28px 32px; position: relative; overflow: hidden; }
+  .mast::before { content: ""; position: absolute; inset: -40% -40% auto auto; width: 260px; height: 260px; background: var(--green); opacity: 0.12; filter: blur(60px); border-radius: 50%; }
+  .tag { display: inline-flex; align-items: center; gap: 8px; background: var(--green-bg); color: var(--green); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 5px 10px; border-radius: 999px; }
+  .tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .mast h1 { font-size: 32px; font-weight: 800; margin: 12px 0 6px; letter-spacing: -0.02em; position: relative; }
+  .mast p { color: #9CA3AF; font-size: 14px; margin: 0; position: relative; }
+
+  /* Score strip */
+  .score-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: -20px; position: relative; z-index: 2; padding: 0 8px; }
+  .score { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: 0 4px 14px rgba(10,15,28,0.05); }
+  .score .l { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .score .v { font-size: 32px; font-weight: 800; line-height: 1; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .score .s { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .score.green .v { color: var(--navy); }
+  .score.green::before { content:""; display:block; width:100%; height:3px; background: var(--green); border-radius: 3px; margin-bottom: 12px; }
+  .score.amber::before { content:""; display:block; width:100%; height:3px; background: var(--amber); border-radius: 3px; margin-bottom: 12px; }
+  .score.red::before { content:""; display:block; width:100%; height:3px; background: var(--red); border-radius: 3px; margin-bottom: 12px; }
+  .score.navy::before { content:""; display:block; width:100%; height:3px; background: var(--navy); border-radius: 3px; margin-bottom: 12px; }
+
+  section { margin-top: 48px; }
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 4px; }
+  h2 + p.sub { color: var(--muted); font-size: 14px; margin: 0 0 20px; }
+
+  /* Problem cards */
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .p { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; position: relative; }
+  .p .row { display: flex; align-items: flex-start; gap: 12px; }
+  .p .num { flex-shrink: 0; width: 32px; height: 32px; border-radius: 8px; background: var(--navy); color: var(--green); font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+  .p .head { flex: 1; }
+  .p .ttl { font-weight: 800; font-size: 15px; }
+  .p .one { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+  .pill.green { background: var(--green-bg); color: var(--navy); }
+  .pill.green::before { background: var(--green); }
+  .pill.amber { background: var(--amber-bg); color: #92400E; }
+  .pill.amber::before { background: var(--amber); }
+  .pill.red { background: var(--red-bg); color: #991B1B; }
+  .pill.red::before { background: var(--red); }
+  .evidence { margin-top: 12px; font-size: 12.5px; color: var(--ink); line-height: 1.5; }
+  .evidence strong { color: var(--navy); font-weight: 700; }
+  .p .bar { margin-top: 14px; height: 6px; border-radius: 999px; background: #F3F4F6; overflow: hidden; }
+  .p .bar span { display: block; height: 100%; border-radius: 999px; }
+  .p.green .bar span { width: 100%; background: var(--green); }
+  .p.amber .bar span { width: 50%; background: var(--amber); }
+  .p.red .bar span { width: 10%; background: var(--red); }
+
+  /* Priority track */
+  .track { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .lane { border-radius: 14px; padding: 18px 20px; position: relative; overflow: hidden; }
+  .lane.done { background: var(--navy); color: #fff; }
+  .lane.done .lbl { color: var(--green); }
+  .lane.now { background: #fff; border: 2px solid var(--green); }
+  .lane.next { background: #fff; border: 1px solid var(--line); }
+  .lane.later { background: #fff; border: 1px solid var(--line); opacity: 0.85; }
+  .lbl { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .lane.now .lbl { color: var(--navy); }
+  .lane h3 { font-size: 15px; font-weight: 800; margin: 6px 0 8px; }
+  .lane ul { margin: 0; padding: 0; list-style: none; font-size: 12.5px; line-height: 1.6; }
+  .lane.done ul li { color: #D1D5DB; }
+  .lane ul li { position: relative; padding-left: 16px; }
+  .lane ul li::before { content: "→"; position: absolute; left: 0; color: var(--muted); font-weight: 800; }
+  .lane.done ul li::before { color: var(--green); content: "✓"; }
+  .lane.now ul li::before { color: var(--green); }
+
+  /* Additions to thesis */
+  .add { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px; display: grid; grid-template-columns: 80px 1fr; gap: 20px; align-items: start; }
+  .add + .add { margin-top: 12px; }
+  .badge { background: var(--navy); color: var(--green); font-weight: 800; border-radius: 10px; padding: 10px 12px; text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.3; }
+  .add h4 { margin: 0 0 6px; font-size: 16px; font-weight: 800; }
+  .add p { margin: 0; color: #374151; font-size: 13.5px; line-height: 1.6; }
+
+  /* Next ship */
+  .ship { background: var(--navy); color: #fff; border-radius: 16px; padding: 28px 32px; position: relative; overflow: hidden; }
+  .ship::before { content: ""; position: absolute; inset: -30% auto auto -30%; width: 300px; height: 300px; background: var(--green); opacity: 0.1; filter: blur(70px); border-radius: 50%; }
+  .ship h3 { margin: 0 0 4px; font-size: 20px; font-weight: 800; position: relative; }
+  .ship > p { color: #9CA3AF; font-size: 13px; margin: 0 0 18px; position: relative; }
+  .ship-rows { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; position: relative; }
+  .ship-row { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px 16px; }
+  .ship-row .k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green); font-weight: 800; }
+  .ship-row .v { font-weight: 700; margin-top: 4px; font-size: 14px; }
+  .ship-row .d { font-size: 12px; color: #9CA3AF; margin-top: 3px; line-height: 1.5; }
+
+  footer { margin-top: 56px; text-align: center; color: var(--muted); font-size: 11px; }
+
+  @media (max-width: 720px) {
+    .score-strip { grid-template-columns: repeat(2, 1fr); }
+    .grid { grid-template-columns: 1fr; }
+    .track { grid-template-columns: 1fr 1fr; }
+    .ship-rows { grid-template-columns: 1fr; }
+    .add { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <!-- Masthead -->
+  <div class="mast">
+    <span class="tag">Thesis coverage · 2026-04-23</span>
+    <h1>Coach Platform vs. the 8-leak funnel</h1>
+    <p>Where we've already plugged the leaks, where we're halfway, and where we haven't touched it yet.</p>
+  </div>
+
+  <!-- Score strip -->
+  <div class="score-strip">
+    <div class="score green"><div class="l">Covered</div><div class="v">2</div><div class="s">of 8 problems</div></div>
+    <div class="score amber"><div class="l">Partial</div><div class="v">2</div><div class="s">data exists, UX missing</div></div>
+    <div class="score red"><div class="l">Not built</div><div class="v">4</div><div class="s">roadmap territory</div></div>
+    <div class="score navy"><div class="l">Coverage score</div><div class="v">37%</div><div class="s">weighted by MVP priority</div></div>
+  </div>
+
+  <!-- Problem-by-problem coverage -->
+  <section>
+    <h2>Problem → coverage map</h2>
+    <p class="sub">Each of the 8 thesis problems, mapped to shipped code in <code>coach-app</code>.</p>
+    <div class="grid">
+
+      <div class="p red">
+        <div class="row">
+          <div class="num">1</div>
+          <div class="head">
+            <div class="ttl">Visibility gap</div>
+            <div class="one">Content → lead attribution. No post tracker.</div>
+          </div>
+          <span class="pill red">Not built</span>
+        </div>
+        <div class="evidence">No post log, no UTM capture, no source-to-close loop. This is the <strong>positioning hook</strong> but no demo yet. "Tuesday's LinkedIn post drove 8 leads and $12k" — nothing in the app produces that sentence today.</div>
+        <div class="bar"><span></span></div>
+      </div>
+
+      <div class="p red">
+        <div class="row">
+          <div class="num">2</div>
+          <div class="head">
+            <div class="ttl">Lead capture gap</div>
+            <div class="one">Lead magnet performance. One CTA = "Book a call."</div>
+          </div>
+          <span class="pill red">Not built</span>
+        </div>
+        <div class="evidence">No form capture, no freebie → email → call funnel. Closest thing: <strong>ImportWizard</strong> (CSV/Excel/PDF/Notion ZIP) — manual entry only. Quiz funnel sits on the <em>marketing site</em>, not wired to <code>cp_leads</code> yet.</div>
+        <div class="bar"><span></span></div>
+      </div>
+
+      <div class="p amber">
+        <div class="row">
+          <div class="num">3</div>
+          <div class="head">
+            <div class="ttl">Response-time collapse</div>
+            <div class="one">SLA, alerts when a lead sits &gt;15 min, auto-reply.</div>
+          </div>
+          <span class="pill amber">Partial</span>
+        </div>
+        <div class="evidence">We have the <strong>data</strong> — <code>last_contact_at</code>, <code>next_followup_at</code>, full messages table with <code>sent_at</code>. Missing: SLA clock on each lead, alert surface, auto-reply templates. This is <strong>the biggest already-paid-for data gap</strong> — highest leverage to ship next.</div>
+        <div class="bar"><span></span></div>
+      </div>
+
+      <div class="p green">
+        <div class="row">
+          <div class="num">4</div>
+          <div class="head">
+            <div class="ttl">Qualification theater</div>
+            <div class="one">Pre-call scoring. Red/yellow/green before the call.</div>
+          </div>
+          <span class="pill green">Covered</span>
+        </div>
+        <div class="evidence"><code>lib/lead-score.ts</code> grades every lead: temperature (0–100) + discovery bonus (20) + pain count (up to 20) + recency (up to 10). <strong>Score tier distribution</strong> in Analytics. 80/20 Pareto card surfaces top 3. Enrichment-from-form-inputs is the only piece not yet wired (waiting on #2).</div>
+        <div class="bar"><span></span></div>
+      </div>
+
+      <div class="p red">
+        <div class="row">
+          <div class="num">5</div>
+          <div class="head">
+            <div class="ttl">Nurture vacuum</div>
+            <div class="one">Drip sequences + behavioral re-warm triggers.</div>
+          </div>
+          <span class="pill red">Not built</span>
+        </div>
+        <div class="evidence">Not started. This is your <strong>moat play</strong> — time-based sequences are commoditized, but social-listening triggers ("lead posted about burnout → surface them") are genuinely rare in coach tooling. Compose Studio is the seed for this but runs one-shot today.</div>
+        <div class="bar"><span></span></div>
+      </div>
+
+      <div class="p green">
+        <div class="row">
+          <div class="num">6</div>
+          <div class="head">
+            <div class="ttl">Pipeline invisibility</div>
+            <div class="one">Kanban by stage + monthly cohort by source.</div>
+          </div>
+          <span class="pill green">Covered</span>
+        </div>
+        <div class="evidence"><code>/inbox</code>: List + Warmth Kanban + Pain views. <code>/analytics</code>: status distribution, 7/30/90-day growth tiles, Pareto 80/20. <code>source</code> is captured per lead. <strong>Cohort-by-source monthly view</strong> is the only piece left — data is all there, it's a view away.</div>
+        <div class="bar"><span></span></div>
+      </div>
+
+      <div class="p amber">
+        <div class="row">
+          <div class="num">7</div>
+          <div class="head">
+            <div class="ttl">Close-rate opacity</div>
+            <div class="one">Outcome tracking + loss-reason codes + pattern surfacing.</div>
+          </div>
+          <span class="pill amber">Partial</span>
+        </div>
+        <div class="evidence">Status enum has <code>client</code> and <code>closed_lost</code>. Missing: <strong>loss-reason codes</strong> (price / timing / fit / ghosted / other) and the pattern-surfacing insight ("you lose 80% of sub-$3k deals — raise your floor"). One-day schema add, one-week insight engine.</div>
+        <div class="bar"><span></span></div>
+      </div>
+
+      <div class="p red">
+        <div class="row">
+          <div class="num">8</div>
+          <div class="head">
+            <div class="ttl">Referral leakage</div>
+            <div class="one">Automated referral prompt 30 days post client-win.</div>
+          </div>
+          <span class="pill red">Not built</span>
+        </div>
+        <div class="evidence">Not started. Highest ROI feature on the thesis: 1 referral = 1 year's subscription. <code>discovery_call_completed</code> field exists; we'd need a <strong>client-milestone</strong> field and a simple scheduled-check that pings the coach at day 30.</div>
+        <div class="bar"><span></span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Priority track -->
+  <section>
+    <h2>Your MVP sequencing, as-is</h2>
+    <p class="sub">Your P0→P3 plan, overlaid with actual shipping status.</p>
+    <div class="track">
+      <div class="lane done">
+        <div class="lbl">P0 · shipped</div>
+        <h3>Pipeline + scoring</h3>
+        <ul>
+          <li>cp_leads schema</li>
+          <li>Lead score module</li>
+          <li>Inbox (3 views)</li>
+          <li>Analytics + Pareto</li>
+          <li>Compose Studio</li>
+        </ul>
+      </div>
+      <div class="lane now">
+        <div class="lbl">P1 · ship next</div>
+        <h3>Response SLA + auto-reply</h3>
+        <ul>
+          <li>SLA badge per lead</li>
+          <li>/today stale-leads view</li>
+          <li>Auto-reply templates</li>
+          <li>Wire voice_profiles</li>
+        </ul>
+      </div>
+      <div class="lane next">
+        <div class="lbl">P2 · after P1</div>
+        <h3>Nurture + re-warm triggers</h3>
+        <ul>
+          <li>Sequence builder</li>
+          <li>Time-based drips</li>
+          <li>Social signal ingest</li>
+          <li>Re-warm surfacing</li>
+        </ul>
+      </div>
+      <div class="lane later">
+        <div class="lbl">P3 · premium tier</div>
+        <h3>Attribution + referrals</h3>
+        <ul>
+          <li>Post→lead→$ loop</li>
+          <li>UTM + source tracking</li>
+          <li>Client-milestone field</li>
+          <li>Referral prompt automation</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Additions to thesis -->
+  <section>
+    <h2>Two things to add to the thesis</h2>
+    <p class="sub">The thesis is tight. These are the gaps I'd name before shipping it to a sales call.</p>
+
+    <div class="add">
+      <div class="badge">Problem 0</div>
+      <div>
+        <h4>Identity gap — the upstream leak your thesis doesn't name</h4>
+        <p>Your 8 problems assume the coach has a clear voice and audience. In practice, most don't — which is why <strong>Brand OS Agent</strong> exists. Name it: "Brand OS writes the content → Coach Platform makes it into pipeline." That's the product story the thesis is implicitly reaching for but never says out loud, and it's the only reason your positioning ("the OS that turns content into pipeline") is defensible. You own both ends.</p>
+      </div>
+    </div>
+
+    <div class="add">
+      <div class="badge">Dollarize</div>
+      <div>
+        <h4>Price anchor every leak, not just referral</h4>
+        <p>Only P8 has a number attached ("1 referral covers annual subscription"). Every other leak needs a back-of-envelope cost or the sales call will stall. Example for P4: <strong>"20 unqualified calls/month × 45 min = 15 hours × $500/hr = $7,500/month burning."</strong> That turns a feature list into ROI math. Ship a one-pager with a dollar amount on each leak before your next pitch.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- What to ship next -->
+  <section>
+    <h2>What I'd ship this week</h2>
+    <p class="sub">Smallest surface area, highest felt impact, demo-able inside an hour of first login.</p>
+    <div class="ship">
+      <h3>P1: Response-time SLA + auto-reply</h3>
+      <p>We have all the data. We just haven't built the view. This is the demo that makes a coach say "holy crap, I was flying blind."</p>
+      <div class="ship-rows">
+        <div class="ship-row">
+          <div class="k">1 · SLA badge</div>
+          <div class="v">Per-lead clock</div>
+          <div class="d">Green &lt;2h, amber 2–24h, red &gt;24h since last inbound. Rendered in LeadList + LeadDetail.</div>
+        </div>
+        <div class="ship-row">
+          <div class="k">2 · /today view</div>
+          <div class="v">Stale-past-SLA</div>
+          <div class="d">A single page showing leads past SLA, sorted by score desc. "What you must touch before you do anything else today."</div>
+        </div>
+        <div class="ship-row">
+          <div class="k">3 · Auto-reply</div>
+          <div class="v">Template engine</div>
+          <div class="d">Reuses voice_profiles. Not sending — just drafting, sitting in the Compose queue when a form fires.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    ElevateAI System · sunny.binjola@gmail.com · Coach Platform thesis coverage · 2026-04-23
+  </footer>
+</main>
+</body>
+</html>
