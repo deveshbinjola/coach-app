@@ -1,1 +1,0 @@
-self.__REACT_LOADABLE_MANIFEST="{\"components/ImportWizard.tsx -> pdfjs-dist\":{\"id\":\"components/ImportWizard.tsx -> pdfjs-dist\",\"files\":[\"static/chunks/_app-pages-browser_node_modules_pdfjs-dist_build_pdf_mjs.js\"]}}"
