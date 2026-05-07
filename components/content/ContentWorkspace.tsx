@@ -2161,7 +2161,7 @@ function CarouselPreview({
             </div>
             <div
               className="mt-4 h-1.5 w-12 rounded-full"
-              style={{ backgroundColor: kitTemplate?.accent ?? (isValidHex(accentColor) ? accentColor : "#00FF41") }}
+              style={{ backgroundColor: kitTemplate?.accent ?? carouselPreviewAccent(style, customStyle, accentColor) }}
             />
           </div>
         );
@@ -2308,6 +2308,19 @@ function carouselPreviewStyle(
     color: dna?.titleColor ?? customStyle.text,
     borderColor: customStyle.accent,
   };
+}
+
+function carouselPreviewAccent(
+  style: CarouselStyle,
+  customStyle: CarouselCustomStyle | null,
+  accentColor: string
+): string {
+  if (style === "imported" && customStyle) return customStyle.accent;
+  if (style === "forest_sand") return "#386641";
+  if (style === "editorial_gold") return "#151515";
+  if (style === "hard_facts") return "#C8A16A";
+  if (style === "onyx_gold") return "#D4A24C";
+  return isValidHex(accentColor) ? accentColor : "#00FF41";
 }
 
 function getCarouselChecks(slides: CarouselSlide[]): Array<{ label: string; pass: boolean }> {
@@ -2693,7 +2706,7 @@ function createCarouselStyleDna(
   const highlightMode: CarouselHighlightMode =
     Math.abs(accentLuma - bgLuma) > 55 ? (fontFamily === "serif" ? "italic_accent" : "accent_words") : "none";
   const titleColor = text;
-  const bodyColor = colorWithAlpha(text, isDark ? 0.76 : 0.72);
+  const bodyColor = text;
 
   return {
     backgroundMood,
@@ -2707,7 +2720,7 @@ function createCarouselStyleDna(
     highlightColor: accent,
     titleColor,
     bodyColor,
-    handleColor: colorWithAlpha(text, 0.72),
+    handleColor: text,
     handlePlacement: layout === "quote" ? "bottom" : "top",
     ornament: layout === "poster" ? "asterisk" : layout === "hard_facts" ? "rule" : layout === "minimal" ? "capsule" : "diamond",
     titleZone: defaultKitZones(layout, "cover").title,
@@ -2799,6 +2812,19 @@ function hexToRgb(hex: string): [number, number, number] {
 function colorLuma(hex: string): number {
   const [r, g, b] = hexToRgb(hex);
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function colorSaturation(hex: string): number {
+  const [r, g, b] = hexToRgb(hex).map((value) => value / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  if (max === 0) return 0;
+  return (max - min) / max;
+}
+
+function isGoldLike(hex: string): boolean {
+  const [r, g, b] = hexToRgb(hex);
+  return r > 120 && g > 80 && g < 210 && b < 145 && r >= g;
 }
 
 function colorDistance(a: string, b: string): number {
