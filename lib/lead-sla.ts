@@ -114,7 +114,7 @@ function formatElapsed(hours: number): string {
 
 // Tailwind classes per state — kept here so every SLA-aware component looks identical.
 export const SLA_STATE_CLASS: Record<SlaState, string> = {
-  on_pace: "bg-[#00FF41]/15 text-green-900 border-[#00FF41]/40",
+  on_pace: "bg-brand-soft text-green-900 border-[color-mix(in_srgb,var(--brand)_40%,transparent)]",
   warning: "bg-amber-50 text-amber-900 border-amber-300",
   overdue: "bg-red-50 text-red-800 border-red-300",
   not_applicable: "bg-gray-50 text-gray-500 border-gray-200",

@@ -132,7 +132,7 @@ export const FIT_BAND_LABEL: Record<FitBand, string> = {
 // Tailwind classes — brand-aligned. Strong = green (brand accent),
 // decent = amber, weak = gray, disqualified = red.
 export const FIT_BAND_CLASS: Record<FitBand, string> = {
-  strong: "bg-[#0A0F1C] text-[#00FF41] border-[#0A0F1C]",
+  strong: "bg-navy text-brand border-navy",
   decent: "bg-amber-50 text-amber-900 border-amber-300",
   weak: "bg-gray-100 text-gray-700 border-gray-300",
   disqualified: "bg-red-50 text-red-800 border-red-300",

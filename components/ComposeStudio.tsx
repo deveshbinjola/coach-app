@@ -465,7 +465,7 @@ export default function ComposeStudio({
                 onClick={() => setDiscoveryFilter(d)}
                 className={`px-3 py-1.5 rounded-full border transition ${
                   discoveryFilter === d
-                    ? "bg-[#0A0F1C] text-white border-[#0A0F1C] font-semibold"
+                    ? "bg-navy text-white border-navy font-semibold"
                     : "bg-white text-gray-800 border-gray-300 hover:border-gray-500"
                 }`}
               >
@@ -705,7 +705,7 @@ function Chip({
       onClick={onClick}
       className={`text-[11px] px-2.5 py-1 rounded-full border transition ${
         active
-          ? "bg-[#0A0F1C] text-white border-[#0A0F1C] font-semibold"
+          ? "bg-navy text-white border-navy font-semibold"
           : "bg-white text-gray-800 border-gray-300 hover:border-gray-500"
       }`}
     >

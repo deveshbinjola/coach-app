@@ -98,8 +98,8 @@ export function scoreTier(score: number): ScoreTier {
 }
 
 export const SCORE_TIER_CLASS: Record<ScoreTier, string> = {
-  top: "bg-[#00FF41] text-[#0A0F1C] border-[#0A0F1C] font-extrabold",
-  high: "bg-[#0A0F1C] text-[#00FF41] border-[#0A0F1C] font-bold",
+  top: "bg-brand text-navy border-navy font-extrabold",
+  high: "bg-navy text-brand border-navy font-bold",
   mid: "bg-amber-50 text-amber-900 border-amber-200 font-semibold",
   low: "bg-gray-100 text-gray-600 border-gray-300 font-medium",
 };

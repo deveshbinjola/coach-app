@@ -277,20 +277,20 @@ export default function SettingsForm({
             </p>
           </div>
           {gmail && gmail.status === "active" && (
-            <span className="inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider bg-[#00FF41] text-[#0A0F1C] px-2 py-0.5 rounded">
+            <span className="inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider bg-brand text-navy px-2 py-0.5 rounded">
               ✓ Connected
             </span>
           )}
         </div>
 
         {gmail ? (
-          <div className="mt-4 p-4 rounded-lg bg-[#FAFAF8] border border-gray-200">
+          <div className="mt-4 p-4 rounded-lg bg-surface border border-gray-200">
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div className="min-w-0">
                 <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
                   Connected as
                 </div>
-                <div className="text-sm font-bold text-[#0A0F1C] mt-0.5 truncate">
+                <div className="text-sm font-bold text-navy mt-0.5 truncate">
                   {gmail.account_email ?? "Gmail account"}
                 </div>
                 <div className="text-[11px] text-gray-500 mt-1">
@@ -315,7 +315,7 @@ export default function SettingsForm({
                   type="button"
                   onClick={syncGmail}
                   disabled={syncing || disconnecting}
-                  className="inline-flex items-center gap-1.5 text-xs font-extrabold bg-[#00FF41] text-[#0A0F1C] px-3 py-1.5 rounded hover:bg-[#00E03A] transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 text-xs font-extrabold bg-brand text-navy px-3 py-1.5 rounded hover:bg-[#00E03A] transition disabled:opacity-50"
                 >
                   {syncing ? (
                     <>
@@ -327,7 +327,7 @@ export default function SettingsForm({
                 </button>
                 <a
                   href="/api/integrations/gmail/connect"
-                  className="text-xs font-semibold text-gray-700 hover:text-[#0A0F1C] underline decoration-dotted underline-offset-4"
+                  className="text-xs font-semibold text-gray-700 hover:text-navy underline decoration-dotted underline-offset-4"
                 >
                   Reconnect
                 </a>
@@ -347,7 +347,7 @@ export default function SettingsForm({
               <div
                 className={`mt-3 p-3 rounded-md text-xs ${
                   syncResult.kind === "success"
-                    ? "bg-[#00FF41]/15 text-green-900 border border-[#00FF41]/40"
+                    ? "bg-brand-soft text-green-900 border border-[color-mix(in_srgb,var(--brand)_40%,transparent)]"
                     : syncResult.kind === "info"
                       ? "bg-gray-100 text-gray-700 border border-gray-200"
                       : "bg-red-50 text-red-800 border border-red-200"
@@ -568,7 +568,7 @@ function ApiKeysPanel() {
           <button
             type="button"
             onClick={() => setShowCreate(true)}
-            className="inline-flex items-center px-4 py-2 rounded-lg bg-[#00FF41] text-[#0A0F1C] font-extrabold text-sm hover:bg-[#00E03A] transition whitespace-nowrap"
+            className="inline-flex items-center px-4 py-2 rounded-lg bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition whitespace-nowrap"
           >
             + Generate key
           </button>
@@ -577,7 +577,7 @@ function ApiKeysPanel() {
 
       {/* Create form */}
       {showCreate && (
-        <div className="mt-4 p-4 rounded-lg bg-[#FAFAF8] border border-gray-200">
+        <div className="mt-4 p-4 rounded-lg bg-surface border border-gray-200">
           <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">
             Key name (helps you tell keys apart)
           </label>
@@ -587,7 +587,7 @@ function ApiKeysPanel() {
             onChange={(e) => setNewKeyName(e.target.value)}
             placeholder="Claude Desktop"
             maxLength={100}
-            className="w-full p-2 rounded border border-gray-300 text-sm focus:outline-none focus:border-[#00FF41]"
+            className="w-full p-2 rounded border border-gray-300 text-sm focus:outline-none focus:border-brand"
           />
 
           <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mt-3 mb-1">
@@ -613,7 +613,7 @@ function ApiKeysPanel() {
               type="button"
               onClick={createKey}
               disabled={creating || !newKeyName.trim()}
-              className="px-4 py-2 rounded bg-[#00FF41] text-[#0A0F1C] font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-50"
+              className="px-4 py-2 rounded bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-50"
             >
               {creating ? "Generating…" : "Generate"}
             </button>
@@ -624,7 +624,7 @@ function ApiKeysPanel() {
                 setNewKeyName("");
                 setNewKeyScope("read_write");
               }}
-              className="px-4 py-2 text-xs font-semibold text-gray-700 hover:text-[#0A0F1C]"
+              className="px-4 py-2 text-xs font-semibold text-gray-700 hover:text-navy"
             >
               Cancel
             </button>
@@ -635,8 +635,8 @@ function ApiKeysPanel() {
       {/* Just-created flash — shows the raw key ONCE, plus an install
           snippet pre-filled with that key (also won't be available again). */}
       {justCreated && (
-        <div className="mt-4 p-4 rounded-lg border-2 border-[#00FF41] bg-[#F0FFF4]">
-          <p className="text-sm font-extrabold text-[#0A0F1C]">
+        <div className="mt-4 p-4 rounded-lg border-2 border-brand bg-[#F0FFF4]">
+          <p className="text-sm font-extrabold text-navy">
             🔑 Save this key now — we won't show it again.
           </p>
 
@@ -649,7 +649,7 @@ function ApiKeysPanel() {
           <button
             type="button"
             onClick={() => navigator.clipboard.writeText(justCreated.raw)}
-            className="mt-1.5 text-xs font-bold bg-[#0A0F1C] text-white px-3 py-1.5 rounded hover:bg-[#1A1F2C]"
+            className="mt-1.5 text-xs font-bold bg-navy text-white px-3 py-1.5 rounded hover:bg-[#1A1F2C]"
           >
             Copy raw key
           </button>
@@ -658,7 +658,7 @@ function ApiKeysPanel() {
               with the raw key. Coach pastes into their MCP client config and
               their agent is connected. Two clicks total. */}
           <details className="mt-4">
-            <summary className="cursor-pointer text-sm font-bold text-[#0A0F1C] hover:text-[#00CC34]">
+            <summary className="cursor-pointer text-sm font-bold text-navy hover:text-brand-strong">
               ⚡ Connect to Claude Desktop / Cursor →
             </summary>
             <div className="mt-3">
@@ -679,7 +679,7 @@ function ApiKeysPanel() {
                   </code>
                 </li>
               </ul>
-              <pre className="p-3 rounded bg-[#0A0F1C] text-[#E5E7EB] text-[11px] overflow-x-auto leading-relaxed font-mono">
+              <pre className="p-3 rounded bg-navy text-[#E5E7EB] text-[11px] overflow-x-auto leading-relaxed font-mono">
 {`{
   "mcpServers": {
     "coach-platform": {
@@ -708,7 +708,7 @@ function ApiKeysPanel() {
 }`;
                   navigator.clipboard.writeText(snippet);
                 }}
-                className="mt-2 text-xs font-bold bg-[#00FF41] text-[#0A0F1C] px-3 py-1.5 rounded hover:bg-[#00E03A]"
+                className="mt-2 text-xs font-bold bg-brand text-navy px-3 py-1.5 rounded hover:bg-[#00E03A]"
               >
                 Copy MCP config
               </button>
@@ -728,7 +728,7 @@ function ApiKeysPanel() {
           <button
             type="button"
             onClick={() => setJustCreated(null)}
-            className="mt-3 text-xs font-semibold text-gray-700 hover:text-[#0A0F1C]"
+            className="mt-3 text-xs font-semibold text-gray-700 hover:text-navy"
           >
             I've saved it — dismiss
           </button>
@@ -755,7 +755,7 @@ function ApiKeysPanel() {
               <li key={k.id} className="flex items-center justify-between gap-4 p-3 flex-wrap">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-sm text-[#0A0F1C]">
+                    <span className="font-bold text-sm text-navy">
                       {k.name}
                     </span>
                     {k.revoked_at ? (
@@ -763,7 +763,7 @@ function ApiKeysPanel() {
                         Revoked
                       </span>
                     ) : (
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#00FF41]/15 text-green-900 border border-[#00FF41]/40 px-1.5 py-0.5 rounded">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-brand-soft text-green-900 border border-[color-mix(in_srgb,var(--brand)_40%,transparent)] px-1.5 py-0.5 rounded">
                         Active
                       </span>
                     )}
@@ -803,7 +803,7 @@ function ApiKeysPanel() {
           href="/api/docs"
           target="_blank"
           rel="noopener"
-          className="text-[#00CC34] font-bold underline decoration-dotted hover:text-[#0A0F1C]"
+          className="text-brand-strong font-bold underline decoration-dotted hover:text-navy"
         >
           📚 API docs →
         </a>
@@ -842,7 +842,7 @@ function AgentActivityPanel() {
     <div className="mt-6 pt-5 border-t border-gray-200">
       <div className="flex items-baseline justify-between gap-3 mb-3 flex-wrap">
         <div>
-          <h3 className="text-sm font-extrabold text-[#0A0F1C]">
+          <h3 className="text-sm font-extrabold text-navy">
             Recent agent activity
           </h3>
           <p className="text-[11px] text-gray-500">
@@ -864,14 +864,14 @@ function AgentActivityPanel() {
           {activity.map((a) => (
             <li
               key={a.id}
-              className="flex items-center gap-3 p-2.5 hover:bg-[#FAFAF8]"
+              className="flex items-center gap-3 p-2.5 hover:bg-surface"
             >
               <span
                 className={`text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${methodColor(a.method)}`}
               >
                 {a.method}
               </span>
-              <code className="font-mono text-[11px] truncate min-w-0 flex-1 text-[#0A0F1C]">
+              <code className="font-mono text-[11px] truncate min-w-0 flex-1 text-navy">
                 {a.path}
               </code>
               <span className="text-[10px] text-gray-500 shrink-0 tabular-nums">
@@ -888,7 +888,7 @@ function AgentActivityPanel() {
 function methodColor(m: string): string {
   switch (m.toUpperCase()) {
     case "GET":
-      return "bg-[#00FF41]/15 text-green-900 border border-[#00FF41]/40";
+      return "bg-brand-soft text-green-900 border border-[color-mix(in_srgb,var(--brand)_40%,transparent)]";
     case "POST":
       return "bg-blue-50 text-blue-900 border border-blue-200";
     case "PATCH":
@@ -1023,7 +1023,7 @@ function WebhooksPanel() {
           <button
             type="button"
             onClick={() => setShowCreate(true)}
-            className="inline-flex items-center px-4 py-2 rounded-lg bg-[#00FF41] text-[#0A0F1C] font-extrabold text-sm hover:bg-[#00E03A] transition whitespace-nowrap"
+            className="inline-flex items-center px-4 py-2 rounded-lg bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition whitespace-nowrap"
           >
             + New webhook URL
           </button>
@@ -1031,7 +1031,7 @@ function WebhooksPanel() {
       </div>
 
       {showCreate && (
-        <div className="mt-4 p-4 rounded-lg bg-[#FAFAF8] border border-gray-200 space-y-3">
+        <div className="mt-4 p-4 rounded-lg bg-surface border border-gray-200 space-y-3">
           <div>
             <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">
               Name (helps you tell endpoints apart)
@@ -1042,7 +1042,7 @@ function WebhooksPanel() {
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Tally — Newsletter signup"
               maxLength={100}
-              className="w-full p-2 rounded border border-gray-300 text-sm focus:outline-none focus:border-[#00FF41]"
+              className="w-full p-2 rounded border border-gray-300 text-sm focus:outline-none focus:border-brand"
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1053,7 +1053,7 @@ function WebhooksPanel() {
               <select
                 value={newSource}
                 onChange={(e) => setNewSource(e.target.value as LeadSource)}
-                className="w-full p-2 rounded border border-gray-300 text-sm font-medium focus:outline-none focus:border-[#00FF41]"
+                className="w-full p-2 rounded border border-gray-300 text-sm font-medium focus:outline-none focus:border-brand"
               >
                 {WEBHOOK_SOURCES.map((s) => (
                   <option key={s} value={s}>
@@ -1072,7 +1072,7 @@ function WebhooksPanel() {
                 onChange={(e) => setNewDetail(e.target.value)}
                 placeholder="IG quiz — masculine leadership"
                 maxLength={200}
-                className="w-full p-2 rounded border border-gray-300 text-sm focus:outline-none focus:border-[#00FF41]"
+                className="w-full p-2 rounded border border-gray-300 text-sm focus:outline-none focus:border-brand"
               />
             </div>
           </div>
@@ -1081,7 +1081,7 @@ function WebhooksPanel() {
               type="button"
               onClick={create}
               disabled={creating || !newName.trim()}
-              className="px-4 py-2 rounded bg-[#00FF41] text-[#0A0F1C] font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-50"
+              className="px-4 py-2 rounded bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-50"
             >
               {creating ? "Creating…" : "Create webhook"}
             </button>
@@ -1092,7 +1092,7 @@ function WebhooksPanel() {
                 setNewName("");
                 setNewDetail("");
               }}
-              className="px-4 py-2 text-xs font-semibold text-gray-700 hover:text-[#0A0F1C]"
+              className="px-4 py-2 text-xs font-semibold text-gray-700 hover:text-navy"
             >
               Cancel
             </button>
@@ -1101,8 +1101,8 @@ function WebhooksPanel() {
       )}
 
       {revealedToken && (
-        <div className="mt-4 p-4 rounded-lg border-2 border-[#00FF41] bg-[#F0FFF4]">
-          <p className="text-sm font-extrabold text-[#0A0F1C]">
+        <div className="mt-4 p-4 rounded-lg border-2 border-brand bg-[#F0FFF4]">
+          <p className="text-sm font-extrabold text-navy">
             ✓ Webhook URL ready. Paste this anywhere that POSTs JSON:
           </p>
           <div className="mt-2 p-3 rounded bg-white border border-gray-200 font-mono text-xs break-all select-all">
@@ -1114,14 +1114,14 @@ function WebhooksPanel() {
               onClick={() =>
                 navigator.clipboard.writeText(urlFor(revealedToken))
               }
-              className="text-xs font-bold bg-[#0A0F1C] text-white px-3 py-1.5 rounded hover:bg-[#1A1F2C]"
+              className="text-xs font-bold bg-navy text-white px-3 py-1.5 rounded hover:bg-[#1A1F2C]"
             >
               Copy URL
             </button>
             <button
               type="button"
               onClick={() => setRevealedToken(null)}
-              className="text-xs font-semibold text-gray-700 hover:text-[#0A0F1C]"
+              className="text-xs font-semibold text-gray-700 hover:text-navy"
             >
               Dismiss
             </button>
@@ -1152,11 +1152,11 @@ function WebhooksPanel() {
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-sm text-[#0A0F1C]">
+                    <span className="font-bold text-sm text-navy">
                       {e.name}
                     </span>
                     {e.active ? (
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#00FF41]/15 text-green-900 border border-[#00FF41]/40 px-1.5 py-0.5 rounded">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-brand-soft text-green-900 border border-[color-mix(in_srgb,var(--brand)_40%,transparent)] px-1.5 py-0.5 rounded">
                         Active
                       </span>
                     ) : (
@@ -1187,7 +1187,7 @@ function WebhooksPanel() {
                     onClick={() =>
                       navigator.clipboard.writeText(urlFor(e.token))
                     }
-                    className="text-xs font-semibold text-[#0A0F1C] hover:text-[#00CC34]"
+                    className="text-xs font-semibold text-navy hover:text-brand-strong"
                   >
                     Copy URL
                   </button>
@@ -1238,7 +1238,7 @@ function ScopeOption({
       onClick={onClick}
       className={`text-left p-3 rounded-lg border-2 transition ${
         active
-          ? "border-[#00FF41] bg-[#F0FFF4]"
+          ? "border-brand bg-[#F0FFF4]"
           : "border-gray-200 bg-white hover:border-gray-400"
       }`}
     >
@@ -1246,11 +1246,11 @@ function ScopeOption({
         <div
           className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${
             active
-              ? "border-[#00FF41] bg-[#00FF41]"
+              ? "border-brand bg-brand"
               : "border-gray-300 bg-white"
           }`}
         />
-        <span className="text-sm font-bold text-[#0A0F1C]">{title}</span>
+        <span className="text-sm font-bold text-navy">{title}</span>
       </div>
       <p className="text-[11px] text-gray-600 leading-relaxed pl-6">{hint}</p>
     </button>
@@ -1261,7 +1261,7 @@ function ScopeOption({
 function SpinnerDot() {
   return (
     <span
-      className="inline-block w-2 h-2 rounded-full bg-[#0A0F1C] animate-pulse"
+      className="inline-block w-2 h-2 rounded-full bg-navy animate-pulse"
       aria-hidden
     />
   );
@@ -1312,7 +1312,7 @@ function Toggle({
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0 flex-1">
         <label
-          className={`block font-semibold text-sm ${disabled ? "text-gray-400" : "text-[#0A0F1C]"}`}
+          className={`block font-semibold text-sm ${disabled ? "text-gray-400" : "text-navy"}`}
         >
           {label}
         </label>
@@ -1331,7 +1331,7 @@ function Toggle({
         disabled={disabled || saving}
         onClick={() => onChange(!value)}
         className={`relative shrink-0 inline-flex h-6 w-11 items-center rounded-full transition disabled:opacity-50 ${
-          value ? "bg-[#00FF41]" : "bg-gray-300"
+          value ? "bg-brand" : "bg-gray-300"
         }`}
       >
         <span
@@ -1366,7 +1366,7 @@ function NumberField({
 
   return (
     <div className="flex items-center gap-3 flex-wrap">
-      <label className="text-sm font-semibold text-[#0A0F1C] sr-only">
+      <label className="text-sm font-semibold text-navy sr-only">
         {label}
       </label>
       <input
@@ -1375,7 +1375,7 @@ function NumberField({
         max={max}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
-        className="w-24 px-3 py-2 rounded-lg border border-gray-300 text-center font-bold tabular-nums focus:outline-none focus:border-[#00FF41]"
+        className="w-24 px-3 py-2 rounded-lg border border-gray-300 text-center font-bold tabular-nums focus:outline-none focus:border-brand"
       />
       {suffix && (
         <span className="text-sm text-gray-600 font-medium">{suffix}</span>
@@ -1387,7 +1387,7 @@ function NumberField({
           const n = parseInt(draft, 10);
           if (Number.isFinite(n) && n >= min && n <= max) onSave(n);
         }}
-        className="ml-auto inline-flex items-center px-4 py-2 rounded-lg bg-[#00FF41] text-[#0A0F1C] font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-40 disabled:cursor-not-allowed"
+        className="ml-auto inline-flex items-center px-4 py-2 rounded-lg bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {saving ? "Saving…" : "Save"}
       </button>
