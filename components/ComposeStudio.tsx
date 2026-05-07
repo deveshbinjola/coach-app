@@ -22,6 +22,7 @@ import {
 import { computeLeadScore, sortByScore, scoreTier, SCORE_TIER_CLASS } from "@/lib/lead-score";
 import { computeWasEdited, scoreVoiceFit } from "@/lib/voice-trust";
 import VoiceFitPanel from "@/components/VoiceFitPanel";
+import { useError, useConfirm } from "@/components/ui";
 
 const STATUSES: LeadStatus[] = ["new", "contacted", "qualified", "booked", "client", "closed_lost"];
 const STATUS_LABEL: Record<LeadStatus, string> = {
@@ -51,6 +52,9 @@ export default function ComposeStudio({
   seedSource?: string;
 }) {
   const router = useRouter();
+  // Replace 4 alert() and 1 confirm() with brand-styled equivalents.
+  const { setError, ErrorBanner } = useError();
+  const { ConfirmDialog, askConfirm } = useConfirm();
   const supabase = createClient();
 
   // Filter state
@@ -214,10 +218,10 @@ export default function ComposeStudio({
         // edits to the AI's intent, not the per-lead token substitutions.
         setOriginalAiTemplate(templated);
       } else {
-        alert(`Draft failed: ${json.error ?? "unknown"}`);
+        setError(`Draft failed: ${json.error ?? "unknown"}`);
       }
     } catch (e) {
-      alert(`Draft failed: ${(e as Error).message}`);
+      setError(`Draft failed: ${(e as Error).message}`);
     } finally {
       setDrafting(false);
     }
@@ -234,7 +238,7 @@ export default function ComposeStudio({
       });
       const json = await res.json();
       if (!res.ok || !json.draft) {
-        alert(`Voice tune failed: ${json.error ?? "unknown"}`);
+        setError(`Voice tune failed: ${json.error ?? "unknown"}`);
         return;
       }
       setTemplate(json.draft);
@@ -285,7 +289,7 @@ export default function ComposeStudio({
     });
     if (msgError) {
       setLogging(null);
-      alert(msgError.message);
+      setError(msgError.message);
       return;
     }
     // Update last_contact_at and bump status if still "new"
@@ -303,12 +307,12 @@ export default function ComposeStudio({
     if (matched.length === 0 || !template.trim()) return;
     const remaining = matched.filter((l) => !sentIds.has(l.id));
     if (remaining.length === 0) return;
-    if (
-      !confirm(
-        `Log ${remaining.length} personalized message${remaining.length === 1 ? "" : "s"} as sent? (You'll still need to send them from your inbox/DM.)`
-      )
-    )
-      return;
+    const ok = await askConfirm({
+      title:        `Log ${remaining.length} message${remaining.length === 1 ? "" : "s"} as sent?`,
+      description:  `You'll still need to send ${remaining.length === 1 ? "it" : "them"} from your inbox or DM. This just records them in the lead history so the rescue queue knows the conversation moved.`,
+      confirmLabel: "Log as sent",
+    });
+    if (!ok) return;
 
     for (const lead of remaining) {
       await logAsSent(lead);
@@ -345,6 +349,8 @@ export default function ComposeStudio({
 
   return (
     <div className="space-y-5">
+      {ErrorBanner}
+      {ConfirmDialog}
       <section className="rounded-[var(--r-lg)] bg-[var(--navy)] text-[color:var(--text-inverse)] p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-5">
           <div>

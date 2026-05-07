@@ -16,6 +16,7 @@ import type {
   WebhookEndpoint,
   LeadSource,
 } from "@/lib/types";
+import { useError, useConfirm } from "@/components/ui";
 
 export default function SettingsForm({
   initial,
@@ -33,6 +34,8 @@ export default function SettingsForm({
   const [settings, setSettings] = useState<CoachSettings>(initial);
   const [savingKey, setSavingKey] = useState<keyof CoachSettings | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Replaces window.confirm() for the Gmail-disconnect prompt.
+  const { ConfirmDialog, askConfirm } = useConfirm();
   const [gmail, setGmail] = useState<CoachIntegration | null>(gmailIntegration);
   const [disconnecting, setDisconnecting] = useState(false);
   // Gmail sync state — drives the "Sync now" button + result toast.
@@ -85,13 +88,13 @@ export default function SettingsForm({
 
   async function disconnectGmail() {
     if (!gmail) return;
-    if (
-      !confirm(
-        "Disconnect Gmail? Coach Platform will stop syncing your inbox. Your existing logged messages stay; future emails won't auto-import until you reconnect."
-      )
-    ) {
-      return;
-    }
+    const ok = await askConfirm({
+      title:        "Disconnect Gmail?",
+      description:  "Coach Platform will stop syncing your inbox. Existing logged messages stay; future emails won't auto-import until you reconnect.",
+      confirmLabel: "Disconnect",
+      destructive:  true,
+    });
+    if (!ok) return;
     setDisconnecting(true);
     try {
       const { error: delErr } = await supabase
@@ -99,7 +102,7 @@ export default function SettingsForm({
         .delete()
         .eq("id", gmail.id);
       if (delErr) {
-        alert(delErr.message);
+        setError(delErr.message);
         return;
       }
       setGmail(null);
@@ -155,6 +158,7 @@ export default function SettingsForm({
 
   return (
     <div className="space-y-5">
+      {ConfirmDialog}
       {error && (
         <div className="rounded-[var(--r-lg)] border border-[var(--danger)] bg-[var(--danger-soft)] p-4">
           <p className="text-[length:var(--t-caption)] text-[#B42318]">{error}</p>
@@ -473,6 +477,7 @@ function BrandOsIntegrationPanel() {
 // ---------- API keys panel (Phase 8.5) ----------
 
 function ApiKeysPanel() {
+  const { ConfirmDialog, askConfirm } = useConfirm();
   const [keys, setKeys] = useState<ApiKey[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -536,9 +541,13 @@ function ApiKeysPanel() {
   }
 
   async function revokeKey(id: string) {
-    if (!confirm("Revoke this key? Any agent using it will start failing immediately.")) {
-      return;
-    }
+    const ok = await askConfirm({
+      title:        "Revoke this key?",
+      description:  "Any agent using it will start failing immediately. You can issue a new key any time.",
+      confirmLabel: "Revoke",
+      destructive:  true,
+    });
+    if (!ok) return;
     setRevoking(id);
     try {
       const res = await fetch(`/api/keys/${id}`, { method: "DELETE" });
@@ -555,6 +564,7 @@ function ApiKeysPanel() {
 
   return (
     <section className="card p-6">
+      {ConfirmDialog}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="min-w-0 flex-1">
           <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">API keys</h2>
@@ -927,6 +937,7 @@ const WEBHOOK_SOURCES: LeadSource[] = [
 ];
 
 function WebhooksPanel() {
+  const { ConfirmDialog, askConfirm } = useConfirm();
   const [endpoints, setEndpoints] = useState<WebhookEndpoint[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -991,9 +1002,15 @@ function WebhooksPanel() {
 
   async function toggleActive(id: string, current: boolean) {
     const verb = current ? "Pause" : "Resume";
-    if (!confirm(`${verb} this webhook? ${current ? "Inbound calls will start failing immediately." : "Inbound calls will start working again."}`)) {
-      return;
-    }
+    const ok = await askConfirm({
+      title:        `${verb} this webhook?`,
+      description:  current
+        ? "Inbound calls will start failing immediately. You can resume any time."
+        : "Inbound calls will start working again right away.",
+      confirmLabel: verb,
+      destructive:  current, // pausing is destructive; resuming isn't
+    });
+    if (!ok) return;
     const res = await fetch(`/api/webhooks/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -1010,6 +1027,7 @@ function WebhooksPanel() {
 
   return (
     <section className="card p-6">
+      {ConfirmDialog}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="min-w-0 flex-1">
           <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Inbound webhooks</h2>

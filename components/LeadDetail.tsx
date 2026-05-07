@@ -27,7 +27,7 @@ import LogInboundButton from "./LogInboundButton";
 import FitCard from "./FitCard";
 import ObjectionDeck from "./ObjectionDeck";
 import VoiceFitPanel from "./VoiceFitPanel";
-import { Badge, Button, Card, Modal } from "@/components/ui";
+import { Badge, Button, Card, Modal, useError } from "@/components/ui";
 
 const STATUSES: LeadStatus[] = ["new", "contacted", "qualified", "booked", "client", "closed_lost"];
 
@@ -47,6 +47,9 @@ export default function LeadDetail({
   referrals?: ReferralRef[];
 }) {
   const router = useRouter();
+  // Error banner — replaces the 8 native alert() calls in this component
+  // with a styled, dismissible inline banner that matches the brand.
+  const { setError, ErrorBanner } = useError();
   const [messages, setMessages] = useState<LeadMessage[]>(initialMessages);
   const [draft, setDraft] = useState("");
   // Voice Trust Loop: snapshot of the AI's draft text the moment it returned.
@@ -106,7 +109,7 @@ export default function LeadDetail({
     setDeleting(false);
     if (error) {
       // eslint-disable-next-line no-alert
-      alert(error.message);
+      setError(error.message);
       return;
     }
     setConfirmDeleteOpen(false);
@@ -138,7 +141,7 @@ export default function LeadDetail({
         // depends on this number being honest.
         setOriginalAiDraft(json.draft);
         setDraftPurpose((json.purpose as MessagePurpose | undefined) ?? purpose);
-      } else alert(`Draft failed: ${json.error ?? "unknown"}`);
+      } else setError(`Draft failed: ${json.error ?? "unknown"}`);
     } finally {
       setDrafting(false);
     }
@@ -155,7 +158,7 @@ export default function LeadDetail({
       });
       const json = await res.json();
       if (!res.ok || !json.draft) {
-        alert(`Voice tune failed: ${json.error ?? "unknown"}`);
+        setError(`Voice tune failed: ${json.error ?? "unknown"}`);
         return;
       }
       setDraft(json.draft);
@@ -197,7 +200,7 @@ export default function LeadDetail({
       .single();
     setSending(false);
     if (error) {
-      alert(error.message);
+      setError(error.message);
       return;
     }
     setMessages([...messages, data as LeadMessage]);
@@ -225,14 +228,16 @@ export default function LeadDetail({
       .select()
       .single();
     if (error) {
-      alert(error.message);
+      setError(error.message);
       return;
     }
     setCurrentLead((data as Lead | null) ?? { ...currentLead, tags: nextTags });
   }
 
   return (
-    <div className="grid md:grid-cols-3 gap-6">
+    <div className="space-y-4">
+      {ErrorBanner}
+      <div className="grid md:grid-cols-3 gap-6">
       {/* ── Confirm-delete modal ─────────────────────────────────────── */}
       <Modal
         open={confirmDeleteOpen}
@@ -590,6 +595,7 @@ export default function LeadDetail({
           </p>
         </Card>
       </section>
+      </div>
     </div>
   );
 }
@@ -724,6 +730,9 @@ function FirstResponseDraftPanel({
 }) {
   const router = useRouter();
   const supabase = createClient();
+  // Three alert() sites in this panel (update / clipboard copy / delete-draft
+  // failure) all share one inline error banner via useError.
+  const { setError, ErrorBanner } = useError();
 
   // Find the pending first-response draft. There can only be one because
   // of the uq_first_response_per_lead unique partial index.
@@ -769,7 +778,7 @@ function FirstResponseDraftPanel({
         })
         .eq("id", msg.id);
       if (updErr) {
-        alert(updErr.message);
+        setError(updErr.message);
         return;
       }
       // Mirror locally so we don't need a full router.refresh().
@@ -818,7 +827,7 @@ function FirstResponseDraftPanel({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      alert("Could not copy to clipboard. Select the text and copy manually.");
+      setError("Could not copy to clipboard. Select the text and copy manually.");
     } finally {
       setActing(null);
     }
@@ -833,7 +842,7 @@ function FirstResponseDraftPanel({
         .eq("id", msg.id);
       if (delErr) {
         // eslint-disable-next-line no-alert
-        alert(delErr.message);
+        setError(delErr.message);
         return;
       }
       onMessagesChange(messages.filter((m) => m.id !== msg.id));
@@ -848,6 +857,7 @@ function FirstResponseDraftPanel({
 
   return (
     <>
+      {ErrorBanner}
       {/* ── Confirm-discard modal ────────────────────────────────────── */}
       <Modal
         open={confirmDiscardOpen}
