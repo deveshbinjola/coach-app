@@ -251,7 +251,7 @@ export default function VoiceLeadsPanel() {
 
   if (savedCount !== null) {
     return (
-      <div className="card p-8 text-center border-2 border-[#00FF41] bg-[#F0FFF4]">
+      <div className="card p-8 text-center border-2 border-brand bg-[#F0FFF4]">
         <div className="text-4xl mb-2">✓</div>
         <h2 className="text-xl font-extrabold">
           {savedCount} {savedCount === 1 ? "lead" : "leads"} saved.
@@ -427,8 +427,8 @@ export default function VoiceLeadsPanel() {
       {/* PREVIEW STATE */}
       {leads && (
         <>
-          <div className="card p-5 bg-[#F0FFF4] border-2 border-[#00FF41]">
-            <div className="text-[10px] uppercase tracking-widest font-extrabold text-[#00CC34]">
+          <div className="card p-5 bg-[#F0FFF4] border-2 border-brand">
+            <div className="text-[10px] uppercase tracking-widest font-extrabold text-brand-strong">
               ✨ {leads.length} {leads.length === 1 ? "lead" : "leads"} parsed
             </div>
             <p className="text-sm text-gray-700 mt-1">
@@ -456,7 +456,7 @@ export default function VoiceLeadsPanel() {
               type="button"
               onClick={saveAll}
               disabled={saving || leads.length === 0}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#00FF41] text-[#0A0F1C] font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-50"
             >
               {saving
                 ? "Saving..."
@@ -469,7 +469,7 @@ export default function VoiceLeadsPanel() {
                 setError(null);
               }}
               disabled={saving}
-              className="text-xs font-semibold text-gray-700 hover:text-[#0A0F1C] underline decoration-dotted underline-offset-4 disabled:opacity-50"
+              className="text-xs font-semibold text-gray-700 hover:text-navy underline decoration-dotted underline-offset-4 disabled:opacity-50"
             >
               Discard and try again
             </button>
@@ -507,7 +507,7 @@ function LeadCard({
     <div className="card p-5">
       <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#0A0F1C] text-[#00FF41] px-2 py-0.5 rounded">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider bg-navy text-brand px-2 py-0.5 rounded">
             #{index + 1} of {total}
           </span>
           <input
@@ -515,7 +515,7 @@ function LeadCard({
             value={lead.full_name}
             onChange={(e) => onUpdate({ full_name: e.target.value })}
             placeholder="Full name"
-            className="font-bold text-base bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#00FF41] px-1 py-0.5 min-w-[200px]"
+            className="font-bold text-base bg-transparent border-b border-gray-200 focus:outline-none focus:border-brand px-1 py-0.5 min-w-[200px]"
           />
         </div>
         <button
@@ -538,7 +538,7 @@ function LeadCard({
             value={lead.email ?? ""}
             onChange={(e) => onUpdate({ email: e.target.value || null })}
             placeholder="optional"
-            className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-[#00FF41]"
+            className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-brand"
           />
         </div>
         <div>
@@ -548,7 +548,7 @@ function LeadCard({
           <select
             value={lead.source}
             onChange={(e) => onUpdate({ source: e.target.value as LeadSource })}
-            className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-[#00FF41] font-medium"
+            className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-brand font-medium"
           >
             {SOURCES.map((s) => (
               <option key={s} value={s}>
@@ -568,7 +568,7 @@ function LeadCard({
               onUpdate({ source_detail: e.target.value || null })
             }
             placeholder="e.g. AMLT retreat, IG quiz"
-            className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-[#00FF41]"
+            className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-brand"
           />
         </div>
         <div>
@@ -580,7 +580,7 @@ function LeadCard({
             onChange={(e) =>
               onUpdate({ temperature: e.target.value as LeadTemperature })
             }
-            className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-[#00FF41] font-medium"
+            className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-brand font-medium"
           >
             {LEAD_TEMPERATURES.map((t) => (
               <option key={t} value={t}>
@@ -625,7 +625,7 @@ function LeadCard({
           value={lead.notes}
           onChange={(e) => onUpdate({ notes: e.target.value })}
           rows={2}
-          className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-[#00FF41] leading-relaxed"
+          className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-brand leading-relaxed"
         />
       </div>
     </div>

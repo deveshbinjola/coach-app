@@ -100,7 +100,7 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
     >
       <div className="flex items-center justify-between mb-3">
         <div>
-          <div className="text-xs font-extrabold uppercase tracking-widest text-[#0A0F1C]">
+          <div className="text-xs font-extrabold uppercase tracking-widest text-navy">
             Log inbound reply
           </div>
           <p className="text-[11px] text-gray-600 mt-0.5">
@@ -113,7 +113,7 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
             setContent("");
           }}
           disabled={saving}
-          className="text-xs text-gray-500 hover:text-[#0A0F1C]"
+          className="text-xs text-gray-500 hover:text-navy"
         >
           Cancel
         </button>
@@ -131,7 +131,7 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
               disabled={saving}
               className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition ${
                 channel === c.id
-                  ? "bg-[#0A0F1C] text-white border-[#0A0F1C]"
+                  ? "bg-navy text-white border-navy"
                   : "bg-white text-gray-800 border-gray-300 hover:border-gray-500"
               }`}
             >

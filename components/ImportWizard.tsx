@@ -719,12 +719,12 @@ function StepBar({ step }: { step: Step }) {
         <div key={s.key} className="flex items-center gap-2">
           <div
             className={`w-6 h-6 rounded-full flex items-center justify-center ${
-              i <= currentIdx ? "bg-[#00FF41] text-[#0A0F1C]" : "bg-gray-200 text-gray-500"
+              i <= currentIdx ? "bg-brand text-navy" : "bg-gray-200 text-gray-500"
             }`}
           >
             {i + 1}
           </div>
-          <span className={i <= currentIdx ? "text-[#0A0F1C]" : "text-gray-500"}>{s.label}</span>
+          <span className={i <= currentIdx ? "text-navy" : "text-gray-500"}>{s.label}</span>
           {i < steps.length - 1 && <span className="text-gray-400">→</span>}
         </div>
       ))}
@@ -758,7 +758,7 @@ function UploadStep({
           if (f) onFile(f);
         }}
         className={`card p-10 text-center border-2 border-dashed ${
-          dragOver ? "border-[#00FF41] bg-green-50" : "border-gray-300"
+          dragOver ? "border-brand bg-green-50" : "border-gray-300"
         }`}
       >
         <div className="text-4xl mb-2">📤</div>
@@ -937,7 +937,7 @@ function ReviewStep({
           <dt className="text-gray-600">Total rows in source</dt>
           <dd className="font-semibold">{rows.length}</dd>
           <dt className="text-gray-600">Rows to import</dt>
-          <dd className="font-semibold text-[#0A0F1C]">{willImport}</dd>
+          <dd className="font-semibold text-navy">{willImport}</dd>
           <dt className="text-gray-600">Rows skipped (no name)</dt>
           <dd className="font-semibold text-amber-700">{validation.missingName ?? 0}</dd>
           <dt className="text-gray-600">Fields mapped</dt>

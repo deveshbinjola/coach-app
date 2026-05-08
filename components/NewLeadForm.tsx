@@ -269,7 +269,7 @@ export default function NewLeadForm() {
                   onClick={() => togglePain(s)}
                   className={`text-left text-xs px-3 py-2 rounded-lg border transition ${
                     active
-                      ? "bg-[#0A0F1C] text-white border-[#0A0F1C] font-semibold"
+                      ? "bg-navy text-white border-navy font-semibold"
                       : "bg-white text-gray-800 border-gray-300 hover:border-gray-500"
                   }`}
                 >

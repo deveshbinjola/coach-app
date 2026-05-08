@@ -70,7 +70,7 @@ export default function ObjectionDeck({ lead, onUseTemplate }: Props) {
             <div
               key={p.id}
               className={`border rounded-lg overflow-hidden transition-colors ${
-                isOpen ? "border-[#0A0F1C]" : "border-gray-200"
+                isOpen ? "border-navy" : "border-gray-200"
               }`}
             >
               <button
@@ -146,7 +146,7 @@ export default function ObjectionDeck({ lead, onUseTemplate }: Props) {
       {ranked.length > 4 && (
         <button
           onClick={() => setShowAll(!showAll)}
-          className="mt-3 text-[11px] text-gray-500 hover:text-[#0A0F1C] hover:underline"
+          className="mt-3 text-[11px] text-gray-500 hover:text-navy hover:underline"
         >
           {showAll ? "Show top 4 only" : `Show all ${ranked.length} patterns →`}
         </button>

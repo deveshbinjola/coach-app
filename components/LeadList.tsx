@@ -16,6 +16,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Search, X } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
 import {
   PAIN_SIGNALS,
@@ -128,6 +129,8 @@ export default function LeadList({
   const [sortKey, setSortKey]       = useState<SortKey>("score");
   const [sortDir, setSortDir]       = useState<SortDir>("desc");
   const [painFilter, setPainFilter] = useState<PainSignal[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const normalizedSearch = searchQuery.trim().toLowerCase();
 
   // ── Pagination cursors ───────────────────────────────────────────────────
   const [listPage, setListPage] = useState(0);
@@ -136,30 +139,35 @@ export default function LeadList({
   // Reset list page when sort changes; reset pain page when filter changes.
   useEffect(() => {
     setListPage(0);
-  }, [sortKey, sortDir]);
+  }, [sortKey, sortDir, normalizedSearch]);
   useEffect(() => {
     setPainPage(0);
-  }, [painFilter]);
+  }, [painFilter, normalizedSearch]);
 
   // ── Derived data ─────────────────────────────────────────────────────────
+  const searchedLeads = useMemo(() => {
+    if (!normalizedSearch) return leads;
+    return leads.filter((lead) => leadMatchesSearch(lead, normalizedSearch));
+  }, [leads, normalizedSearch]);
+
   const sortedLeads = useMemo(() => {
     let copy: Lead[];
     switch (sortKey) {
       case "score":
-        copy = sortByScore(leads, now);
+        copy = sortByScore(searchedLeads, now);
         break;
       case "name":
-        copy = [...leads].sort((a, b) =>
+        copy = [...searchedLeads].sort((a, b) =>
           a.full_name.localeCompare(b.full_name)
         );
         break;
       case "warmth":
-        copy = [...leads].sort(
+        copy = [...searchedLeads].sort(
           (a, b) => WARMTH_RANK[b.temperature] - WARMTH_RANK[a.temperature]
         );
         break;
       case "sla":
-        copy = [...leads].sort((a, b) => {
+        copy = [...searchedLeads].sort((a, b) => {
           const aSla = assessSla(a, now);
           const bSla = assessSla(b, now);
           const rankDelta =
@@ -170,7 +178,7 @@ export default function LeadList({
         break;
       case "followup":
       default:
-        copy = [...leads].sort((a, b) => {
+        copy = [...searchedLeads].sort((a, b) => {
           const fa = a.next_followup_at
             ? new Date(a.next_followup_at).getTime()
             : Infinity;
@@ -182,9 +190,9 @@ export default function LeadList({
         break;
     }
     return sortDir === "asc" ? copy.reverse() : copy;
-  }, [leads, sortKey, sortDir, now]);
+  }, [searchedLeads, sortKey, sortDir, now]);
 
-  const startHere = useMemo(() => buildStartHere(leads, now), [leads, now]);
+  const startHere = useMemo(() => buildStartHere(searchedLeads, now), [searchedLeads, now]);
   const startHereIds = useMemo(
     () => new Set(startHere.map((item) => item.lead.id)),
     [startHere]
@@ -194,8 +202,8 @@ export default function LeadList({
     [sortedLeads, startHereIds]
   );
   const remainingLeads = useMemo(
-    () => leads.filter((lead) => !startHereIds.has(lead.id)),
-    [leads, startHereIds]
+    () => searchedLeads.filter((lead) => !startHereIds.has(lead.id)),
+    [searchedLeads, startHereIds]
   );
 
   const painFilteredLeads = useMemo(() => {
@@ -221,8 +229,8 @@ export default function LeadList({
     return buckets;
   }, [remainingLeads, now]);
 
-  const allIds = useMemo(() => leads.map((l) => l.id), [leads]);
-  const allSelected = leads.length > 0 && selected.size === leads.length;
+  const allIds = useMemo(() => searchedLeads.map((l) => l.id), [searchedLeads]);
+  const allSelected = searchedLeads.length > 0 && allIds.every((id) => selected.has(id));
   const anySelected = selected.size > 0;
 
   // ── Selection helpers ────────────────────────────────────────────────────
@@ -354,10 +362,12 @@ export default function LeadList({
       <StartHereSection items={startHere} />
 
       {/* ── View switcher + sort hint ────────────────────────────────── */}
-      <div className="mt-8 mb-5 flex flex-wrap items-end justify-between gap-3">
+      <div className="mt-8 mb-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,380px)_auto] lg:items-end">
         <div>
           <h2 className="text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)]">
-            {view === "list"
+            {normalizedSearch
+              ? "Search results"
+              : view === "list"
               ? "Rest of the book"
               : view === "kanban"
                 ? "Rest by warmth"
@@ -365,12 +375,22 @@ export default function LeadList({
           </h2>
           <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-0.5">
             {view === "list"
-              ? `${remainingSortedLeads.length} ${remainingSortedLeads.length === 1 ? "lead" : "leads"} kept visible without stealing focus.`
+              ? normalizedSearch
+                ? `${searchedLeads.length} ${searchedLeads.length === 1 ? "lead" : "leads"} found for "${searchQuery.trim()}".`
+                : `${remainingSortedLeads.length} ${remainingSortedLeads.length === 1 ? "lead" : "leads"} kept visible without stealing focus.`
               : view === "kanban"
                 ? "A quick emotional read after the rescue queue."
                 : "Find the emotional pattern without losing the top priorities."}
           </p>
         </div>
+
+        <LeadSearchBox
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onClear={() => setSearchQuery("")}
+          resultCount={searchedLeads.length}
+          totalCount={leads.length}
+        />
 
         <ViewSwitch view={view} onChange={setView} />
 
@@ -534,8 +554,19 @@ export default function LeadList({
         </div>
       </Modal>
 
+      {normalizedSearch && searchedLeads.length === 0 && (
+        <Card padding="md" className="text-center">
+          <p className="text-[length:var(--t-body)] font-extrabold text-[color:var(--text)]">
+            No matching leads.
+          </p>
+          <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+            Search checks name, email, phone, source, notes, tags, pain signal, and next move.
+          </p>
+        </Card>
+      )}
+
       {/* ── List view ────────────────────────────────────────────────── */}
-      {view === "list" && (
+      {view === "list" && searchedLeads.length > 0 && (
         <PaginatedList
           leads={remainingSortedLeads}
           now={now}
@@ -552,12 +583,12 @@ export default function LeadList({
       )}
 
       {/* ── Kanban / by-warmth view ──────────────────────────────────── */}
-      {view === "kanban" && (
+      {view === "kanban" && searchedLeads.length > 0 && (
         <KanbanBoard buckets={kanbanBuckets} />
       )}
 
       {/* ── Pain view ────────────────────────────────────────────────── */}
-      {view === "pain" && (
+      {view === "pain" && searchedLeads.length > 0 && (
         <PainView
           allLeads={remainingLeads}
           painFilter={painFilter}
@@ -608,6 +639,39 @@ function buildStartHere(leads: Lead[], now: number): StartHereItem[] {
       return (b.lead.deal_value ?? 0) - (a.lead.deal_value ?? 0);
     })
     .slice(0, START_HERE_MAX);
+}
+
+function leadMatchesSearch(lead: Lead, query: string): boolean {
+  const painLabels = (lead.pain_signal ?? []).map((pain) => PAIN_SIGNAL_LABEL[pain] ?? pain);
+  const nextAction = lead.next_honest_action
+    ? NEXT_ACTION_LABEL[lead.next_honest_action] ?? lead.next_honest_action
+    : "";
+  const warmth = TEMPERATURE_LABEL[lead.temperature] ?? lead.temperature;
+  const haystack = [
+    lead.full_name,
+    lead.email,
+    lead.phone,
+    lead.source,
+    lead.source_detail,
+    lead.status,
+    warmth,
+    nextAction,
+    lead.notes,
+    lead.fit_notes,
+    lead.disqualified_reason,
+    ...(lead.tags ?? []),
+    ...painLabels,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+    .replaceAll("_", " ");
+
+  return query
+    .replaceAll("_", " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((token) => haystack.includes(token));
 }
 
 function startHereReason(
@@ -838,6 +902,49 @@ function ViewSwitch({
         );
       })}
     </div>
+  );
+}
+
+function LeadSearchBox({
+  value,
+  onChange,
+  onClear,
+  resultCount,
+  totalCount,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onClear: () => void;
+  resultCount: number;
+  totalCount: number;
+}) {
+  const active = value.trim().length > 0;
+  return (
+    <label className="block min-w-0">
+      <span className="sr-only">Search leads</span>
+      <div className="flex min-h-11 items-center gap-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] px-3 transition focus-within:border-[var(--brand-strong)]">
+        <Search size={16} className="shrink-0 text-[color:var(--text-faint)]" aria-hidden />
+        <input
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder="Search leads..."
+          className="min-w-0 flex-1 bg-transparent text-[length:var(--t-caption)] font-bold text-[color:var(--text)] outline-none placeholder:text-[color:var(--text-faint)]"
+        />
+        {active ? (
+          <button
+            type="button"
+            onClick={onClear}
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--r-sm)] text-[color:var(--text-muted)] transition hover:bg-[var(--surface-deep)] hover:text-[color:var(--text)]"
+            aria-label="Clear lead search"
+          >
+            <X size={15} aria-hidden />
+          </button>
+        ) : null}
+        <span className="hidden shrink-0 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)] sm:inline">
+          {active ? `${resultCount}/${totalCount}` : `${totalCount}`}
+        </span>
+      </div>
+    </label>
   );
 }
 
