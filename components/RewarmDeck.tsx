@@ -22,6 +22,11 @@ type Props = {
 };
 
 export default function RewarmDeck({ lead, onUseTemplate }: Props) {
+  // Hooks MUST run unconditionally on every render — React enforces a
+  // stable hook call order across renders. The early-return guard
+  // below has to live AFTER every hook in this component.
+  const [expanded, setExpanded] = useState<string | null>(null);
+
   const sla = assessSla(lead);
   // Only show when the lead is going cold — otherwise this is noise.
   if (sla.state !== "warning" && sla.state !== "overdue") return null;
@@ -29,7 +34,6 @@ export default function RewarmDeck({ lead, onUseTemplate }: Props) {
   const ranked = rankPatternsForLead(lead);
   const primary = ranked[0];
   const alternates = ranked.slice(1);
-  const [expanded, setExpanded] = useState<string | null>(null);
 
   const accent = sla.state === "overdue" ? "#DC2626" : "#D97706";
   const tone = sla.state === "overdue" ? "Break the silence" : "Warm check-in";

@@ -1,0 +1,17 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    "@next/next/no-img-element": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "react/no-unescaped-entities": "off"
+  },
+  "ignorePatterns": [
+    ".next",
+    ".next-dev",
+    "node_modules",
+    "coach-platform-mcp",
+    "supabase/functions",
+    "qa/reports"
+  ]
+}
