@@ -6,6 +6,7 @@
 // coach should explicitly commit.
 
 import { useState } from "react";
+import { Button } from "@/components/ui";
 
 type Props = {
   label:   string;
@@ -45,17 +46,16 @@ export default function NumberField({
       {suffix && (
         <span className="text-sm text-gray-600 font-medium">{suffix}</span>
       )}
-      <button
-        type="button"
+      <Button
         disabled={!dirty || saving}
         onClick={() => {
           const n = parseInt(draft, 10);
           if (Number.isFinite(n) && n >= min && n <= max) onSave(n);
         }}
-        className="ml-auto inline-flex items-center px-4 py-2 rounded-lg bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-40 disabled:cursor-not-allowed"
+        className="ml-auto"
       >
         {saving ? "Saving…" : "Save"}
-      </button>
+      </Button>
     </div>
   );
 }

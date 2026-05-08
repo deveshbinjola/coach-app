@@ -16,7 +16,7 @@
 
 import { useEffect, useState } from "react";
 import type { ApiKey } from "@/lib/types";
-import { useConfirm } from "@/components/ui";
+import { Badge, Button, useConfirm } from "@/components/ui";
 import ScopeOption from "./ScopeOption";
 
 export default function ApiKeysPanel() {
@@ -118,13 +118,9 @@ export default function ApiKeysPanel() {
           </p>
         </div>
         {!showCreate && (
-          <button
-            type="button"
-            onClick={() => setShowCreate(true)}
-            className="inline-flex items-center px-4 py-2 rounded-lg bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition whitespace-nowrap"
-          >
+          <Button onClick={() => setShowCreate(true)} className="whitespace-nowrap">
             + Generate key
-          </button>
+          </Button>
         )}
       </div>
 
@@ -162,25 +158,19 @@ export default function ApiKeysPanel() {
           </div>
 
           <div className="flex gap-2 flex-wrap mt-4">
-            <button
-              type="button"
-              onClick={createKey}
-              disabled={creating || !newKeyName.trim()}
-              className="px-4 py-2 rounded bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-50"
-            >
+            <Button onClick={createKey} disabled={creating || !newKeyName.trim()}>
               {creating ? "Generating…" : "Generate"}
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="ghost"
               onClick={() => {
                 setShowCreate(false);
                 setNewKeyName("");
                 setNewKeyScope("read_write");
               }}
-              className="px-4 py-2 text-xs font-semibold text-gray-700 hover:text-navy"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -199,13 +189,13 @@ export default function ApiKeysPanel() {
           <div className="p-3 rounded bg-white border border-gray-200 font-mono text-xs break-all select-all">
             {justCreated.raw}
           </div>
-          <button
-            type="button"
+          <Button
+            size="sm"
             onClick={() => navigator.clipboard.writeText(justCreated.raw)}
-            className="mt-1.5 text-xs font-bold bg-navy text-white px-3 py-1.5 rounded hover:bg-[#1A1F2C]"
+            className="mt-1.5 bg-navy text-white hover:enabled:bg-navy-soft"
           >
             Copy raw key
-          </button>
+          </Button>
 
           {/* Phase 9 — Claude Desktop / Cursor MCP config snippet, pre-filled
               with the raw key. Coach pastes into their MCP client config and
@@ -245,8 +235,8 @@ export default function ApiKeysPanel() {
   }
 }`}
               </pre>
-              <button
-                type="button"
+              <Button
+                size="sm"
                 onClick={() => {
                   const snippet = `{
   "mcpServers": {
@@ -261,10 +251,10 @@ export default function ApiKeysPanel() {
 }`;
                   navigator.clipboard.writeText(snippet);
                 }}
-                className="mt-2 text-xs font-bold bg-brand text-navy px-3 py-1.5 rounded hover:bg-[#00E03A]"
+                className="mt-2"
               >
                 Copy MCP config
-              </button>
+              </Button>
               <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
                 Restart Claude Desktop / Cursor after saving. The MCP server
                 auto-installs on first run via npx. You'll see tools like{" "}
@@ -278,13 +268,14 @@ export default function ApiKeysPanel() {
             </div>
           </details>
 
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setJustCreated(null)}
-            className="mt-3 text-xs font-semibold text-gray-700 hover:text-navy"
+            className="mt-3"
           >
             I've saved it — dismiss
-          </button>
+          </Button>
         </div>
       )}
 
@@ -312,13 +303,13 @@ export default function ApiKeysPanel() {
                       {k.name}
                     </span>
                     {k.revoked_at ? (
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-red-100 text-red-800 border border-red-200 px-1.5 py-0.5 rounded">
+                      <Badge tone="danger" size="xs" uppercase>
                         Revoked
-                      </span>
+                      </Badge>
                     ) : (
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-brand-soft text-green-900 border border-[color-mix(in_srgb,var(--brand)_40%,transparent)] px-1.5 py-0.5 rounded">
+                      <Badge tone="brand" size="xs" uppercase>
                         Active
-                      </span>
+                      </Badge>
                     )}
                   </div>
                   <div className="text-[11px] text-gray-500 mt-0.5 font-mono">
@@ -333,14 +324,14 @@ export default function ApiKeysPanel() {
                   </div>
                 </div>
                 {!k.revoked_at && (
-                  <button
-                    type="button"
+                  <Button
+                    variant="danger"
+                    size="sm"
                     onClick={() => revokeKey(k.id)}
                     disabled={revoking === k.id}
-                    className="text-xs font-semibold text-red-700 hover:text-red-900 disabled:opacity-50"
                   >
                     {revoking === k.id ? "Revoking…" : "Revoke"}
-                  </button>
+                  </Button>
                 )}
               </li>
             ))}
