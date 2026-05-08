@@ -8,6 +8,8 @@
 
 export { default as Avatar } from "./Avatar";
 export { default as LeadAvatar } from "./LeadAvatar";
+export { default as DismissibleError, useError } from "./DismissibleError";
+export { useConfirm, type ConfirmOptions } from "./Confirm";
 export { default as Badge } from "./Badge";
 export { default as Button } from "./Button";
 export { default as Card } from "./Card";
