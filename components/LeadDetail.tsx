@@ -423,14 +423,15 @@ export default function LeadDetail({
           >
             Edit
           </a>
-          <button
-            type="button"
+          <Button
+            variant="danger"
+            size="sm"
             onClick={() => setConfirmDeleteOpen(true)}
             disabled={deleting}
-            className="flex-1 inline-flex items-center justify-center h-9 px-3 rounded-[var(--r-md)] border border-[var(--danger)] text-[#B42318] text-[length:var(--t-caption)] font-bold hover:bg-[var(--danger-soft)] disabled:opacity-50 transition"
+            className="flex-1"
           >
             {deleting ? "Deleting…" : "Delete"}
-          </button>
+          </Button>
         </div>
       </aside>
 
@@ -681,14 +682,14 @@ function LeadMemoryCard({
                 <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
                   Suggested
                 </span>
-                <button
-                  type="button"
+                <Button
+                  size="sm"
                   onClick={() => approve(memory)}
                   disabled={savingId === memory.id}
-                  className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--brand)] hover:opacity-90 disabled:opacity-50 transition"
+                  className="bg-[var(--navy)] text-[color:var(--brand)] uppercase tracking-wider hover:enabled:bg-[var(--navy-soft)]"
                 >
                   {savingId === memory.id ? "Saving..." : "Approve"}
-                </button>
+                </Button>
               </div>
             </div>
           ))
@@ -927,14 +928,15 @@ function FirstResponseDraftPanel({
           >
             {acting === "copy" ? "Copying…" : copied ? "Copied!" : "Copy"}
           </Button>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setConfirmDiscardOpen(true)}
             disabled={acting !== null}
-            className="ml-auto text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)] hover:text-[#B42318] transition disabled:opacity-50"
+            className="ml-auto border-0 hover:enabled:text-[#B42318]"
           >
             {acting === "discard" ? "Discarding…" : "Discard"}
-          </button>
+          </Button>
         </div>
 
         <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-2 leading-[var(--leading-base)]">
