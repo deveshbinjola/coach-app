@@ -22,7 +22,7 @@ import {
 import { computeLeadScore, sortByScore, scoreTier, SCORE_TIER_CLASS } from "@/lib/lead-score";
 import { computeWasEdited, scoreVoiceFit } from "@/lib/voice-trust";
 import VoiceFitPanel from "@/components/VoiceFitPanel";
-import { useError, useConfirm } from "@/components/ui";
+import { Badge, Button, useError, useConfirm } from "@/components/ui";
 
 const STATUSES: LeadStatus[] = ["new", "contacted", "qualified", "booked", "client", "closed_lost"];
 const STATUS_LABEL: Record<LeadStatus, string> = {
@@ -380,12 +380,14 @@ export default function ComposeStudio({
             {rescueMode ? "Selected leads" : "Segment"}
           </h2>
           {anyFilter && (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={clearFilters}
-              className="text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)] hover:text-[color:var(--text)] underline decoration-dotted underline-offset-4"
+              className="border-0 underline decoration-dotted underline-offset-4 text-[color:var(--text-muted)] hover:enabled:bg-transparent hover:enabled:text-[color:var(--text)]"
             >
               Clear
-            </button>
+            </Button>
           )}
         </div>
 
@@ -402,12 +404,14 @@ export default function ComposeStudio({
               {segmentLabel}: <strong>{idPin.length}</strong>{" "}
               {idPin.length === 1 ? "lead" : "leads"}
             </span>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setIdPin([])}
-              className="text-[10px] font-bold underline decoration-dotted underline-offset-2 text-[color:var(--text-muted)] hover:text-[color:var(--text)]"
+              className="border-0 text-[10px] underline decoration-dotted underline-offset-2 text-[color:var(--text-muted)] hover:enabled:bg-transparent"
             >
               unpin
-            </button>
+            </Button>
           </div>
         )}
 
@@ -503,13 +507,9 @@ export default function ComposeStudio({
                 : "Write once. Personalize per lead."}
             </p>
           </div>
-          <button
-            onClick={generateDraft}
-            disabled={matched.length === 0 || drafting}
-            className="inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition disabled:opacity-50"
-          >
+          <Button onClick={generateDraft} disabled={matched.length === 0 || drafting}>
             {drafting ? "Drafting..." : matched.length === 0 ? "No leads matched" : "AI draft"}
-          </button>
+          </Button>
         </div>
 
         {segmentIntent && (
@@ -584,17 +584,16 @@ export default function ComposeStudio({
               {unsentCount} left to log
             </p>
           </div>
-          <button
+          <Button
             onClick={logAllAsSent}
             disabled={
               matched.length === 0 ||
               !template.trim() ||
               matched.every((l) => sentIds.has(l.id))
             }
-            className="inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition disabled:opacity-50"
           >
             Log all as sent
-          </button>
+          </Button>
         </div>
         <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-3 leading-[var(--leading-base)]">
           Resend isn&apos;t wired yet, this logs each personalized message to the
