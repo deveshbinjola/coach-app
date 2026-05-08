@@ -3366,9 +3366,18 @@ function drawEditorialGoldSlide(
   identity: string,
   theme: CarouselCanvasTheme
 ) {
-  ctx.fillStyle = slideNumber <= 2 ? theme.accent : "#F5F1EA";
+  // Cover treatment: slides 1 + 2 use the dark accent + ornament pattern.
+  // Per the carousel research the cover headline is the single biggest
+  // determinant of swipe-through; slide counter dropped on cover, body
+  // skipped on the absolute cover (slide 1 only — slide 2 is "second
+  // hook" and benefits from a body line restating from a different angle).
+  const isAbsoluteCover = slideNumber === 1;
+  const isCoverPair = slideNumber <= 2;
+  const isPayoff = slideNumber === 7;
+
+  ctx.fillStyle = isCoverPair ? theme.accent : "#F5F1EA";
   ctx.fillRect(0, 0, 1080, 1350);
-  if (slideNumber <= 2) {
+  if (isCoverPair) {
     ctx.fillStyle = "#151515";
     ctx.fillRect(845, 0, 235, 345);
     ctx.fillStyle = "#F7C46C";
@@ -3378,44 +3387,57 @@ function drawEditorialGoldSlide(
     ctx.fillStyle = "#151515";
     ctx.fillRect(0, 1070, 1080, 280);
   }
-  ctx.fillStyle = slideNumber <= 2 ? "#FFF8E8" : "#151515";
+  ctx.fillStyle = isCoverPair ? "#FFF8E8" : "#151515";
   ctx.font = "800 36px 'Plus Jakarta Sans', sans-serif";
   ctx.fillText(identity.slice(0, 34), 68, 86);
-  ctx.font = "800 28px 'Plus Jakarta Sans', sans-serif";
-  ctx.fillText(`${slideNumber}/${totalSlides}`, 920, 86);
+  if (!isAbsoluteCover) {
+    ctx.font = "800 28px 'Plus Jakarta Sans', sans-serif";
+    ctx.fillText(`${slideNumber}/${totalSlides}`, 920, 86);
+  }
 
-  // Cover slides (1 + 2): Fraunces display + bigger min size for
-  // thumb-zoom legibility per the carousel research benchmarks.
-  // Interior slides stay on Plus Jakarta Sans for tight wrap math.
-  const isCover = slideNumber <= 2;
   fitWrappedText(ctx, slide.title, {
     x: 68,
-    y: isCover ? 165 : 315,
-    maxWidth: isCover ? 750 : 900,
-    maxHeight: isCover ? 700 : 420,
-    maxFontSize: isCover ? 120 : 78,
-    minFontSize: isCover ? 56 : 42,
-    lineHeightRatio: isCover ? 0.92 : 0.95,
-    weight: isCover ? 800 : 900,
-    color: isCover ? "#FFF8E8" : "#151515",
-    fontFamily: isCover
+    y: isCoverPair ? 165 : 315,
+    maxWidth: isCoverPair ? 750 : 900,
+    maxHeight: isCoverPair ? 700 : 420,
+    maxFontSize: isCoverPair ? 120 : 78,
+    minFontSize: isCoverPair ? 56 : 42,
+    lineHeightRatio: isCoverPair ? 0.92 : 0.95,
+    weight: isCoverPair ? 800 : 900,
+    color: isCoverPair ? "#FFF8E8" : "#151515",
+    fontFamily: isCoverPair
       ? "'Fraunces', 'Plus Jakarta Sans', serif"
       : "'Plus Jakarta Sans', sans-serif",
   });
-  if (slide.body) {
+  // Absolute cover (slide 1) skips the body — let the headline carry alone.
+  if (slide.body && !isAbsoluteCover) {
     fitWrappedText(ctx, slide.body, {
       x: 68,
-      y: isCover ? 1138 : 830,
+      y: isCoverPair ? 1138 : 830,
       maxWidth: 900,
       maxHeight: 145,
       maxFontSize: 40,
-      minFontSize: isCover ? 32 : 26,
+      minFontSize: isCoverPair ? 32 : 26,
       lineHeightRatio: 1.25,
       weight: 500,
-      color: isCover ? "#F5F1EA" : "rgba(21,21,21,0.68)",
+      color: isCoverPair ? "#F5F1EA" : "rgba(21,21,21,0.68)",
       fontFamily: "'Plus Jakarta Sans', sans-serif",
     });
   }
+  // SAVE THIS only on the payoff slide. Hard-sell on every interior
+  // slide before this change.
+  if (isPayoff) {
+    ctx.fillStyle = theme.accent;
+    ctx.font = "800 26px Arial";
+    ctx.fillText("SAVE THIS", 68, 1010);
+  }
+  // Swipe-prompt arrow on every slide except the last.
+  if (slideNumber < totalSlides) {
+    drawSwipeArrow(ctx, isCoverPair ? "#FFF8E8" : "#151515");
+  }
+  // Subtle grain so the slide reads as a finished asset, not a flat
+  // color block.
+  drawNoise(ctx, 0.018);
 }
 
 function drawForestSandSlide(
@@ -3426,6 +3448,12 @@ function drawForestSandSlide(
   identity: string,
   theme: CarouselCanvasTheme
 ) {
+  // Cover (slide 1) gets distinct treatment per the carousel research:
+  // no slide counter, no body, oversized headline. Cover does 60% of
+  // the swipe-through work — every pixel earns its keep.
+  const isCover = slideNumber === 1;
+  const isPayoff = slideNumber === 7;
+
   ctx.fillStyle = theme.bg;
   ctx.fillRect(0, 0, 1080, 1350);
   ctx.fillStyle = "rgba(56,102,65,0.08)";
@@ -3435,14 +3463,18 @@ function drawForestSandSlide(
   roundRect(ctx, 80, 188, 15, 790, 999);
   ctx.fill();
 
+  // Header chrome — handle on cover, full identity + slide counter on
+  // interior slides for orientation. The slide counter on the cover
+  // reads as instructional and was dropped per the research.
   ctx.fillStyle = theme.subtle;
   ctx.font = "700 28px 'Plus Jakarta Sans', sans-serif";
   ctx.fillText(identity.slice(0, 34), 80, 94);
-  ctx.fillText(`${slideNumber}/${totalSlides}`, 900, 94);
+  if (!isCover) {
+    ctx.fillText(`${slideNumber}/${totalSlides}`, 900, 94);
+  }
 
-  // Forest Sand: cover (slide 1) gets Fraunces + bigger headline; interior
+  // Forest Sand cover (slide 1) gets Fraunces + bigger headline; interior
   // slides keep Plus Jakarta Sans for the tighter wrap.
-  const isCover = slideNumber === 1;
   fitWrappedText(ctx, slide.title, {
     x: 130,
     y: isCover ? 290 : 330,
@@ -3457,7 +3489,9 @@ function drawForestSandSlide(
       ? "'Fraunces', 'Plus Jakarta Sans', serif"
       : "'Plus Jakarta Sans', sans-serif",
   });
-  if (slide.body) {
+  // Cover skips the body line — let the headline carry alone.
+  // Interior slides keep the body for the value beat.
+  if (slide.body && !isCover) {
     fitWrappedText(ctx, slide.body, {
       x: 130,
       y: 745,
@@ -3471,9 +3505,22 @@ function drawForestSandSlide(
       fontFamily: "'Plus Jakarta Sans', sans-serif",
     });
   }
-  ctx.fillStyle = theme.accent;
-  ctx.font = "800 26px 'Plus Jakarta Sans', sans-serif";
-  ctx.fillText("SAVE THIS", 130, 1165);
+  // SAVE THIS only on the payoff slide. Was on every interior slide
+  // before, which read as hard-sell. Payoff is when the reader actually
+  // wants to bookmark.
+  if (isPayoff) {
+    ctx.fillStyle = theme.accent;
+    ctx.font = "800 26px 'Plus Jakarta Sans', sans-serif";
+    ctx.fillText("SAVE THIS", 130, 1165);
+  }
+  // Swipe-prompt arrow on every slide except the last — universal
+  // carousel cue that was missing.
+  if (slideNumber < totalSlides) {
+    drawSwipeArrow(ctx, theme.accent);
+  }
+  // Subtle grain overlay so the slide reads as a finished asset, not
+  // a flat color block. Mirrors the dashboard atmosphere fix.
+  drawNoise(ctx, 0.018);
 }
 
 function drawHardFactsSlide(
@@ -3829,6 +3876,20 @@ function drawAsterisk(ctx: CanvasRenderingContext2D, x: number, y: number, color
     ctx.lineTo(78, 0);
     ctx.stroke();
   }
+  ctx.restore();
+}
+
+// Universal "swipe →" cue. Carousels need this on every slide except the
+// last so the reader knows the post continues — Marketing Harry uses
+// this consistently and it's mentioned across every 2026 carousel
+// playbook. Anchored bottom-right, brand accent color, small.
+function drawSwipeArrow(ctx: CanvasRenderingContext2D, color: string) {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.font = "700 38px 'Plus Jakarta Sans', sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText("swipe →", 1010, 1290);
+  ctx.textAlign = "left";
   ctx.restore();
 }
 
