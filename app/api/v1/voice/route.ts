@@ -56,9 +56,18 @@ export async function POST(request: NextRequest) {
     return voiceError("write scope required", 403);
   }
 
-  let body: any;
+  // Voice import accepts a flexible shape (Brand OS payload, raw voice
+  // dictionary, partial updates) so we keep the deeper semantic checks
+  // in normalizeVoiceJson() / normalizeSampleMessages() rather than
+  // pinning a Zod schema. This still upgrades from `let body: any` to
+  // a typed `Record<string, unknown>` after the JSON parse.
+  let body: Record<string, unknown>;
   try {
-    body = await request.json();
+    const raw = await request.json();
+    if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+      return voiceError("Body must be a JSON object", 400);
+    }
+    body = raw as Record<string, unknown>;
   } catch {
     return voiceError("Invalid JSON body", 400);
   }
@@ -130,16 +139,17 @@ function voiceOk(body: unknown, status = 200): Response {
 }
 
 function normalizeVoiceJson(
-  body: any
+  body: Record<string, unknown>
 ): { ok: true; value: Record<string, unknown> } | { ok: false; error: string } {
-  const candidate = body?.voice_json ?? body?.voice ?? body?.brand_os_voice;
-  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+  const candidateRaw = body.voice_json ?? body.voice ?? body.brand_os_voice;
+  if (!candidateRaw || typeof candidateRaw !== "object" || Array.isArray(candidateRaw)) {
     return {
       ok: false,
       error:
         "voice_json is required. Send the Brand OS Step 2 voice artifact as an object.",
     };
   }
+  const candidate = candidateRaw as Record<string, unknown>;
 
   const hasUsefulSignal =
     Array.isArray(candidate.tone) ||
@@ -156,7 +166,7 @@ function normalizeVoiceJson(
     };
   }
 
-  return { ok: true, value: candidate as Record<string, unknown> };
+  return { ok: true, value: candidate };
 }
 
 function normalizeSampleMessages(
