@@ -2138,7 +2138,7 @@ function CarouselPreview({
               <h4
                 className="text-[22px] leading-[1.05] tracking-tight"
                 style={{
-                  fontFamily: dna?.fontFamily === "serif" ? "Georgia" : dna?.fontFamily === "mono" ? "monospace" : "Arial",
+                  fontFamily: dna?.fontFamily === "serif" ? "'Fraunces', Georgia, serif" : dna?.fontFamily === "mono" ? "monospace" : "'Plus Jakarta Sans', sans-serif",
                   fontWeight: dna?.titleWeight ?? 800,
                   textAlign: dna?.align ?? "left",
                   color: dna?.titleColor,
@@ -2150,7 +2150,7 @@ function CarouselPreview({
                 <p
                   className="mt-3 text-[13px] leading-[1.45] opacity-70"
                   style={{
-                    fontFamily: dna?.fontFamily === "serif" ? "Georgia" : dna?.fontFamily === "mono" ? "monospace" : "Arial",
+                    fontFamily: dna?.fontFamily === "serif" ? "'Fraunces', Georgia, serif" : dna?.fontFamily === "mono" ? "monospace" : "'Plus Jakarta Sans', sans-serif",
                     textAlign: dna?.align ?? "left",
                     color: dna?.bodyColor,
                   }}
@@ -2882,6 +2882,44 @@ function cleanSlideText(value: string): string {
     .trim();
 }
 
+// Web fonts have to be FontFace-loaded before canvas drawing or the text
+// silently falls back to a generic sans-serif (which is what the Arial
+// strings used to render as anyway). We await load on a representative
+// set of weights once per export — subsequent slides hit the cache.
+//
+// Per Marketing Harry's playbook + 2026 carousel research: the whole
+// app already pairs Plus Jakarta Sans (body / interior slides) with
+// Fraunces (cover headlines). Carousels were the one surface still on
+// Arial — the single biggest visual downgrade in the product.
+let carouselFontsReadyPromise: Promise<void> | null = null;
+async function ensureCarouselFontsLoaded(): Promise<void> {
+  if (typeof document === "undefined" || !document.fonts) return;
+  if (carouselFontsReadyPromise) return carouselFontsReadyPromise;
+  carouselFontsReadyPromise = (async () => {
+    const fontsToLoad = [
+      // Plus Jakarta Sans — interior slides + body copy + UI labels
+      "500 26px 'Plus Jakarta Sans'",
+      "500 32px 'Plus Jakarta Sans'",
+      "700 28px 'Plus Jakarta Sans'",
+      "700 36px 'Plus Jakarta Sans'",
+      "800 56px 'Plus Jakarta Sans'",
+      "900 72px 'Plus Jakarta Sans'",
+      // Fraunces — cover headlines (slide 1 of every style + the Onyx
+      // payoff slide). Sizes mirror the actual fitWrappedText min/max.
+      "700 56px 'Fraunces'",
+      "700 110px 'Fraunces'",
+      "800 120px 'Fraunces'",
+    ];
+    await Promise.all(
+      fontsToLoad.map((spec) =>
+        document.fonts.load(spec).catch(() => undefined)
+      )
+    );
+    await document.fonts.ready;
+  })();
+  return carouselFontsReadyPromise;
+}
+
 async function renderCarouselSlide(
   deckTitle: string,
   slide: CarouselSlide,
@@ -2893,6 +2931,10 @@ async function renderCarouselSlide(
   accentColor: string,
   customStyle: CarouselCustomStyle | null
 ): Promise<string> {
+  // Wait once per export so canvas.fillText uses the actual web font
+  // rather than silently falling back to a system sans-serif.
+  await ensureCarouselFontsLoaded();
+
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
   canvas.height = 1350;
@@ -3008,7 +3050,7 @@ function drawOnyxSlide(
   drawDiamond(ctx, 540, slideNumber === totalSlides ? 470 : 155, slideNumber === totalSlides ? 70 : 38);
 
   ctx.fillStyle = theme.subtle;
-  ctx.font = "600 28px Georgia";
+  ctx.font = "600 28px 'Fraunces', Georgia, serif";
   ctx.textAlign = "center";
   ctx.fillText(identity.slice(0, 34), 540, 1268);
   ctx.textAlign = "left";
@@ -3024,7 +3066,7 @@ function drawOnyxSlide(
       lineHeightRatio: 1.12,
       weight: 500,
       color: theme.text,
-      fontFamily: "Georgia",
+      fontFamily: "'Fraunces', Georgia, serif",
       align: "center",
     });
     if (slide.body) {
@@ -3038,7 +3080,7 @@ function drawOnyxSlide(
         lineHeightRatio: 1.3,
         weight: 600,
         color: theme.accent,
-        fontFamily: "Arial",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
         align: "center",
       });
     }
@@ -3046,7 +3088,7 @@ function drawOnyxSlide(
   }
 
   ctx.fillStyle = theme.muted;
-  ctx.font = "700 22px Arial";
+  ctx.font = "700 22px 'Plus Jakarta Sans', sans-serif";
   ctx.fillText(`${slideNumber}/${totalSlides}`, 72, 112);
 
   fitWrappedText(ctx, slide.title, {
@@ -3059,7 +3101,7 @@ function drawOnyxSlide(
     lineHeightRatio: 1.02,
     weight: 800,
     color: theme.text,
-    fontFamily: "Arial",
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
   });
   if (slide.body) {
     fitWrappedText(ctx, slide.body, {
@@ -3072,7 +3114,7 @@ function drawOnyxSlide(
       lineHeightRatio: 1.28,
       weight: 500,
       color: theme.muted,
-      fontFamily: "Arial",
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
     });
   }
   ctx.fillStyle = theme.accent;
@@ -3096,7 +3138,7 @@ function drawImportedQuoteSlide(
   drawDiamond(ctx, 540, 320, 56);
 
   ctx.fillStyle = theme.subtle;
-  ctx.font = "700 26px Arial";
+  ctx.font = "700 26px 'Plus Jakarta Sans', sans-serif";
   ctx.textAlign = "center";
   ctx.fillText(`${slideNumber}/${totalSlides}`, 540, 136);
 
@@ -3110,7 +3152,7 @@ function drawImportedQuoteSlide(
     lineHeightRatio: 1.1,
     weight: 500,
     color: theme.text,
-    fontFamily: "Georgia",
+    fontFamily: "'Fraunces', Georgia, serif",
     align: "center",
   });
 
@@ -3125,13 +3167,13 @@ function drawImportedQuoteSlide(
       lineHeightRatio: 1.3,
       weight: 500,
       color: theme.muted,
-      fontFamily: "Georgia",
+      fontFamily: "'Fraunces', Georgia, serif",
       align: "center",
     });
   }
 
   ctx.fillStyle = theme.accent;
-  ctx.font = "800 24px Arial";
+  ctx.font = "800 24px 'Plus Jakarta Sans', sans-serif";
   ctx.fillText(identity.slice(0, 34), 540, 1212);
   ctx.textAlign = "left";
 }
@@ -3246,7 +3288,7 @@ function drawDnaMeta(
   y: number
 ) {
   ctx.fillStyle = dna.handleColor;
-  ctx.font = `${dna.titleWeight >= 800 ? 800 : 700} 26px ${dna.fontFamily === "serif" ? "Georgia" : dna.fontFamily === "mono" ? "monospace" : "Arial"}`;
+  ctx.font = `${dna.titleWeight >= 800 ? 800 : 700} 26px ${dna.fontFamily === "serif" ? "'Fraunces', Georgia, serif" : dna.fontFamily === "mono" ? "monospace" : "'Plus Jakarta Sans', sans-serif"}`;
   if (dna.align === "center") {
     ctx.textAlign = "center";
     ctx.fillText(identity.slice(0, 34), 540, y);
@@ -3289,7 +3331,7 @@ function drawDnaTextZone(
   const y = zone.y * 1350;
   const w = zone.w * 1080;
   const h = zone.h * 1350;
-  const fontFamily = dna.fontFamily === "serif" ? "Georgia" : dna.fontFamily === "mono" ? "monospace" : "Arial";
+  const fontFamily = dna.fontFamily === "serif" ? "'Fraunces', Georgia, serif" : dna.fontFamily === "mono" ? "monospace" : "'Plus Jakarta Sans', sans-serif";
   const color = zone.color ?? (tone === "body" ? dna.bodyColor : dna.titleColor);
 
   if (dna.highlightMode === "marker" && tone === "title") {
@@ -3337,35 +3379,41 @@ function drawEditorialGoldSlide(
     ctx.fillRect(0, 1070, 1080, 280);
   }
   ctx.fillStyle = slideNumber <= 2 ? "#FFF8E8" : "#151515";
-  ctx.font = "800 36px Arial";
+  ctx.font = "800 36px 'Plus Jakarta Sans', sans-serif";
   ctx.fillText(identity.slice(0, 34), 68, 86);
-  ctx.font = "800 28px Arial";
+  ctx.font = "800 28px 'Plus Jakarta Sans', sans-serif";
   ctx.fillText(`${slideNumber}/${totalSlides}`, 920, 86);
 
+  // Cover slides (1 + 2): Fraunces display + bigger min size for
+  // thumb-zoom legibility per the carousel research benchmarks.
+  // Interior slides stay on Plus Jakarta Sans for tight wrap math.
+  const isCover = slideNumber <= 2;
   fitWrappedText(ctx, slide.title, {
     x: 68,
-    y: slideNumber <= 2 ? 165 : 315,
-    maxWidth: slideNumber <= 2 ? 750 : 900,
-    maxHeight: slideNumber <= 2 ? 700 : 420,
-    maxFontSize: slideNumber <= 2 ? 98 : 78,
-    minFontSize: 42,
-    lineHeightRatio: 0.95,
-    weight: 900,
-    color: slideNumber <= 2 ? "#FFF8E8" : "#151515",
-    fontFamily: "Arial",
+    y: isCover ? 165 : 315,
+    maxWidth: isCover ? 750 : 900,
+    maxHeight: isCover ? 700 : 420,
+    maxFontSize: isCover ? 120 : 78,
+    minFontSize: isCover ? 56 : 42,
+    lineHeightRatio: isCover ? 0.92 : 0.95,
+    weight: isCover ? 800 : 900,
+    color: isCover ? "#FFF8E8" : "#151515",
+    fontFamily: isCover
+      ? "'Fraunces', 'Plus Jakarta Sans', serif"
+      : "'Plus Jakarta Sans', sans-serif",
   });
   if (slide.body) {
     fitWrappedText(ctx, slide.body, {
       x: 68,
-      y: slideNumber <= 2 ? 1138 : 830,
+      y: isCover ? 1138 : 830,
       maxWidth: 900,
       maxHeight: 145,
-      maxFontSize: 38,
-      minFontSize: 26,
+      maxFontSize: 40,
+      minFontSize: isCover ? 32 : 26,
       lineHeightRatio: 1.25,
       weight: 500,
-      color: slideNumber <= 2 ? "#F5F1EA" : "rgba(21,21,21,0.68)",
-      fontFamily: "Arial",
+      color: isCover ? "#F5F1EA" : "rgba(21,21,21,0.68)",
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
     });
   }
 }
@@ -3388,21 +3436,26 @@ function drawForestSandSlide(
   ctx.fill();
 
   ctx.fillStyle = theme.subtle;
-  ctx.font = "700 28px Arial";
+  ctx.font = "700 28px 'Plus Jakarta Sans', sans-serif";
   ctx.fillText(identity.slice(0, 34), 80, 94);
   ctx.fillText(`${slideNumber}/${totalSlides}`, 900, 94);
 
+  // Forest Sand: cover (slide 1) gets Fraunces + bigger headline; interior
+  // slides keep Plus Jakarta Sans for the tighter wrap.
+  const isCover = slideNumber === 1;
   fitWrappedText(ctx, slide.title, {
     x: 130,
-    y: 330,
-    maxWidth: 800,
-    maxHeight: 330,
-    maxFontSize: 72,
-    minFontSize: 40,
-    lineHeightRatio: 1.08,
-    weight: 800,
+    y: isCover ? 290 : 330,
+    maxWidth: isCover ? 820 : 800,
+    maxHeight: isCover ? 480 : 330,
+    maxFontSize: isCover ? 110 : 72,
+    minFontSize: isCover ? 56 : 40,
+    lineHeightRatio: isCover ? 1.0 : 1.08,
+    weight: isCover ? 700 : 800,
     color: theme.text,
-    fontFamily: "Arial",
+    fontFamily: isCover
+      ? "'Fraunces', 'Plus Jakarta Sans', serif"
+      : "'Plus Jakarta Sans', sans-serif",
   });
   if (slide.body) {
     fitWrappedText(ctx, slide.body, {
@@ -3410,16 +3463,16 @@ function drawForestSandSlide(
       y: 745,
       maxWidth: 740,
       maxHeight: 180,
-      maxFontSize: 36,
-      minFontSize: 25,
+      maxFontSize: 38,
+      minFontSize: isCover ? 32 : 25,
       lineHeightRatio: 1.28,
       weight: 500,
       color: theme.muted,
-      fontFamily: "Arial",
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
     });
   }
   ctx.fillStyle = theme.accent;
-  ctx.font = "800 26px Arial";
+  ctx.font = "800 26px 'Plus Jakarta Sans', sans-serif";
   ctx.fillText("SAVE THIS", 130, 1165);
 }
 
@@ -3443,7 +3496,7 @@ function drawHardFactsSlide(
   ctx.translate(660, 150);
   ctx.rotate(-0.12);
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "900 36px Arial";
+  ctx.font = "900 36px 'Plus Jakarta Sans', sans-serif";
   ctx.fillText(slideNumber === 1 ? "DISCOVER THE HARD FACTS" : identity.slice(0, 28).toUpperCase(), 0, 0);
   ctx.restore();
 
@@ -3457,7 +3510,7 @@ function drawHardFactsSlide(
     lineHeightRatio: 0.92,
     weight: 900,
     color: "#050505",
-    fontFamily: "Arial",
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
   });
   if (slide.body) {
     fitWrappedText(ctx, slide.body, {
@@ -3470,7 +3523,7 @@ function drawHardFactsSlide(
       lineHeightRatio: 1.28,
       weight: 500,
       color: "#FFFFFF",
-      fontFamily: "Arial",
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
     });
   }
   ctx.strokeStyle = "#C8A16A";
@@ -3481,7 +3534,7 @@ function drawHardFactsSlide(
   ctx.lineTo(520, 1240);
   ctx.stroke();
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "800 28px Arial";
+  ctx.font = "800 28px 'Plus Jakarta Sans', sans-serif";
   ctx.fillText(`${slideNumber}/${totalSlides}`, 892, 1245);
 }
 
@@ -3714,7 +3767,7 @@ function fitWrappedText(
   let chosenFontSize = options.minFontSize;
   let chosenLines: string[] = [clean];
   for (let fontSize = options.maxFontSize; fontSize >= options.minFontSize; fontSize -= 2) {
-    ctx.font = `${options.weight} ${fontSize}px ${options.fontFamily ?? "Arial"}`;
+    ctx.font = `${options.weight} ${fontSize}px ${options.fontFamily ?? "'Plus Jakarta Sans', sans-serif"}`;
     const lines = wrapLines(ctx, clean, options.maxWidth);
     const lineHeight = fontSize * options.lineHeightRatio;
     if (lines.length * lineHeight <= options.maxHeight) {
@@ -3725,7 +3778,7 @@ function fitWrappedText(
   }
 
   ctx.fillStyle = options.color;
-  ctx.font = `${options.weight} ${chosenFontSize}px ${options.fontFamily ?? "Arial"}`;
+  ctx.font = `${options.weight} ${chosenFontSize}px ${options.fontFamily ?? "'Plus Jakarta Sans', sans-serif"}`;
   const lineHeight = chosenFontSize * options.lineHeightRatio;
   const maxLines = Math.max(1, Math.floor(options.maxHeight / lineHeight));
   const visibleLines = chosenLines.slice(0, maxLines);
