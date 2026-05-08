@@ -1,0 +1,370 @@
+"use client";
+
+// ApiKeysPanel — generate, list, and revoke keys that external agents
+// (Claude Desktop, Cursor, n8n, custom GPTs) use to hit /api/v1/*.
+//
+// Two design choices worth flagging:
+//
+//   1. Just-created flash shows the raw secret ONCE. We never display
+//      it again — coaches who lose it have to issue a new key. This
+//      matches the GitHub / Stripe / etc. industry pattern.
+//
+//   2. Scope is decided at create-time, not editable later. Coaches
+//      who want to swap a read-only key for a read+write one issue
+//      a new key and revoke the old. Forces them to think about
+//      which agent gets which scope.
+
+import { useEffect, useState } from "react";
+import type { ApiKey } from "@/lib/types";
+import { useConfirm } from "@/components/ui";
+import ScopeOption from "./ScopeOption";
+
+export default function ApiKeysPanel() {
+  const { ConfirmDialog, askConfirm } = useConfirm();
+  const [keys, setKeys] = useState<ApiKey[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [newKeyName, setNewKeyName] = useState("");
+  // Phase 11 — let coaches pick scope at create time. Default read+write
+  // (full agent access). Read-only is for less-trusted agents.
+  const [newKeyScope, setNewKeyScope] = useState<"read" | "read_write">(
+    "read_write"
+  );
+  const [showCreate, setShowCreate] = useState(false);
+  // Set when a key is freshly created — full secret shown once, then cleared.
+  const [justCreated, setJustCreated] = useState<{ raw: string; key: ApiKey } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [revoking, setRevoking] = useState<string | null>(null);
+
+  async function loadKeys() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/keys");
+      const j = await res.json();
+      if (!res.ok) {
+        setError(j.error ?? "Failed to load keys");
+        return;
+      }
+      setKeys(j.keys ?? []);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadKeys();
+  }, []);
+
+  async function createKey() {
+    if (!newKeyName.trim()) return;
+    setError(null);
+    setCreating(true);
+    try {
+      const scopes =
+        newKeyScope === "read" ? ["read"] : ["read", "write"];
+      const res = await fetch("/api/keys", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newKeyName.trim(), scopes }),
+      });
+      const j = await res.json();
+      if (!res.ok) {
+        setError(j.error ?? "Failed to create key");
+        return;
+      }
+      setJustCreated({ raw: j.raw, key: j.key });
+      setNewKeyName("");
+      setNewKeyScope("read_write");
+      setShowCreate(false);
+      // Refresh list so the new key appears (without the raw secret).
+      loadKeys();
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function revokeKey(id: string) {
+    const ok = await askConfirm({
+      title:        "Revoke this key?",
+      description:  "Any agent using it will start failing immediately. You can issue a new key any time.",
+      confirmLabel: "Revoke",
+      destructive:  true,
+    });
+    if (!ok) return;
+    setRevoking(id);
+    try {
+      const res = await fetch(`/api/keys/${id}`, { method: "DELETE" });
+      const j = await res.json();
+      if (!res.ok) {
+        setError(j.error ?? "Failed to revoke");
+        return;
+      }
+      loadKeys();
+    } finally {
+      setRevoking(null);
+    }
+  }
+
+  return (
+    <section className="card p-6">
+      {ConfirmDialog}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">API keys</h2>
+          <p className="text-sm text-gray-600">
+            Keys for plugging your AI agent (Claude Desktop, Cursor, n8n,
+            custom GPTs, anything) into Coach Platform. Read your focus
+            queue, log messages, create leads — agent-first.
+          </p>
+        </div>
+        {!showCreate && (
+          <button
+            type="button"
+            onClick={() => setShowCreate(true)}
+            className="inline-flex items-center px-4 py-2 rounded-lg bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition whitespace-nowrap"
+          >
+            + Generate key
+          </button>
+        )}
+      </div>
+
+      {/* Create form */}
+      {showCreate && (
+        <div className="mt-4 p-4 rounded-lg bg-surface border border-gray-200">
+          <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">
+            Key name (helps you tell keys apart)
+          </label>
+          <input
+            type="text"
+            value={newKeyName}
+            onChange={(e) => setNewKeyName(e.target.value)}
+            placeholder="Claude Desktop"
+            maxLength={100}
+            className="w-full p-2 rounded border border-gray-300 text-sm focus:outline-none focus:border-brand"
+          />
+
+          <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mt-3 mb-1">
+            Scope
+          </label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <ScopeOption
+              active={newKeyScope === "read_write"}
+              onClick={() => setNewKeyScope("read_write")}
+              title="Read + Write"
+              hint="Full agent access. Read everything, create leads, log messages, update fields, request drafts. Default for trusted agents like Claude Desktop."
+            />
+            <ScopeOption
+              active={newKeyScope === "read"}
+              onClick={() => setNewKeyScope("read")}
+              title="Read-only"
+              hint="Can only fetch — focus queue, leads, messages, voice. Cannot mutate. Use for less-trusted agents (custom GPTs, public bots, automations you're testing)."
+            />
+          </div>
+
+          <div className="flex gap-2 flex-wrap mt-4">
+            <button
+              type="button"
+              onClick={createKey}
+              disabled={creating || !newKeyName.trim()}
+              className="px-4 py-2 rounded bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-50"
+            >
+              {creating ? "Generating…" : "Generate"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowCreate(false);
+                setNewKeyName("");
+                setNewKeyScope("read_write");
+              }}
+              className="px-4 py-2 text-xs font-semibold text-gray-700 hover:text-navy"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Just-created flash — shows the raw key ONCE, plus an install
+          snippet pre-filled with that key (also won't be available again). */}
+      {justCreated && (
+        <div className="mt-4 p-4 rounded-lg border-2 border-brand bg-[#F0FFF4]">
+          <p className="text-sm font-extrabold text-navy">
+            🔑 Save this key now — we won't show it again.
+          </p>
+
+          <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mt-3 mb-1">
+            Raw key
+          </label>
+          <div className="p-3 rounded bg-white border border-gray-200 font-mono text-xs break-all select-all">
+            {justCreated.raw}
+          </div>
+          <button
+            type="button"
+            onClick={() => navigator.clipboard.writeText(justCreated.raw)}
+            className="mt-1.5 text-xs font-bold bg-navy text-white px-3 py-1.5 rounded hover:bg-[#1A1F2C]"
+          >
+            Copy raw key
+          </button>
+
+          {/* Phase 9 — Claude Desktop / Cursor MCP config snippet, pre-filled
+              with the raw key. Coach pastes into their MCP client config and
+              their agent is connected. Two clicks total. */}
+          <details className="mt-4">
+            <summary className="cursor-pointer text-sm font-bold text-navy hover:text-brand-strong">
+              ⚡ Connect to Claude Desktop / Cursor →
+            </summary>
+            <div className="mt-3">
+              <p className="text-xs text-gray-700 leading-relaxed mb-2">
+                Paste the snippet below into your MCP client config:
+              </p>
+              <ul className="text-[11px] text-gray-600 space-y-0.5 mb-3 list-disc pl-5">
+                <li>
+                  <b>Claude Desktop (macOS):</b>{" "}
+                  <code className="px-1 bg-gray-100 rounded">
+                    ~/Library/Application Support/Claude/claude_desktop_config.json
+                  </code>
+                </li>
+                <li>
+                  <b>Cursor:</b>{" "}
+                  <code className="px-1 bg-gray-100 rounded">
+                    ~/.cursor/mcp.json
+                  </code>
+                </li>
+              </ul>
+              <pre className="p-3 rounded bg-navy text-[#E5E7EB] text-[11px] overflow-x-auto leading-relaxed font-mono">
+{`{
+  "mcpServers": {
+    "coach-platform": {
+      "command": "npx",
+      "args": ["-y", "@elevate-ai/coach-platform-mcp"],
+      "env": {
+        "COACH_PLATFORM_API_KEY": "${justCreated.raw}"
+      }
+    }
+  }
+}`}
+              </pre>
+              <button
+                type="button"
+                onClick={() => {
+                  const snippet = `{
+  "mcpServers": {
+    "coach-platform": {
+      "command": "npx",
+      "args": ["-y", "@elevate-ai/coach-platform-mcp"],
+      "env": {
+        "COACH_PLATFORM_API_KEY": "${justCreated.raw}"
+      }
+    }
+  }
+}`;
+                  navigator.clipboard.writeText(snippet);
+                }}
+                className="mt-2 text-xs font-bold bg-brand text-navy px-3 py-1.5 rounded hover:bg-[#00E03A]"
+              >
+                Copy MCP config
+              </button>
+              <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
+                Restart Claude Desktop / Cursor after saving. The MCP server
+                auto-installs on first run via npx. You'll see tools like{" "}
+                <code className="px-1 bg-gray-100 rounded">
+                  get_focus_queue
+                </code>{" "}
+                and{" "}
+                <code className="px-1 bg-gray-100 rounded">create_lead</code>{" "}
+                appear in your agent's tool list.
+              </p>
+            </div>
+          </details>
+
+          <button
+            type="button"
+            onClick={() => setJustCreated(null)}
+            className="mt-3 text-xs font-semibold text-gray-700 hover:text-navy"
+          >
+            I've saved it — dismiss
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <div className="mt-3 p-3 rounded bg-red-50 border border-red-200 text-sm text-red-800">
+          {error}
+        </div>
+      )}
+
+      {/* Key list */}
+      <div className="mt-5">
+        {loading ? (
+          <p className="text-xs text-gray-500">Loading keys…</p>
+        ) : !keys || keys.length === 0 ? (
+          <p className="text-xs text-gray-500 italic">
+            No keys yet. Generate one to start plugging agents in.
+          </p>
+        ) : (
+          <ul className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden">
+            {keys.map((k) => (
+              <li key={k.id} className="flex items-center justify-between gap-4 p-3 flex-wrap">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-bold text-sm text-navy">
+                      {k.name}
+                    </span>
+                    {k.revoked_at ? (
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-red-100 text-red-800 border border-red-200 px-1.5 py-0.5 rounded">
+                        Revoked
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-brand-soft text-green-900 border border-[color-mix(in_srgb,var(--brand)_40%,transparent)] px-1.5 py-0.5 rounded">
+                        Active
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-gray-500 mt-0.5 font-mono">
+                    {k.key_prefix}… · {(k.scopes ?? []).join(" + ")}
+                  </div>
+                  <div className="text-[11px] text-gray-500 mt-0.5">
+                    Created {new Date(k.created_at).toLocaleDateString()}
+                    {k.last_used_at && (
+                      <> · last used {new Date(k.last_used_at).toLocaleDateString()}</>
+                    )}
+                    {!k.last_used_at && !k.revoked_at && <> · never used</>}
+                  </div>
+                </div>
+                {!k.revoked_at && (
+                  <button
+                    type="button"
+                    onClick={() => revokeKey(k.id)}
+                    disabled={revoking === k.id}
+                    className="text-xs font-semibold text-red-700 hover:text-red-900 disabled:opacity-50"
+                  >
+                    {revoking === k.id ? "Revoking…" : "Revoke"}
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <p className="text-[11px] text-gray-500 mt-3 leading-relaxed">
+        Use as <code className="px-1 bg-gray-100 rounded">Authorization: Bearer cp_live_…</code> on any{" "}
+        <code className="px-1 bg-gray-100 rounded">/api/v1/*</code> endpoint.
+        Full reference and MCP tool list:{" "}
+        <a
+          href="/api/docs"
+          target="_blank"
+          rel="noopener"
+          className="text-brand-strong font-bold underline decoration-dotted hover:text-navy"
+        >
+          📚 API docs →
+        </a>
+      </p>
+
+      {/* Agent activity hidden — moves to /developers route alongside API
+          keys + webhooks. Component preserved for that future surface.
+          {<AgentActivityPanel />} */}
+    </section>
+  );
+}
