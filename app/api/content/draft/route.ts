@@ -81,8 +81,11 @@ const SPECS: Record<DraftKind, DraftSpec> = {
     platform: "instagram",
     contentType: "carousel",
     pillar: "authority",
+    // Base prompt — augmented at compose-time with strategy + (when the
+    // source is a newsletter) a translation framework. See the
+    // CAROUSEL STRATEGY block below for the actual rules.
     prompt:
-      "Write an 8-slide carousel. Format every slide exactly as 'Slide 1: Title' followed by 1-2 short body lines. Keep each slide under 22 words. Make slide 8 a CTA.",
+      "Write an 8-slide Instagram carousel. Each slide is one beat that earns the swipe to the next. Slide 1 is the hook; slide 8 is one CTA.",
   },
 };
 
@@ -283,9 +286,9 @@ async function modelDraft({
     "pillar must be one of authority, story, offer, engagement.",
   ].join(" ");
 
-  const prompt = [
-    `FORMAT: ${spec.label}`,
-    spec.prompt,
+  const isNewsletterSource = sourceContent?.platform === "newsletter";
+
+  const carouselStrategyBlock =
     spec.kind === "carousel"
       ? [
           "",
@@ -294,12 +297,63 @@ async function modelDraft({
           `Hook type: ${CAROUSEL_HOOK_COPY[carouselHook]}`,
           `Framework: ${CAROUSEL_FRAMEWORK_COPY[carouselFramework]}`,
           `Visual system: ${CAROUSEL_STYLE_COPY[carouselStyle]}`,
-          "Rules: exactly 8 slides, slide 1 cover hook, slide 2 second hook, slides 3-6 value stack, slide 7 payoff, slide 8 one CTA.",
-          "Internal structure only: slide 1 cover hook, slide 2 second hook, slides 3-6 value stack, slide 7 payoff, slide 8 CTA.",
-          "Cover must be under 12 words. One idea per slide. No slide title over 12 words. No em dash characters. Final slide must have one CTA only.",
-          "Do not print visual system names, template names, slide roles, framework names, or strategy notes inside the slide copy.",
+          "",
+          "STRUCTURE (8 slides, every slide earns the next swipe):",
+          "  Slide 1 — COVER HOOK. The strongest single line. Under 10 words.",
+          "  Slide 2 — SECOND HOOK. Restate the promise from a different angle.",
+          "  Slides 3-6 — VALUE STACK. One beat per slide: proof, example, contrast, or unfolding.",
+          "  Slide 7 — PAYOFF. The synthesis sentence the reader will remember.",
+          "  Slide 8 — ONE CTA. Match the outcome above.",
+          "",
+          "COVER HOOK ARCHETYPES (pick one and commit to it):",
+          "  - CURIOSITY GAP: 'The one thing nobody tells you about [X]'",
+          "  - CONTRARIAN: 'Stop doing [common advice]. Here is why.'",
+          "  - IDENTITY CALLOUT: 'If you are a [audience], read this.'",
+          "  - NUMBER OUTCOME: 'How I [specific result] in [timeframe]'",
+          "  - PAIN QUESTION: 'Tired of [specific pain]?'",
+          "  - DISBELIEF: 'I was wrong about [common belief].'",
+          "Cover does 60% of the swipe-through work. Generic 'tips' headlines fail.",
+          "",
+          `CTA FOR THIS POST (${carouselOutcome}):`,
+          `  ${CAROUSEL_CTA_BY_OUTCOME[carouselOutcome]}`,
+          "",
+          "HARD RULES:",
+          "  - No slide title over 12 words.",
+          "  - One idea per slide. If a slide has two ideas, split it.",
+          "  - No em dash characters.",
+          "  - Final slide is exactly one CTA. No stacked asks.",
+          "  - Do not print visual system names, template names, slide roles, framework names, or strategy notes inside the slide copy.",
         ].join("\n")
-      : "",
+      : "";
+
+  const newsletterTranslationBlock =
+    spec.kind === "carousel" && isNewsletterSource
+      ? [
+          "",
+          "NEWSLETTER → CAROUSEL TRANSLATION (this overrides the source content's structure):",
+          "Newsletters are tuned for inbox open-rate and reflective reading.",
+          "Carousels are tuned for feed scroll-stop and one-beat-per-tap rhythm.",
+          "Translate, do not summarize.",
+          "",
+          "DO:",
+          "  - Pull the SINGLE sharpest sentence from the newsletter as the cover hook.",
+          "  - Reshape the long-form arc into 8 distinct beats.",
+          "  - Each slide leaves something open or builds anticipation.",
+          "  - Slide 7 should be the payoff line the newsletter built toward.",
+          "",
+          "DO NOT:",
+          "  - Do NOT summarize the newsletter section by section into 8 slides.",
+          "  - Do NOT lift the newsletter subject line as the cover hook (it was tuned for inbox open rate, not feed scroll-stop — use the sharpest body line instead).",
+          "  - Do NOT include reflective transitions ('In this issue...', 'Today I want to...', 'Until next week').",
+          "  - Do NOT include multiple CTAs even if the newsletter had several links.",
+        ].join("\n")
+      : "";
+
+  const prompt = [
+    `FORMAT: ${spec.label}`,
+    spec.prompt,
+    carouselStrategyBlock,
+    newsletterTranslationBlock,
     "",
     "COACH ANGLE:",
     angle || "(choose the strongest angle from the signals)",
@@ -520,6 +574,18 @@ const CAROUSEL_OUTCOME_COPY: Record<CarouselOutcome, string> = {
   saves: "Get saves",
   conversations: "Start conversations",
   authority: "Build authority",
+};
+
+// Outcome → CTA mapping. The model is told to use the matching CTA verbatim
+// so slide 8 stops being a generic "follow for more" — it actually drives
+// the result the coach picked when composing.
+const CAROUSEL_CTA_BY_OUTCOME: Record<CarouselOutcome, string> = {
+  saves:
+    "Save this so the next time the pattern shows up, you have the move ready.",
+  conversations:
+    "Reply with the word that lands hardest. Tell me which slide you're sitting with.",
+  authority:
+    "Follow for the next post in this thread. Same lens, sharper edges.",
 };
 
 const CAROUSEL_FRAMEWORK_COPY: Record<CarouselFramework, string> = {
