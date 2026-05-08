@@ -61,7 +61,7 @@ export function makeMessage(overrides: Partial<LeadMessage> = {}): LeadMessage {
     id:             "00000000-0000-0000-0000-000000000100",
     coach_id:       TEST_COACH_ID,
     lead_id:        TEST_LEAD_ID,
-    channel:        "ig",
+    channel:        "dm_ig",
     direction:      "outbound",
     content:        "Hey — saw your post. Worth a quick chat?",
     ai_drafted:     true,
