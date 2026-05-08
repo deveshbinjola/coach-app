@@ -218,7 +218,7 @@ export function repairContentDraft(
     "",
     `The problem is not that people need more information. The problem is that the next step is still too abstract to act on.`,
     "",
-    `Make it ${anchorWord}: name the moment, name the cost of staying there, then choose the next honest move.`,
+    `Make it ${anchorWord}: name the moment, name the cost of staying there, then choose the move that lands.`,
     "",
     cta,
   ].join("\n");
@@ -280,7 +280,7 @@ function looksGenericTitle(title: string): boolean {
 }
 
 function sharpenTitle(title: string): string {
-  const clean = title.trim() || "The next honest move";
+  const clean = title.trim() || "The next move that lands";
   if (!looksGenericTitle(clean)) return clean;
   return clean
     .replace(/\b\d+\s*/g, "")

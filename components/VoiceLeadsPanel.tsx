@@ -257,7 +257,7 @@ export default function VoiceLeadsPanel() {
           {savedCount} {savedCount === 1 ? "lead" : "leads"} saved.
         </h2>
         <p className="text-sm text-gray-600 mt-2">
-          Opening Compose with these leads selected. Draft the next honest
+          Opening Compose with these leads selected. Draft the next real
           message while the context is fresh.
         </p>
         {savedIds.length > 0 && (

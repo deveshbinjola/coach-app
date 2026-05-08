@@ -296,7 +296,7 @@ function HelloStep({
         </div>
 
         <p className="text-[length:var(--t-caption)] text-white/55 leading-[var(--leading-base)]">
-          The CRM disappears. The next honest message stays.
+          The CRM disappears. The next real message stays.
         </p>
       </section>
     </div>
