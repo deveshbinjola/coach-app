@@ -924,7 +924,7 @@ function LeadRescueCard({ items }: { items: RescueItem[] }) {
 
                 <div className="px-5 py-4 border-t border-[var(--border-faint)] flex flex-wrap items-center justify-between gap-3">
                   <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-                    Start here. Draft the honest next message, then move on.
+                    Start here. Draft what they actually need, then move on.
                   </p>
                   <a
                     href={composeHref}

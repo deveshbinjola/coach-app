@@ -344,7 +344,7 @@ export default function ComposeStudio({
   const pipelineValue = matched.reduce((acc, lead) => acc + (lead.deal_value ?? 0), 0);
   const actionTitle = rescueMode ? segmentLabel : "Compose";
   const actionDescription = rescueMode
-    ? "One selected set. One honest message. Log it, then move on."
+    ? "One selected set. One message that lands. Log it, then move on."
     : "Build a focused slice of your book, then draft one message in your voice.";
 
   return (
@@ -771,7 +771,7 @@ function inferSegmentIntent(leads: Lead[]): { purpose: MessagePurpose; reason: s
   }
   return {
     purpose,
-    reason: "These leads need the next honest message, not a campaign blast.",
+    reason: "These leads need the next real message, not a campaign blast.",
   };
 }
 
