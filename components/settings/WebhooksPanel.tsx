@@ -11,7 +11,7 @@
 
 import { useEffect, useState } from "react";
 import type { LeadSource, WebhookEndpoint } from "@/lib/types";
-import { useConfirm } from "@/components/ui";
+import { Badge, Button, useConfirm } from "@/components/ui";
 import { ago } from "./utils";
 
 const WEBHOOK_SOURCES: LeadSource[] = [
@@ -127,13 +127,9 @@ export default function WebhooksPanel() {
           </p>
         </div>
         {!showCreate && (
-          <button
-            type="button"
-            onClick={() => setShowCreate(true)}
-            className="inline-flex items-center px-4 py-2 rounded-lg bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition whitespace-nowrap"
-          >
+          <Button onClick={() => setShowCreate(true)} className="whitespace-nowrap">
             + New webhook URL
-          </button>
+          </Button>
         )}
       </div>
 
@@ -184,25 +180,19 @@ export default function WebhooksPanel() {
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <button
-              type="button"
-              onClick={create}
-              disabled={creating || !newName.trim()}
-              className="px-4 py-2 rounded bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-50"
-            >
+            <Button onClick={create} disabled={creating || !newName.trim()}>
               {creating ? "Creating…" : "Create webhook"}
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="ghost"
               onClick={() => {
                 setShowCreate(false);
                 setNewName("");
                 setNewDetail("");
               }}
-              className="px-4 py-2 text-xs font-semibold text-gray-700 hover:text-navy"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -216,22 +206,18 @@ export default function WebhooksPanel() {
             {urlFor(revealedToken)}
           </div>
           <div className="mt-2 flex gap-2 flex-wrap">
-            <button
-              type="button"
+            <Button
+              size="sm"
               onClick={() =>
                 navigator.clipboard.writeText(urlFor(revealedToken))
               }
-              className="text-xs font-bold bg-navy text-white px-3 py-1.5 rounded hover:bg-[#1A1F2C]"
+              className="bg-navy text-white hover:enabled:bg-navy-soft"
             >
               Copy URL
-            </button>
-            <button
-              type="button"
-              onClick={() => setRevealedToken(null)}
-              className="text-xs font-semibold text-gray-700 hover:text-navy"
-            >
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setRevealedToken(null)}>
               Dismiss
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -263,20 +249,20 @@ export default function WebhooksPanel() {
                       {e.name}
                     </span>
                     {e.active ? (
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-brand-soft text-green-900 border border-[color-mix(in_srgb,var(--brand)_40%,transparent)] px-1.5 py-0.5 rounded">
+                      <Badge tone="brand" size="xs" uppercase>
                         Active
-                      </span>
+                      </Badge>
                     ) : (
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-300 px-1.5 py-0.5 rounded">
+                      <Badge tone="neutral" size="xs" uppercase>
                         Paused
-                      </span>
+                      </Badge>
                     )}
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-200 px-1.5 py-0.5 rounded">
+                    <Badge tone="neutral" size="xs" uppercase>
                       {e.default_source}
                       {e.default_source_detail
                         ? ` · ${e.default_source_detail}`
                         : ""}
-                    </span>
+                    </Badge>
                   </div>
                   <div className="text-[11px] text-gray-500 mt-0.5 font-mono break-all">
                     {urlFor(e.token)}
@@ -289,22 +275,24 @@ export default function WebhooksPanel() {
                   </div>
                 </div>
                 <div className="flex gap-3 shrink-0 items-start">
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() =>
                       navigator.clipboard.writeText(urlFor(e.token))
                     }
-                    className="text-xs font-semibold text-navy hover:text-brand-strong"
+                    className="border-0 hover:enabled:text-brand-strong"
                   >
                     Copy URL
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
+                    variant={e.active ? "danger" : "ghost"}
+                    size="sm"
                     onClick={() => toggleActive(e.id, e.active)}
-                    className="text-xs font-semibold text-gray-700 hover:text-red-700"
+                    className={!e.active ? "border-0" : ""}
                   >
                     {e.active ? "Pause" : "Resume"}
-                  </button>
+                  </Button>
                 </div>
               </li>
             ))}
