@@ -4,8 +4,34 @@
 // Bearer-token auth. See lib/api-auth.ts for token format + verification.
 
 import { NextRequest } from "next/server";
+import { z } from "zod";
 import { validateApiKey, apiError, apiOk } from "@/lib/api-auth";
 import { createAdminClient } from "@/lib/supabase-admin";
+import {
+  parseBody,
+  nonEmptyString,
+  TrimmedStringOrNull,
+  LeadSourceSchema,
+  LeadTemperatureSchema,
+  PainSignalSchema,
+} from "@/lib/api-validation";
+
+// POST /api/v1/leads — create lead. All field constraints in one place.
+// next_honest_action stays a free string at this layer; validating against
+// the LeadNextAction enum would be over-eager — agents send arbitrary phrases
+// that the coach reviews in /inbox.
+const CreateLeadSchema = z.object({
+  full_name: nonEmptyString(200),
+  email: TrimmedStringOrNull.optional().nullable().default(null),
+  phone: TrimmedStringOrNull.optional().nullable().default(null),
+  source: LeadSourceSchema.optional().default("other"),
+  source_detail: TrimmedStringOrNull.optional().nullable().default(null),
+  temperature: LeadTemperatureSchema.optional().default("warm"),
+  notes: TrimmedStringOrNull.optional().nullable().default(null),
+  pain_signal: z.array(PainSignalSchema).max(10).optional().default([]),
+  next_honest_action: z.string().max(500).optional().nullable().default(null),
+  auto_draft_eligible: z.boolean().optional().default(true),
+});
 
 export async function GET(request: NextRequest) {
   const auth = await validateApiKey(request);
@@ -46,37 +72,26 @@ export async function POST(request: NextRequest) {
   if (!auth) return apiError("Unauthorized", 401);
   if (!auth.scopes.includes("write")) return apiError("write scope required", 403);
 
-  let body: any;
-  try {
-    body = await request.json();
-  } catch {
-    return apiError("Invalid JSON body", 400);
-  }
-  if (!body?.full_name || typeof body.full_name !== "string") {
-    return apiError("full_name (string) is required", 400);
-  }
+  const parsed = await parseBody(request, CreateLeadSchema);
+  if (!parsed.ok) return apiError(parsed.error, parsed.status);
+  const body = parsed.data;
 
-  // Whitelist: only the fields we expose via API. Prevents callers from
-  // setting coach_id, id, created_at, etc.
+  // Whitelist: schema enforces shape; we still strip server-controlled
+  // fields (coach_id, id, created_at) by only spreading the validated
+  // fields plus the auth-derived coach_id and status default.
   const row = {
     coach_id: auth.coachId,
-    full_name: String(body.full_name).trim(),
-    email: typeof body.email === "string" ? body.email.trim() || null : null,
-    phone: typeof body.phone === "string" ? body.phone.trim() || null : null,
-    source: typeof body.source === "string" ? body.source : "other",
-    source_detail:
-      typeof body.source_detail === "string"
-        ? body.source_detail.trim() || null
-        : null,
-    temperature: typeof body.temperature === "string" ? body.temperature : "warm",
-    notes: typeof body.notes === "string" ? body.notes.trim() || null : null,
-    pain_signal: Array.isArray(body.pain_signal) ? body.pain_signal : [],
-    next_honest_action:
-      typeof body.next_honest_action === "string"
-        ? body.next_honest_action
-        : null,
+    full_name: body.full_name,
+    email: body.email,
+    phone: body.phone,
+    source: body.source,
+    source_detail: body.source_detail,
+    temperature: body.temperature,
+    notes: body.notes,
+    pain_signal: body.pain_signal,
+    next_honest_action: body.next_honest_action,
     status: "new" as const,
-    auto_draft_eligible: body.auto_draft_eligible !== false, // default true
+    auto_draft_eligible: body.auto_draft_eligible,
   };
 
   const admin = createAdminClient();

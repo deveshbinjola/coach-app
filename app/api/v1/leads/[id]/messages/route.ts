@@ -3,18 +3,25 @@
 // the conversation history accurate.
 
 import { NextRequest } from "next/server";
+import { z } from "zod";
 import { validateApiKey, apiError, apiOk } from "@/lib/api-auth";
 import { createAdminClient } from "@/lib/supabase-admin";
+import {
+  parseBody,
+  nonEmptyString,
+  MessageChannelSchema,
+  MessageDirectionSchema,
+  MessagePurposeSchema,
+} from "@/lib/api-validation";
 
-const VALID_DIRECTIONS = ["inbound", "outbound", "draft"] as const;
-const VALID_CHANNELS = [
-  "email",
-  "dm_ig",
-  "dm_linkedin",
-  "sms",
-  "call",
-  "other",
-] as const;
+const LogMessageSchema = z.object({
+  content: nonEmptyString(10000),
+  direction: MessageDirectionSchema,
+  channel: MessageChannelSchema.optional().default("other"),
+  ai_drafted: z.boolean().optional().default(false),
+  synced_from: z.string().max(64).optional().default("api"),
+  purpose: MessagePurposeSchema.nullable().optional().default(null),
+});
 
 export async function POST(
   request: NextRequest,
@@ -24,30 +31,9 @@ export async function POST(
   if (!auth) return apiError("Unauthorized", 401);
   if (!auth.scopes.includes("write")) return apiError("write scope required", 403);
 
-  let body: any;
-  try {
-    body = await request.json();
-  } catch {
-    return apiError("Invalid JSON body", 400);
-  }
-
-  if (typeof body?.content !== "string" || body.content.trim().length === 0) {
-    return apiError("content (string) is required", 400);
-  }
-  const direction = body.direction;
-  if (!VALID_DIRECTIONS.includes(direction)) {
-    return apiError(
-      `direction must be one of: ${VALID_DIRECTIONS.join(", ")}`,
-      400
-    );
-  }
-  const channel = body.channel ?? "other";
-  if (!VALID_CHANNELS.includes(channel)) {
-    return apiError(
-      `channel must be one of: ${VALID_CHANNELS.join(", ")}`,
-      400
-    );
-  }
+  const parsed = await parseBody(request, LogMessageSchema);
+  if (!parsed.ok) return apiError(parsed.error, parsed.status);
+  const body = parsed.data;
 
   const admin = createAdminClient();
 
@@ -66,13 +52,13 @@ export async function POST(
     .insert({
       lead_id: params.id,
       coach_id: auth.coachId,
-      channel,
-      direction,
-      content: body.content.trim(),
-      ai_drafted: Boolean(body.ai_drafted ?? false),
-      synced_from: typeof body.synced_from === "string" ? body.synced_from : "api",
-      sent_at: direction === "outbound" ? new Date().toISOString() : null,
-      purpose: typeof body.purpose === "string" ? body.purpose : null,
+      channel: body.channel,
+      direction: body.direction,
+      content: body.content,
+      ai_drafted: body.ai_drafted,
+      synced_from: body.synced_from,
+      sent_at: body.direction === "outbound" ? new Date().toISOString() : null,
+      purpose: body.purpose,
     })
     .select("*")
     .single();
@@ -80,7 +66,7 @@ export async function POST(
   if (error || !data) return apiError(error?.message ?? "Insert failed", 500);
 
   // If outbound, update lead.last_contact_at + bump status from 'new'.
-  if (direction === "outbound") {
+  if (body.direction === "outbound") {
     await admin
       .from("cp_leads")
       .update({
