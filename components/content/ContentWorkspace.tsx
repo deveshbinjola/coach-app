@@ -1133,6 +1133,11 @@ function SignalCard({ title, lines }: { title: string; lines: string[] }) {
 function CarouselDraftSummary({ item, onOpen }: { item: Content; onOpen: () => void }) {
   const slides = parseCarouselSlides(item);
   const meta = getContentMeta(item);
+  // Render the cover hook as a styled mini-thumbnail using the same
+  // Fraunces display + dark-accent treatment the actual canvas cover
+  // uses. Beats the old generic "12 slides ready" text — coaches see
+  // their hook the way the audience will. Pure HTML, no canvas cost.
+  const coverHook = slides[0]?.title?.trim() || item.title;
   return (
     <div className="px-4 py-5 sm:px-5">
       <div className="flex flex-wrap items-center gap-2">
@@ -1143,10 +1148,21 @@ function CarouselDraftSummary({ item, onOpen }: { item: Content; onOpen: () => v
           </Badge>
         ) : null}
       </div>
-      <h3 className="mt-3 break-words text-[length:var(--t-h3)] font-extrabold tracking-tight text-[color:var(--text)]">
-        {item.title}
-      </h3>
-      <p className="mt-2 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+
+      {/* Cover thumbnail — 4:5 aspect, Fraunces hook, dark accent panel */}
+      <div className="mt-4 aspect-[4/5] w-full max-w-[200px] overflow-hidden rounded-[var(--r-md)] bg-navy p-4 shadow-[var(--shadow-sm)] relative">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-[color-mix(in_srgb,var(--brand)_25%,transparent)] blur-xl"
+        />
+        <div className="relative flex h-full flex-col justify-end">
+          <p className="font-display text-[15px] font-bold leading-[1.05] text-[color:var(--text-inverse)] line-clamp-6">
+            {coverHook}
+          </p>
+        </div>
+      </div>
+
+      <p className="mt-3 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
         {slides.length || 0} slides ready. Open the builder to edit, score, and export.
       </p>
       <Button className="mt-4 w-full sm:w-auto" onClick={onOpen}>
@@ -2097,6 +2113,20 @@ function CarouselChecklist({ slides }: { slides: CarouselSlide[] }) {
             <span>{check.label}</span>
           </div>
         ))}
+      </div>
+      {/* Swipe-rate target chip — sets a visible bar from the carousel
+          research (50%+ swipe-through, 5-10% saves) so the coach knows
+          what "good" looks like when they ship. */}
+      <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-[var(--border-faint)] pt-3">
+        <span className="text-[10px] font-extrabold uppercase tracking-widest text-[color:var(--text-faint)]">
+          After publish, aim for:
+        </span>
+        <Badge tone="brand" size="xs" uppercase>
+          50%+ swipe-through
+        </Badge>
+        <Badge tone="brand" size="xs" uppercase>
+          5%+ saves
+        </Badge>
       </div>
     </div>
   );
@@ -3087,17 +3117,21 @@ function drawOnyxSlide(
     return;
   }
 
-  ctx.fillStyle = theme.muted;
-  ctx.font = "700 22px 'Plus Jakarta Sans', sans-serif";
-  ctx.fillText(`${slideNumber}/${totalSlides}`, 72, 112);
+  // Slide counter dropped from cover (slide 1) per the carousel
+  // research — looks instructional and competes with the hook.
+  if (slideNumber !== 1) {
+    ctx.fillStyle = theme.muted;
+    ctx.font = "700 22px 'Plus Jakarta Sans', sans-serif";
+    ctx.fillText(`${slideNumber}/${totalSlides}`, 72, 112);
+  }
 
   fitWrappedText(ctx, slide.title, {
     x: 72,
     y: 310,
     maxWidth: 900,
     maxHeight: 510,
-    maxFontSize: slideNumber === 1 ? 92 : 76,
-    minFontSize: 42,
+    maxFontSize: slideNumber === 1 ? 120 : 76,
+    minFontSize: slideNumber === 1 ? 56 : 42,
     lineHeightRatio: 1.02,
     weight: 800,
     color: theme.text,
@@ -3120,6 +3154,10 @@ function drawOnyxSlide(
   ctx.fillStyle = theme.accent;
   roundRect(ctx, 72, 1176, 190, 12, 999);
   ctx.fill();
+  // Swipe arrow on every slide except the last — universal carousel cue.
+  if (slideNumber < totalSlides) {
+    drawSwipeArrow(ctx, theme.accent);
+  }
 }
 
 function drawImportedQuoteSlide(
@@ -3190,20 +3228,30 @@ function drawCarouselDnaSlide(
   drawDnaBackground(ctx, theme, dna, slideNumber);
   drawDnaOrnament(ctx, dna, theme, slideNumber, totalSlides);
 
+  // Slide counter dropped on cover (slide 1) per the carousel research —
+  // the cover should be the hook only, not "1/8" instructional chrome.
+  const progressLabel = slideNumber === 1 ? "" : `${slideNumber}/${totalSlides}`;
+
   if (dna.handlePlacement === "top") {
-    drawDnaMeta(ctx, identity, `${slideNumber}/${totalSlides}`, dna, theme, 82);
+    drawDnaMeta(ctx, identity, progressLabel, dna, theme, 82);
   }
 
   const titleZone = roleAdjustedZone(dna.titleZone, slideNumber, totalSlides);
   const bodyZone = roleAdjustedZone(dna.bodyZone, slideNumber, totalSlides);
 
   drawDnaTextZone(ctx, titleZone, applyTitleCase(slide.title, dna.titleCase), theme, dna, "title");
-  if (slide.body) {
+  // Cover (slide 1) skips the body — let the headline carry alone.
+  if (slide.body && slideNumber !== 1) {
     drawDnaTextZone(ctx, bodyZone, slide.body, theme, dna, "body");
   }
 
   if (dna.handlePlacement === "bottom") {
-    drawDnaMeta(ctx, identity, `${slideNumber}/${totalSlides}`, dna, theme, 1212);
+    drawDnaMeta(ctx, identity, progressLabel, dna, theme, 1212);
+  }
+
+  // Universal swipe arrow on every slide except the last.
+  if (slideNumber < totalSlides) {
+    drawSwipeArrow(ctx, theme.accent);
   }
 }
 
@@ -3580,9 +3628,16 @@ function drawHardFactsSlide(
   ctx.lineTo(92, 1240);
   ctx.lineTo(520, 1240);
   ctx.stroke();
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "800 28px 'Plus Jakarta Sans', sans-serif";
-  ctx.fillText(`${slideNumber}/${totalSlides}`, 892, 1245);
+  // Slide counter dropped from cover (slide 1) per the carousel research.
+  if (slideNumber !== 1) {
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "800 28px 'Plus Jakarta Sans', sans-serif";
+    ctx.fillText(`${slideNumber}/${totalSlides}`, 892, 1245);
+  }
+  // Universal swipe arrow on every slide except the last.
+  if (slideNumber < totalSlides) {
+    drawSwipeArrow(ctx, "#C8A16A");
+  }
 }
 
 function carouselCanvasTheme(
