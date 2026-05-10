@@ -267,7 +267,7 @@ function HelloStep({
       <section className="rounded-[var(--r-lg)] bg-[var(--navy)] text-[color:var(--text-inverse)] p-6 sm:p-7 flex flex-col justify-between min-h-[520px] shadow-[var(--shadow-lg)]">
         <div>
           <div className="inline-flex items-center h-7 px-2.5 rounded-[var(--r-pill)] bg-white/10 text-[length:var(--t-caption)] font-bold text-white/70">
-            Command Center inside the app
+            Home inside the app
           </div>
           <div className="mt-8 space-y-4">
             <div className="rounded-[var(--r-md)] bg-white/[0.06] border border-white/10 p-4">

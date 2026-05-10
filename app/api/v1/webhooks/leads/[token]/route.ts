@@ -20,6 +20,8 @@
 import { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase-admin";
 
+export const runtime = 'edge';
+
 type LeadSource =
   | "ig"
   | "linkedin"

@@ -42,7 +42,7 @@ function toDisplayName(email: string, name?: string): string {
 // nav from 5 to 4, and made Compose feel like what it actually is: an
 // action ON your book, not a parallel app.
 const NAV_ITEMS: Array<{ href: string; label: string }> = [
-  { href: "/command-center", label: "Command" },
+  { href: "/command-center", label: "Home" },
   { href: "/inbox", label: "Leads" },
   { href: "/voice", label: "Voice" },
   { href: "/content", label: "Content" },

@@ -13,6 +13,8 @@ import { computeLeadScore } from "@/lib/lead-score";
 import { assessSla, type SlaState } from "@/lib/lead-sla";
 import type { Lead } from "@/lib/types";
 
+export const runtime = 'edge';
+
 const SLA_PRIORITY: Record<SlaState, number> = {
   overdue: 3,
   warning: 2,

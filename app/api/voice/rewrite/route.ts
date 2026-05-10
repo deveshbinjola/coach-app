@@ -7,6 +7,8 @@ import {
 } from "@/lib/voice-trust";
 import type { VoiceProfile } from "@/lib/types";
 
+export const runtime = 'edge';
+
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
 

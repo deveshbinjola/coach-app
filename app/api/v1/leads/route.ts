@@ -16,6 +16,8 @@ import {
   PainSignalSchema,
 } from "@/lib/api-validation";
 
+export const runtime = 'edge';
+
 // POST /api/v1/leads — create lead. All field constraints in one place.
 // next_honest_action stays a free string at this layer; validating against
 // the LeadNextAction enum would be over-eager — agents send arbitrary phrases

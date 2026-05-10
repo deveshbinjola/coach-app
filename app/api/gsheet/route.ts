@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const runtime = 'edge';
+
 // Server-side proxy that fetches a public Google Sheets CSV export.
 // Sidesteps browser CORS (some Google responses don't include ACAO headers).
 // The client sends the transformed export URL; we fetch it and return the text.

@@ -13,6 +13,8 @@ import { createClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { generateApiKey } from "@/lib/api-auth";
 
+export const runtime = 'edge';
+
 export async function GET() {
   const supabase = createClient();
   const {
@@ -77,7 +79,7 @@ export async function POST(request: NextRequest) {
     : ["read", "write"];
   const scopes = requestedScopes.length > 0 ? requestedScopes : ["read", "write"];
 
-  const { raw, hash, prefix } = generateApiKey();
+  const { raw, hash, prefix } = await generateApiKey();
 
   // Use admin client because RLS would prevent inserting `key_hash` (and
   // we want to keep that column locked down at the policy layer too).

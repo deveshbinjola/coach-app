@@ -12,6 +12,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 
+export const runtime = 'edge';
+
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 
 // Read-only at this stage. We DON'T request gmail.modify or gmail.send yet

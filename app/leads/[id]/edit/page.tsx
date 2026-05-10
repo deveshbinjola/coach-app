@@ -5,6 +5,8 @@ import EditLeadForm from "@/components/EditLeadForm";
 import type { Lead } from "@/lib/types";
 import { notFound } from "next/navigation";
 
+export const runtime = 'edge';
+
 export const dynamic = "force-dynamic";
 
 export default async function EditLeadPage({ params }: { params: { id: string } }) {

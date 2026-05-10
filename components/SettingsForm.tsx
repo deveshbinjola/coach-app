@@ -244,7 +244,7 @@ export default function SettingsForm({
         <div className="mt-4 pt-4 border-t border-gray-100">
           <Toggle
             label="Email me when a draft is ready"
-            hint="Off keeps things quiet. Drafts still appear in Command."
+            hint="Off keeps things quiet. Drafts still appear in Home."
             value={settings.auto_draft_email_notification}
             onChange={(v) => patch("auto_draft_email_notification", v)}
             saving={savingKey === "auto_draft_email_notification"}
@@ -261,7 +261,7 @@ export default function SettingsForm({
       <section className="card p-6">
         <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Weekly reach</h2>
         <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mb-5 leading-[var(--leading-base)]">
-          The number of people you want to personally reach each week. Command
+          The number of people you want to personally reach each week. Home
           uses this to show whether the board is moving.
         </p>
 

@@ -4,6 +4,8 @@ import LeadsWorkspace from "@/components/LeadsWorkspace";
 import Header from "@/components/Header";
 import type { Lead } from "@/lib/types";
 
+export const runtime = 'edge';
+
 export const dynamic = "force-dynamic";
 
 export default async function InboxPage() {

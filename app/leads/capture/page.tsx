@@ -3,6 +3,8 @@ import LeadCaptureWorkspace from "@/components/LeadCaptureWorkspace";
 import { createClient } from "@/lib/supabase-server";
 import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 
+export const runtime = 'edge';
+
 export const dynamic = "force-dynamic";
 
 export default async function CaptureLeadsPage({

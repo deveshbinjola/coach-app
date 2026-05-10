@@ -14,6 +14,8 @@ import Header from "@/components/Header";
 import SettingsForm from "@/components/SettingsForm";
 import type { CoachSettings, CoachIntegration } from "@/lib/types";
 
+export const runtime = 'edge';
+
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage({

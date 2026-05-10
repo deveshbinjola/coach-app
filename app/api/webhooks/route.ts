@@ -5,10 +5,11 @@
 // GET  → list this coach's endpoints
 // POST → create a new endpoint with a fresh random token
 
-import crypto from "node:crypto";
 import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+
+export const runtime = 'edge';
 
 const SOURCES = [
   "ig",
@@ -95,7 +96,10 @@ export async function POST(request: NextRequest) {
 
   // Generate token: "whk_" prefix + 32 hex chars = 256 bits of entropy.
   // Same shape and security level as our cp_live_ keys.
-  const token = `whk_${crypto.randomBytes(16).toString("hex")}`;
+  // Web Crypto (edge-compatible) replacement for node:crypto.randomBytes(16).toString("hex")
+  const tokenBytes = new Uint8Array(16);
+  crypto.getRandomValues(tokenBytes);
+  const token = `whk_${Array.from(tokenBytes).map(b => b.toString(16).padStart(2, "0")).join("")}`;
 
   // Use admin client so we control the inserted row exactly. RLS would
   // also allow this insert, but admin is consistent with /api/keys.

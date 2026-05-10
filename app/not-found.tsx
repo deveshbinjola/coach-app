@@ -13,7 +13,7 @@ import Link from "next/link";
 const QUICK_LINKS: Array<{ href: string; label: string; helper: string }> = [
   {
     href:   "/command-center",
-    label:  "Command center",
+    label:  "Home",
     helper: "Today's pipeline, drafts, and rescue queue.",
   },
   {

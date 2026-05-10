@@ -5,6 +5,8 @@ import Header from "@/components/Header";
 import ContentWorkspace from "@/components/content/ContentWorkspace";
 import type { CoachSettings, Content, Lead, VoiceProfile, VoiceTrainingSource } from "@/lib/types";
 
+export const runtime = 'edge';
+
 export const dynamic = "force-dynamic";
 
 export default async function ContentPage({

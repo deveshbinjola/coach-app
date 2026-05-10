@@ -15,6 +15,8 @@ import {
   PainSignalSchema,
 } from "@/lib/api-validation";
 
+export const runtime = 'edge';
+
 // PATCH body schema. Every field optional — caller can patch one or many.
 // Fields NOT here (id, coach_id, full_name, created_at, auto_draft_eligible,
 // referred_by_lead_id, tags) are intentionally not patchable via the API.

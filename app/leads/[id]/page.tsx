@@ -5,6 +5,8 @@ import LeadDetail from "@/components/LeadDetail";
 import type { Lead, LeadMessage } from "@/lib/types";
 import { notFound } from "next/navigation";
 
+export const runtime = 'edge';
+
 export const dynamic = "force-dynamic";
 
 export default async function LeadPage({ params }: { params: { id: string } }) {

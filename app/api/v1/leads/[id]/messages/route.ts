@@ -14,6 +14,8 @@ import {
   MessagePurposeSchema,
 } from "@/lib/api-validation";
 
+export const runtime = 'edge';
+
 const LogMessageSchema = z.object({
   content: nonEmptyString(10000),
   direction: MessageDirectionSchema,

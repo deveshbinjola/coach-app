@@ -4,6 +4,8 @@
 import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 
+export const runtime = 'edge';
+
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: { id: string } }

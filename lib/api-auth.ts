@@ -10,7 +10,6 @@
 // add latency on every API request without meaningful security gain. Same
 // pattern Stripe uses for Restricted Keys.
 
-import crypto from "node:crypto";
 import type { NextRequest } from "next/server";
 import { createAdminClient } from "./supabase-admin";
 
@@ -20,23 +19,33 @@ export type ApiAuth = {
   keyId: string;
 };
 
-/** Hex SHA-256 of the token. Matches what the create-key route stored. */
-export function hashApiKey(token: string): string {
-  return crypto.createHash("sha256").update(token).digest("hex");
+/** Convert a Uint8Array to a lowercase hex string. */
+function toHex(bytes: Uint8Array): string {
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** Hex SHA-256 of the token. Matches what the create-key route stored.
+ *  Web Crypto edge-compatible replacement for node:crypto.createHash. */
+export async function hashApiKey(token: string): Promise<string> {
+  const data = new TextEncoder().encode(token);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return toHex(new Uint8Array(digest));
 }
 
 /** Generate a new API key. Format: cp_live_<32 hex chars>.
  *  Returns the raw token (show ONCE) and its hash + prefix for storage. */
-export function generateApiKey(): {
+export async function generateApiKey(): Promise<{
   raw: string;
   hash: string;
   prefix: string;
-} {
-  const random = crypto.randomBytes(16).toString("hex"); // 32 hex chars
+}> {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  const random = toHex(bytes); // 32 hex chars
   const raw = `cp_live_${random}`;
   return {
     raw,
-    hash: hashApiKey(raw),
+    hash: await hashApiKey(raw),
     prefix: raw.slice(0, 12), // "cp_live_" + 4 chars
   };
 }
@@ -54,7 +63,7 @@ export async function validateApiKey(
   const match = authHeader.match(/^Bearer\s+(cp_live_[a-f0-9]+)$/i);
   if (!match) return null;
   const token = match[1];
-  const hash = hashApiKey(token);
+  const hash = await hashApiKey(token);
 
   const supabase = createAdminClient();
   const { data, error } = await supabase

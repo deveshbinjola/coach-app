@@ -14,6 +14,8 @@ import { NextRequest } from "next/server";
 import { validateApiKey, apiError, apiOk } from "@/lib/api-auth";
 import { createAdminClient } from "@/lib/supabase-admin";
 
+export const runtime = 'edge';
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }

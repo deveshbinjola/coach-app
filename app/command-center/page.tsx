@@ -5,6 +5,8 @@ import Header from "@/components/Header";
 import CommandCenterView from "@/components/CommandCenterView";
 import type { Lead, Content, LeadMessage, VoiceProfile } from "@/lib/types";
 
+export const runtime = 'edge';
+
 // /command-center — replaces /today.
 //
 // Shows the coach's full operation in one view:

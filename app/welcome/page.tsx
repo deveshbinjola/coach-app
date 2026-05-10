@@ -24,6 +24,8 @@ import Header from "@/components/Header";
 import WelcomeFlow from "@/components/WelcomeFlow";
 import type { VoiceProfile } from "@/lib/types";
 
+export const runtime = 'edge';
+
 export const dynamic = "force-dynamic";
 
 export default async function WelcomePage({
