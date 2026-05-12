@@ -41,7 +41,10 @@
       "Bash(curl -s \"http://localhost:4173/elevate-ai-project/deliverables/free-brand-os-outreach/outreach-tracker.json\" -o /dev/null -w \"outreach: HTTP %{http_code} size %{size_download}\\\\n\")",
       "Bash(mkdir -p /Users/sunnybinjola/Desktop/Jarvis/scheduled-tasks/athena-weekly-research)",
       "Read(//Users/sunnybinjola/.claude/**)",
-      "Bash(awk '{print $NF, $5}')"
+      "Bash(awk '{print $NF, $5}')",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
