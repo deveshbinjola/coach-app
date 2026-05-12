@@ -61,6 +61,7 @@ export default function LeadDetail({
   const [sending, setSending] = useState(false);
   const [improvingVoice, setImprovingVoice] = useState(false);
   const [status, setStatus] = useState<LeadStatus>(lead.status);
+  const [clientRoomReady, setClientRoomReady] = useState(lead.status === "client");
   const [deleting, setDeleting] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [voiceProfile, setVoiceProfile] = useState<VoiceProfile | null>(null);
@@ -215,7 +216,41 @@ export default function LeadDetail({
 
   async function changeStatus(newStatus: LeadStatus) {
     setStatus(newStatus);
-    await supabase.from("cp_leads").update({ status: newStatus }).eq("id", lead.id);
+    const { data, error } = await supabase
+      .from("cp_leads")
+      .update({ status: newStatus })
+      .eq("id", lead.id)
+      .select()
+      .single();
+    if (error) {
+      setError(error.message);
+      setStatus(currentLead.status);
+      return;
+    }
+    setCurrentLead((data as Lead | null) ?? { ...currentLead, status: newStatus });
+    if (newStatus === "client") {
+      await ensureClientRoom();
+    }
+  }
+
+  async function ensureClientRoom() {
+    const { error } = await supabase
+      .from("cp_client_rooms")
+      .upsert(
+        {
+          coach_id: lead.coach_id,
+          lead_id: lead.id,
+          program_name: "Coaching container",
+          current_focus: currentLead.fit_notes || currentLead.notes || "Create the first-session plan.",
+        },
+        { onConflict: "coach_id,lead_id", ignoreDuplicates: true }
+      );
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setClientRoomReady(true);
+    router.refresh();
   }
 
   async function approveLeadMemory(memory: LeadMemory) {
@@ -296,6 +331,14 @@ export default function LeadDetail({
               {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
+          {status === "client" && (
+            <a
+              href="/clients"
+              className="inline-flex min-h-10 w-full items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-3 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[var(--brand-strong)]"
+            >
+              {clientRoomReady ? "Open client room" : "Create client room"}
+            </a>
+          )}
           <div>
             <span className="text-xs uppercase font-semibold text-gray-500">Warmth</span>
             <p className="font-semibold">{TEMPERATURE_LABEL[lead.temperature] ?? lead.temperature}</p>

@@ -9,7 +9,7 @@ type CookieToSet = {
 
 // Auth gate + first-time onboarding redirect.
 //
-// 1. Public paths (/login, /auth/callback, /welcome) are open.
+// 1. Public paths (/login, /auth/callback, PWA assets) are open.
 // 2. Signed-out users hit /login.
 // 3. Signed-in users with NO voice profile AND NO leads get redirected to
 //    /welcome on their first visit to a "main app" page (/command-center, /inbox,
@@ -17,10 +17,9 @@ type CookieToSet = {
 //    skip with the explicit Skip button), they land on /command-center and the
 //    redirect stops firing because hasProfile or hasLeads will be true.
 //
-// Why /welcome is publicly accessible: it has its own server-side guard
-// that checks profile + leads count. Without that, a coach who DID
-// complete activation could come back to /welcome via ?force=1 to redo
-// voice or replay the magic moment.
+// /welcome is protected but does not participate in the activation gate.
+// That lets signed-in coaches revisit onboarding via ?force=1 without
+// making the onboarding page available to anonymous visitors.
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -49,7 +48,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const publicPaths = ["/login", "/auth/callback", "/welcome"];
+  const publicPaths = ["/login", "/auth/callback", "/manifest.webmanifest", "/sw.js"];
   const isApi = path.startsWith("/api/");
   const isPublic = isApi || publicPaths.some((p) => path.startsWith(p));
 
@@ -71,6 +70,7 @@ export async function middleware(request: NextRequest) {
       "/command-center",
       "/today",
       "/inbox",
+      "/clients",
       "/decisions",
       "/analytics",
       "/voice",

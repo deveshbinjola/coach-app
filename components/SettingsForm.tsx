@@ -19,6 +19,7 @@ import { useError, useConfirm } from "@/components/ui";
 // in alongside the toggles row + Gmail integration card.
 import BrandOsIntegrationPanel from "./settings/BrandOsIntegrationPanel";
 import ApiKeysPanel             from "./settings/ApiKeysPanel";
+import SessionIntegrationsPanel from "./settings/SessionIntegrationsPanel";
 import WebhooksPanel            from "./settings/WebhooksPanel";
 import Toggle                   from "./settings/Toggle";
 import NumberField              from "./settings/NumberField";
@@ -424,6 +425,7 @@ export default function SettingsForm({
             </div>
 
             <BrandOsIntegrationPanel />
+            <SessionIntegrationsPanel />
             <ApiKeysPanel />
             <WebhooksPanel />
           </div>

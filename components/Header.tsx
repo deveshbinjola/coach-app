@@ -44,6 +44,7 @@ function toDisplayName(email: string, name?: string): string {
 const NAV_ITEMS: Array<{ href: string; label: string }> = [
   { href: "/command-center", label: "Home" },
   { href: "/inbox", label: "Leads" },
+  { href: "/clients", label: "Clients" },
   { href: "/voice", label: "Voice" },
   { href: "/content", label: "Content" },
 ];

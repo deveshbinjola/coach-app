@@ -231,7 +231,7 @@ export type CoachSettings = {
 export type CoachIntegration = {
   id: string;
   coach_id: string;
-  provider: "gmail";
+  provider: "gmail" | "cal_com" | "calendly" | "zoom" | "granola";
   account_email: string | null;
   refresh_token: string;
   access_token: string | null;
@@ -240,6 +240,7 @@ export type CoachIntegration = {
   last_synced_at: string | null;
   last_history_id: string | null;
   status: "active" | "revoked" | "paused";
+  metadata: Record<string, unknown>;
   connected_at: string;
   updated_at: string;
 };
@@ -360,6 +361,106 @@ export type Content = {
   brand_os_generated:  boolean;
   created_at:          string;
   updated_at:          string;
+};
+
+// ── Client Rooms ──────────────────────────────────────────────────────────
+
+export type ClientRoomStatus = "active" | "paused" | "completed";
+export type ClientPaymentStatus = "unknown" | "unpaid" | "paid" | "payment_plan" | "overdue";
+export type ClientTaskStatus = "open" | "done";
+export type ClientEventSource = "manual" | "cal_com" | "calendly" | "google_calendar" | "zoom";
+export type SessionWebhookProvider = "cal_com" | "calendly" | "zoom";
+
+export type ClientRoom = {
+  id: string;
+  coach_id: string;
+  lead_id: string;
+  status: ClientRoomStatus;
+  program_name: string;
+  current_focus: string | null;
+  next_session_at: string | null;
+  payment_status: ClientPaymentStatus;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ClientSession = {
+  id: string;
+  coach_id: string;
+  client_room_id: string;
+  title: string;
+  session_at: string;
+  notes: string;
+  wins: string[];
+  blockers: string[];
+  commitments: string[];
+  next_focus: string | null;
+  follow_up_draft: string | null;
+  content_ideas: string[];
+  external_source: string | null;
+  external_id: string | null;
+  extraction_source: "manual" | "ai" | "fallback";
+  created_at: string;
+};
+
+export type ClientTask = {
+  id: string;
+  coach_id: string;
+  client_room_id: string;
+  title: string;
+  status: ClientTaskStatus;
+  due_at: string | null;
+  completed_at: string | null;
+  created_at: string;
+};
+
+export type ClientResource = {
+  id: string;
+  coach_id: string;
+  client_room_id: string;
+  title: string;
+  url: string | null;
+  note: string | null;
+  created_at: string;
+};
+
+export type ClientEvent = {
+  id: string;
+  coach_id: string;
+  client_room_id: string;
+  title: string;
+  starts_at: string;
+  meeting_url: string | null;
+  source: ClientEventSource;
+  external_id: string | null;
+  created_at: string;
+};
+
+export type SessionWebhookEndpoint = {
+  id: string;
+  coach_id: string;
+  provider: SessionWebhookProvider;
+  token: string;
+  name: string;
+  active: boolean;
+  total_received: number;
+  last_used_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export const SESSION_WEBHOOK_PROVIDER_LABEL: Record<SessionWebhookProvider, string> = {
+  cal_com: "Cal.com",
+  calendly: "Calendly",
+  zoom: "Zoom",
+};
+
+export const CLIENT_PAYMENT_LABEL: Record<ClientPaymentStatus, string> = {
+  unknown: "Unknown",
+  unpaid: "Unpaid",
+  paid: "Paid",
+  payment_plan: "Payment plan",
+  overdue: "Overdue",
 };
 
 export const PLATFORM_LABEL: Record<ContentPlatform, string> = {

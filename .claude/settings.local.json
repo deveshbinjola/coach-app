@@ -31,7 +31,17 @@
       "Bash(tail -10 /Users/sunnybinjola/.claude/scheduled-tasks/jarvis-morning-brief/SKILL.md)",
       "Bash(lsof -ti:4173)",
       "Bash(npm install *)",
-      "Bash(awk '{print $5, $9}')"
+      "Bash(awk '{print $5, $9}')",
+      "Bash(npx tsc *)",
+      "Bash(npx vitest *)",
+      "Bash(curl -s \"http://localhost:4173/memory/agents/dashboard/index.html\" -o /dev/null -w \"dashboard: HTTP %{http_code} size %{size_download}\\\\n\")",
+      "Bash(curl -s \"http://localhost:4173/memory/agents/dashboard.html\" -o /dev/null -w \"dashboard.html: HTTP %{http_code} size %{size_download}\\\\n\")",
+      "Bash(curl -s \"http://localhost:4173/memory/agents/max-plan-budget.html\" -o /dev/null -w \"max-plan: HTTP %{http_code} size %{size_download}\\\\n\")",
+      "Bash(curl -s \"http://localhost:4173/memory/agents/activity.json\" -o /dev/null -w \"activity.json: HTTP %{http_code} size %{size_download}\\\\n\")",
+      "Bash(curl -s \"http://localhost:4173/elevate-ai-project/deliverables/free-brand-os-outreach/outreach-tracker.json\" -o /dev/null -w \"outreach: HTTP %{http_code} size %{size_download}\\\\n\")",
+      "Bash(mkdir -p /Users/sunnybinjola/Desktop/Jarvis/scheduled-tasks/athena-weekly-research)",
+      "Read(//Users/sunnybinjola/.claude/**)",
+      "Bash(awk '{print $NF, $5}')"
     ]
   }
 }

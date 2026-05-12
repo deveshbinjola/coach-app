@@ -64,11 +64,19 @@ try {
 
   await step("server", async () => {
     if (START_SERVER) {
-      server = spawn("npm", ["run", "start", "--", "-p", String(DEFAULT_PORT)], {
-        cwd: ROOT,
-        stdio: ["ignore", "pipe", "pipe"],
-        env: { ...process.env, PORT: String(DEFAULT_PORT) },
-      });
+      server = spawn(
+        "npm",
+        ["run", "start", "--", "-H", "127.0.0.1", "-p", String(DEFAULT_PORT)],
+        {
+          cwd: ROOT,
+          stdio: ["ignore", "pipe", "pipe"],
+          env: {
+            ...process.env,
+            HOST: "127.0.0.1",
+            PORT: String(DEFAULT_PORT),
+          },
+        }
+      );
       server.stdout.on("data", (chunk) => process.stdout.write(chunk));
       server.stderr.on("data", (chunk) => process.stderr.write(chunk));
     }
