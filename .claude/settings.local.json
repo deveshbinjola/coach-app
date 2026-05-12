@@ -46,7 +46,9 @@
       "Bash(git commit *)",
       "Bash(git push *)",
       "Bash([ -f \"$SRC/navbar.js\" ])",
-      "Bash(awk '{print $5, $NF}')"
+      "Bash(awk '{print $5, $NF}')",
+      "Bash(sed -i '' 's|href=\"/coach-platform\" class=\"nav-cta\"|href=\"https://app.elevateaisystem.com/login\" class=\"nav-cta\"|g' /Users/sunnybinjola/Desktop/Elevate/Website/navbar.js)",
+      "Bash(sed -i '' 's|<a href=\"/coach-platform\" class=\"hero-cta\"|<a href=\"https://app.elevateaisystem.com/login\" class=\"hero-cta\"|g' /Users/sunnybinjola/Desktop/Elevate/Website/index.html)"
     ]
   }
 }
