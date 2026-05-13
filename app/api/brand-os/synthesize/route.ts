@@ -12,6 +12,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { getQuestion, pick, type Audience } from "@/lib/brand-os/questions";
 import { getVoiceProfile, deriveProfileSlug, type VoiceProfileSlug, type AudienceSelf, type AudienceServes } from "@/lib/voice-profiles";
+import { buildOverlayFromSynthesis, saveBrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
 
 export const runtime = "edge";
 
@@ -100,8 +101,16 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
   if (!run) return NextResponse.json({ error: "run_not_found" }, { status: 404 });
 
-  // Return cached unless forced.
+  // Return cached unless forced. Also opportunistically (re-)write the
+  // voice overlay — covers the case where the synthesis pre-dates the
+  // overlay feature.
   if (!force && run.synthesis_json) {
+    try {
+      const overlay = buildOverlayFromSynthesis(run.synthesis_json as BrandOsSynthesis, runId);
+      await saveBrandVoiceOverlay(supabase, user.id, overlay);
+    } catch (e) {
+      console.error("[brand-os/synthesize] overlay refresh on cache hit failed:", e);
+    }
     return NextResponse.json({ synthesis: run.synthesis_json, cached: true });
   }
 
@@ -183,7 +192,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "invalid_json", raw: raw.slice(0, 500) }, { status: 502 });
   }
 
-  // Persist.
+  // Persist the synthesis on the run.
   await supabase
     .from("cp_brand_os_runs")
     .update({
@@ -191,6 +200,17 @@ export async function POST(request: NextRequest) {
       synthesized_at: new Date().toISOString(),
     })
     .eq("id", runId);
+
+  // Distill into the voice overlay and push to cp_coaches so every
+  // downstream content-gen call starts using the coach's actual voice
+  // instead of the generic 6-slug register. Non-fatal if it fails —
+  // synthesis is the deliverable, overlay is a bonus channel.
+  try {
+    const overlay = buildOverlayFromSynthesis(synthesis, runId);
+    await saveBrandVoiceOverlay(supabase, user.id, overlay);
+  } catch (e) {
+    console.error("[brand-os/synthesize] failed to persist voice overlay:", e);
+  }
 
   return NextResponse.json({ synthesis, cached: false });
 }

@@ -6,6 +6,7 @@ import {
   scoreVoiceFit,
 } from "@/lib/voice-trust";
 import type { VoiceProfile } from "@/lib/types";
+import { loadBrandVoiceOverlay, renderOverlayPromptBlock } from "@/lib/brand-os/voice-overlay";
 
 export const runtime = 'edge';
 
@@ -59,13 +60,16 @@ export async function POST(request: NextRequest) {
   }
 
   const guidance = buildVoiceRewriteGuidance(fit, voiceProfile);
-  const system = [
+  const brandOverlay = await loadBrandVoiceOverlay(supabase, user.id);
+  const overlayBlock = renderOverlayPromptBlock(brandOverlay);
+  const baseSystem = [
     "Rewrite this coach outbound message so it sounds more like the active voice profile.",
     "Preserve the meaning and the next step.",
     "Do not add claims, promises, pricing, or new facts.",
     "Output only the rewritten message body.",
     "No em dash characters.",
   ].join(" ");
+  const system = overlayBlock ? `${overlayBlock}\n\n${baseSystem}` : baseSystem;
 
   const userPrompt = [
     "VOICE PROFILE:",

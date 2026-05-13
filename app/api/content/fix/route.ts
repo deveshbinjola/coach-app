@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { repairContentDraft } from "@/lib/pushback";
 import type { Content, ContentPillar, VoiceProfile } from "@/lib/types";
+import { loadBrandVoiceOverlay, renderOverlayPromptBlock, type BrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
 
 export const runtime = 'edge';
 
@@ -63,8 +64,9 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   const voiceProfile = (profile as VoiceProfile | null) ?? null;
+  const brandOverlay = await loadBrandVoiceOverlay(supabase, user.id);
   const fallback = repairContentDraft(content, voiceProfile);
-  const repair = await modelRepair(content, voiceProfile, fallback);
+  const repair = await modelRepair(content, voiceProfile, brandOverlay, fallback);
 
   const { data: updated, error: updateError } = await supabase
     .from("cp_content")
@@ -91,12 +93,15 @@ export async function POST(request: NextRequest) {
 async function modelRepair(
   content: Content,
   voiceProfile: VoiceProfile | null,
+  brandOverlay: BrandVoiceOverlay | null,
   fallback: ReturnType<typeof repairContentDraft>
 ): Promise<ReturnType<typeof repairContentDraft>> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return fallback;
 
-  const system = [
+  const overlayBlock = renderOverlayPromptBlock(brandOverlay);
+
+  const baseSystem = [
     "You repair coach content before it is published.",
     "Make it sharper, more specific, and more likely to create a reply or lead.",
     "Keep the coach's meaning. Do not add fake results, claims, prices, dates, or credentials.",
@@ -104,6 +109,8 @@ async function modelRepair(
     "pillar must be one of authority, story, offer, engagement.",
     "No em dash characters.",
   ].join(" ");
+
+  const system = overlayBlock ? `${overlayBlock}\n\n${baseSystem}` : baseSystem;
 
   const prompt = [
     "VOICE PROFILE:",

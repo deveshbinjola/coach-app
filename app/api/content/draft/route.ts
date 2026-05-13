@@ -11,6 +11,7 @@ import {
   type VoiceProfile,
   type VoiceTrainingSource,
 } from "@/lib/types";
+import { loadBrandVoiceOverlay, renderOverlayPromptBlock, type BrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
 
 export const runtime = 'edge';
 
@@ -127,7 +128,7 @@ export async function POST(request: NextRequest) {
   const carouselStyle = normalizeCarouselStyle(body.carouselStyle);
   const spec = SPECS[kind];
 
-  const [profileRes, leadsRes, sourcesRes, sourceContentRes] = await Promise.all([
+  const [profileRes, leadsRes, sourcesRes, sourceContentRes, brandOverlay] = await Promise.all([
     supabase
       .from("cp_voice_profiles")
       .select("*")
@@ -156,6 +157,7 @@ export async function POST(request: NextRequest) {
           .eq("id", sourceContentId)
           .maybeSingle()
       : Promise.resolve({ data: null }),
+    loadBrandVoiceOverlay(supabase, user.id),
   ]);
 
   const profile = (profileRes.data as VoiceProfile | null) ?? null;
@@ -199,6 +201,7 @@ export async function POST(request: NextRequest) {
     angle,
     audienceSignal,
     profile,
+    brandOverlay,
     marketSignals,
     sourceSummary,
     sourceContent,
@@ -253,6 +256,7 @@ async function modelDraft({
   angle,
   audienceSignal,
   profile,
+  brandOverlay,
   marketSignals,
   sourceSummary,
   sourceContent,
@@ -266,6 +270,7 @@ async function modelDraft({
   angle: string;
   audienceSignal: string;
   profile: VoiceProfile | null;
+  brandOverlay: BrandVoiceOverlay | null;
   marketSignals: string[];
   sourceSummary: string;
   sourceContent: Content | null;
@@ -278,7 +283,12 @@ async function modelDraft({
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return fallback;
 
-  const system = [
+  // Brand OS overlay (if the coach has run Brand OS) — prepended ABOVE the
+  // generic instructions so the model treats the coach's actual voice DNA
+  // as primary source-of-truth instead of "generic coach prose."
+  const overlayBlock = renderOverlayPromptBlock(brandOverlay);
+
+  const baseSystem = [
     "You draft content for a coach.",
     "Use the coach voice profile as the source of truth.",
     "Use lead signals as market input, not as private client gossip.",
@@ -287,6 +297,8 @@ async function modelDraft({
     "Return compact JSON only with title, body, and pillar.",
     "pillar must be one of authority, story, offer, engagement.",
   ].join(" ");
+
+  const system = overlayBlock ? `${overlayBlock}\n\n${baseSystem}` : baseSystem;
 
   const isNewsletterSource = sourceContent?.platform === "newsletter";
 
