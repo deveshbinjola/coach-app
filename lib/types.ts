@@ -220,9 +220,20 @@ export type CoachSettings = {
   reach_target_per_week: number;
   carousel_brand_name: string | null;
   carousel_handle: string | null;
-  carousel_default_style: "onyx_gold" | "forest_sand" | "editorial_gold" | "hard_facts" | "imported" | "dark_authority" | "clean_cream" | "accent_flash" | "midnight_citron" | "black_gold";
+  carousel_default_style:
+    | "onyx_gold" | "forest_sand" | "editorial_gold" | "hard_facts" | "imported"
+    | "dark_authority" | "clean_cream" | "accent_flash" | "midnight_citron" | "black_gold"
+    | "brand_kit";
   carousel_accent_color: string;
   carousel_custom_style: Record<string, unknown> | null;
+  // Brand kit — tenant-level identity for carousel rendering + future surfaces.
+  brand_primary_hex:    string | null;
+  brand_accent_hex:     string | null;
+  brand_background_hex: string | null;
+  brand_text_hex:       string | null;
+  brand_font_family:    string | null;
+  brand_font_weight:    string | null;
+  brand_logo_url:       string | null;
   updated_at: string;
 };
 
@@ -335,7 +346,7 @@ export type ContentPerformance = {
   source_type?: "lead" | "content" | "manual";
   source_label?: string;
   source_id?: string;
-  carousel_style?: "onyx_gold" | "forest_sand" | "editorial_gold" | "hard_facts" | "imported" | "dark_authority" | "clean_cream" | "accent_flash" | "midnight_citron" | "black_gold";
+  carousel_style?: "onyx_gold" | "forest_sand" | "editorial_gold" | "hard_facts" | "imported" | "dark_authority" | "clean_cream" | "accent_flash" | "midnight_citron" | "black_gold" | "brand_kit";
   carousel_hook?: "curiosity_gap" | "contrarian" | "identity_callout" | "number_outcome" | "pain_question";
   carousel_brand_name?: string;
   carousel_handle?: string;

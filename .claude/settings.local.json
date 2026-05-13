@@ -59,7 +59,11 @@
       "Bash(npx wrangler@latest pages project list)",
       "Bash(awk '{print $NF}')",
       "Bash(mkdir -p /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/deliverables/missy-pilot && mv /Users/sunnybinjola/Desktop/missy-pilot-onboarding-2026-05-12.html /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/deliverables/missy-pilot/ 2>/dev/null; ls /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/deliverables/missy-pilot/)",
-      "mcp__90551a66-9872-4e2a-9232-e80babf9ebc7__apply_migration"
+      "mcp__90551a66-9872-4e2a-9232-e80babf9ebc7__apply_migration",
+      "Bash(grep -nA 20 \"function carouselPreviewStyle\\\\|function carouselPreviewClass\\\\|function carouselPreviewAccent\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)",
+      "Bash(awk 'NR<=1512 && /^function / {fn=$0} END {print fn}' /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)",
+      "Bash(awk 'NR<=2012 && /^function / {fn=$0} END {print fn}' /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)",
+      "Bash(grep -nA 3 \"function CarouselWizardStep\\\\|<CarouselWizardStep\\\\|function CarouselBuilderControls\\\\|<CarouselBuilderControls\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)"
     ]
   }
 }

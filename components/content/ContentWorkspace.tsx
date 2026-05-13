@@ -34,11 +34,12 @@ import {
   type VoiceTrainingSource,
 } from "@/lib/types";
 import { getVoiceAssetStats } from "@/lib/voice-asset";
+import { brandKitFromSettings, fontFamilyStack, googleFontsHref, readableTextOn, type BrandKit } from "@/lib/brand-kit";
 
 type DraftKind = "instagram_caption" | "linkedin_post" | "newsletter" | "carousel";
 type CarouselOutcome = "saves" | "conversations" | "authority";
 type CarouselFramework = "listicle" | "mistake_fix" | "framework";
-type CarouselStyle = "onyx_gold" | "forest_sand" | "editorial_gold" | "hard_facts" | "imported";
+type CarouselStyle = "onyx_gold" | "forest_sand" | "editorial_gold" | "hard_facts" | "imported" | "brand_kit";
 type CarouselHook = "curiosity_gap" | "contrarian" | "identity_callout" | "number_outcome" | "pain_question";
 
 type CarouselCustomStyle = {
@@ -231,6 +232,12 @@ const CAROUSEL_STYLES: Array<{
     description: "Gray editorial gradient with oversized black type.",
     bestFor: "truth posts",
   },
+  {
+    id: "brand_kit",
+    label: "Brand kit",
+    description: "Your colors, your font, your logo — from /settings.",
+    bestFor: "any",
+  },
 ];
 
 const CAROUSEL_STEPS = ["Goal", "Hook", "Framework", "System", "Brand", "Input", "Review"] as const;
@@ -263,6 +270,9 @@ export default function ContentWorkspace({
 }) {
   const supabase = createClient();
   const seedLead = leads.find((lead) => lead.id === seedLeadId) ?? null;
+  // Brand kit comes from cp_coach_settings (set in /settings → Brand kit).
+  // Drives carousel rendering when style === "brand_kit". Stable per render.
+  const brandKit = useMemo(() => brandKitFromSettings(settings as CoachSettings | null | undefined), [settings]);
   const [selectedKind, setSelectedKind] = useState<DraftKind>("instagram_caption");
   const [angle, setAngle] = useState(() => seedLeadAngle(seedLead));
   const [audienceSignal, setAudienceSignal] = useState(() => seedLeadSignal(seedLead));
@@ -781,6 +791,7 @@ export default function ContentWorkspace({
                   handle={carouselHandle}
                   accentColor={carouselAccentColor}
                   onBodyChange={(body) => updateContentBody(latestDraft, body)}
+                  brandKit={brandKit}
                 />
               )
             ) : (
@@ -867,6 +878,7 @@ export default function ContentWorkspace({
               onDownload={downloadCarousel}
               onCopy={copyDraft}
               onBodyChange={(item, body) => updateContentBody(item, body)}
+              brandKit={brandKit}
             />
 
             <div className="mt-5 flex flex-col-reverse gap-2 border-t border-[var(--border-faint)] pt-4 sm:flex-row sm:items-center sm:justify-between">
@@ -1205,6 +1217,7 @@ function CarouselWizardStep({
   onDownload,
   onCopy,
   onBodyChange,
+  brandKit,
 }: {
   step: number;
   outcome: CarouselOutcome;
@@ -1238,6 +1251,7 @@ function CarouselWizardStep({
   onDownload: (item: Content) => void;
   onCopy: (item: Content) => void;
   onBodyChange: (item: Content, body: string) => void;
+  brandKit?: BrandKit | null;
 }) {
   if (step === 0) {
     return (
@@ -1297,6 +1311,7 @@ function CarouselWizardStep({
           customStyle={customStyle}
           onChange={onStyleChange}
           onImport={onImportStyle}
+          brandKit={brandKit}
         />
         {style === "imported" && customStyle?.dna ? (
           <StyleDnaReview customStyle={customStyle} onChange={onCustomStyleChange} />
@@ -1394,6 +1409,7 @@ function CarouselWizardStep({
             customStyle={customStyle}
             onChange={onStyleChange}
             onImport={onImportStyle}
+            brandKit={brandKit}
           />
           {style === "imported" && customStyle?.dna ? (
             <StyleDnaReview customStyle={customStyle} onChange={onCustomStyleChange} />
@@ -1409,6 +1425,7 @@ function CarouselWizardStep({
           handle={handle}
           accentColor={accentColor}
           onBodyChange={(body) => onBodyChange(latestDraft, body)}
+          brandKit={brandKit}
         />
       ) : (
         <div className="rounded-[var(--r-lg)] border border-[var(--border-faint)] bg-[var(--surface)] px-5 py-10 text-center">
@@ -1471,11 +1488,13 @@ function VisualSystemPicker({
   customStyle,
   onChange,
   onImport,
+  brandKit,
 }: {
   value: CarouselStyle;
   customStyle: CarouselCustomStyle | null;
   onChange: (value: CarouselStyle) => void;
   onImport: (files: File[]) => void;
+  brandKit?: BrandKit | null;
 }) {
   return (
     <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
@@ -1499,7 +1518,7 @@ function VisualSystemPicker({
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex gap-1">
-                {visualSystemSwatches(system.id, customStyle).map((color) => (
+                {visualSystemSwatches(system.id, customStyle, brandKit).map((color) => (
                   <span
                     key={color}
                     className="h-5 w-5 rounded-full border border-[color-mix(in_srgb,var(--border)_70%,transparent)]"
@@ -1955,6 +1974,7 @@ function DraftPreview({
   handle,
   accentColor,
   onBodyChange,
+  brandKit,
 }: {
   item: Content;
   carouselStyle: CarouselStyle;
@@ -1963,6 +1983,7 @@ function DraftPreview({
   handle: string;
   accentColor: string;
   onBodyChange: (body: string) => void;
+  brandKit?: BrandKit | null;
 }) {
   const carouselSlides = isCarousel(item) ? parseCarouselSlides(item) : [];
   const meta = getContentMeta(item);
@@ -1999,6 +2020,7 @@ function DraftPreview({
             brandName={meta.carousel_brand_name ?? brandName}
             handle={meta.carousel_handle ?? handle}
             accentColor={meta.carousel_accent_color ?? accentColor}
+            brandKit={brandKit}
           />
           <CarouselSlideEditor
             slides={carouselSlides}
@@ -2139,6 +2161,7 @@ function CarouselPreview({
   brandName,
   handle,
   accentColor,
+  brandKit,
 }: {
   slides: CarouselSlide[];
   style: CarouselStyle;
@@ -2146,32 +2169,58 @@ function CarouselPreview({
   brandName: string;
   handle: string;
   accentColor: string;
+  brandKit?: BrandKit | null;
 }) {
   const identity = carouselIdentity(brandName, handle);
+
+  // Brand kit drives the typography and palette when style === "brand_kit".
+  // Hot-load the Google Font on the preview so the font visibly applies.
+  useBrandFontLoader(style === "brand_kit" ? brandKit?.fontFamily : null);
+
   return (
     <div className="mt-4 flex snap-x gap-3 overflow-x-auto pb-2">
       {slides.map((slide, index) => {
         const kitTemplate = style === "imported" ? pickCarouselKitTemplate(customStyle, index + 1, slides.length) : null;
         const dna = kitTemplate?.dna ?? customStyle?.dna;
-        const previewStyle = carouselPreviewStyle(style, customStyle, dna);
+        const previewStyle = carouselPreviewStyle(style, customStyle, dna, brandKit ?? null);
+        const useBrandKit = style === "brand_kit" && !!brandKit;
+        const titleFontFamily = useBrandKit
+          ? fontFamilyStack(brandKit!.fontFamily)
+          : dna?.fontFamily === "serif" ? "'Fraunces', Georgia, serif"
+          : dna?.fontFamily === "mono" ? "monospace"
+          : "'Plus Jakarta Sans', sans-serif";
+        const titleWeight = useBrandKit ? Number(brandKit!.fontWeight) : (dna?.titleWeight ?? 800);
+        const titleColor  = useBrandKit ? brandKit!.textHex : dna?.titleColor;
+        const bodyColor   = useBrandKit ? brandKit!.textHex : dna?.bodyColor;
+        const identityColor = useBrandKit ? brandKit!.primaryHex : undefined;
+        const barColor = kitTemplate?.accent ?? carouselPreviewAccent(style, customStyle, accentColor, brandKit ?? null);
         return (
           <div
             key={`${slide.title}-${index}`}
             className={`relative snap-start shrink-0 w-[min(220px,78vw)] aspect-[4/5] overflow-hidden rounded-[var(--r-lg)] border p-4 shadow-[var(--shadow-sm)] flex flex-col ${carouselPreviewClass(style, index)}`}
             style={previewStyle}
           >
-            <div className="flex items-center justify-between gap-2 text-[10px] font-extrabold uppercase tracking-wider opacity-70">
-              <span className="min-w-0 truncate">{identity}</span>
+            <div
+              className="flex items-center justify-between gap-2 text-[10px] font-extrabold uppercase tracking-wider opacity-70"
+              style={identityColor ? { color: identityColor } : undefined}
+            >
+              <span className="min-w-0 truncate flex items-center gap-1.5">
+                {useBrandKit && brandKit!.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={brandKit!.logoUrl} alt="" className="w-3.5 h-3.5 object-contain" />
+                ) : null}
+                {identity}
+              </span>
               <span>{index + 1}/{slides.length}</span>
             </div>
             <div className="mt-auto mb-auto">
               <h4
                 className="text-[22px] leading-[1.05] tracking-tight"
                 style={{
-                  fontFamily: dna?.fontFamily === "serif" ? "'Fraunces', Georgia, serif" : dna?.fontFamily === "mono" ? "monospace" : "'Plus Jakarta Sans', sans-serif",
-                  fontWeight: dna?.titleWeight ?? 800,
+                  fontFamily: titleFontFamily,
+                  fontWeight: titleWeight,
                   textAlign: dna?.align ?? "left",
-                  color: dna?.titleColor,
+                  color: titleColor,
                 }}
               >
                 {slide.title}
@@ -2180,9 +2229,9 @@ function CarouselPreview({
                 <p
                   className="mt-3 text-[13px] leading-[1.45] opacity-70"
                   style={{
-                    fontFamily: dna?.fontFamily === "serif" ? "'Fraunces', Georgia, serif" : dna?.fontFamily === "mono" ? "monospace" : "'Plus Jakarta Sans', sans-serif",
+                    fontFamily: titleFontFamily,
                     textAlign: dna?.align ?? "left",
-                    color: dna?.bodyColor,
+                    color: bodyColor,
                   }}
                 >
                   {slide.body}
@@ -2191,13 +2240,28 @@ function CarouselPreview({
             </div>
             <div
               className="mt-4 h-1.5 w-12 rounded-full"
-              style={{ backgroundColor: kitTemplate?.accent ?? carouselPreviewAccent(style, customStyle, accentColor) }}
+              style={{ backgroundColor: barColor }}
             />
           </div>
         );
       })}
     </div>
   );
+}
+
+/** Hot-load a Google Font by injecting a <link rel="stylesheet">. Idempotent
+ *  per family. Pass null to leave whatever's currently loaded. */
+function useBrandFontLoader(family: string | null | undefined): void {
+  useEffect(() => {
+    if (!family || typeof document === "undefined") return;
+    const id = `brand-kit-carousel-font-${family.replace(/\s+/g, "-").toLowerCase()}`;
+    if (document.getElementById(id)) return;
+    const link = document.createElement("link");
+    link.id = id;
+    link.rel = "stylesheet";
+    link.href = googleFontsHref(family);
+    document.head.appendChild(link);
+  }, [family]);
 }
 
 type CarouselSlide = {
@@ -2284,8 +2348,15 @@ function styleLabel(value: CarouselStyle): string {
   return CAROUSEL_STYLES.find((style) => style.id === value)?.label ?? "Onyx + Gold";
 }
 
-function visualSystemSwatches(style: CarouselStyle, customStyle?: CarouselCustomStyle | null): string[] {
+function visualSystemSwatches(
+  style: CarouselStyle,
+  customStyle?: CarouselCustomStyle | null,
+  brandKit?: BrandKit | null
+): string[] {
   if (style === "imported" && customStyle) return customStyle.colors.slice(0, 4);
+  if (style === "brand_kit" && brandKit) {
+    return [brandKit.backgroundHex, brandKit.textHex, brandKit.primaryHex, brandKit.accentHex];
+  }
   if (style === "forest_sand") return ["#F6F1E8", "#172116", "#386641", "#D7C5A5"];
   if (style === "editorial_gold") return ["#B8892E", "#FFF8E8", "#151515", "#F7C46C"];
   if (style === "hard_facts") return ["#B1B5BE", "#111111", "#F8F8F8", "#C8A16A"];
@@ -2293,7 +2364,10 @@ function visualSystemSwatches(style: CarouselStyle, customStyle?: CarouselCustom
 }
 
 function normalizeCarouselStyleValue(value: unknown): CarouselStyle | null {
-  if (value === "onyx_gold" || value === "forest_sand" || value === "editorial_gold" || value === "hard_facts" || value === "imported") {
+  if (
+    value === "onyx_gold" || value === "forest_sand" || value === "editorial_gold" ||
+    value === "hard_facts" || value === "imported" || value === "brand_kit"
+  ) {
     return value;
   }
   if (value === "clean_cream") return "forest_sand";
@@ -2315,7 +2389,7 @@ function carouselPreviewClass(style: CarouselStyle, index: number): string {
   if (style === "hard_facts") {
     return "border-[#6F7480] bg-[#B1B5BE] text-[#050505]";
   }
-  if (style === "imported") {
+  if (style === "imported" || style === "brand_kit") {
     return "border-[var(--border)] text-[color:var(--text)]";
   }
   return "border-[#2A2A2A] bg-[#111111] text-[#F5F1EA]";
@@ -2324,8 +2398,16 @@ function carouselPreviewClass(style: CarouselStyle, index: number): string {
 function carouselPreviewStyle(
   style: CarouselStyle,
   customStyle: CarouselCustomStyle | null,
-  dna?: CarouselStyleDna
+  dna?: CarouselStyleDna,
+  brandKit?: BrandKit | null
 ): CSSProperties | undefined {
+  if (style === "brand_kit" && brandKit) {
+    return {
+      background: brandKit.backgroundHex,
+      color: brandKit.textHex,
+      borderColor: brandKit.primaryHex,
+    };
+  }
   if (style !== "imported" || !customStyle) return undefined;
   const background =
     dna?.backgroundMood === "editorial_gradient"
@@ -2343,8 +2425,10 @@ function carouselPreviewStyle(
 function carouselPreviewAccent(
   style: CarouselStyle,
   customStyle: CarouselCustomStyle | null,
-  accentColor: string
+  accentColor: string,
+  brandKit?: BrandKit | null
 ): string {
+  if (style === "brand_kit" && brandKit) return brandKit.accentHex;
   if (style === "imported" && customStyle) return customStyle.accent;
   if (style === "forest_sand") return "#386641";
   if (style === "editorial_gold") return "#151515";

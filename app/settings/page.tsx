@@ -13,8 +13,10 @@ import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import SettingsForm from "@/components/SettingsForm";
 import AudienceSettingsPanel from "@/components/settings/AudienceSettingsPanel";
+import BrandKitPanel from "@/components/settings/BrandKitPanel";
 import type { CoachSettings, CoachIntegration } from "@/lib/types";
 import type { AudienceSelf, AudienceServes, VoiceProfileSlug } from "@/lib/voice-profiles";
+import { DEFAULT_BRAND_KIT } from "@/lib/brand-kit";
 
 export const runtime = 'edge';
 
@@ -93,6 +95,17 @@ export default async function SettingsPage({
               initialSelf={audienceSelf}
               initialServes={audienceServes}
               initialSlug={voiceProfileSlug}
+            />
+            <BrandKitPanel
+              initial={{
+                primary:    (settings as CoachSettings).brand_primary_hex    ?? DEFAULT_BRAND_KIT.primaryHex,
+                accent:     (settings as CoachSettings).brand_accent_hex     ?? DEFAULT_BRAND_KIT.accentHex,
+                background: (settings as CoachSettings).brand_background_hex ?? DEFAULT_BRAND_KIT.backgroundHex,
+                text:       (settings as CoachSettings).brand_text_hex       ?? DEFAULT_BRAND_KIT.textHex,
+                fontFamily: (settings as CoachSettings).brand_font_family    ?? DEFAULT_BRAND_KIT.fontFamily,
+                fontWeight: (settings as CoachSettings).brand_font_weight    ?? DEFAULT_BRAND_KIT.fontWeight,
+                logoUrl:    (settings as CoachSettings).brand_logo_url       ?? null,
+              }}
             />
             <SettingsForm
               initial={settings as CoachSettings}
