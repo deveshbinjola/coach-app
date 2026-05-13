@@ -1794,36 +1794,68 @@ function Empty() {
  *  Previous version always said "Want the full Brand OS run?" even to
  *  coaches who'd already finished. */
 function BrandOsCta({ state }: { state: BrandOsRunState }) {
-  // Done — show as accomplishment + link to output.
+  // Done — show as accomplishment + link to output. MVP completers also
+  // get a clear "go deeper" affordance below the main action so they
+  // know there's a Full Run available without it pushing them away from
+  // the deliverable they just earned.
   if (state.kind === "complete") {
+    const isMvp = state.variant === "mvp";
     return (
-      <a
-        href={`/brand-os/run/${state.runId}/output`}
-        className="block rounded-[var(--r-lg)] border-2 border-[var(--brand-strong)] bg-[var(--brand-soft)] p-5 hover:bg-[color-mix(in_srgb,var(--brand)_12%,var(--surface-elevated))] transition group"
-      >
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <Badge tone="brand" size="xs" uppercase>✓ Brand OS · {state.variant === "mvp" ? "Quick Start" : "Full Run"}</Badge>
-              {state.synthesizedAt && (
-                <span className="text-[length:var(--t-caption)] text-[color:var(--text-faint)]">
-                  Completed {new Date(state.synthesizedAt).toLocaleDateString()}
-                </span>
-              )}
+      <div className="rounded-[var(--r-lg)] border-2 border-[var(--brand-strong)] bg-[var(--brand-soft)] overflow-hidden">
+        <a
+          href={`/brand-os/run/${state.runId}/output`}
+          className="block p-5 hover:bg-[color-mix(in_srgb,var(--brand)_12%,var(--surface-elevated))] transition group"
+        >
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <Badge tone="brand" size="xs" uppercase>
+                  ✓ Brand OS · {isMvp ? "MVP / Quick Start" : "Full Run"}
+                </Badge>
+                {state.synthesizedAt && (
+                  <span className="text-[length:var(--t-caption)] text-[color:var(--text-faint)]">
+                    Completed {new Date(state.synthesizedAt).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+              <h3 className="font-display text-[length:var(--t-h3)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
+                Your Brand OS is live.
+              </h3>
+              <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1 leading-[var(--leading-relaxed)]">
+                {isMvp
+                  ? "You finished the MVP. Your voice DNA, pillars, and buyer mirror are feeding every draft."
+                  : "You finished the Full Run. Your voice DNA, pillars, buyer mirror, and content angles are feeding every draft."}
+              </p>
             </div>
-            <h3 className="font-display text-[length:var(--t-h3)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
-              Your Brand OS is live.
-            </h3>
-            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1 leading-[var(--leading-relaxed)]">
-              Your voice DNA, pillars, buyer mirror, and content angles are feeding every draft.
-              {state.variant === "mvp" && " Ready for the Full Run when you want more depth."}
-            </p>
+            <span className="text-[color:var(--brand-strong)] font-bold whitespace-nowrap group-hover:translate-x-1 transition-transform">
+              View deliverable →
+            </span>
           </div>
-          <span className="text-[color:var(--brand-strong)] font-bold whitespace-nowrap group-hover:translate-x-1 transition-transform">
-            View deliverable →
-          </span>
-        </div>
-      </a>
+        </a>
+
+        {isMvp && (
+          // MVP completers — surface the Full Run as the next depth step
+          // without pushing them away from their finished deliverable.
+          <a
+            href="/brand-os#start-full"
+            className="block border-t border-[color-mix(in_srgb,var(--brand)_25%,transparent)] px-5 py-3 bg-[var(--surface-elevated)] hover:bg-[var(--surface)] transition group"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[length:var(--t-caption)] text-[color:var(--text)] leading-snug">
+                  <strong>Want to go deeper?</strong>{" "}
+                  <span className="text-[color:var(--text-muted)]">
+                    The Full Run adds Funnel, Distribution + 45-day calendar — 6 modules, ~60 questions.
+                  </span>
+                </p>
+              </div>
+              <span className="text-[length:var(--t-caption)] font-bold text-[color:var(--brand-strong)] whitespace-nowrap group-hover:translate-x-1 transition-transform">
+                Run Full →
+              </span>
+            </div>
+          </a>
+        )}
+      </div>
     );
   }
 

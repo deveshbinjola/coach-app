@@ -100,7 +100,7 @@ export default async function BrandOsLanding() {
             Start a new run
           </h2>
           <div className="grid sm:grid-cols-2 gap-3">
-            <form action="/brand-os/start" method="POST">
+            <form action="/brand-os/start" method="POST" id="start-full" className="scroll-mt-8">
               <input type="hidden" name="variant" value="full" />
               <Card className="p-5 h-full flex flex-col gap-3">
                 <Badge tone="brand" size="xs" uppercase>Full run</Badge>

@@ -39,6 +39,23 @@ export async function resolveBrandOsRunState(
   // "Brand OS done" state). Then completed without synthesis. Then any
   // in-progress run. Then none.
   const completeWithSynth = rows.find((r) => r.state === "complete" && r.synthesis_json);
+  const completeNoSynth   = rows.find((r) => r.state === "complete");
+  const inProgress        = rows.find((r) => r.state === "active" || r.state === null || r.state === "draft");
+
+  // Lazy cleanup: if the coach has ANY completed run, stale in-progress
+  // drafts should disappear from CTAs. Mark them abandoned in the DB so
+  // they stop showing up everywhere — not just hidden from this resolver.
+  // Done in a fire-and-forget update; the response uses the completed run
+  // either way.
+  if ((completeWithSynth || completeNoSynth) && inProgress) {
+    void supabase
+      .from("cp_brand_os_runs")
+      .update({ state: "abandoned" })
+      .eq("coach_id", coachId)
+      .in("state", ["active", "draft"])
+      .not("id", "eq", (completeWithSynth ?? completeNoSynth!).id);
+  }
+
   if (completeWithSynth) {
     return {
       kind: "complete",
@@ -48,7 +65,6 @@ export async function resolveBrandOsRunState(
     };
   }
 
-  const completeNoSynth = rows.find((r) => r.state === "complete");
   if (completeNoSynth) {
     return {
       kind: "complete_no_synthesis",
@@ -57,7 +73,6 @@ export async function resolveBrandOsRunState(
     };
   }
 
-  const inProgress = rows.find((r) => r.state === "active" || r.state === null || r.state === "draft");
   if (inProgress) {
     return {
       kind: "in_progress",

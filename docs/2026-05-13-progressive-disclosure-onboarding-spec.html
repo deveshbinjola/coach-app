@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Progressive Disclosure Onboarding Spec | Coach Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2300FF41' d='M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c4 0 7.5-2.5 9-6c-1.5 1-3 1.5-5 1.5c-4.5 0-8-3.5-8-8c0-2 0.5-3.5 1.5-5C7 5 4.5 7.5 4 11C5 6 8 2 12 2z'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --green: #00FF41;
+    --navy: #0A0F1C;
+    --bg: #FAFAF8;
+    --soft: #F0EFEA;
+    --muted: #6B7280;
+    --line: #E5E5E0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--navy);
+    line-height: 1.6;
+    padding: 60px 24px;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .eyebrow span { color: var(--green); font-weight: 700; }
+  h1 {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.15;
+    margin-bottom: 18px;
+  }
+  h1 .accent { color: var(--green); }
+  .tagline {
+    font-size: 18px;
+    color: var(--muted);
+    margin-bottom: 40px;
+    max-width: 700px;
+  }
+  .meta {
+    display: flex;
+    gap: 16px;
+    padding: 14px 18px;
+    background: var(--navy);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+  }
+  .meta b { color: var(--green); margin-right: 6px; }
+  h2 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-top: 56px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--navy);
+  }
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 28px;
+    margin-bottom: 10px;
+  }
+  p { margin-bottom: 14px; }
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card.dark {
+    background: var(--navy);
+    color: #fff;
+    border-color: var(--navy);
+  }
+  .card.dark h3 { color: var(--green); }
+
+  /* Routing diagram */
+  .routing {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 24px 0;
+  }
+  .route-row {
+    display: grid;
+    grid-template-columns: 200px 80px 1fr 1.4fr;
+    align-items: center;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+    gap: 16px;
+  }
+  .route-row:last-child { border-bottom: 0; }
+  .route-row.head {
+    background: var(--soft);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .quiz-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--green);
+    color: var(--navy);
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .arrow { color: var(--muted); font-size: 18px; text-align: center; }
+  .home-surface { font-weight: 700; color: var(--navy); }
+  .more-lane { color: var(--muted); font-size: 13px; }
+
+  /* Wireframe */
+  .wireframe {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 24px 0;
+    min-height: 380px;
+  }
+  .sidenav {
+    background: var(--navy);
+    color: #fff;
+    padding: 24px 16px;
+  }
+  .sidenav .brand {
+    color: var(--green);
+    font-weight: 800;
+    font-size: 14px;
+    margin-bottom: 22px;
+  }
+  .nav-pinned {
+    background: rgba(0, 255, 65, 0.12);
+    border-left: 3px solid var(--green);
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+  }
+  .nav-pinned .label { font-weight: 700; color: var(--green); font-size: 13px; }
+  .nav-pinned .sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 6px;
+    padding-left: 6px;
+    line-height: 1.7;
+  }
+  .nav-more-header {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin: 22px 0 8px 12px;
+    font-weight: 700;
+  }
+  .nav-item {
+    padding: 8px 12px;
+    color: rgba(255,255,255,0.6);
+    font-size: 13px;
+    border-radius: 4px;
+  }
+  .main {
+    padding: 28px;
+  }
+  .hero-card {
+    background: var(--navy);
+    color: #fff;
+    padding: 22px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+  .hero-card .h-eyebrow {
+    color: var(--green);
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .hero-card h4 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .hero-card .cta {
+    display: inline-block;
+    background: var(--green);
+    color: var(--navy);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  .sub-action {
+    padding: 12px 14px;
+    background: var(--soft);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--navy);
+  }
+
+  /* Rules table */
+  .rules {
+    display: grid;
+    gap: 12px;
+  }
+  .rule {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--green);
+    border-radius: 8px;
+    padding: 18px 20px;
+  }
+  .rule .rule-num {
+    color: var(--green);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .rule h4 { font-size: 16px; margin-bottom: 8px; }
+  .rule code {
+    background: var(--soft);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Check-in copy */
+  .check-in {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 28px;
+    margin: 20px 0;
+  }
+  .check-in-question {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  .check-in-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .check-in-option {
+    padding: 14px 16px;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .check-in-option:hover {
+    border-color: var(--green);
+    background: rgba(0,255,65,0.05);
+  }
+
+  /* Data model */
+  .schema {
+    background: var(--navy);
+    color: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 13px;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  .schema .table-name { color: var(--green); font-weight: 700; }
+  .schema .comment { color: rgba(255,255,255,0.5); }
+
+  /* Not list */
+  .not-list {
+    background: #FEF3F2;
+    border: 1px solid #FECDCA;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .not-list h3 { color: #B42318; margin-top: 0; }
+  .not-list ul { list-style: none; padding: 0; }
+  .not-list li {
+    padding: 6px 0;
+    color: #912018;
+    font-size: 14px;
+  }
+  .not-list li::before {
+    content: "✕";
+    color: #B42318;
+    margin-right: 10px;
+    font-weight: 700;
+  }
+
+  .footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .footer a { color: var(--navy); text-decoration: none; }
+
+  @media (max-width: 720px) {
+    .route-row { grid-template-columns: 1fr; gap: 6px; }
+    .route-row.head { display: none; }
+    .arrow { display: none; }
+    .wireframe { grid-template-columns: 1fr; }
+    .sidenav { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow"><span>SPEC</span> · COACH PLATFORM · ONBOARDING</div>
+  <h1>Progressive Disclosure <span class="accent">Onboarding</span></h1>
+  <p class="tagline">Show coaches the ONE surface tied to their stated pain. Reveal the rest as they need it, surfaced through a weekly check-in that feels like a coach asking, not software gating.</p>
+
+  <div class="meta">
+    <div><b>Version:</b> v1.0</div>
+    <div><b>Date:</b> 2026-05-13</div>
+    <div><b>Source:</b> Lex feedback (108 days group)</div>
+    <div><b>Status:</b> Ready for build</div>
+    <div><b>Owner:</b> Sunny Binjola</div>
+  </div>
+
+  <h2>The pattern in one sentence</h2>
+  <p>The quiz already collects intent. Onboarding opens to <b>one home surface</b> tied to that intent. Everything else lives in a quieter "More" lane that stays visible. Every Monday, a one-question check-in asks what's blocking the coach this week. If the answer shifts, the home surface shifts with it.</p>
+
+  <div class="card dark">
+    <h3>Why this matters for the brand</h3>
+    <p>Linear, Granola, Stripe gravity. Subtract harder than competitors add. The platform never feels like it is gating features. It feels like it is respecting what the coach told it they needed. That's the wedge against GHL and HubSpot, where every screen shouts every capability.</p>
+  </div>
+
+  <h2>1. Quiz → Home surface routing</h2>
+  <p>The existing intent quiz captures four answers. Each routes to a single home surface. The other three move to "More."</p>
+
+  <div class="routing">
+    <div class="route-row head">
+      <div>Stated pain</div>
+      <div></div>
+      <div>Home surface</div>
+      <div>More lane shows</div>
+    </div>
+    <div class="route-row">
+      <div><span class="quiz-tag">Voice</span></div>
+      <div class="arrow">→</div>
+      <div class="home-surface">Voice Mapping</div>
+      <div class="more-lane">Content Studio, Lead Inbox, Client Center</div>
+    </div>
+    <div class="route-row">
+      <div><span class="quiz-tag">Leads</span></div>
+      <div class="arrow">→</div>
+      <div class="home-surface">Lead Inbox</div>
+      <div class="more-lane">Voice Mapping, Content Studio, Client Center</div>
+    </div>
+    <div class="route-row">
+      <div><span class="quiz-tag">Content</span></div>
+      <div class="arrow">→</div>
+      <div class="home-surface">Content Studio</div>
+      <div class="more-lane">Voice Mapping, Lead Inbox, Client Center</div>
+    </div>
+    <div class="route-row">
+      <div><span class="quiz-tag">Operations</span></div>
+      <div class="arrow">→</div>
+      <div class="home-surface">Client Center / Granola</div>
+      <div class="more-lane">Voice Mapping, Content Studio, Lead Inbox</div>
+    </div>
+  </div>
+
+  <p><b>What "home surface" means in practice:</b></p>
+  <div class="card">
+    <p>1. Post-login redirect goes straight to that surface, not a generic dashboard.</p>
+    <p>2. The hero card on the surface is the primary action ("Generate today's caption," "Add 5 new leads," "Map your voice").</p>
+    <p>3. The side nav opens with that surface expanded, sub-actions visible.</p>
+    <p>4. The other surfaces sit under a "More" header, collapsed, visible but quiet.</p>
+  </div>
+
+  <h2>2. Wireframe</h2>
+  <p>Example: coach picked <b>Voice</b> in the quiz. Voice Mapping is the home surface. The other three are listed under "More" without urgency.</p>
+
+  <div class="wireframe">
+    <div class="sidenav">
+      <div class="brand">COACH PLATFORM</div>
+      <div class="nav-pinned">
+        <div class="label">★ Voice Mapping</div>
+        <div class="sub">Map your voice<br>Voice trust score<br>Voice training sources</div>
+      </div>
+      <div class="nav-more-header">More</div>
+      <div class="nav-item">Content Studio</div>
+      <div class="nav-item">Lead Inbox</div>
+      <div class="nav-item">Client Center</div>
+    </div>
+    <div class="main">
+      <div class="hero-card">
+        <div class="h-eyebrow">YOUR FOCUS THIS WEEK</div>
+        <h4>Map your voice from your last 30 days of content</h4>
+        <p style="font-size: 13px; color: rgba(255,255,255,0.7);">Pull your Instagram and LinkedIn posts. The platform will surface the language patterns that already sound like you.</p>
+        <div class="cta">Start voice mapping</div>
+      </div>
+      <div class="sub-action">→ Add Instagram handle for voice training</div>
+      <div class="sub-action">→ Paste 3 captions you'd like the platform to imitate</div>
+      <div class="sub-action">→ Review and approve voice profile</div>
+    </div>
+  </div>
+
+  <h2>3. Weekly check-in</h2>
+  <p>Every Monday morning (or a configurable day per coach), a single in-app card or email opens with one question. The check-in is the wedge. It does three things at once: it surfaces the next feature at the moment of need, it generates a usage signal you can reflect back to the coach over time, and it reads like a coach checking in rather than software requesting feedback.</p>
+
+  <div class="check-in">
+    <div class="check-in-question">What's blocking you this week?</div>
+    <div class="check-in-options">
+      <div class="check-in-option">Not enough leads</div>
+      <div class="check-in-option">Stuck on content</div>
+      <div class="check-in-option">Voice doesn't sound like me</div>
+      <div class="check-in-option">Ops eating my time</div>
+      <div class="check-in-option">Same as last week</div>
+      <div class="check-in-option">Something else</div>
+    </div>
+  </div>
+
+  <div class="card dark">
+    <h3>Behavior on response</h3>
+    <p>If the coach picks something different from their current home surface, the dashboard shifts: the new pain becomes the home surface, the old one moves to "More" with a soft tag <i>"recently primary."</i> If they pick "same as last week," nothing changes. If they pick "something else," capture as free text and route to support / Sunny review.</p>
+  </div>
+
+  <h2>4. v1 surfacing rules (no ML)</h2>
+  <p>Three simple rules. All run on login. Each is a few lines of code. No model training, no analytics dashboards.</p>
+
+  <div class="rules">
+    <div class="rule">
+      <div class="rule-num">RULE 1</div>
+      <h4>Stale home surface</h4>
+      <p>If the pinned surface has zero events in the last 14 days, soft prompt on next login: <i>"How's the [voice / leads / content / ops] piece going? Want to focus somewhere else?"</i></p>
+      <p><code>last_used_at &lt; NOW() - 14 days</code></p>
+    </div>
+    <div class="rule">
+      <div class="rule-num">RULE 2</div>
+      <h4>Cross-surface signal</h4>
+      <p>If they've used the home surface heavily (more than 5 actions in 7 days) but never touched the natural next-step surface, suggest it as a card on the dashboard.</p>
+      <p>Default pairs:</p>
+      <p>· Heavy <b>Voice</b> use, no <b>Content</b> activity → suggest Content Studio ("Your voice profile is ready. Want to publish with it?")</p>
+      <p>· Heavy <b>Content</b> use, no <b>Lead Inbox</b> activity → suggest Lead Inbox ("Your content is doing work. Let's manage what comes back.")</p>
+      <p>· Heavy <b>Lead Inbox</b> use, no <b>Client Center</b> activity → suggest Client Center ("You're booking calls. Let's prep them.")</p>
+    </div>
+    <div class="rule">
+      <div class="rule-num">RULE 3</div>
+      <h4>No pestering</h4>
+      <p>If a coach tries a feature once and doesn't return within 7 days, do nothing. The feature stays in "More." Don't notify, don't email, don't prompt. The weekly check-in is the only proactive surface change.</p>
+    </div>
+  </div>
+
+  <h2>5. Data model additions</h2>
+  <p>Three small tables added to the existing <code>cp_*</code> schema. Nothing fancy. Indexes on user_id.</p>
+
+  <div class="schema">
+<span class="comment">-- 1. Stored coach intent and its history</span>
+<span class="table-name">cp_user_intent</span> (
+  user_id            uuid PRIMARY KEY REFERENCES cp_users(id),
+  primary_intent     text NOT NULL,  <span class="comment">-- voice | leads | content | ops</span>
+  intent_set_at      timestamptz NOT NULL DEFAULT NOW(),
+  intent_history     jsonb DEFAULT '[]'  <span class="comment">-- [{intent, at}, ...]</span>
+)
+
+<span class="comment">-- 2. Lightweight feature usage tracking</span>
+<span class="table-name">cp_feature_usage</span> (
+  user_id        uuid REFERENCES cp_users(id),
+  feature_key    text NOT NULL,  <span class="comment">-- voice_map | content_draft | lead_add | client_view ...</span>
+  last_used_at   timestamptz NOT NULL,
+  total_uses     int DEFAULT 1,
+  PRIMARY KEY (user_id, feature_key)
+)
+
+<span class="comment">-- 3. Weekly check-in responses</span>
+<span class="table-name">cp_check_in</span> (
+  id                  bigserial PRIMARY KEY,
+  user_id             uuid REFERENCES cp_users(id),
+  week_of             date NOT NULL,
+  response            text,  <span class="comment">-- leads | content | voice | ops | same | other</span>
+  free_text           text,  <span class="comment">-- if response = other</span>
+  intent_changed      bool DEFAULT false,
+  created_at          timestamptz NOT NULL DEFAULT NOW(),
+  UNIQUE (user_id, week_of)
+)
+  </div>
+
+  <h2>6. What v1 is NOT</h2>
+  <p>Scope discipline. Anything below is intentionally out of v1 even if it's tempting.</p>
+
+  <div class="not-list">
+    <h3>Not in v1</h3>
+    <ul>
+      <li>ML pattern detection or predictive feature suggestion</li>
+      <li>Usage analytics dashboards for the coach</li>
+      <li>A/B testing infrastructure</li>
+      <li>Proactive notifications outside the Monday check-in</li>
+      <li>Feature tours, tutorial overlays, or onboarding tooltips</li>
+      <li>Configurable check-in cadence (default Monday only, ship custom later)</li>
+      <li>Multi-intent / blended home surface (one surface only, by design)</li>
+    </ul>
+  </div>
+
+  <h2>7. Voice and copy guardrails</h2>
+  <div class="card">
+    <h3>Rules for every line of copy in this flow</h3>
+    <p><b>Sound like a coach, not a product.</b> "What's blocking you this week?" beats "Help us improve your experience."</p>
+    <p><b>Never gate.</b> "When you're ready for X, it's right here" beats "X unlocked!"</p>
+    <p><b>Zero em-dashes.</b> Strip them from every string. They're an AI tell that undermines the "writes in your voice" positioning.</p>
+    <p><b>Singular focus framing.</b> "Your focus this week is X" beats "Here's your dashboard."</p>
+    <p><b>Short, declarative lines.</b> No marketing copy. No exclamation points. No emoji except the one star (★) marking the pinned surface.</p>
+  </div>
+
+  <h2>8. Build sequence</h2>
+  <div class="card">
+    <p><b>Sprint 1 (data + routing):</b> Add the three tables. Wire post-login redirect to read <code>cp_user_intent.primary_intent</code> and route to the matching surface. Update the side nav to render pinned surface + "More" lane.</p>
+    <p><b>Sprint 2 (check-in):</b> Build the Monday check-in card and email. Wire the response to update <code>cp_user_intent</code> and shuffle the side nav. Ship without rules, just the manual mechanism.</p>
+    <p><b>Sprint 3 (rules):</b> Add the three v1 rules running on login. Test with the existing 15–20 free-access cohort.</p>
+    <p><b>Sprint 4 (instrument and iterate):</b> Pull weekly check-in responses into a simple report Sunny reviews. Look for pattern: which pains shift, which stay, where coaches drop off. Decide whether to invest in rule 4+ or hold at three.</p>
+  </div>
+
+  <h2>9. Success metrics</h2>
+  <div class="card">
+    <p><b>Activation:</b> % of new coaches who take the home-surface primary action within 24h of signup.</p>
+    <p><b>Check-in engagement:</b> % of active coaches who respond to the Monday check-in. Target 60%+ for v1.</p>
+    <p><b>Cross-surface adoption:</b> % of coaches who eventually use a second surface within 30 days. This is the test of the pattern: people should grow into the platform, not bounce off the first screen.</p>
+    <p><b>Founder signal (qualitative):</b> when Sunny talks to a pilot coach, does the platform feel like a coaching relationship or a tool? That's the unmeasurable but real win.</p>
+  </div>
+
+  <div class="footer">
+    Coach Platform · Progressive Disclosure Onboarding · v1.0 · 2026-05-13<br>
+    <a href="mailto:sunny.binjola@gmail.com">sunny.binjola@gmail.com</a>
+  </div>
+
+</div>
+</body>
+</html>

@@ -68,6 +68,30 @@ export default async function BrandOsOutputPage({ params }: { params: { runId: s
           defaultEmail={user.email ?? ""}
         />
 
+        {/* MVP completers — surface the Full Run upgrade without yanking
+            them away from the deliverable they just opened. */}
+        {run.variant === "mvp" && (
+          <section className="rounded-[var(--r-lg)] border-2 border-dashed border-[color-mix(in_srgb,var(--brand)_30%,var(--border))] bg-[var(--surface-elevated)] p-5 sm:p-6 print:hidden">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div className="min-w-0 space-y-1">
+                <Badge tone="brand" size="xs" uppercase>You finished the MVP</Badge>
+                <h2 className="font-display text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)] leading-tight">
+                  Want to go deeper?
+                </h2>
+                <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed max-w-xl">
+                  The MVP covers <strong>positioning, voice, and 3 pillars</strong>. The Full Run adds <strong>Funnel</strong>, <strong>Distribution</strong>, and a <strong>45-day Pólya calendar</strong> — 6 modules, ~60 questions. Your MVP answers carry over.
+                </p>
+              </div>
+              <a
+                href="/brand-os#start-full"
+                className="inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] border-2 border-[var(--brand-strong)] bg-[var(--brand-soft)] text-[color:var(--text)] text-[length:var(--t-body)] font-bold hover:bg-[var(--brand)] hover:text-[color:var(--surface)] transition whitespace-nowrap"
+              >
+                Run Full Brand OS →
+              </a>
+            </div>
+          </section>
+        )}
+
       </main>
     </div>
   );
