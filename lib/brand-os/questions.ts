@@ -722,7 +722,10 @@ export const MODULE_META: Record<ModuleId, { label: string; tagline: string; min
 /** MVP question subset — 13 Qs, ~60–90 min, $7 trip-wire variant. */
 export const MVP_QUESTION_IDS: string[] = [
   "preflight.audience", "preflight.somatic",
-  "mirror.q1", "mirror.q2", "mirror.q5", "mirror.q11", "mirror.q13",
+  // Mirror: positioning line, named avatar, somatic state, secret 11pm
+  // sentence, internal monologue. (Was mirror.q13 weird-hobby — swapped
+  // for mirror.q8 which is the single most powerful line in the run.)
+  "mirror.q1", "mirror.q2", "mirror.q5", "mirror.q8", "mirror.q11",
   "signal.q1", "signal.q3",
   "stance.q3", "stance.q5",
   "funnel.q1", "funnel.q3", "funnel.q7",
