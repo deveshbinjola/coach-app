@@ -15,7 +15,8 @@ import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
-import { Badge, Button } from "@/components/ui";
+import { Badge } from "@/components/ui";
+import OutputToolbar from "@/components/brand-os/OutputToolbar";
 import { getQuestion, MODULE_ORDER, MODULE_META, pick, type ModuleId, type Audience } from "@/lib/brand-os/questions";
 
 export const runtime = "edge";
@@ -71,22 +72,8 @@ export default async function BrandOsOutputPage({ params }: { params: { runId: s
         </section>
 
         {/* Toolbar */}
-        <section className="flex flex-wrap items-center gap-3 print:hidden">
-          <Button onClick={() => typeof window !== "undefined" && window.print()} variant="ghost">
-            Print / Save PDF
-          </Button>
-          <form action="/api/brand-os/email" method="POST" className="flex items-center gap-2">
-            <input type="hidden" name="runId" value={run.id} />
-            <input
-              name="email"
-              type="email"
-              placeholder="Email this to me"
-              defaultValue={user.email ?? ""}
-              className="h-10 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-caption)] focus:border-[var(--brand-strong)] focus:outline-none"
-              required
-            />
-            <Button type="submit">Email me</Button>
-          </form>
+        <section className="print:hidden">
+          <OutputToolbar runId={run.id} defaultEmail={user.email ?? ""} />
         </section>
 
         {/* Per-module sections */}
