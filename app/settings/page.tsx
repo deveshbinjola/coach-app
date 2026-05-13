@@ -12,7 +12,9 @@ import { createClient } from "@/lib/supabase-server";
 import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import SettingsForm from "@/components/SettingsForm";
+import AudienceSettingsPanel from "@/components/settings/AudienceSettingsPanel";
 import type { CoachSettings, CoachIntegration } from "@/lib/types";
+import type { AudienceSelf, AudienceServes, VoiceProfileSlug } from "@/lib/voice-profiles";
 
 export const runtime = 'edge';
 
@@ -31,10 +33,11 @@ export default async function SettingsPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Fetch settings row + Gmail integration in parallel. ensure_coach_settings
-  // RPC creates the settings row on first read so we never hit a missing-row
-  // case. Gmail integration is null when the coach hasn't connected yet.
-  const [{ data: settings, error }, { data: gmailIntegration }] =
+  // Fetch settings row + Gmail integration + audience config in parallel.
+  // ensure_coach_settings RPC creates the settings row on first read so we
+  // never hit a missing-row case. Gmail integration is null when the coach
+  // hasn't connected yet. Audience config falls back to defaults if null.
+  const [{ data: settings, error }, { data: gmailIntegration }, { data: coachRow }] =
     await Promise.all([
       supabase.rpc("ensure_coach_settings").single(),
       supabase
@@ -42,7 +45,17 @@ export default async function SettingsPage({
         .select("*")
         .eq("provider", "gmail")
         .maybeSingle(),
+      user?.id
+        ? supabase
+            .from("cp_coaches")
+            .select("audience_self, audience_serves, voice_profile_slug")
+            .eq("id", user.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
     ]);
+  const audienceSelf = (coachRow as { audience_self?: string } | null)?.audience_self as AudienceSelf | null ?? null;
+  const audienceServes = (coachRow as { audience_serves?: string } | null)?.audience_serves as AudienceServes | null ?? null;
+  const voiceProfileSlug = (coachRow as { voice_profile_slug?: string } | null)?.voice_profile_slug as VoiceProfileSlug | null ?? null;
 
   return (
     <div className="min-h-screen">
@@ -75,16 +88,23 @@ export default async function SettingsPage({
             </p>
           </div>
         ) : (
-          <SettingsForm
-            initial={settings as CoachSettings}
-            gmailIntegration={(gmailIntegration as CoachIntegration | null) ?? null}
-            gmailFlash={
-              searchParams.gmail
-                ? { state: searchParams.gmail, reason: searchParams.reason }
-                : null
-            }
-            upgradeIntent={searchParams.upgrade ?? null}
-          />
+          <div className="space-y-6">
+            <AudienceSettingsPanel
+              initialSelf={audienceSelf}
+              initialServes={audienceServes}
+              initialSlug={voiceProfileSlug}
+            />
+            <SettingsForm
+              initial={settings as CoachSettings}
+              gmailIntegration={(gmailIntegration as CoachIntegration | null) ?? null}
+              gmailFlash={
+                searchParams.gmail
+                  ? { state: searchParams.gmail, reason: searchParams.reason }
+                  : null
+              }
+              upgradeIntent={searchParams.upgrade ?? null}
+            />
+          </div>
         )}
       </main>
     </div>

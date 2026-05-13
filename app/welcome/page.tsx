@@ -23,6 +23,7 @@ import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import WelcomeFlow from "@/components/WelcomeFlow";
 import type { VoiceProfile } from "@/lib/types";
+import { DEFAULT_VOICE_PROFILE_SLUG, type VoiceProfileSlug, type AudienceSelf, type AudienceServes } from "@/lib/voice-profiles";
 
 export const runtime = 'edge';
 
@@ -43,7 +44,7 @@ export default async function WelcomePage({
   // If the coach has finished activation already, send them home — unless
   // they came back here intentionally (?force=1) to redo voice or replay
   // the magic moment.
-  const [{ data: profile }, { count: leadCount }] = await Promise.all([
+  const [{ data: profile }, { count: leadCount }, { data: coachRow }] = await Promise.all([
     supabase
       .from("cp_voice_profiles")
       .select("*")
@@ -56,13 +57,22 @@ export default async function WelcomePage({
       .from("cp_leads")
       .select("id", { count: "exact", head: true })
       .eq("coach_id", user.id),
+    supabase
+      .from("cp_coaches")
+      .select("audience_self, audience_serves, voice_profile_slug")
+      .eq("id", user.id)
+      .maybeSingle(),
   ]);
 
   const hasProfile = !!profile;
   const hasLeads = (leadCount ?? 0) > 0;
   const force = searchParams.force === "1";
+  const audienceSelf = (coachRow?.audience_self ?? null) as AudienceSelf | null;
+  const audienceServes = (coachRow?.audience_serves ?? null) as AudienceServes | null;
+  const voiceProfileSlug = (coachRow?.voice_profile_slug ?? DEFAULT_VOICE_PROFILE_SLUG) as VoiceProfileSlug;
+  const hasAudienceAnswered = !!(audienceSelf && audienceServes);
 
-  if (hasProfile && hasLeads && !force) {
+  if (hasProfile && hasLeads && hasAudienceAnswered && !force) {
     redirect("/command-center");
   }
 
@@ -77,6 +87,8 @@ export default async function WelcomePage({
         <WelcomeFlow
           startingProfile={(profile as VoiceProfile | null) ?? null}
           coachFirstName={firstName(user.email ?? "", user.user_metadata)}
+          voiceProfileSlug={voiceProfileSlug}
+          hasAudienceAnswered={hasAudienceAnswered}
         />
       </main>
     </div>

@@ -38,6 +38,7 @@ export default function LeadDetail({
   initialMessages,
   referrer,
   referrals,
+  voiceProfileSlug,
 }: {
   lead: Lead;
   initialMessages: LeadMessage[];
@@ -45,6 +46,8 @@ export default function LeadDetail({
   referrer?: ReferralRef | null;
   // Downstream: leads this person has referred to us.
   referrals?: ReferralRef[];
+  // Audience-aware voice profile slug. Drives ObjectionDeck variant.
+  voiceProfileSlug?: import("@/lib/voice-profiles").VoiceProfileSlug;
 }) {
   const router = useRouter();
   // Error banner — replaces the 8 native alert() calls in this component
@@ -495,7 +498,7 @@ export default function LeadDetail({
         {/* P4: Rehearsed reframes for common objections. Always renders — the
             coach benefits from seeing patterns ranked for this lead even
             before an objection surfaces, as prep. */}
-        <ObjectionDeck lead={currentLead} onUseTemplate={(body) => setDraft(body)} />
+        <ObjectionDeck lead={currentLead} onUseTemplate={(body) => setDraft(body)} voiceProfileSlug={voiceProfileSlug} />
 
         <Card padding="md" className="border-[color-mix(in_srgb,var(--brand)_22%,var(--border))]">
           <div className="flex items-start justify-between gap-4 flex-wrap">

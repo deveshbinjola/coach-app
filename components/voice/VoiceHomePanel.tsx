@@ -19,6 +19,7 @@ import { Badge, Button, Card, Select, Textarea } from "@/components/ui";
 import VoiceSetupFlow from "@/components/VoiceSetupFlow";
 import VoiceMinePanel from "@/components/VoiceMinePanel";
 import { createClient } from "@/lib/supabase-browser";
+import { DEFAULT_VOICE_PROFILE_SLUG, type VoiceProfileSlug } from "@/lib/voice-profiles";
 import {
   editLearningExamples,
   summarizeEditLearning,
@@ -53,6 +54,8 @@ type Props = {
   content?: Content[];
   leads?: Lead[];
   trainingSources?: VoiceTrainingSource[];
+  /** Audience-aware voice profile slug. Drives Q1–Q3 cue copy in VoiceSetupFlow. */
+  voiceProfileSlug?: VoiceProfileSlug;
 };
 
 type AltPath = "interview" | "captions";
@@ -64,6 +67,7 @@ export default function VoiceHomePanel({
   content = [],
   leads = [],
   trainingSources = [],
+  voiceProfileSlug = DEFAULT_VOICE_PROFILE_SLUG,
 }: Props) {
   const [activeProfile, setActiveProfile] = useState(profile);
   const [sources, setSources] = useState(trainingSources);
@@ -81,7 +85,7 @@ export default function VoiceHomePanel({
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 items-start">
           <div className="space-y-5">
             <PathSwitcher altPath={altPath} onChange={setAltPath} />
-            {altPath === "interview" ? <VoiceSetupFlow /> : <VoiceMinePanel />}
+            {altPath === "interview" ? <VoiceSetupFlow profileSlug={voiceProfileSlug} /> : <VoiceMinePanel />}
           </div>
           <VoiceSetupNote hasProfile={false} />
         </div>
@@ -225,7 +229,7 @@ export default function VoiceHomePanel({
           </div>
           <PathSwitcher altPath={altPath} onChange={setAltPath} />
           {altPath === "interview" ? (
-            <VoiceSetupFlow variant="embedded" />
+            <VoiceSetupFlow variant="embedded" profileSlug={voiceProfileSlug} />
           ) : (
             <VoiceMinePanel />
           )}

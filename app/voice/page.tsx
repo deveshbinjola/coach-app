@@ -51,7 +51,7 @@ export default async function VoicePage() {
         .maybeSingle()
     : { data: null };
 
-  const [editMessagesRes, contentRes, leadsRes, trainingSourcesRes] = user?.id
+  const [editMessagesRes, contentRes, leadsRes, trainingSourcesRes, coachRowRes] = user?.id
     ? await Promise.all([
         supabase
           .from("cp_lead_messages")
@@ -81,8 +81,13 @@ export default async function VoicePage() {
           .eq("coach_id", user.id)
           .order("created_at", { ascending: false })
           .limit(20),
+        supabase
+          .from("cp_coaches")
+          .select("voice_profile_slug")
+          .eq("id", user.id)
+          .maybeSingle(),
       ])
-    : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }];
+    : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }, { data: null }];
 
   return (
     <div className="min-h-screen">
@@ -108,6 +113,11 @@ export default async function VoicePage() {
           content={(contentRes.data as Content[] | null) ?? []}
           leads={(leadsRes.data as Lead[] | null) ?? []}
           trainingSources={(trainingSourcesRes.data as VoiceTrainingSource[] | null) ?? []}
+          voiceProfileSlug={
+            ((coachRowRes?.data as { voice_profile_slug?: string } | null)?.voice_profile_slug as
+              | "m-coach-m-aud" | "m-coach-w-aud" | "f-coach-w-aud" | "f-coach-m-aud" | "i-coach-single" | "i-coach-mixed"
+              | undefined) ?? "m-coach-m-aud"
+          }
         />
       </main>
     </div>

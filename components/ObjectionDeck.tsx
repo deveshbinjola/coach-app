@@ -18,27 +18,34 @@ import {
   OBJECTION_PATTERNS,
   rankObjectionsForLead,
   renderObjectionDraft,
+  getObjectionVariant,
   type ObjectionPattern,
   type ObjectionPatternId,
 } from "@/lib/objection-patterns";
+import { getVoiceProfile, type VoiceProfileSlug } from "@/lib/voice-profiles";
 import type { Lead } from "@/lib/types";
 
 type Props = {
   lead: Lead;
   // Inject the rendered draft into the parent's Compose textarea.
   onUseTemplate?: (body: string) => void;
+  /** Audience-aware voice profile. Drives which reframe variant is used. */
+  voiceProfileSlug?: VoiceProfileSlug;
 };
 
-export default function ObjectionDeck({ lead, onUseTemplate }: Props) {
+export default function ObjectionDeck({ lead, onUseTemplate, voiceProfileSlug }: Props) {
   const [expanded, setExpanded] = useState<ObjectionPatternId | null>(null);
   const ranked = rankObjectionsForLead(lead);
   // Cap visible deck at top 4 — the whole point is rehearsal, not a menu.
   // Coach clicks "Show all" to see the rest.
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? ranked : ranked.slice(0, 4);
+  const register = voiceProfileSlug
+    ? getVoiceProfile(voiceProfileSlug).objectionRegister
+    : "direct-edge";
 
   function handleUse(p: ObjectionPattern) {
-    const draft = renderObjectionDraft(p, lead);
+    const draft = renderObjectionDraft(p, lead, voiceProfileSlug);
     onUseTemplate?.(draft);
     // Scroll Compose into view — assumes parent renders it below the deck.
     if (typeof window !== "undefined") {
@@ -104,24 +111,31 @@ export default function ObjectionDeck({ lead, onUseTemplate }: Props) {
                     <p className="text-xs text-gray-700 italic mt-0.5">{p.whatItMeans}</p>
                   </div>
 
-                  <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
-                      Reframe
-                    </span>
-                    <p className="text-sm whitespace-pre-wrap mt-0.5">{p.reframe}</p>
-                  </div>
+                  {(() => {
+                    const v = getObjectionVariant(p, register);
+                    return (
+                      <>
+                        <div>
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
+                            Reframe
+                          </span>
+                          <p className="text-sm whitespace-pre-wrap mt-0.5">{v.reframe}</p>
+                        </div>
 
-                  <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
-                      Follow-up question
-                    </span>
-                    <p
-                      className="text-sm font-semibold mt-0.5"
-                      style={{ color: "#0A0F1C" }}
-                    >
-                      {p.followUp}
-                    </p>
-                  </div>
+                        <div>
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
+                            Follow-up question
+                          </span>
+                          <p
+                            className="text-sm font-semibold mt-0.5"
+                            style={{ color: "#0A0F1C" }}
+                          >
+                            {v.followUp}
+                          </p>
+                        </div>
+                      </>
+                    );
+                  })()}
 
                   {onUseTemplate && (
                     <button

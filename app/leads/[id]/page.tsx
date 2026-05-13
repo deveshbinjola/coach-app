@@ -48,6 +48,20 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
   const referrer = (referrerRes as { data: { id: string; full_name: string; status: string } | null }).data;
   const referrals = (referralsRes.data ?? []) as { id: string; full_name: string; status: string }[];
 
+  // Audience-aware: pick up the coach's voice profile slug so ObjectionDeck
+  // can render reframes in the right voice register.
+  const { data: coachRow } = user?.id
+    ? await supabase
+        .from("cp_coaches")
+        .select("voice_profile_slug")
+        .eq("id", user.id)
+        .maybeSingle()
+    : { data: null };
+  const voiceProfileSlug =
+    ((coachRow as { voice_profile_slug?: string } | null)?.voice_profile_slug as
+      | "m-coach-m-aud" | "m-coach-w-aud" | "f-coach-w-aud" | "f-coach-m-aud" | "i-coach-single" | "i-coach-mixed"
+      | undefined);
+
   return (
     <div className="min-h-screen">
       <Header
@@ -67,6 +81,7 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
           initialMessages={(messages ?? []) as LeadMessage[]}
           referrer={referrer}
           referrals={referrals}
+          voiceProfileSlug={voiceProfileSlug}
         />
       </main>
     </div>

@@ -32,8 +32,15 @@ import VoiceSetupFlow from "@/components/VoiceSetupFlow";
 import { createClient } from "@/lib/supabase-browser";
 import { renderShareCard, shareOrDownload } from "@/lib/share-card";
 import type { VoiceProfile } from "@/lib/types";
+import {
+  getVoiceProfile,
+  deriveProfileSlug,
+  type VoiceProfileSlug,
+  type AudienceSelf,
+  type AudienceServes,
+} from "@/lib/voice-profiles";
 
-type Step = "hello" | "voice" | "magic" | "done";
+type Step = "audience" | "hello" | "voice" | "magic" | "done";
 type OnboardingImportSource = "instagram" | "linkedin" | "newsletter";
 type ImportedVoiceSignal = {
   source: OnboardingImportSource;
@@ -45,38 +52,75 @@ type ImportedVoiceSignal = {
 type Props = {
   startingProfile: VoiceProfile | null;
   coachFirstName: string;
+  voiceProfileSlug: VoiceProfileSlug;
+  hasAudienceAnswered: boolean;
 };
-
-// Sample inbound DMs used in the onboarding magic-moment step. Neutralised
-// to work across coach audiences (men's work, women's embodiment, integrated,
-// etc.). When the audience-aware system (voice_profile_slug) ships, these
-// move to lib/onboarding-presets.ts and branch by profile.
-const SAMPLE_INBOUND_PRESETS: Array<{ label: string; text: string }> = [
-  {
-    label: "DM curious",
-    text: "Hey. Saw your post — something in it really landed for me. Curious what working with you actually looks like?",
-  },
-  {
-    label: "Quiz result",
-    text: "Just did your quiz. The results hit something I've been avoiding for a while. What's the next step?",
-  },
-  {
-    label: "Hesitant",
-    text: "Been following you for a while. Honestly not sure I'm ready, but I wanted to reach out. Is now a bad time to start?",
-  },
-];
 
 export default function WelcomeFlow({
   startingProfile,
   coachFirstName,
+  voiceProfileSlug,
+  hasAudienceAnswered,
 }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const initialImportedSignal = startingProfile ? importedSignalFromProfile(startingProfile) : null;
 
-  // If the coach already has a voice profile (force=1 path), skip step 2.
-  const initialStep: Step = startingProfile ? "magic" : "hello";
+  // Audience-aware: load the profile so demo presets, greetings, and copy
+  // branch by the coach's answers. Updates in-flight when the audience step
+  // submits.
+  const [currentSlug, setCurrentSlug] = useState<VoiceProfileSlug>(voiceProfileSlug);
+  const profile = getVoiceProfile(currentSlug);
+  const SAMPLE_INBOUND_PRESETS = profile.demoInboundPresets;
+
+  // Step order:
+  //   1. audience (if not answered yet) — sets voice_profile_slug
+  //   2. hello → voice → magic → done
+  // If audience IS answered + voice profile exists (force=1 replay path),
+  // skip straight to magic.
+  const initialStep: Step =
+    !hasAudienceAnswered ? "audience"
+    : startingProfile  ? "magic"
+    : "hello";
   const [step, setStep] = useState<Step>(initialStep);
+
+  // Audience-question state (only used during 'audience' step).
+  const [audienceSelf, setAudienceSelf] = useState<AudienceSelf | null>(null);
+  const [audienceServes, setAudienceServes] = useState<AudienceServes | null>(null);
+  const [savingAudience, setSavingAudience] = useState(false);
+  const [audienceError, setAudienceError] = useState<string | null>(null);
+
+  async function submitAudience() {
+    if (!audienceSelf || !audienceServes) {
+      setAudienceError("Pick one in each row to continue.");
+      return;
+    }
+    setAudienceError(null);
+    setSavingAudience(true);
+    const slug = deriveProfileSlug(audienceSelf, audienceServes);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setAudienceError("You're signed out. Refresh and try again.");
+      setSavingAudience(false);
+      return;
+    }
+    const { error: updateErr } = await supabase
+      .from("cp_coaches")
+      .update({
+        audience_self: audienceSelf,
+        audience_serves: audienceServes,
+        voice_profile_slug: slug,
+      })
+      .eq("id", user.id);
+    setSavingAudience(false);
+    if (updateErr) {
+      setAudienceError(updateErr.message);
+      return;
+    }
+    setCurrentSlug(slug);
+    // Advance to the rest of onboarding.
+    setStep(startingProfile ? "magic" : "hello");
+  }
 
   // Magic-moment state. Two drafts now — generic + voice — so the coach
   // sees the contrast that makes this a screenshot moment.
@@ -154,6 +198,19 @@ export default function WelcomeFlow({
         </button>
       </div>
 
+      {step === "audience" && (
+        <AudienceStep
+          firstName={coachFirstName}
+          audienceSelf={audienceSelf}
+          audienceServes={audienceServes}
+          onAudienceSelf={setAudienceSelf}
+          onAudienceServes={setAudienceServes}
+          onContinue={submitAudience}
+          saving={savingAudience}
+          error={audienceError}
+        />
+      )}
+
       {step === "hello" && (
         <HelloStep
           firstName={coachFirstName}
@@ -189,6 +246,7 @@ export default function WelcomeFlow({
           <div className={importComplete ? "space-y-4" : "pt-2"}>
             <VoiceSetupFlow
               variant="embedded"
+              profileSlug={currentSlug}
               onComplete={() => setStep("magic")}
             />
           </div>
@@ -223,6 +281,123 @@ export default function WelcomeFlow({
       )}
 
       {step === "done" && <DoneStep firstName={coachFirstName} />}
+    </div>
+  );
+}
+
+// ── Step 0: Audience ──────────────────────────────────────────────────────
+//
+// Two questions that derive the coach's voice_profile_slug. Drives every
+// downstream default (seed phrases, demo DMs, greetings, placeholders,
+// objection-pattern register).
+
+function AudienceStep({
+  firstName,
+  audienceSelf,
+  audienceServes,
+  onAudienceSelf,
+  onAudienceServes,
+  onContinue,
+  saving,
+  error,
+}: {
+  firstName: string;
+  audienceSelf: AudienceSelf | null;
+  audienceServes: AudienceServes | null;
+  onAudienceSelf: (v: AudienceSelf) => void;
+  onAudienceServes: (v: AudienceServes) => void;
+  onContinue: () => void;
+  saving: boolean;
+  error: string | null;
+}) {
+  return (
+    <div className="space-y-8">
+      <div className="space-y-3">
+        <Badge tone="brand" size="xs" uppercase>Welcome · let's tune your voice</Badge>
+        <h2 className="text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
+          Hey {firstName}. Two quick questions.
+        </h2>
+        <p className="text-[length:var(--t-body)] text-[color:var(--text-muted)] max-w-2xl leading-[var(--leading-relaxed)]">
+          The platform branches its defaults by the answers. Every seed phrase,
+          demo, and reply template comes from these two choices. You can change
+          them anytime in Settings.
+        </p>
+      </div>
+
+      {/* Question 1 — Coach's own embodiment lens */}
+      <div className="space-y-3">
+        <p className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--text-faint)]">
+          1 · How do you describe your own work?
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {([
+            { v: "masculine",  label: "Masculine embodiment", hint: "Purpose, edge, integrity, action" },
+            { v: "feminine",   label: "Feminine embodiment",  hint: "Somatic, nervous system, attachment, flow" },
+            { v: "integrated", label: "Integrated / Both",     hint: "Neither dominates the work" },
+          ] as const).map((opt) => {
+            const active = audienceSelf === opt.v;
+            return (
+              <button
+                key={opt.v}
+                type="button"
+                onClick={() => onAudienceSelf(opt.v)}
+                className={`text-left p-4 rounded-[var(--r-lg)] border transition ${
+                  active
+                    ? "border-[var(--brand-strong)] bg-[var(--brand-soft)] ring-2 ring-[color-mix(in_srgb,var(--brand)_30%,transparent)]"
+                    : "border-[var(--border)] bg-[var(--surface-elevated)] hover:border-[var(--text-muted)]"
+                }`}
+              >
+                <div className="font-bold text-[length:var(--t-body)] text-[color:var(--text)] mb-1">{opt.label}</div>
+                <div className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">{opt.hint}</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Question 2 — Audience served */}
+      <div className="space-y-3">
+        <p className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--text-faint)]">
+          2 · Who do you primarily work with?
+        </p>
+        <div className="grid grid-cols-3 gap-3">
+          {([
+            { v: "men",   label: "Men" },
+            { v: "women", label: "Women" },
+            { v: "both",  label: "Both" },
+          ] as const).map((opt) => {
+            const active = audienceServes === opt.v;
+            return (
+              <button
+                key={opt.v}
+                type="button"
+                onClick={() => onAudienceServes(opt.v)}
+                className={`text-center p-4 rounded-[var(--r-lg)] border transition font-bold ${
+                  active
+                    ? "border-[var(--brand-strong)] bg-[var(--brand-soft)] ring-2 ring-[color-mix(in_srgb,var(--brand)_30%,transparent)] text-[color:var(--text)]"
+                    : "border-[var(--border)] bg-[var(--surface-elevated)] hover:border-[var(--text-muted)] text-[color:var(--text)]"
+                }`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {error && (
+        <p className="text-[length:var(--t-caption)] text-[color:var(--danger)]" role="alert">{error}</p>
+      )}
+
+      <div className="flex justify-end">
+        <Button
+          onClick={onContinue}
+          disabled={saving || !audienceSelf || !audienceServes}
+          className="h-12 px-6"
+        >
+          {saving ? "Saving…" : "Continue →"}
+        </Button>
+      </div>
     </div>
   );
 }

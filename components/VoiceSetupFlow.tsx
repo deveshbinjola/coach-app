@@ -19,6 +19,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import { Badge, Button, Card } from "@/components/ui";
+import { getVoiceProfile, DEFAULT_VOICE_PROFILE_SLUG, type VoiceProfileSlug } from "@/lib/voice-profiles";
 
 // 5 questions chosen for maximum voice-fidelity-per-second:
 //   Q1 → core belief (reveals tone, conviction, the "what they always say")
@@ -29,48 +30,34 @@ import { Badge, Button, Card } from "@/components/ui";
 //
 // Each prompt also doubles as a placeholder hint so the coach knows what
 // "good" looks like before they start typing.
-const QUESTIONS: Array<{
-  id: string;
-  q: string;
-  hint: string;
-  placeholder: string;
-}> = [
-  {
-    id: "belief",
-    q: "What's the one belief you keep coming back to with the people you coach?",
-    hint: "The thing you'd say to a client at the start of every call. The phrase your clients quote back to you.",
-    placeholder:
-      "Something like: 'Most people don't have a discipline problem. They have a clarity problem dressed up as one.'",
-  },
-  {
-    id: "afraid",
-    q: "What do you say to a client who's afraid to actually move forward?",
-    hint: "Use your real words. The way you'd say it to them in the room, not how you'd write it in a brochure.",
-    placeholder:
-      "Speak it the way you'd say it. The exact sentences you use when someone hesitates.",
-  },
-  {
-    id: "signature",
-    q: "What's a phrase or way of saying things that's distinctly YOU?",
-    hint: "A turn of phrase, a recurring metaphor, a beat your captions always have. The thing people copy from your style.",
-    placeholder:
-      "It could be a rhythm ('short. then a beat. then the punchline.'), a signature metaphor, or something you always end with.",
-  },
-  {
-    id: "never",
-    q: "What do you NEVER say? What's not your voice?",
-    hint: "Words, phrases, or vibes that would make you cringe if you saw them under your name.",
-    placeholder:
-      "Things like 'crushing it', 'dropping value', 'I hope this email finds you well', emojis after every sentence. Whatever's not you.",
-  },
-  {
-    id: "for",
-    q: "When a man asks 'is this for me?' what do you tell him?",
-    hint: "Who you're for. Who you're not for. The line you draw without apologizing.",
-    placeholder:
-      "If he's looking for a hack or a quick fix, he's in the wrong place. If he's ready to actually feel something and follow through, he's home.",
-  },
-];
+type Question = { id: string; q: string; hint: string; placeholder: string };
+
+// Build the 5 voice-revealing questions from the coach's voice profile.
+// Q1-Q3 pull profile-specific cues from lib/voice-profiles.ts.
+// Q4-Q5 are profile-neutral (works for every coach).
+function buildQuestions(slug: VoiceProfileSlug): Question[] {
+  const profile = getVoiceProfile(slug);
+  const c = profile.voiceTrainerCues;
+  return [
+    { id: "belief",    ...c.belief },
+    { id: "afraid",    ...c.afraid },
+    { id: "signature", ...c.signature },
+    {
+      id: "never",
+      q: "What do you NEVER say? What's not your voice?",
+      hint: "Words, phrases, or vibes that would make you cringe if you saw them under your name.",
+      placeholder:
+        "Things like 'crushing it', 'dropping value', 'I hope this email finds you well', emojis after every sentence. Whatever's not you.",
+    },
+    {
+      id: "for",
+      q: "When a prospective client asks 'is this for me?' — what do you tell them?",
+      hint: "Who you're for. Who you're not for. The line you draw without apologizing.",
+      placeholder:
+        "If they're looking for a quick fix, they're in the wrong place. If they're ready to actually feel something and follow through, they're home.",
+    },
+  ];
+}
 
 type Answer = { id: string; q: string; a: string };
 
@@ -81,14 +68,20 @@ type Props = {
   onComplete?: (versionSaved: number) => void;
   /** Visual mode. "standalone" includes its own header. "embedded" is for use inside an existing page. */
   variant?: "standalone" | "embedded";
+  /** Audience-aware voice profile. Drives Q1–Q3 cue copy. Default: Sunny baseline. */
+  profileSlug?: VoiceProfileSlug;
 };
 
 export default function VoiceSetupFlow({
   redirectTo = "/voice",
   onComplete,
   variant = "standalone",
+  profileSlug = DEFAULT_VOICE_PROFILE_SLUG,
 }: Props) {
   const supabase = createClient();
+
+  // Questions branch by the coach's voice profile.
+  const QUESTIONS = buildQuestions(profileSlug);
 
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
