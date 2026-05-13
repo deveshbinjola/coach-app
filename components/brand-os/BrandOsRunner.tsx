@@ -29,6 +29,14 @@ type AnswerRow = {
   locked_at: string | null;
 };
 
+export type VoiceSourceRow = {
+  id: string;
+  source_type: string;       // sales_call | voice_note | workshop | instagram | linkedin | newsletter | paste
+  title: string;
+  transcript: string;
+  created_at: string;
+};
+
 type Props = {
   runId: string;
   variant: "mvp" | "full";
@@ -40,6 +48,9 @@ type Props = {
   lockedCount: number;
   progressPct: number;
   moduleOrder: ModuleId[];
+  /** Existing voice training sources from /voice setup. Used by Signal
+   *  Module to offer "use these" instead of forcing the coach to paste again. */
+  voiceSources: VoiceSourceRow[];
 };
 
 export default function BrandOsRunner(props: Props) {
@@ -361,6 +372,18 @@ export default function BrandOsRunner(props: Props) {
           </p>
         )}
 
+        {/* Signal Module smart helpers — avoid forcing coaches to re-paste
+            samples they already imported via /voice. Renders above the
+            textarea on signal.q1 (beloved writing) only. */}
+        {currentQ.id === "signal.q1" && (
+          <SignalImportHelper
+            voiceSources={props.voiceSources}
+            currentDraft={draft}
+            onUseExisting={(text) => setDraft(text)}
+            onAppend={(text) => setDraft((prev) => (prev ? `${prev}\n\n${text}` : text))}
+          />
+        )}
+
         <QuestionInput
           question={currentQ}
           audience={audience}
@@ -651,4 +674,167 @@ function reasonLabel(reason: string | null, markers: string[]): string {
   if (reason === "famous_figure") return "Comparing yourself to a famous figure. The differentiation is hiding somewhere else.";
   if (reason === "template_match") return "This is the standard coach-landing-page sentence. Try the real version.";
   return "Push-back fired — be more specific or different.";
+}
+
+// ============================================================
+// SIGNAL IMPORT HELPER — renders above the signal.q1 textarea
+// ============================================================
+//
+// Three paths to populate the writing samples without retyping:
+//   1. "Use my existing voice samples" — pulls from cp_voice_training_sources
+//      (populated by /voice setup, IG/LinkedIn imports, paste-text path)
+//   2. URL import — paste a blog/newsletter URL, server fetches + strips HTML
+//   3. Manual paste — fall through to the existing textarea
+//
+// If the coach has zero voice sources, we surface a link to /voice instead.
+
+function SignalImportHelper({
+  voiceSources,
+  currentDraft,
+  onUseExisting,
+  onAppend,
+}: {
+  voiceSources: VoiceSourceRow[];
+  currentDraft: string;
+  onUseExisting: (text: string) => void;
+  onAppend: (text: string) => void;
+}) {
+  const [url, setUrl] = useState("");
+  const [fetching, setFetching] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [usedExisting, setUsedExisting] = useState(false);
+
+  const hasSources = voiceSources.length > 0;
+  const summary = useMemo(() => groupSourcesByType(voiceSources), [voiceSources]);
+
+  function useExisting() {
+    if (!hasSources) return;
+    // Format as labelled blocks so the LLM downstream sees structure.
+    const blocks = voiceSources.map((s) => {
+      const label = formatSourceLabel(s.source_type);
+      return `[${label.toUpperCase()}${s.title ? ` · ${s.title}` : ""}]\n${(s.transcript ?? "").trim()}`;
+    });
+    onUseExisting(blocks.join("\n\n"));
+    setUsedExisting(true);
+  }
+
+  async function importFromUrl() {
+    if (!url.trim()) return;
+    setFetching(true);
+    setFetchError(null);
+    try {
+      const res = await fetch("/api/brand-os/import-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url.trim() }),
+      });
+      const data = await res.json() as { text?: string; error?: string; title?: string };
+      if (!res.ok || data.error) throw new Error(data.error ?? `HTTP ${res.status}`);
+      if (!data.text) throw new Error("No text extracted from that URL.");
+      const block = `[URL · ${data.title ?? url.trim()}]\n${data.text}`;
+      onAppend(block);
+      setUrl("");
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : "URL import failed.");
+    } finally {
+      setFetching(false);
+    }
+  }
+
+  return (
+    <div className="rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 space-y-3">
+
+      {hasSources ? (
+        <>
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div className="min-w-0">
+              <p className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--brand-strong)]">
+                ✓ {voiceSources.length} sample{voiceSources.length === 1 ? "" : "s"} already in your Voice Profile
+              </p>
+              <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1">
+                {summary} · You don't have to paste anything if these cover it.
+              </p>
+            </div>
+            <Button
+              onClick={useExisting}
+              variant={usedExisting ? "ghost" : undefined}
+              className="!h-9 !px-3 whitespace-nowrap"
+            >
+              {usedExisting ? "✓ Filled in" : "Use these →"}
+            </Button>
+          </div>
+        </>
+      ) : (
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div className="min-w-0">
+            <p className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--text-faint)]">
+              No voice samples imported yet
+            </p>
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1">
+              Easiest path: import your Instagram or LinkedIn captions first, then come back here. Or paste below.
+            </p>
+          </div>
+          <a
+            href="/voice?return=brand-os"
+            className="text-[length:var(--t-caption)] font-bold text-[color:var(--brand-strong)] hover:underline whitespace-nowrap"
+          >
+            Open /voice →
+          </a>
+        </div>
+      )}
+
+      <div className="border-t border-[var(--border)] pt-3 space-y-2">
+        <p className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--text-faint)]">
+          Or import from a URL
+        </p>
+        <div className="flex gap-2 flex-wrap">
+          <input
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://yourblog.com/post · or any public URL"
+            className="flex-1 min-w-[200px] h-10 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-caption)] focus:border-[var(--brand-strong)] focus:outline-none"
+          />
+          <Button
+            onClick={importFromUrl}
+            disabled={fetching || !url.trim()}
+            variant="ghost"
+            className="!h-10 !px-4 whitespace-nowrap"
+          >
+            {fetching ? "Fetching…" : "Import"}
+          </Button>
+        </div>
+        {fetchError && (
+          <p className="text-[length:var(--t-caption)] text-[color:var(--danger)]">{fetchError}</p>
+        )}
+        {currentDraft && currentDraft.length > 0 && (
+          <p className="text-[length:var(--t-caption)] text-[color:var(--text-faint)]">
+            Current draft: {currentDraft.length} chars
+          </p>
+        )}
+      </div>
+
+    </div>
+  );
+}
+
+function groupSourcesByType(sources: VoiceSourceRow[]): string {
+  const counts: Record<string, number> = {};
+  for (const s of sources) {
+    counts[s.source_type] = (counts[s.source_type] ?? 0) + 1;
+  }
+  return Object.entries(counts)
+    .map(([type, n]) => `${n} ${formatSourceLabel(type).toLowerCase()}${n === 1 ? "" : ""}`)
+    .join(" · ");
+}
+
+function formatSourceLabel(t: string): string {
+  if (t === "instagram") return "Instagram";
+  if (t === "linkedin") return "LinkedIn";
+  if (t === "newsletter") return "Newsletter";
+  if (t === "sales_call") return "Sales call";
+  if (t === "voice_note") return "Voice note";
+  if (t === "workshop") return "Workshop";
+  if (t === "paste") return "Pasted text";
+  return t;
 }

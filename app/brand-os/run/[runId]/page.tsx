@@ -51,6 +51,16 @@ export default async function BrandOsRunPage({ params }: { params: { runId: stri
     .select("question_id, raw_text, refined_text, locked_at")
     .eq("run_id", params.runId);
 
+  // Signal Module needs to know whether the coach already has voice samples
+  // from /voice setup — if yes, we can offer "use these" instead of forcing
+  // them to paste again. We only need the surface fields here.
+  const { data: voiceSources } = await supabase
+    .from("cp_voice_training_sources")
+    .select("id, source_type, title, transcript, created_at")
+    .eq("coach_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
   // Compute progress.
   const totalQuestions = run.variant === "mvp" ? MVP_QUESTION_IDS.length : BRAND_OS_QUESTIONS.length;
   const lockedCount = (answers ?? []).filter((a) => a.locked_at).length;
@@ -80,6 +90,13 @@ export default async function BrandOsRunPage({ params }: { params: { runId: stri
           lockedCount={lockedCount}
           progressPct={progressPct}
           moduleOrder={MODULE_ORDER}
+          voiceSources={(voiceSources ?? []).map((s) => ({
+            id: s.id as string,
+            source_type: s.source_type as string,
+            title: s.title as string,
+            transcript: s.transcript as string,
+            created_at: s.created_at as string,
+          }))}
         />
       </main>
     </div>
