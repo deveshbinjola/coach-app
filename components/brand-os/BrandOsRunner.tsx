@@ -143,6 +143,26 @@ export default function BrandOsRunner(props: Props) {
         return;
       }
 
+      // Scout Test (signal.q3) has its own gating — the answer is JSON, and
+      // we only allow Continue once the coach has revealed their picks.
+      if (currentQ.kind === "scoutTest") {
+        try {
+          const parsed = JSON.parse(value || "{}") as { phase?: string };
+          if (parsed.phase !== "revealed") {
+            setError("Run the test and reveal your picks before continuing.");
+            return;
+          }
+        } catch {
+          setError("Run the Scout Test first.");
+          return;
+        }
+        setAdvancing(true);
+        await persistDraft(value);
+        await markLocked();
+        await advanceTo(props.nextQuestionId);
+        return;
+      }
+
       // Min-char gating.
       const min = currentQ.minChars ?? 0;
       if (value.trim().length < min) {
@@ -388,6 +408,7 @@ export default function BrandOsRunner(props: Props) {
           question={currentQ}
           audience={audience}
           value={draft}
+          runId={props.runId}
           onChange={(v) => {
             setDraft(v);
             // Auto-advance for single-choice questions — no Continue needed.
@@ -457,12 +478,13 @@ export default function BrandOsRunner(props: Props) {
 // ============================================================
 
 function QuestionInput({
-  question, audience, value, onChange,
+  question, audience, value, onChange, runId,
 }: {
   question: Question;
   audience: Audience;
   value: string;
   onChange: (v: string) => void;
+  runId: string;
 }) {
   const placeholder = question.placeholder ? pick(question.placeholder, audience) : undefined;
 
@@ -571,9 +593,12 @@ function QuestionInput({
     );
   }
 
-  if (question.kind === "scoutTest" || question.kind === "memoryPalace") {
-    // Future build: special UIs. For now, treat as longtext so the coach can
-    // describe / answer in free-form, and we'll re-render them in the output.
+  if (question.kind === "scoutTest") {
+    return <ScoutTestUI runId={runId} value={value} onChange={onChange} />;
+  }
+
+  if (question.kind === "memoryPalace") {
+    // Memory Palace specialized UI coming in next build.
     return (
       <textarea
         value={value}
@@ -586,6 +611,212 @@ function QuestionInput({
   }
 
   return null;
+}
+
+// ============================================================
+// SCOUT TEST UI — Signal Module Q3
+// ============================================================
+//
+// Three phases:
+//   1. empty       → "Generate Scout Test" button. POSTs to /api/brand-os/scout-test.
+//   2. generated   → 5 sentence cards. Coach picks exactly 2 they think are AI.
+//                    "Reveal" button enabled once 2 are picked.
+//   3. revealed    → ✓/✗ on each card + score + summary. Continue moves on.
+//
+// The answer cell stores the full JSON payload (sentences + truth + picks +
+// score) so we can re-render the result on resume / output page without
+// re-calling the AI.
+
+type ScoutSentence = { id: string; text: string; isAi: boolean };
+type ScoutPayload = {
+  phase: "generated" | "revealed";
+  sentences: ScoutSentence[];
+  userPicks?: string[];
+  score?: number;
+};
+
+function ScoutTestUI({
+  runId, value, onChange,
+}: {
+  runId: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const payload = useMemo<ScoutPayload | null>(() => {
+    if (!value) return null;
+    try { return JSON.parse(value) as ScoutPayload; } catch { return null; }
+  }, [value]);
+
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [picks, setPicks] = useState<string[]>(payload?.userPicks ?? []);
+
+  useEffect(() => {
+    setPicks(payload?.userPicks ?? []);
+  }, [payload?.phase]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function generate() {
+    setBusy(true);
+    setErr(null);
+    try {
+      const res = await fetch("/api/brand-os/scout-test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ runId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? `HTTP ${res.status}`);
+      onChange(JSON.stringify(data as ScoutPayload));
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Could not generate test.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function togglePick(id: string) {
+    setPicks((cur) => {
+      if (cur.includes(id)) return cur.filter((x) => x !== id);
+      if (cur.length >= 2) return cur; // cap at 2
+      return [...cur, id];
+    });
+  }
+
+  async function reveal() {
+    if (picks.length !== 2) return;
+    setBusy(true);
+    setErr(null);
+    try {
+      const res = await fetch("/api/brand-os/scout-test", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ runId, picks }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? `HTTP ${res.status}`);
+      onChange(JSON.stringify(data as ScoutPayload));
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Could not reveal.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // ── Phase 1: empty ─────────────────────────────────────────
+  if (!payload) {
+    return (
+      <div className="rounded-[var(--r-lg)] border border-dashed border-[var(--border)] bg-[var(--surface)] p-5 space-y-4">
+        <div className="space-y-2">
+          <p className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--brand-strong)]">
+            How this works
+          </p>
+          <p className="text-[color:var(--text)] leading-[var(--leading-relaxed)]">
+            We'll generate <strong>5 short sentences</strong> using your writing samples.
+            <strong> 3 are real</strong> (pulled verbatim from what you wrote).
+            <strong> 2 are AI-written</strong> in your style.
+          </p>
+          <p className="text-[color:var(--text-muted)] text-[length:var(--t-caption)] leading-[var(--leading-relaxed)]">
+            Your job: pick the 2 you think are AI. This calibrates how distinct your voice is — and shows you exactly where AI can fake you (so you can lean harder into what it can't).
+          </p>
+        </div>
+        <Button onClick={generate} disabled={busy}>
+          {busy ? "Generating…" : "Generate Scout Test →"}
+        </Button>
+        {err && <p className="text-[length:var(--t-caption)] text-[color:var(--danger)]">{err}</p>}
+      </div>
+    );
+  }
+
+  const revealed = payload.phase === "revealed";
+
+  // ── Phase 2 & 3: cards ─────────────────────────────────────
+  return (
+    <div className="space-y-4">
+      <div className="space-y-1">
+        <p className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--brand-strong)]">
+          {revealed ? "Results" : "Pick the 2 you think are AI"}
+        </p>
+        {!revealed && (
+          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+            {picks.length}/2 picked · Click a sentence to toggle.
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        {payload.sentences.map((s, idx) => {
+          const picked = picks.includes(s.id);
+          const correct = revealed && picked && s.isAi;
+          const wrong   = revealed && picked && !s.isAi;
+          const missed  = revealed && !picked && s.isAi;
+
+          return (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => !revealed && togglePick(s.id)}
+              disabled={revealed}
+              className={`w-full text-left p-4 rounded-[var(--r-lg)] border transition flex items-start gap-3 ${
+                revealed
+                  ? correct
+                    ? "border-[var(--brand-strong)] bg-[var(--brand-soft)]"
+                    : wrong
+                      ? "border-[var(--danger)] bg-[color-mix(in_srgb,var(--danger)_8%,transparent)]"
+                      : missed
+                        ? "border-[var(--warning,#F59E0B)] bg-[color-mix(in_srgb,#F59E0B_8%,transparent)]"
+                        : "border-[var(--border)] bg-[var(--surface)] opacity-70"
+                  : picked
+                    ? "border-[var(--brand-strong)] bg-[var(--brand-soft)] ring-2 ring-[color-mix(in_srgb,var(--brand)_30%,transparent)]"
+                    : "border-[var(--border)] bg-[var(--surface-elevated)] hover:border-[var(--text-muted)]"
+              }`}
+            >
+              <span className="font-mono text-[length:var(--t-caption)] text-[color:var(--text-faint)] mt-0.5 shrink-0 w-5">
+                {idx + 1}.
+              </span>
+              <span className="text-[color:var(--text)] leading-[var(--leading-relaxed)] flex-1">
+                {s.text}
+              </span>
+              {revealed && (
+                <span className={`shrink-0 font-bold text-[length:var(--t-caption)] uppercase tracking-wider ${
+                  s.isAi ? "text-[color:var(--danger)]" : "text-[color:var(--brand-strong)]"
+                }`}>
+                  {s.isAi ? "AI" : "You"} {correct && "· ✓"} {wrong && "· ✗"} {missed && "· missed"}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {!revealed && (
+        <Button onClick={reveal} disabled={picks.length !== 2 || busy}>
+          {busy ? "Revealing…" : "Reveal results →"}
+        </Button>
+      )}
+
+      {revealed && (
+        <div className="rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 space-y-2">
+          <div className="flex items-baseline gap-3">
+            <span className="font-display text-[length:var(--t-h2)] font-extrabold text-[color:var(--brand-strong)]">
+              {payload.score}/2
+            </span>
+            <span className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] uppercase tracking-wider font-bold">
+              Calibration score
+            </span>
+          </div>
+          <p className="text-[color:var(--text-muted)] text-[length:var(--t-caption)] leading-[var(--leading-relaxed)]">
+            {payload.score === 2
+              ? "You can tell your voice apart from AI mimicry. Your distinct edges are real — protect them."
+              : payload.score === 1
+                ? "AI can fake half your voice. Notice which sentence fooled you — that's the part to sharpen."
+                : "AI mimicked you cleanly. Your voice has room to get more specific, more felt, more you. We'll work on this in the output."}
+          </p>
+        </div>
+      )}
+
+      {err && <p className="text-[length:var(--t-caption)] text-[color:var(--danger)]">{err}</p>}
+    </div>
+  );
 }
 
 // ============================================================
