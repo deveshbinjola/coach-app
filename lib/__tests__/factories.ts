@@ -91,6 +91,8 @@ export function makeContent(overrides: Partial<Content> = {}): Content {
     metricool_post_id:  null,
     performance:        {},
     brand_os_generated: false,
+    ai_original_body:   null,
+    voice_learned_at:   null,
     created_at:         new Date(TEST_NOW - 60 * 60 * 1000).toISOString(),
     updated_at:         new Date(TEST_NOW - 60 * 60 * 1000).toISOString(),
     ...overrides,

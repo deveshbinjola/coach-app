@@ -370,6 +370,11 @@ export type Content = {
   metricool_post_id:   string | null;
   performance:         ContentPerformance;
   brand_os_generated:  boolean;
+  /** Snapshot of the AI's original body at draft time. Diffed against
+   *  `body` on save to fuel the edit-as-feedback voice learning loop. */
+  ai_original_body:    string | null;
+  /** Most recent time we extracted voice signal from an edit on this draft. */
+  voice_learned_at:    string | null;
   created_at:          string;
   updated_at:          string;
 };

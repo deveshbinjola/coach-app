@@ -65,7 +65,8 @@
       "Bash(awk 'NR<=2012 && /^function / {fn=$0} END {print fn}' /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)",
       "Bash(grep -nA 3 \"function CarouselWizardStep\\\\|<CarouselWizardStep\\\\|function CarouselBuilderControls\\\\|<CarouselBuilderControls\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)",
       "Bash(git rm *)",
-      "Bash(grep -nB1 -A8 \"useEffect.*setDraft\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/brand-os/BrandOsRunner.tsx)"
+      "Bash(grep -nB1 -A8 \"useEffect.*setDraft\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/brand-os/BrandOsRunner.tsx)",
+      "Bash(grep -n \"^    </div>$\\\\|^  \\);$\\\\|^}$\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)"
     ]
   }
 }

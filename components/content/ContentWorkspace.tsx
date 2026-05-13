@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import {
   ArrowRight,
@@ -288,6 +288,13 @@ export default function ContentWorkspace({
   // Drives carousel rendering when style === "brand_kit". Stable per render.
   const brandKit = useMemo(() => brandKitFromSettings(settings as CoachSettings | null | undefined), [settings]);
   const [selectedKind, setSelectedKind] = useState<DraftKind>("instagram_caption");
+  // Voice-learned toast (surfaces when edit-as-feedback loop adds vocab).
+  const [voiceLearnedToast, setVoiceLearnedToast] = useState<{ yes: string[]; no: string[]; at: number } | null>(null);
+  useEffect(() => {
+    if (!voiceLearnedToast) return;
+    const t = setTimeout(() => setVoiceLearnedToast(null), 7000);
+    return () => clearTimeout(t);
+  }, [voiceLearnedToast]);
   const [angle, setAngle] = useState(() => seedLeadAngle(seedLead));
   const [audienceSignal, setAudienceSignal] = useState(() => seedLeadSignal(seedLead));
   const [carouselOutcome, setCarouselOutcome] = useState<CarouselOutcome>("conversations");
@@ -486,6 +493,35 @@ export default function ContentWorkspace({
       )
     );
     await supabase.from("cp_content").update({ body }).eq("id", item.id);
+    // Edit-as-feedback loop. Debounced 2.5s — only fires once the coach
+    // stops typing. Only fires for AI-generated drafts (ai_original_body
+    // present, set in /api/content/draft). Toast surfaces what voice
+    // signal we just learned, if any.
+    scheduleLearnFromEdit(item);
+  }
+
+  /** Per-content debounce so multi-edit sessions only fire one learn call. */
+  const learnTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  function scheduleLearnFromEdit(item: Content) {
+    if (!item.brand_os_generated && !item.ai_original_body) return;
+    const existing = learnTimers.current[item.id];
+    if (existing) clearTimeout(existing);
+    learnTimers.current[item.id] = setTimeout(() => { void fireLearnFromEdit(item.id); }, 2500);
+  }
+  async function fireLearnFromEdit(contentId: string) {
+    try {
+      const res = await fetch("/api/brand-os/learn-from-edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contentId }),
+      });
+      if (!res.ok) return;
+      const data = await res.json() as { added_yes?: string[]; added_no?: string[]; skipped?: string };
+      if (data.skipped || (!data.added_yes?.length && !data.added_no?.length)) return;
+      setVoiceLearnedToast({ yes: data.added_yes ?? [], no: data.added_no ?? [], at: Date.now() });
+    } catch {
+      // silent — learning is a bonus, never blocks the coach
+    }
   }
 
   async function updateContentPerformance(item: Content, patch: Partial<ContentMeta>) {
@@ -1122,6 +1158,62 @@ export default function ContentWorkspace({
           </ul>
         )}
       </Card>
+
+      {voiceLearnedToast && (
+        <VoiceLearnedToast toast={voiceLearnedToast} onDismiss={() => setVoiceLearnedToast(null)} />
+      )}
+    </div>
+  );
+}
+
+function VoiceLearnedToast({
+  toast, onDismiss,
+}: {
+  toast: { yes: string[]; no: string[]; at: number };
+  onDismiss: () => void;
+}) {
+  return (
+    <div
+      className="fixed bottom-4 right-4 z-50 max-w-sm rounded-[var(--r-lg)] border border-[var(--brand-strong)] bg-[var(--surface-elevated)] shadow-[var(--shadow-lg)] p-4 space-y-2 animate-in fade-in slide-in-from-bottom-2"
+      role="status"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <Badge tone="brand" size="xs" uppercase>Voice learned</Badge>
+        <button
+          onClick={onDismiss}
+          className="text-[color:var(--text-faint)] hover:text-[color:var(--text)] leading-none text-lg"
+          aria-label="Dismiss"
+        >
+          ×
+        </button>
+      </div>
+      <p className="text-[length:var(--t-caption)] text-[color:var(--text)] leading-relaxed">
+        Your edits taught the AI. Future drafts will pick this up automatically.
+      </p>
+      {toast.yes.length > 0 && (
+        <div className="space-y-1">
+          <p className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--brand-strong)]">
+            Use ✓
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {toast.yes.map((v, i) => (
+              <span key={i} className="font-mono text-[length:var(--t-caption)] px-2 py-0.5 rounded-[var(--r-sm)] bg-[var(--brand-soft)] text-[color:var(--success)]">{v}</span>
+            ))}
+          </div>
+        </div>
+      )}
+      {toast.no.length > 0 && (
+        <div className="space-y-1">
+          <p className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--danger)]">
+            Never ✕
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {toast.no.map((v, i) => (
+              <span key={i} className="font-mono text-[length:var(--t-caption)] px-2 py-0.5 rounded-[var(--r-sm)] bg-[var(--danger-soft)] text-[#B42318] line-through">{v}</span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

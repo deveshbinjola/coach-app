@@ -218,6 +218,9 @@ export async function POST(request: NextRequest) {
       coach_id: user.id,
       title: draft.title,
       body: draft.body,
+      // Snapshot the AI's untouched body so we can diff coach edits later
+      // and learn vocab patterns (edit-as-feedback loop).
+      ai_original_body: draft.body,
       platform: spec.platform,
       content_type: spec.contentType,
       status: "draft",
