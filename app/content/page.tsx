@@ -4,6 +4,7 @@ import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import ContentWorkspace from "@/components/content/ContentWorkspace";
 import type { ResonanceHook, StripPillar } from "@/components/content/BrandOsPillarStrip";
+import type { BuyerMirror } from "@/components/content/BuyerMirrorBanner";
 import type { CoachSettings, Content, Lead, VoiceProfile, VoiceTrainingSource } from "@/lib/types";
 import type { BrandOsSynthesis } from "@/app/api/brand-os/synthesize/route";
 import type { BrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
@@ -87,6 +88,28 @@ export default async function ContentPage({
   }));
   const hasRunBrandOs = Boolean(overlay || synthesis);
 
+  // Buyer Mirror — pulled from the full synthesis so we can show body
+  // state + the 11pm sentence + graveyard in the expandable banner.
+  // Falls back to overlay fields if synthesis isn't present (defensive).
+  const buyerMirror: BuyerMirror | null =
+    synthesis?.buyer_mirror
+      ? {
+          name:              synthesis.buyer_mirror.name ?? "",
+          one_line_portrait: synthesis.buyer_mirror.one_line_portrait ?? "",
+          body_state:        synthesis.buyer_mirror.body_state ?? "",
+          secret_sentence:   synthesis.buyer_mirror.secret_sentence ?? "",
+          graveyard:         synthesis.buyer_mirror.graveyard ?? "",
+        }
+      : overlay
+        ? {
+            name:              overlay.buyer_mirror_name,
+            one_line_portrait: overlay.buyer_mirror_portrait,
+            body_state: "",
+            secret_sentence: "",
+            graveyard: "",
+          }
+        : null;
+
   return (
     <div className="min-h-screen">
       <Header
@@ -105,6 +128,7 @@ export default async function ContentPage({
           brandPillars={brandPillars}
           brandHooks={brandHooks}
           hasRunBrandOs={hasRunBrandOs}
+          buyerMirror={buyerMirror}
         />
       </main>
     </div>

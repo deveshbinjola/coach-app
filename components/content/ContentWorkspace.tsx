@@ -36,6 +36,7 @@ import {
 import { getVoiceAssetStats } from "@/lib/voice-asset";
 import { brandKitFromSettings, fontFamilyStack, googleFontsHref, readableTextOn, type BrandKit } from "@/lib/brand-kit";
 import BrandOsPillarStrip, { type ResonanceHook, type StripPillar } from "@/components/content/BrandOsPillarStrip";
+import BuyerMirrorBanner, { type BuyerMirror } from "@/components/content/BuyerMirrorBanner";
 
 type DraftKind = "instagram_caption" | "linkedin_post" | "newsletter" | "carousel";
 type CarouselOutcome = "saves" | "conversations" | "authority";
@@ -264,6 +265,7 @@ export default function ContentWorkspace({
   brandPillars = [],
   brandHooks = [],
   hasRunBrandOs = false,
+  buyerMirror = null,
 }: {
   profile: VoiceProfile | null;
   leads: Lead[];
@@ -277,6 +279,8 @@ export default function ContentWorkspace({
   brandHooks?: ResonanceHook[];
   /** False if no Brand OS run completed yet — strip shows soft prompt. */
   hasRunBrandOs?: boolean;
+  /** Buyer Mirror from synthesis — pinned at top of Draft room. */
+  buyerMirror?: BuyerMirror | null;
 }) {
   const supabase = createClient();
   const seedLead = leads.find((lead) => lead.id === seedLeadId) ?? null;
@@ -657,6 +661,8 @@ export default function ContentWorkspace({
 
       <div id="draft-room" className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] scroll-mt-4">
         <Card className="space-y-5">
+          {/* Buyer Mirror — keeps every draft addressed to one person, not a "you" plural. */}
+          {buyerMirror && <BuyerMirrorBanner mirror={buyerMirror} />}
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h2 className="text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)]">
