@@ -63,7 +63,8 @@
       "Bash(grep -nA 20 \"function carouselPreviewStyle\\\\|function carouselPreviewClass\\\\|function carouselPreviewAccent\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)",
       "Bash(awk 'NR<=1512 && /^function / {fn=$0} END {print fn}' /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)",
       "Bash(awk 'NR<=2012 && /^function / {fn=$0} END {print fn}' /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)",
-      "Bash(grep -nA 3 \"function CarouselWizardStep\\\\|<CarouselWizardStep\\\\|function CarouselBuilderControls\\\\|<CarouselBuilderControls\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)"
+      "Bash(grep -nA 3 \"function CarouselWizardStep\\\\|<CarouselWizardStep\\\\|function CarouselBuilderControls\\\\|<CarouselBuilderControls\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)",
+      "Bash(git rm *)"
     ]
   }
 }

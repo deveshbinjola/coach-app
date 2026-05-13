@@ -14,6 +14,7 @@ import {
   getQuestion,
   pick,
   questionsForModule,
+  previousQuestionId,
   MODULE_META,
   type Audience,
   type ModuleId,
@@ -97,22 +98,27 @@ export default function BrandOsRunner(props: Props) {
       .eq("id", props.runId);
   }
 
-  async function lockAndAdvance() {
-    if (!currentQ) return;
+  /** Single lock + advance path. Accepts an optional explicit value so choice
+   *  buttons can auto-advance without waiting for the React state-flush race. */
+  async function lockAndAdvance(valueOverride?: string) {
+    if (!currentQ || advancing) return;
     setError(null);
+    const value = valueOverride ?? draft;
 
     // Pre-flight audience: stash to run + advance immediately.
     if (currentQ.id === "preflight.audience") {
-      if (!draft) { setError("Pick one to continue."); return; }
-      await setRunAudience(draft as Audience);
-      await persistDraft(draft);
+      if (!value) { setError("Pick one to continue."); return; }
+      setAdvancing(true);
+      await setRunAudience(value as Audience);
+      await persistDraft(value);
       await markLocked();
-      return advanceTo(props.nextQuestionId);
+      await advanceTo(props.nextQuestionId);
+      return;
     }
 
     // Min-char gating.
     const min = currentQ.minChars ?? 0;
-    if (draft.trim().length < min) {
+    if (value.trim().length < min) {
       setError(`Stay with this. We need at least ${min} characters before you can move on.`);
       return;
     }
@@ -120,7 +126,7 @@ export default function BrandOsRunner(props: Props) {
     // Push-back trigger detection.
     const trigger = triggerForQuestion(currentQ.id);
     if (trigger) {
-      const detection = detectPushBack(trigger, draft, audience);
+      const detection = detectPushBack(trigger, value, audience);
       if (detection.fired) {
         setPushBackReason(reasonLabel(detection.reason, detection.markersMatched));
         setPushBackOpen(true);
@@ -129,9 +135,32 @@ export default function BrandOsRunner(props: Props) {
       }
     }
 
-    await persistDraft(draft);
+    setAdvancing(true);
+    await persistDraft(value);
     await markLocked();
-    advanceTo(props.nextQuestionId);
+    await advanceTo(props.nextQuestionId);
+  }
+
+  async function goBack() {
+    if (!currentQ || advancing) return;
+    const prevId = previousQuestionId(currentQ.id, props.variant);
+    if (!prevId) return;
+    setAdvancing(true);
+    const prev = getQuestion(prevId);
+    const { error: upErr } = await supabase
+      .from("cp_brand_os_runs")
+      .update({
+        current_question_id: prevId,
+        current_module: prev?.module ?? "preflight",
+      })
+      .eq("id", props.runId);
+    if (upErr) {
+      setError(upErr.message);
+      setAdvancing(false);
+      return;
+    }
+    setCurrentId(prevId);
+    setAdvancing(false);
   }
 
   async function generatePushBackOptions() {
@@ -203,29 +232,39 @@ export default function BrandOsRunner(props: Props) {
       .eq("question_id", currentId);
   }
 
-  function advanceTo(targetId: string | null) {
-    setAdvancing(true);
+  /** Move the run to a target question id. Awaits the DB write so the UI
+   *  state stays in sync (the old `.then`-only version silently dropped its
+   *  callback and the Continue button got stuck on choice questions). */
+  async function advanceTo(targetId: string | null) {
     if (!targetId) {
-      // End of variant — go to output.
-      void supabase
+      // End of variant — mark complete + push to output.
+      const { error: completeErr } = await supabase
         .from("cp_brand_os_runs")
         .update({ state: "complete", completed_at: new Date().toISOString() })
-        .eq("id", props.runId)
-        .then(() => router.push(`/brand-os/run/${props.runId}/output`));
+        .eq("id", props.runId);
+      if (completeErr) {
+        setError(completeErr.message);
+        setAdvancing(false);
+        return;
+      }
+      router.push(`/brand-os/run/${props.runId}/output`);
       return;
     }
     const target = getQuestion(targetId);
-    void supabase
+    const { error: upErr } = await supabase
       .from("cp_brand_os_runs")
       .update({
         current_question_id: targetId,
         current_module: target?.module ?? "preflight",
       })
-      .eq("id", props.runId)
-      .then(() => {
-        setCurrentId(targetId);
-        setAdvancing(false);
-      });
+      .eq("id", props.runId);
+    if (upErr) {
+      setError(upErr.message);
+      setAdvancing(false);
+      return;
+    }
+    setCurrentId(targetId);
+    setAdvancing(false);
   }
 
   if (!currentQ) return <p>Question not found.</p>;
@@ -277,20 +316,44 @@ export default function BrandOsRunner(props: Props) {
           question={currentQ}
           audience={audience}
           value={draft}
-          onChange={setDraft}
+          onChange={(v) => {
+            setDraft(v);
+            // Auto-advance for single-choice questions — no Continue needed.
+            if (currentQ.kind === "choice") {
+              void lockAndAdvance(v);
+            }
+          }}
         />
 
         {error && (
           <p className="text-[length:var(--t-caption)] text-[color:var(--danger)]" role="alert">{error}</p>
         )}
 
-        <div className="flex items-center justify-between gap-3 pt-2">
-          <span className="text-[length:var(--t-caption)] text-[color:var(--text-faint)]">
-            {draft ? `${draft.length} chars · auto-saved` : "Take your time. Auto-saves as you type."}
-          </span>
-          <Button onClick={lockAndAdvance} disabled={advancing}>
-            {advancing ? "Advancing…" : props.nextQuestionId ? "Continue →" : "Generate output →"}
+        <div className="flex items-center justify-between gap-3 pt-2 flex-wrap">
+          {/* Back button — disabled on the very first question */}
+          <Button
+            onClick={goBack}
+            variant="ghost"
+            disabled={advancing || !previousQuestionId(currentQ.id, props.variant)}
+            className="!px-3"
+          >
+            ← Back
           </Button>
+
+          <span className="text-[length:var(--t-caption)] text-[color:var(--text-faint)] flex-1 text-center">
+            {currentQ.kind === "choice"
+              ? "Pick one — we'll advance automatically."
+              : draft
+                ? `${draft.length} chars · auto-saved`
+                : "Take your time. Auto-saves as you type."}
+          </span>
+
+          {/* Continue is hidden for choice questions (auto-advance handles it). */}
+          {currentQ.kind !== "choice" && (
+            <Button onClick={() => lockAndAdvance()} disabled={advancing}>
+              {advancing ? "Advancing…" : props.nextQuestionId ? "Continue →" : "Generate output →"}
+            </Button>
+          )}
         </div>
       </Card>
 

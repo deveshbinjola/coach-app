@@ -82,6 +82,7 @@ export default function VoiceHomePanel({
     return (
       <div className="space-y-8">
         <VoiceStatusHero profile={null} />
+        <BrandOsCta />
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 items-start">
           <div className="space-y-5">
             <PathSwitcher altPath={altPath} onChange={setAltPath} />
@@ -131,6 +132,7 @@ export default function VoiceHomePanel({
   return (
     <div className="space-y-8">
       <VoiceStatusHero profile={activeProfile!} />
+      <BrandOsCta />
       <VoiceAssetPanel
         stats={assetStats}
         sourceCount={sources.length}
@@ -1758,5 +1760,39 @@ function Empty() {
     <span className="text-[length:var(--t-caption)] text-[color:var(--text-faint)] italic">
       Not set
     </span>
+  );
+}
+
+// ── Brand OS cross-sell — surfaced on /voice ──────────────────────────────
+//
+// The 5-question VoiceSetupFlow is the lite-voice path. Brand OS v2 is the
+// full 6-module run. We point coaches at it from /voice because that's where
+// they're already thinking about voice + brand. One-line CTA, no dead-end.
+
+function BrandOsCta() {
+  return (
+    <a
+      href="/brand-os"
+      className="block rounded-[var(--r-lg)] border-2 border-[color-mix(in_srgb,var(--brand)_35%,transparent)] bg-[var(--brand-soft)] p-5 hover:border-[var(--brand-strong)] transition group"
+    >
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <Badge tone="brand" size="xs" uppercase>Brand OS · v2.1</Badge>
+            <span className="text-[length:var(--t-caption)] font-bold text-[color:var(--brand-strong)]">New</span>
+          </div>
+          <h3 className="font-display text-[length:var(--t-h3)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
+            Want the full Brand OS run?
+          </h3>
+          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1 leading-[var(--leading-relaxed)]">
+            6 modules · 60+ questions · push-back on generic language · 45-day calendar at the end.
+            One question at a time. Auto-saves. Or try the 13-question MVP first.
+          </p>
+        </div>
+        <span className="text-[color:var(--brand-strong)] font-bold whitespace-nowrap group-hover:translate-x-1 transition-transform">
+          Run Brand OS →
+        </span>
+      </div>
+    </a>
   );
 }
