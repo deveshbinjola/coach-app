@@ -35,6 +35,7 @@ import {
 } from "@/lib/types";
 import { getVoiceAssetStats } from "@/lib/voice-asset";
 import { brandKitFromSettings, fontFamilyStack, googleFontsHref, readableTextOn, type BrandKit } from "@/lib/brand-kit";
+import BrandOsPillarStrip, { type ResonanceHook, type StripPillar } from "@/components/content/BrandOsPillarStrip";
 
 type DraftKind = "instagram_caption" | "linkedin_post" | "newsletter" | "carousel";
 type CarouselOutcome = "saves" | "conversations" | "authority";
@@ -260,6 +261,9 @@ export default function ContentWorkspace({
   trainingSources,
   seedLeadId = "",
   settings,
+  brandPillars = [],
+  brandHooks = [],
+  hasRunBrandOs = false,
 }: {
   profile: VoiceProfile | null;
   leads: Lead[];
@@ -267,6 +271,12 @@ export default function ContentWorkspace({
   trainingSources: VoiceTrainingSource[];
   seedLeadId?: string;
   settings: CoachSettings | null;
+  /** Pillars from coach's latest Brand OS run — drives the pillar strip. */
+  brandPillars?: StripPillar[];
+  /** Resonance hooks from the run — click-to-draft. */
+  brandHooks?: ResonanceHook[];
+  /** False if no Brand OS run completed yet — strip shows soft prompt. */
+  hasRunBrandOs?: boolean;
 }) {
   const supabase = createClient();
   const seedLead = leads.find((lead) => lead.id === seedLeadId) ?? null;
@@ -601,8 +611,29 @@ export default function ContentWorkspace({
     void applyCarouselCustomStyle(next, targetDraft);
   }
 
+  /** Brand OS resonance hook → draft room. Fills the angle field with the
+   *  full hook + headline so the model has both the framing AND the angle,
+   *  defaults to instagram_caption (most coaches' easiest ship), then
+   *  scrolls to the draft room. Coach can swap kind/format from there. */
+  function handlePickBrandHook(hook: ResonanceHook) {
+    const filled = `${hook.headline}\n\n${hook.angle}\n\n(Pillar: ${hook.pillar})`;
+    setAngle(filled);
+    setSelectedKind("instagram_caption");
+    // Wait a tick so React commits the state before we scroll.
+    setTimeout(() => {
+      const el = typeof document !== "undefined" ? document.getElementById("draft-room") : null;
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  }
+
   return (
     <div className="min-w-0 space-y-4 sm:space-y-6">
+      <BrandOsPillarStrip
+        pillars={brandPillars}
+        hooks={brandHooks}
+        hasRunBrandOs={hasRunBrandOs}
+        onPickHook={handlePickBrandHook}
+      />
       <section className="rounded-[var(--r-xl)] border border-[var(--border)] bg-[linear-gradient(135deg,var(--surface-elevated),var(--surface),var(--brand-soft))] p-4 sm:p-7 overflow-hidden">
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
           <div className="min-w-0">
@@ -624,7 +655,7 @@ export default function ContentWorkspace({
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+      <div id="draft-room" className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] scroll-mt-4">
         <Card className="space-y-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
