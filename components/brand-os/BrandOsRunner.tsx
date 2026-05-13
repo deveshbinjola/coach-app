@@ -68,8 +68,18 @@ export default function BrandOsRunner(props: Props) {
   const existing = answerMap[currentId]?.raw_text ?? "";
   const [draft, setDraft] = useState(existing);
 
-  // Reset draft when question changes (resume + advance both).
-  useEffect(() => { setDraft(existing); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [currentId]);
+  // Reset draft when question changes (resume + advance both). Also clears
+  // any pending debounced save timer so we don't accidentally write the OLD
+  // question's draft text against the NEW question's row.
+  useEffect(() => {
+    setDraft(existing);
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
+    setError(null);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [currentId]);
 
   // Debounced auto-save.
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -176,6 +186,7 @@ export default function BrandOsRunner(props: Props) {
     }
     setCurrentId(prevId);
     setAdvancing(false);
+    router.refresh();
   }
 
   async function generatePushBackOptions() {
@@ -263,9 +274,11 @@ export default function BrandOsRunner(props: Props) {
       .eq("question_id", currentId);
   }
 
-  /** Move the run to a target question id. Awaits the DB write so the UI
-   *  state stays in sync (the old `.then`-only version silently dropped its
-   *  callback and the Continue button got stuck on choice questions). */
+  /** Move the run to a target question id. Awaits the DB write AND fires
+   *  router.refresh() so the server component re-renders with fresh props
+   *  (answerMap, lockedCount, progressPct, etc.) — otherwise the progress
+   *  bar and answered-count would only update on a full reload, which is
+   *  what was making it feel like Continue didn't work without F5. */
   async function advanceTo(targetId: string | null) {
     if (!targetId) {
       // End of variant — mark complete + push to output.
@@ -294,8 +307,13 @@ export default function BrandOsRunner(props: Props) {
       setAdvancing(false);
       return;
     }
+    // Update local state immediately so the question swaps without waiting
+    // for the server round-trip…
     setCurrentId(targetId);
     setAdvancing(false);
+    // …then ask Next.js to re-fetch the server component so progress count,
+    // module breadcrumb, and answerMap reflect the new DB state.
+    router.refresh();
   }
 
   if (!currentQ) return <p>Question not found.</p>;
@@ -325,7 +343,7 @@ export default function BrandOsRunner(props: Props) {
       </div>
 
       {/* Question card */}
-      <Card className="p-5 sm:p-7 space-y-4">
+      <Card key={currentQ.id} className="p-5 sm:p-7 space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--text-faint)]">
             {currentQ.module} · Q{moduleOrdinal}
