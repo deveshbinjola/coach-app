@@ -216,7 +216,7 @@ const CAROUSEL_STYLES: Array<{
   {
     id: "forest_sand",
     label: "Forest + Sand",
-    description: "Warm, organic, grounded coaching and men's work.",
+    description: "Warm, organic, grounded coaching and embodied work.",
     bestFor: "trust",
   },
   {

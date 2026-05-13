@@ -27,15 +27,15 @@ const SOURCES: LeadSource[] = ["ig", "linkedin", "referral", "quiz", "in_person"
 
 // Contextual placeholders for source_detail - helps the coach log *which*
 // specific piece of content brought this lead in. This is the atom of
-// attribution: source='ig' is useless, source='ig' + detail='reel: masculine
-// leadership 2026-04-18' lets you rank content by actual pipeline impact.
+// attribution: source='ig' is useless, source='ig' + detail='reel: weekly
+// insight 2026-04-18' lets you rank content by actual pipeline impact.
 const SOURCE_DETAIL_PLACEHOLDER: Record<LeadSource, string> = {
-  ig: "e.g. Reel: masculine leadership 2026-04-18",
+  ig: "e.g. Reel: weekly insight 2026-04-18",
   linkedin: "e.g. Post: why coaches plateau at $10K",
-  referral: "e.g. Met at men's retreat",
+  referral: "e.g. Met at a retreat",
   quiz: "e.g. Quiz result: Avatar archetype",
-  in_person: "e.g. AMLT cohort, Detroit meetup",
-  podcast: "e.g. Podcast: embodied leadership ep. 14",
+  in_person: "e.g. cohort meetup, Detroit",
+  podcast: "e.g. Podcast: embodied coaching ep. 14",
   newsletter: "e.g. Signal #12 - the resonance funnel",
   other: "e.g. YouTube, Twitter, word of mouth",
 };

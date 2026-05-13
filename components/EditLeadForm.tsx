@@ -201,7 +201,7 @@ export default function EditLeadForm({
             value={form.source_detail}
             onChange={(e) => setForm({ ...form, source_detail: e.target.value })}
             placeholder={
-              form.source === "ig" ? "e.g. IG reel: masculine leadership 2026-04-18"
+              form.source === "ig" ? "e.g. IG reel: weekly insight 2026-04-18"
               : form.source === "linkedin" ? "e.g. LinkedIn post on burnout"
               : form.source === "newsletter" ? "e.g. The Signal — issue 12"
               : form.source === "quiz" ? "e.g. Brand OS quiz"

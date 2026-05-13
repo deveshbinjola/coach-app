@@ -37,15 +37,15 @@ const QUESTIONS: Array<{
 }> = [
   {
     id: "belief",
-    q: "What's the one belief you keep coming back to with the men you coach?",
-    hint: "The thing you'd say to a brother at the start of every call. The phrase your clients quote back to you.",
+    q: "What's the one belief you keep coming back to with the people you coach?",
+    hint: "The thing you'd say to a client at the start of every call. The phrase your clients quote back to you.",
     placeholder:
-      "Something like: 'Most guys don't have a discipline problem. They have a clarity problem dressed up as one.'",
+      "Something like: 'Most people don't have a discipline problem. They have a clarity problem dressed up as one.'",
   },
   {
     id: "afraid",
-    q: "What do you say to a man who's afraid to actually do the work?",
-    hint: "Use your real words. The way you'd say it to him in the room, not how you'd write it in a brochure.",
+    q: "What do you say to a client who's afraid to actually move forward?",
+    hint: "Use your real words. The way you'd say it to them in the room, not how you'd write it in a brochure.",
     placeholder:
       "Speak it the way you'd say it. The exact sentences you use when someone hesitates.",
   },
@@ -54,7 +54,7 @@ const QUESTIONS: Array<{
     q: "What's a phrase or way of saying things that's distinctly YOU?",
     hint: "A turn of phrase, a recurring metaphor, a beat your captions always have. The thing people copy from your style.",
     placeholder:
-      "It could be a rhythm ('short. then a beat. then the punchline.'), a metaphor (honest move, masculine spine, etc.), or something you always end with.",
+      "It could be a rhythm ('short. then a beat. then the punchline.'), a signature metaphor, or something you always end with.",
   },
   {
     id: "never",

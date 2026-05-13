@@ -47,14 +47,18 @@ type Props = {
   coachFirstName: string;
 };
 
+// Sample inbound DMs used in the onboarding magic-moment step. Neutralised
+// to work across coach audiences (men's work, women's embodiment, integrated,
+// etc.). When the audience-aware system (voice_profile_slug) ships, these
+// move to lib/onboarding-presets.ts and branch by profile.
 const SAMPLE_INBOUND_PRESETS: Array<{ label: string; text: string }> = [
   {
     label: "DM curious",
-    text: "Hey. Saw your post about masculine clarity. Hit something. Curious what working with you actually looks like?",
+    text: "Hey. Saw your post — something in it really landed for me. Curious what working with you actually looks like?",
   },
   {
     label: "Quiz result",
-    text: "Just did your quiz. The 'purpose dressed up as discipline' thing is exactly where I am. What's the next step?",
+    text: "Just did your quiz. The results hit something I've been avoiding for a while. What's the next step?",
   },
   {
     label: "Hesitant",

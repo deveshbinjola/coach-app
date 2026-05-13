@@ -173,7 +173,7 @@ export default function WebhooksPanel() {
                 type="text"
                 value={newDetail}
                 onChange={(e) => setNewDetail(e.target.value)}
-                placeholder="IG quiz — masculine leadership"
+                placeholder="IG quiz — weekly insight"
                 maxLength={200}
                 className="w-full p-2 rounded border border-gray-300 text-sm focus:outline-none focus:border-brand"
               />

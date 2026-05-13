@@ -201,11 +201,11 @@ export default function VoiceMinePanel() {
             value={pasted}
             onChange={(e) => setPasted(e.target.value)}
             rows={14}
-            placeholder={`The work isn't loud.
-It doesn't post about itself.
+            placeholder={`Your voice isn't loud.
+It doesn't perform.
 It just keeps choosing the next honest move.
 
-Most guys don't have a discipline problem.
+Most people don't have a discipline problem.
 They have a clarity problem dressed up as one.
 
 [paste more captions, separated by a blank line]`}

@@ -360,7 +360,7 @@ async function findOrCreateRoomForEmail(
     .insert({
       coach_id: coachId,
       lead_id: lead.id,
-      program_name: "Coaching container",
+      program_name: "Coaching session",
       current_focus: lead.fit_notes || lead.notes || "Prepare for the first client session.",
     })
     .select("*")
