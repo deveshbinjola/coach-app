@@ -62,20 +62,79 @@ export async function loadBrandVoiceOverlay(
   return (data?.brand_voice_overlay as BrandVoiceOverlay | null) ?? null;
 }
 
-/** Persist a new overlay. Called from the synthesize endpoint. */
+/** Persist a new overlay. Called from the synthesize endpoint AND the
+ *  retune-from-voice endpoint. Also captures a baseline of the coach's
+ *  voice training corpus so we can detect when new imports warrant a
+ *  re-tune (used by the /content "voice has new material — re-tune?"
+ *  banner). */
 export async function saveBrandVoiceOverlay(
   supabase: SupabaseClient,
   coachId: string,
   overlay: BrandVoiceOverlay
 ): Promise<void> {
+  const corpus = await snapshotVoiceCorpus(supabase, coachId);
   await supabase
     .from("cp_coaches")
     .update({
       brand_voice_overlay: overlay,
       brand_voice_overlay_run_id: overlay.source_run_id,
       brand_voice_overlay_updated_at: new Date().toISOString(),
+      brand_voice_corpus_baseline: corpus,
     })
     .eq("user_id", coachId);
+}
+
+export type VoiceCorpusSnapshot = {
+  sources_count:     number;
+  total_chars:       number;
+  latest_source_at:  string | null;
+  captured_at:       string;
+};
+
+/** Read voice training sources and produce a compact baseline. */
+export async function snapshotVoiceCorpus(
+  supabase: SupabaseClient,
+  coachId: string
+): Promise<VoiceCorpusSnapshot> {
+  const { data } = await supabase
+    .from("cp_voice_training_sources")
+    .select("transcript, created_at")
+    .eq("coach_id", coachId);
+  const rows = (data ?? []) as Array<{ transcript: string | null; created_at: string | null }>;
+  const total_chars = rows.reduce((n, r) => n + ((r.transcript ?? "").length), 0);
+  const latest_source_at = rows
+    .map((r) => r.created_at)
+    .filter((s): s is string => Boolean(s))
+    .sort()
+    .pop() ?? null;
+  return {
+    sources_count: rows.length,
+    total_chars,
+    latest_source_at,
+    captured_at: new Date().toISOString(),
+  };
+}
+
+/** Compare current corpus to baseline. Returns null if baseline missing or
+ *  delta isn't meaningful (so callers can render the banner conditionally). */
+export type CorpusDelta = {
+  new_sources: number;
+  new_chars:   number;
+  baseline:    VoiceCorpusSnapshot;
+  current:     VoiceCorpusSnapshot;
+};
+export async function detectCorpusDelta(
+  supabase: SupabaseClient,
+  coachId: string,
+  baseline: VoiceCorpusSnapshot | null
+): Promise<CorpusDelta | null> {
+  if (!baseline) return null;
+  const current = await snapshotVoiceCorpus(supabase, coachId);
+  const new_sources = Math.max(0, current.sources_count - baseline.sources_count);
+  const new_chars   = Math.max(0, current.total_chars  - baseline.total_chars);
+  // Meaningful threshold: 3+ new sources OR 5000+ new chars.
+  if (new_sources < 3 && new_chars < 5000) return null;
+  return { new_sources, new_chars, baseline, current };
 }
 
 /** Render the overlay as a system-prompt block. Prepended ABOVE the

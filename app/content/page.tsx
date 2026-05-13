@@ -7,7 +7,7 @@ import type { ResonanceHook, StripPillar } from "@/components/content/BrandOsPil
 import type { BuyerMirror } from "@/components/content/BuyerMirrorBanner";
 import type { CoachSettings, Content, Lead, VoiceProfile, VoiceTrainingSource } from "@/lib/types";
 import type { BrandOsSynthesis } from "@/app/api/brand-os/synthesize/route";
-import type { BrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
+import { detectCorpusDelta, type BrandVoiceOverlay, type VoiceCorpusSnapshot } from "@/lib/brand-os/voice-overlay";
 
 export const runtime = 'edge';
 
@@ -60,7 +60,7 @@ export default async function ContentPage({
     supabase.rpc("ensure_coach_settings").single(),
     supabase
       .from("cp_coaches")
-      .select("brand_voice_overlay")
+      .select("brand_voice_overlay, brand_voice_corpus_baseline")
       .eq("user_id", user.id)
       .maybeSingle(),
     // Latest completed Brand OS run for this coach, for the resonance hooks.
@@ -75,7 +75,18 @@ export default async function ContentPage({
   ]);
 
   const overlay = (coachRes.data?.brand_voice_overlay as BrandVoiceOverlay | null) ?? null;
+  const corpusBaseline = (coachRes.data?.brand_voice_corpus_baseline as VoiceCorpusSnapshot | null) ?? null;
   const synthesis = (latestRunRes.data?.synthesis_json as BrandOsSynthesis | null) ?? null;
+
+  // Detect whether the coach has imported enough new voice samples since
+  // their last overlay save to warrant a re-tune banner. Threshold lives
+  // in detectCorpusDelta — currently 3+ new sources OR 5000+ new chars.
+  const corpusDelta = overlay
+    ? await detectCorpusDelta(supabase, user.id, corpusBaseline)
+    : null;
+  const voiceRetune = corpusDelta
+    ? { newSources: corpusDelta.new_sources, newChars: corpusDelta.new_chars }
+    : null;
 
   // Pillars come from the overlay (already trimmed). Hooks from the full
   // synthesis (overlay doesn't carry hooks — they're content angles, not
@@ -129,6 +140,7 @@ export default async function ContentPage({
           brandHooks={brandHooks}
           hasRunBrandOs={hasRunBrandOs}
           buyerMirror={buyerMirror}
+          voiceRetune={voiceRetune}
         />
       </main>
     </div>

@@ -37,6 +37,7 @@ import { getVoiceAssetStats } from "@/lib/voice-asset";
 import { brandKitFromSettings, fontFamilyStack, googleFontsHref, readableTextOn, type BrandKit } from "@/lib/brand-kit";
 import BrandOsPillarStrip, { type ResonanceHook, type StripPillar } from "@/components/content/BrandOsPillarStrip";
 import BuyerMirrorBanner, { type BuyerMirror } from "@/components/content/BuyerMirrorBanner";
+import VoiceRetuneBanner from "@/components/content/VoiceRetuneBanner";
 
 type DraftKind = "instagram_caption" | "linkedin_post" | "newsletter" | "carousel";
 type CarouselOutcome = "saves" | "conversations" | "authority";
@@ -266,6 +267,7 @@ export default function ContentWorkspace({
   brandHooks = [],
   hasRunBrandOs = false,
   buyerMirror = null,
+  voiceRetune = null,
 }: {
   profile: VoiceProfile | null;
   leads: Lead[];
@@ -281,6 +283,8 @@ export default function ContentWorkspace({
   hasRunBrandOs?: boolean;
   /** Buyer Mirror from synthesis — pinned at top of Draft room. */
   buyerMirror?: BuyerMirror | null;
+  /** Voice corpus delta — when new samples warrant a re-tune, this is set. */
+  voiceRetune?: { newSources: number; newChars: number } | null;
 }) {
   const supabase = createClient();
   const seedLead = leads.find((lead) => lead.id === seedLeadId) ?? null;
@@ -668,6 +672,9 @@ export default function ContentWorkspace({
 
   return (
     <div className="min-w-0 space-y-4 sm:space-y-6">
+      {voiceRetune && (
+        <VoiceRetuneBanner newSources={voiceRetune.newSources} newChars={voiceRetune.newChars} />
+      )}
       <BrandOsPillarStrip
         pillars={brandPillars}
         hooks={brandHooks}
