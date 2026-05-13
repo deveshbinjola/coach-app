@@ -267,16 +267,13 @@ const SIGNAL: Question[] = [
     minChars: 200,
     flags: ["required-input", "blocking", "long"],
   },
-  {
-    id: "signal.q2",
-    module: "signal",
-    order: 2,
-    kind: "pasteBlock",
-    prompt: "Paste 1–2 pieces of your own writing that you regret. The ones where you were performing.",
-    hint: "Tell us whose voice you were borrowing. The contrast between Q1 and Q2 is half the calibration.",
-    minChars: 80,
-    flags: ["required-input"],
-  },
+  // (Removed: signal.q2 'regret writing' — 2026-05-12. Was high-friction.
+  // Q10's anti-vocab list captures the same anti-voice signal without
+  // forcing the coach to dig up writing they're embarrassed by.
+  // Subsequent IDs (signal.q3 onward) stay STABLE so any in-flight runs
+  // and saved answer rows keep resolving. Module ordinal in the UI
+  // recomputes from array position, so users see Q1, Q2, Q3, … with no
+  // visible gap.)
   {
     id: "signal.q3",
     module: "signal",
@@ -290,7 +287,7 @@ const SIGNAL: Question[] = [
     module: "signal",
     order: 4,
     kind: "summary",
-    prompt: "Here's what we picked up reading Q1 + Q2. Sound right?",
+    prompt: "Here's what we picked up reading your samples. Sound right?",
   },
   {
     id: "signal.q5",
@@ -725,7 +722,7 @@ export const MODULE_META: Record<ModuleId, { label: string; tagline: string; min
 export const MVP_QUESTION_IDS: string[] = [
   "preflight.audience", "preflight.somatic",
   "mirror.q1", "mirror.q2", "mirror.q5", "mirror.q11", "mirror.q13",
-  "signal.q1", "signal.q2", "signal.q3",
+  "signal.q1", "signal.q3",
   "stance.q3", "stance.q5",
   "funnel.q1", "funnel.q3", "funnel.q7",
 ];
