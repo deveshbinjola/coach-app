@@ -47,6 +47,7 @@ const NAV_ITEMS: Array<{ href: string; label: string }> = [
   { href: "/clients", label: "Clients" },
   { href: "/voice", label: "Voice" },
   { href: "/content", label: "Content" },
+  { href: "/brand-os", label: "Brand OS" },
 ];
 
 type Props = {
