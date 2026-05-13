@@ -26,6 +26,8 @@ import type {
   VoiceProfile,
   VoiceTrainingSource,
 } from "@/lib/types";
+import type { BrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
+import { resolveBrandOsRunState } from "@/lib/brand-os/run-state";
 
 export const runtime = 'edge';
 
@@ -83,11 +85,19 @@ export default async function VoicePage() {
           .limit(20),
         supabase
           .from("cp_coaches")
-          .select("voice_profile_slug")
-          .eq("id", user.id)
+          .select("voice_profile_slug, brand_voice_overlay")
+          .eq("user_id", user.id)
           .maybeSingle(),
       ])
     : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }, { data: null }];
+
+  // Resolve Brand OS state once on the server so the CTA + voice-lock both
+  // know where the coach is (none / in_progress / complete_no_synthesis /
+  // complete). Cheap query, runs in parallel with the rest above.
+  const brandOsState = user?.id
+    ? await resolveBrandOsRunState(supabase, user.id)
+    : { kind: "none" as const };
+  const brandOverlay = ((coachRowRes?.data as { brand_voice_overlay?: BrandVoiceOverlay | null } | null)?.brand_voice_overlay ?? null) as BrandVoiceOverlay | null;
 
   return (
     <div className="min-h-screen">
@@ -118,6 +128,8 @@ export default async function VoicePage() {
               | "m-coach-m-aud" | "m-coach-w-aud" | "f-coach-w-aud" | "f-coach-m-aud" | "i-coach-single" | "i-coach-mixed"
               | undefined) ?? "m-coach-m-aud"
           }
+          brandOverlay={brandOverlay}
+          brandOsState={brandOsState}
         />
       </main>
     </div>

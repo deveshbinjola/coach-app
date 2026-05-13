@@ -66,7 +66,8 @@
       "Bash(grep -nA 3 \"function CarouselWizardStep\\\\|<CarouselWizardStep\\\\|function CarouselBuilderControls\\\\|<CarouselBuilderControls\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)",
       "Bash(git rm *)",
       "Bash(grep -nB1 -A8 \"useEffect.*setDraft\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/brand-os/BrandOsRunner.tsx)",
-      "Bash(grep -n \"^    </div>$\\\\|^  \\);$\\\\|^}$\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)"
+      "Bash(grep -n \"^    </div>$\\\\|^  \\);$\\\\|^}$\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx)",
+      "Bash(grep -rn \"96%\\\\|%\\\\s*$\\\\|toFixed.*%\\\\|progressPct\\\\|\\\\${.*}%\" /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/components/content/ContentWorkspace.tsx /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/coach-app/app/voice)"
     ]
   }
 }

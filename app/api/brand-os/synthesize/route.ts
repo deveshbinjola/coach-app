@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
   const { data: coach } = await supabase
     .from("cp_coaches")
     .select("audience_self, audience_serves, voice_profile_slug")
-    .eq("user_id", user.id)
+    .eq("id", user.id)
     .maybeSingle();
 
   const audience = run.audience as Audience;

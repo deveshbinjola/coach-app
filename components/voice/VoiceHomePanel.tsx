@@ -29,6 +29,8 @@ import {
 } from "@/lib/voice-trust";
 import { getVoiceAssetStats } from "@/lib/voice-asset";
 import { VoiceAssetPanel, VoiceStatusHero } from "@/components/voice/VoiceHero";
+import type { BrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
+import type { BrandOsRunState } from "@/lib/brand-os/run-state";
 import type {
   Content,
   Lead,
@@ -56,6 +58,10 @@ type Props = {
   trainingSources?: VoiceTrainingSource[];
   /** Audience-aware voice profile slug. Drives Q1–Q3 cue copy in VoiceSetupFlow. */
   voiceProfileSlug?: VoiceProfileSlug;
+  /** Brand voice overlay — feeds Voice lock calibration + Brand OS CTA state. */
+  brandOverlay?: BrandVoiceOverlay | null;
+  /** Resolved Brand OS run state — controls the CTA copy + destination. */
+  brandOsState?: BrandOsRunState;
 };
 
 type AltPath = "interview" | "captions";
@@ -68,10 +74,14 @@ export default function VoiceHomePanel({
   leads = [],
   trainingSources = [],
   voiceProfileSlug = DEFAULT_VOICE_PROFILE_SLUG,
+  brandOverlay = null,
+  brandOsState = { kind: "none" },
 }: Props) {
   const [activeProfile, setActiveProfile] = useState(profile);
   const [sources, setSources] = useState(trainingSources);
   const hasProfile = !!activeProfile;
+  // Distinct training-source types feed the voice-lock diversity score.
+  const trainingTypeCount = new Set(sources.map((s) => s.source_type)).size;
   const [refining, setRefining] = useState(false);
   // Default to the interview when no profile exists; coach can flip to
   // captions if they have public writing handy.
@@ -81,8 +91,13 @@ export default function VoiceHomePanel({
   if (!hasProfile) {
     return (
       <div className="space-y-8">
-        <VoiceStatusHero profile={null} />
-        <BrandOsCta />
+        <VoiceStatusHero
+          profile={null}
+          overlay={brandOverlay}
+          trainingSourceCount={sources.length}
+          trainingTypeCount={trainingTypeCount}
+        />
+        <BrandOsCta state={brandOsState} />
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 items-start">
           <div className="space-y-5">
             <PathSwitcher altPath={altPath} onChange={setAltPath} />
@@ -131,8 +146,13 @@ export default function VoiceHomePanel({
 
   return (
     <div className="space-y-8">
-      <VoiceStatusHero profile={activeProfile!} />
-      <BrandOsCta />
+      <VoiceStatusHero
+        profile={activeProfile!}
+        overlay={brandOverlay}
+        trainingSourceCount={sources.length}
+        trainingTypeCount={trainingTypeCount}
+      />
+      <BrandOsCta state={brandOsState} />
       <VoiceAssetPanel
         stats={assetStats}
         sourceCount={sources.length}
@@ -1769,7 +1789,95 @@ function Empty() {
 // full 6-module run. We point coaches at it from /voice because that's where
 // they're already thinking about voice + brand. One-line CTA, no dead-end.
 
-function BrandOsCta() {
+/** State-aware Brand OS CTA. The card adapts to whether the coach has
+ *  never started, is mid-run, completed without synthesis, or fully done.
+ *  Previous version always said "Want the full Brand OS run?" even to
+ *  coaches who'd already finished. */
+function BrandOsCta({ state }: { state: BrandOsRunState }) {
+  // Done — show as accomplishment + link to output.
+  if (state.kind === "complete") {
+    return (
+      <a
+        href={`/brand-os/run/${state.runId}/output`}
+        className="block rounded-[var(--r-lg)] border-2 border-[var(--brand-strong)] bg-[var(--brand-soft)] p-5 hover:bg-[color-mix(in_srgb,var(--brand)_12%,var(--surface-elevated))] transition group"
+      >
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <Badge tone="brand" size="xs" uppercase>✓ Brand OS · {state.variant === "mvp" ? "Quick Start" : "Full Run"}</Badge>
+              {state.synthesizedAt && (
+                <span className="text-[length:var(--t-caption)] text-[color:var(--text-faint)]">
+                  Completed {new Date(state.synthesizedAt).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+            <h3 className="font-display text-[length:var(--t-h3)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
+              Your Brand OS is live.
+            </h3>
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1 leading-[var(--leading-relaxed)]">
+              Your voice DNA, pillars, buyer mirror, and content angles are feeding every draft.
+              {state.variant === "mvp" && " Ready for the Full Run when you want more depth."}
+            </p>
+          </div>
+          <span className="text-[color:var(--brand-strong)] font-bold whitespace-nowrap group-hover:translate-x-1 transition-transform">
+            View deliverable →
+          </span>
+        </div>
+      </a>
+    );
+  }
+
+  // Completed quiz but synthesis not generated — one click to finish.
+  if (state.kind === "complete_no_synthesis") {
+    return (
+      <a
+        href={`/brand-os/run/${state.runId}/output`}
+        className="block rounded-[var(--r-lg)] border-2 border-[var(--warning)] bg-[var(--warning-soft)] p-5 hover:border-[#936300] transition group"
+      >
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="min-w-0">
+            <Badge tone="warning" size="xs" uppercase>Brand OS · finish setup</Badge>
+            <h3 className="font-display text-[length:var(--t-h3)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)] mt-1">
+              Generate your deliverable.
+            </h3>
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1 leading-[var(--leading-relaxed)]">
+              You finished the questions. One more step — generate the synthesis to unlock your voice DNA + pillars + ready-to-draft hooks.
+            </p>
+          </div>
+          <span className="text-[#936300] font-bold whitespace-nowrap group-hover:translate-x-1 transition-transform">
+            Generate output →
+          </span>
+        </div>
+      </a>
+    );
+  }
+
+  // Mid-run — pick back up.
+  if (state.kind === "in_progress") {
+    return (
+      <a
+        href={`/brand-os/run/${state.runId}`}
+        className="block rounded-[var(--r-lg)] border-2 border-[color-mix(in_srgb,var(--brand)_45%,transparent)] bg-[var(--brand-soft)] p-5 hover:border-[var(--brand-strong)] transition group"
+      >
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="min-w-0">
+            <Badge tone="brand" size="xs" uppercase>Brand OS · in progress</Badge>
+            <h3 className="font-display text-[length:var(--t-h3)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)] mt-1">
+              Pick back up where you left off.
+            </h3>
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1 leading-[var(--leading-relaxed)]">
+              Your answers are auto-saved. Finish the {state.variant === "mvp" ? "Quick Start" : "Full Run"} to unlock your voice DNA.
+            </p>
+          </div>
+          <span className="text-[color:var(--brand-strong)] font-bold whitespace-nowrap group-hover:translate-x-1 transition-transform">
+            Continue →
+          </span>
+        </div>
+      </a>
+    );
+  }
+
+  // Never started — the original prompt.
   return (
     <a
       href="/brand-os"

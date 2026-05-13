@@ -1,5 +1,6 @@
 import type { VoiceProfile } from "@/lib/types";
 import type { VoiceAssetStats } from "@/lib/voice-asset";
+import type { BrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
 
 type VoiceShape = {
   tone?: string[];
@@ -11,12 +12,77 @@ type VoiceShape = {
   do_nots?: string[];
 };
 
-export function VoiceStatusHero({ profile }: { profile: VoiceProfile | null }) {
-  const hasProfile = !!profile;
+/** Honest voice-lock calculation. Five weighted sources, all real:
+ *
+ *    40%  Voice profile completeness (8 fields → up to 40)
+ *    20%  Sample messages (2 each, capped at 10 → up to 20)
+ *    20%  Brand OS voice DNA overlay present, with quality scaling
+ *    15%  Training source diversity (Instagram + LinkedIn + newsletter +
+ *         paste + sales call, 3 each, capped at 15)
+ *     5%  Buyer mirror named (the avatar is concrete)
+ *
+ *  Hits 100 only when ALL signals are real. Previous formula hardcoded a
+ *  Math.min(96, …) cap → stuck at 96 forever even after Brand OS ran.
+ */
+function computeVoiceLock(
+  profile: VoiceProfile | null,
+  overlay: BrandVoiceOverlay | null,
+  trainingSourceCount: number,
+  trainingTypeCount: number,
+): { pct: number; signals: string[] } {
+  if (!profile && !overlay) return { pct: 0, signals: [] };
+  const v = (profile?.voice_json ?? {}) as VoiceShape;
+  const fields = voiceCompleteness(v);
+  const sampleCount = profile?.sample_messages?.length ?? 0;
+  const signals: string[] = [];
+
+  // 1. Profile completeness (40)
+  const profileScore = Math.min(40, fields * 5);
+  if (profileScore > 0) signals.push(`profile ${fields}/8`);
+
+  // 2. Sample messages (20)
+  const sampleScore = Math.min(20, sampleCount * 2);
+  if (sampleScore > 0) signals.push(`${sampleCount} sample${sampleCount === 1 ? "" : "s"}`);
+
+  // 3. Brand OS overlay (20)
+  let overlayScore = 0;
+  if (overlay) {
+    let q = 8; // baseline for having one
+    if ((overlay.signature_moves ?? []).length >= 3) q += 4;
+    if ((overlay.vocab_yes ?? []).length      >= 8) q += 4;
+    if ((overlay.vocab_no ?? []).length       >= 5) q += 4;
+    overlayScore = Math.min(20, q);
+    signals.push("Brand OS DNA");
+  }
+
+  // 4. Training sources (15) — diversity matters more than raw count.
+  const diversityScore = Math.min(15, trainingTypeCount * 3 + Math.min(3, Math.max(0, trainingSourceCount - trainingTypeCount)));
+  if (diversityScore > 0) signals.push(`${trainingSourceCount} import${trainingSourceCount === 1 ? "" : "s"} (${trainingTypeCount} type${trainingTypeCount === 1 ? "" : "s"})`);
+
+  // 5. Buyer mirror named (5)
+  const mirrorScore = overlay?.buyer_mirror_name ? 5 : 0;
+  if (mirrorScore > 0) signals.push(`avatar: ${overlay!.buyer_mirror_name}`);
+
+  const pct = Math.min(100, profileScore + sampleScore + overlayScore + diversityScore + mirrorScore);
+  return { pct, signals };
+}
+
+export function VoiceStatusHero({
+  profile,
+  overlay = null,
+  trainingSourceCount = 0,
+  trainingTypeCount = 0,
+}: {
+  profile: VoiceProfile | null;
+  overlay?: BrandVoiceOverlay | null;
+  trainingSourceCount?: number;
+  trainingTypeCount?: number;
+}) {
+  const hasProfile = !!profile || !!overlay;
   const v: VoiceShape = (profile?.voice_json ?? {}) as VoiceShape;
   const fields = voiceCompleteness(v);
   const sampleCount = profile?.sample_messages?.length ?? 0;
-  const lockPct = hasProfile ? Math.min(96, 42 + fields * 6 + sampleCount * 2) : 0;
+  const { pct: lockPct, signals } = computeVoiceLock(profile, overlay, trainingSourceCount, trainingTypeCount);
 
   return (
     <section className="rounded-[var(--r-xl)] border border-[var(--border)] bg-[linear-gradient(135deg,var(--surface-elevated)_0%,var(--surface-elevated)_60%,var(--brand-soft)_100%)] p-5 sm:p-7 shadow-[var(--shadow-xs)]">
@@ -62,6 +128,11 @@ export function VoiceStatusHero({ profile }: { profile: VoiceProfile | null }) {
             <VoiceHeroStat label="Fields" value={hasProfile ? `${fields}/8` : "0/8"} />
             <VoiceHeroStat label="Samples" value={String(sampleCount)} />
           </div>
+          {signals.length > 0 && (
+            <div className="mt-3 text-[10px] font-mono uppercase tracking-wider text-white/45 leading-relaxed">
+              Pulling from: {signals.join(" · ")}
+            </div>
+          )}
         </div>
       </div>
     </section>

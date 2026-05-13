@@ -57,10 +57,14 @@ export async function loadBrandVoiceOverlay(
   const { data } = await supabase
     .from("cp_coaches")
     .select("brand_voice_overlay")
-    .eq("user_id", coachId)
+    .eq("id", coachId)
     .maybeSingle();
   return (data?.brand_voice_overlay as BrandVoiceOverlay | null) ?? null;
 }
+
+// NOTE: cp_coaches PK column is `id` (= auth.users.id), NOT `user_id`.
+// Early Brand OS overlay code used user_id and silently returned null on
+// every read — fixed during /voice CTA work. Don't reintroduce.
 
 /** Persist a new overlay. Called from the synthesize endpoint AND the
  *  retune-from-voice endpoint. Also captures a baseline of the coach's
@@ -81,7 +85,7 @@ export async function saveBrandVoiceOverlay(
       brand_voice_overlay_updated_at: new Date().toISOString(),
       brand_voice_corpus_baseline: corpus,
     })
-    .eq("user_id", coachId);
+    .eq("id", coachId);
 }
 
 export type VoiceCorpusSnapshot = {

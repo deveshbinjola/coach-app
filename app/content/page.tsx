@@ -61,7 +61,7 @@ export default async function ContentPage({
     supabase
       .from("cp_coaches")
       .select("brand_voice_overlay, brand_voice_corpus_baseline")
-      .eq("user_id", user.id)
+      .eq("id", user.id)
       .maybeSingle(),
     // Latest completed Brand OS run for this coach, for the resonance hooks.
     supabase
