@@ -937,16 +937,9 @@ function PillarScoreUI({
   const completedCount = rows.filter((r) => r.depth && r.pull && r.anchor).length;
   const keepers = rows.filter((r) => r.depth && r.pull && r.anchor && (r.depth + r.pull + r.anchor) >= 7).length;
 
-  // No candidates yet → coach can type them in inline.
+  // No candidates yet → fast-entry pad. Coach pastes/types one per line.
   if (candidates.length === 0 && rows.length === 0) {
-    return (
-      <div className="rounded-[var(--r-lg)] border border-dashed border-[var(--border)] bg-[var(--surface)] p-5 space-y-3">
-        <p className="text-[color:var(--text)]">
-          We couldn't find your list from the previous question. Add a few ideas below to score them.
-        </p>
-        <Button onClick={addCandidate}>+ Add an idea</Button>
-      </div>
-    );
+    return <PillarBrainstormPad onSeed={(items) => setRows(items.map((c) => ({ candidate: c })))} />;
   }
 
   return (
@@ -1059,6 +1052,53 @@ function PillarScoreUI({
         {candidates.length === 0 && (
           <Button variant="ghost" onClick={addCandidate} className="!h-8 !px-3 text-[length:var(--t-caption)]">+ Add another</Button>
         )}
+      </div>
+    </div>
+  );
+}
+
+function PillarBrainstormPad({ onSeed }: { onSeed: (items: string[]) => void }) {
+  const [text, setText] = useState("");
+  const items = text
+    .split("\n")
+    .map((l) => l.replace(/^[-\d.)\s]+/, "").trim())
+    .filter((l) => l.length > 0);
+  const canStart = items.length >= 3;
+
+  return (
+    <div className="rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] p-5 space-y-4">
+      <div className="space-y-2">
+        <p className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--brand-strong)]">
+          First — what could you talk about?
+        </p>
+        <p className="text-[color:var(--text)] leading-[var(--leading-relaxed)]">
+          Brain-dump <strong>5–10 things</strong> you could make content about. One per line. We'll score each one together right after.
+        </p>
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-relaxed)]">
+          Don't filter. Mix it up: topics you care about, frameworks you use, stories you've lived, things you keep telling clients, beliefs you hold strong, hot takes.
+        </p>
+      </div>
+
+      <div className="rounded-[var(--r-md)] bg-[var(--surface-elevated)] border border-[var(--border)] p-3 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-relaxed)]">
+        <p className="font-bold uppercase tracking-wider text-[length:var(--t-label)] text-[color:var(--text-faint)] mb-1">Examples</p>
+        Why most cold plunges do more harm than good · The "busy founder" trap · Reps vs. recovery · My 90-day burnout story · How I price my $12K offer · Polarity in business · Honest money · Nervous-system regulation for entrepreneurs
+      </div>
+
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder={"Type or paste, one idea per line…\n\nThe burnout trap I see in every coach\nWhy 'discipline' is the wrong frame\nMy somatic check-in protocol\n…"}
+        rows={10}
+        className="w-full px-3 py-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none leading-[var(--leading-relaxed)]"
+      />
+
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+          {items.length} ideas · need <strong>3+</strong> to start scoring
+        </p>
+        <Button onClick={() => onSeed(items)} disabled={!canStart}>
+          {canStart ? `Score these ${items.length} →` : "Add at least 3"}
+        </Button>
       </div>
     </div>
   );
