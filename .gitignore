@@ -27,3 +27,6 @@ qa/reports/*.md
 
 # OS
 .DS_Store
+
+# Claude Code agent worktrees (never commit)
+.claude/worktrees/
