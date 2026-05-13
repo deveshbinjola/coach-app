@@ -23,6 +23,7 @@ export type QuestionKind =
   | "list"        // accept N items (one per line)
   | "choice"      // one of N preset choices
   | "scoutTest"   // Module 2 Q3 — agent generates, coach picks
+  | "pillarScore" // Module 3 Q3 — tap-to-score grid for candidate stances
   | "memoryPalace" // Module 3 Q13 — 4 sub-fields per stance
   | "summary";    // agent-rendered summary, coach confirms
 
@@ -399,11 +400,9 @@ const STANCE: Question[] = [
     id: "stance.q3",
     module: "stance",
     order: 3,
-    kind: "longtext",
-    prompt: "Score each candidate against three tests (Depth, Pull, Anchor — 1–3 each). Keep 7+.",
-    hint: "Depth: 50 posts without reaching. Pull: client searches inside this. Anchor: your offer sits inside this.",
-    placeholder: "Stance — Depth/Pull/Anchor — Total\n1. Honest Money — 3/2/3 — 8\n2. Body before goals — 3/3/3 — 9\n…",
-    minChars: 60,
+    kind: "pillarScore",
+    prompt: "Now let's narrow your 20 ideas down to the 3–4 strong ones.",
+    hint: "Tap to score each idea on three quick questions. We'll add it up for you and highlight the keepers.",
   },
   {
     id: "stance.q4",

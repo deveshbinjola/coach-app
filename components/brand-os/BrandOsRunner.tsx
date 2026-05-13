@@ -143,6 +143,27 @@ export default function BrandOsRunner(props: Props) {
         return;
       }
 
+      // Pillar Score (stance.q3) — answer is JSON; require at least 3
+      // candidates fully scored before Continue.
+      if (currentQ.kind === "pillarScore") {
+        try {
+          const parsed = JSON.parse(value || "{}") as { scores?: Array<{ depth?: number; pull?: number; anchor?: number }> };
+          const complete = (parsed.scores ?? []).filter((s) => s.depth && s.pull && s.anchor).length;
+          if (complete < 3) {
+            setError(`Score at least 3 ideas on all three questions before continuing. (${complete} done so far.)`);
+            return;
+          }
+        } catch {
+          setError("Score your ideas first.");
+          return;
+        }
+        setAdvancing(true);
+        await persistDraft(value);
+        await markLocked();
+        await advanceTo(props.nextQuestionId);
+        return;
+      }
+
       // Scout Test (signal.q3) has its own gating — the answer is JSON, and
       // we only allow Continue once the coach has revealed their picks.
       if (currentQ.kind === "scoutTest") {
@@ -409,6 +430,7 @@ export default function BrandOsRunner(props: Props) {
           audience={audience}
           value={draft}
           runId={props.runId}
+          stanceQ1Raw={answerMap["stance.q1"]?.raw_text ?? ""}
           onChange={(v) => {
             setDraft(v);
             // Auto-advance for single-choice questions — no Continue needed.
@@ -478,13 +500,14 @@ export default function BrandOsRunner(props: Props) {
 // ============================================================
 
 function QuestionInput({
-  question, audience, value, onChange, runId,
+  question, audience, value, onChange, runId, stanceQ1Raw,
 }: {
   question: Question;
   audience: Audience;
   value: string;
   onChange: (v: string) => void;
   runId: string;
+  stanceQ1Raw: string;
 }) {
   const placeholder = question.placeholder ? pick(question.placeholder, audience) : undefined;
 
@@ -595,6 +618,10 @@ function QuestionInput({
 
   if (question.kind === "scoutTest") {
     return <ScoutTestUI runId={runId} value={value} onChange={onChange} />;
+  }
+
+  if (question.kind === "pillarScore") {
+    return <PillarScoreUI candidatesRaw={stanceQ1Raw} value={value} onChange={onChange} />;
   }
 
   if (question.kind === "memoryPalace") {
@@ -815,6 +842,224 @@ function ScoutTestUI({
       )}
 
       {err && <p className="text-[length:var(--t-caption)] text-[color:var(--danger)]">{err}</p>}
+    </div>
+  );
+}
+
+// ============================================================
+// PILLAR SCORE UI — Stance Module Q3
+// ============================================================
+//
+// Tap-to-score grid. Reads stance.q1 candidates, presents three
+// plain-language questions per candidate (3 buttons each), auto-totals,
+// flags 7+ as "Keep". No mental math, no manual table formatting.
+
+type PillarRow = {
+  candidate: string;
+  depth?: 1 | 2 | 3;
+  pull?: 1 | 2 | 3;
+  anchor?: 1 | 2 | 3;
+};
+type PillarPayload = { scores: PillarRow[] };
+
+const PILLAR_DIMS: Array<{
+  key: "depth" | "pull" | "anchor";
+  short: string;
+  question: string;
+  why: string;
+}> = [
+  { key: "depth",  short: "Endless",  question: "Could you post about this 50+ times without running dry?", why: "If you run out fast, it's a topic — not a pillar." },
+  { key: "pull",   short: "Wanted",   question: "Do clients already ask you about this?",                    why: "Pillars need real-world pull, not just your interest." },
+  { key: "anchor", short: "Sells",    question: "Does your paid offer fit naturally inside this?",            why: "Pillars feed the offer. Otherwise they're a hobby." },
+];
+
+const SCORE_LABELS: Record<1 | 2 | 3, string> = {
+  1: "Barely",
+  2: "Kinda",
+  3: "Strongly",
+};
+
+function PillarScoreUI({
+  candidatesRaw, value, onChange,
+}: {
+  candidatesRaw: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  // Parse candidates from stance.q1 (one-per-line list).
+  const candidates = useMemo(() => {
+    return (candidatesRaw ?? "")
+      .split("\n")
+      .map((l) => l.replace(/^[-\d.)\s]+/, "").trim())
+      .filter((l) => l.length > 0);
+  }, [candidatesRaw]);
+
+  const initial = useMemo<PillarPayload>(() => {
+    if (!value) return { scores: candidates.map((c) => ({ candidate: c })) };
+    try {
+      const parsed = JSON.parse(value) as PillarPayload;
+      // Reconcile against current candidate list (in case Q1 was edited).
+      const byCand: Record<string, PillarRow> = {};
+      for (const r of parsed.scores ?? []) byCand[r.candidate] = r;
+      const reconciled = candidates.length > 0
+        ? candidates.map((c) => byCand[c] ?? { candidate: c })
+        : (parsed.scores ?? []);
+      return { scores: reconciled };
+    } catch {
+      return { scores: candidates.map((c) => ({ candidate: c })) };
+    }
+  }, [value, candidates]);
+
+  const [rows, setRows] = useState<PillarRow[]>(initial.scores);
+
+  // Sync to parent on every change.
+  useEffect(() => {
+    onChange(JSON.stringify({ scores: rows } satisfies PillarPayload));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows]);
+
+  function setScore(idx: number, key: "depth" | "pull" | "anchor", v: 1 | 2 | 3) {
+    setRows((cur) => cur.map((r, i) => (i === idx ? { ...r, [key]: v } : r)));
+  }
+
+  function addCandidate() {
+    setRows((cur) => [...cur, { candidate: "" }]);
+  }
+
+  function updateCandidateName(idx: number, name: string) {
+    setRows((cur) => cur.map((r, i) => (i === idx ? { ...r, candidate: name } : r)));
+  }
+
+  function removeCandidate(idx: number) {
+    setRows((cur) => cur.filter((_, i) => i !== idx));
+  }
+
+  const completedCount = rows.filter((r) => r.depth && r.pull && r.anchor).length;
+  const keepers = rows.filter((r) => r.depth && r.pull && r.anchor && (r.depth + r.pull + r.anchor) >= 7).length;
+
+  // No candidates yet → coach can type them in inline.
+  if (candidates.length === 0 && rows.length === 0) {
+    return (
+      <div className="rounded-[var(--r-lg)] border border-dashed border-[var(--border)] bg-[var(--surface)] p-5 space-y-3">
+        <p className="text-[color:var(--text)]">
+          We couldn't find your list from the previous question. Add a few ideas below to score them.
+        </p>
+        <Button onClick={addCandidate}>+ Add an idea</Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Mini legend — what the 3 questions mean, in one line */}
+      <div className="rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--border)] p-3 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-relaxed)]">
+        For each idea, tap one of <strong>Barely · Kinda · Strongly</strong> on three quick questions. We add it up. <strong>7+ = keeper.</strong>
+      </div>
+
+      {/* Score cards */}
+      <div className="space-y-3">
+        {rows.map((row, idx) => {
+          const total = (row.depth ?? 0) + (row.pull ?? 0) + (row.anchor ?? 0);
+          const allScored = row.depth && row.pull && row.anchor;
+          const keeper = allScored && total >= 7;
+          const cut    = allScored && total < 7;
+
+          return (
+            <div
+              key={`${idx}-${row.candidate}`}
+              className={`rounded-[var(--r-lg)] border p-4 space-y-3 transition ${
+                keeper
+                  ? "border-[var(--brand-strong)] bg-[var(--brand-soft)]"
+                  : cut
+                    ? "border-[var(--border)] bg-[var(--surface)] opacity-60"
+                    : "border-[var(--border)] bg-[var(--surface-elevated)]"
+              }`}
+            >
+              {/* Title row */}
+              <div className="flex items-start justify-between gap-3">
+                {candidates.length === 0 ? (
+                  <input
+                    type="text"
+                    value={row.candidate}
+                    onChange={(e) => updateCandidateName(idx, e.target.value)}
+                    placeholder="Name this idea…"
+                    className="flex-1 h-9 px-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] font-bold focus:border-[var(--brand-strong)] focus:outline-none"
+                  />
+                ) : (
+                  <h4 className="font-display text-[length:var(--t-body)] font-extrabold text-[color:var(--text)] flex-1 leading-tight">
+                    {row.candidate || "(unnamed)"}
+                  </h4>
+                )}
+                <div className="flex items-center gap-2 shrink-0">
+                  {allScored && (
+                    <span className={`font-mono text-[length:var(--t-caption)] font-bold ${
+                      keeper ? "text-[color:var(--brand-strong)]" : "text-[color:var(--text-muted)]"
+                    }`}>
+                      {total}/9
+                    </span>
+                  )}
+                  {keeper && <Badge tone="brand" size="xs" uppercase>Keep</Badge>}
+                  {cut && <Badge size="xs" uppercase>Cut</Badge>}
+                  {candidates.length === 0 && (
+                    <button
+                      onClick={() => removeCandidate(idx)}
+                      className="text-[color:var(--text-faint)] hover:text-[color:var(--danger)] px-1"
+                      aria-label="Remove"
+                      type="button"
+                    >×</button>
+                  )}
+                </div>
+              </div>
+
+              {/* Three dimensions */}
+              <div className="space-y-2">
+                {PILLAR_DIMS.map((dim) => {
+                  const current = row[dim.key];
+                  return (
+                    <div key={dim.key} className="grid gap-2 sm:grid-cols-[1fr_auto] items-center">
+                      <div className="min-w-0">
+                        <p className="text-[length:var(--t-caption)] text-[color:var(--text)] leading-snug">
+                          <span className="font-bold uppercase tracking-wider text-[length:var(--t-label)] text-[color:var(--text-faint)] mr-2">{dim.short}</span>
+                          {dim.question}
+                        </p>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        {([1, 2, 3] as const).map((n) => {
+                          const active = current === n;
+                          return (
+                            <button
+                              key={n}
+                              type="button"
+                              onClick={() => setScore(idx, dim.key, n)}
+                              className={`min-w-[68px] h-8 px-2 rounded-[var(--r-md)] text-[length:var(--t-caption)] font-bold border transition ${
+                                active
+                                  ? "border-[var(--brand-strong)] bg-[var(--brand-strong)] text-[color:var(--surface)]"
+                                  : "border-[var(--border)] bg-[var(--surface)] text-[color:var(--text-muted)] hover:border-[var(--text-muted)]"
+                              }`}
+                            >
+                              {SCORE_LABELS[n]}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Footer summary */}
+      <div className="flex items-center justify-between flex-wrap gap-2 pt-2">
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+          {completedCount} of {rows.length} scored · <span className="text-[color:var(--brand-strong)] font-bold">{keepers} keeper{keepers === 1 ? "" : "s"}</span>
+        </p>
+        {candidates.length === 0 && (
+          <Button variant="ghost" onClick={addCandidate} className="!h-8 !px-3 text-[length:var(--t-caption)]">+ Add another</Button>
+        )}
+      </div>
     </div>
   );
 }
