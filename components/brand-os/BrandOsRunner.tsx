@@ -54,6 +54,9 @@ export default function BrandOsRunner(props: Props) {
   const [pushBackReason, setPushBackReason] = useState<string | null>(null);
   const [pushBackOptions, setPushBackOptions] = useState<{ a: string; b: string } | null>(null);
   const [loadingOptions, setLoadingOptions] = useState(false);
+  // Anti-loop: once a question has fired push-back, the second Continue click
+  // bypasses detection. Coach is never trapped on the same question.
+  const [pushBackFiredFor, setPushBackFiredFor] = useState<Set<string>>(new Set());
 
   const currentQ = useMemo(() => getQuestion(currentId), [currentId]);
   const answerMap = useMemo(() => {
@@ -99,46 +102,58 @@ export default function BrandOsRunner(props: Props) {
   }
 
   /** Single lock + advance path. Accepts an optional explicit value so choice
-   *  buttons can auto-advance without waiting for the React state-flush race. */
+   *  buttons can auto-advance without waiting for the React state-flush race.
+   *  Wraps everything in try/catch so errors surface visibly instead of leaving
+   *  the Continue button stuck. */
   async function lockAndAdvance(valueOverride?: string) {
     if (!currentQ || advancing) return;
     setError(null);
     const value = valueOverride ?? draft;
 
-    // Pre-flight audience: stash to run + advance immediately.
-    if (currentQ.id === "preflight.audience") {
-      if (!value) { setError("Pick one to continue."); return; }
+    try {
+      // Pre-flight audience: stash to run + advance immediately.
+      if (currentQ.id === "preflight.audience") {
+        if (!value) { setError("Pick one to continue."); return; }
+        setAdvancing(true);
+        await setRunAudience(value as Audience);
+        await persistDraft(value);
+        await markLocked();
+        await advanceTo(props.nextQuestionId);
+        return;
+      }
+
+      // Min-char gating.
+      const min = currentQ.minChars ?? 0;
+      if (value.trim().length < min) {
+        setError(`Stay with this. We need at least ${min} characters before you can move on. (You have ${value.trim().length}.)`);
+        return;
+      }
+
+      // Push-back trigger detection — but ONLY if we haven't already pushed
+      // back on this question. Anti-loop: second click of Continue bypasses.
+      const trigger = triggerForQuestion(currentQ.id);
+      const alreadyFired = pushBackFiredFor.has(currentQ.id);
+      if (trigger && !alreadyFired) {
+        const detection = detectPushBack(trigger, value, audience);
+        if (detection.fired) {
+          setPushBackFiredFor((prev) => new Set([...prev, currentQ.id]));
+          setPushBackReason(reasonLabel(detection.reason, detection.markersMatched));
+          setPushBackOpen(true);
+          // Fire-and-forget; modal handles its own loading state.
+          void generatePushBackOptions();
+          return; // wait for user choice in the modal
+        }
+      }
+
       setAdvancing(true);
-      await setRunAudience(value as Audience);
       await persistDraft(value);
       await markLocked();
       await advanceTo(props.nextQuestionId);
-      return;
+    } catch (err) {
+      console.error("[brand-os] lockAndAdvance error:", err);
+      setError(err instanceof Error ? err.message : "Something went wrong. Check the console and try again.");
+      setAdvancing(false);
     }
-
-    // Min-char gating.
-    const min = currentQ.minChars ?? 0;
-    if (value.trim().length < min) {
-      setError(`Stay with this. We need at least ${min} characters before you can move on.`);
-      return;
-    }
-
-    // Push-back trigger detection.
-    const trigger = triggerForQuestion(currentQ.id);
-    if (trigger) {
-      const detection = detectPushBack(trigger, value, audience);
-      if (detection.fired) {
-        setPushBackReason(reasonLabel(detection.reason, detection.markersMatched));
-        setPushBackOpen(true);
-        await generatePushBackOptions();
-        return; // wait for user choice
-      }
-    }
-
-    setAdvancing(true);
-    await persistDraft(value);
-    await markLocked();
-    await advanceTo(props.nextQuestionId);
   }
 
   async function goBack() {
@@ -189,38 +204,54 @@ export default function BrandOsRunner(props: Props) {
 
   async function pickPushBackOption(which: "a" | "b") {
     if (!pushBackOptions || !currentQ) return;
-    const chosen = which === "a" ? pushBackOptions.a : pushBackOptions.b;
-    await supabase.from("cp_brand_os_pushbacks").insert({
-      run_id: props.runId,
-      module: currentQ.module,
-      question_id: currentId,
-      user_original: draft,
-      option_a: pushBackOptions.a,
-      option_b: pushBackOptions.b,
-      action: which === "a" ? "pick_a" : "pick_b",
-    });
-    setDraft(chosen);
-    await persistDraft(chosen);
-    setPushBackOpen(false);
-    await markLocked();
-    advanceTo(props.nextQuestionId);
+    try {
+      setAdvancing(true);
+      setPushBackOpen(false);
+      const chosen = which === "a" ? pushBackOptions.a : pushBackOptions.b;
+      await supabase.from("cp_brand_os_pushbacks").insert({
+        run_id: props.runId,
+        module: currentQ.module,
+        question_id: currentId,
+        user_original: draft,
+        option_a: pushBackOptions.a,
+        option_b: pushBackOptions.b,
+        action: which === "a" ? "pick_a" : "pick_b",
+      });
+      setDraft(chosen);
+      await persistDraft(chosen);
+      await markLocked();
+      await advanceTo(props.nextQuestionId);
+    } catch (err) {
+      console.error("[brand-os] pickPushBackOption error:", err);
+      setError(err instanceof Error ? err.message : "Could not advance. Try again.");
+      setAdvancing(false);
+    }
   }
 
   async function overridePushBack(reason: string) {
     if (!currentQ) return;
-    await supabase.from("cp_brand_os_pushbacks").insert({
-      run_id: props.runId,
-      module: currentQ.module,
-      question_id: currentId,
-      user_original: draft,
-      option_a: pushBackOptions?.a ?? "",
-      option_b: pushBackOptions?.b ?? "",
-      action: "override",
-      override_reason: reason,
-    });
-    setPushBackOpen(false);
-    await markLocked();
-    advanceTo(props.nextQuestionId);
+    try {
+      setAdvancing(true);
+      setPushBackOpen(false);
+      await supabase.from("cp_brand_os_pushbacks").insert({
+        run_id: props.runId,
+        module: currentQ.module,
+        question_id: currentId,
+        user_original: draft,
+        option_a: pushBackOptions?.a ?? "",
+        option_b: pushBackOptions?.b ?? "",
+        action: "override",
+        override_reason: reason || "(no reason given)",
+      });
+      // Make sure the original answer is persisted, then lock + advance.
+      await persistDraft(draft);
+      await markLocked();
+      await advanceTo(props.nextQuestionId);
+    } catch (err) {
+      console.error("[brand-os] override error:", err);
+      setError(err instanceof Error ? err.message : "Could not advance. Try again.");
+      setAdvancing(false);
+    }
   }
 
   async function markLocked() {
@@ -326,7 +357,13 @@ export default function BrandOsRunner(props: Props) {
         />
 
         {error && (
-          <p className="text-[length:var(--t-caption)] text-[color:var(--danger)]" role="alert">{error}</p>
+          <div
+            className="rounded-[var(--r-md)] border border-[var(--danger)] bg-[color-mix(in_srgb,var(--danger)_8%,transparent)] px-4 py-3 text-[length:var(--t-caption)] text-[color:var(--danger)] font-bold flex items-start gap-2"
+            role="alert"
+          >
+            <span aria-hidden>⚠</span>
+            <span>{error}</span>
+          </div>
         )}
 
         <div className="flex items-center justify-between gap-3 pt-2 flex-wrap">
@@ -527,21 +564,31 @@ function PushBackModal({
   onOverride: (reason: string) => void;
   onClose: () => void;
 }) {
-  const [overrideReason, setOverrideReason] = useState("");
-  const [overrideOpen, setOverrideOpen] = useState(false);
-
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-[var(--surface-elevated)] rounded-[var(--r-xl)] max-w-2xl w-full p-6 shadow-[var(--shadow-lg)] space-y-4" onClick={(e) => e.stopPropagation()}>
-        <Badge tone="warning" size="xs" uppercase>Stop · Push-back fired</Badge>
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4" onClick={onClose}>
+      <div
+        className="bg-[var(--surface-elevated)] rounded-[var(--r-xl)] max-w-2xl w-full p-6 shadow-[var(--shadow-lg)] space-y-4 max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <Badge tone="warning" size="xs" uppercase>Heads up · push-back</Badge>
+          <button
+            onClick={onClose}
+            className="text-[length:var(--t-h3)] text-[color:var(--text-muted)] hover:text-[color:var(--text)] leading-none px-2"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
         <h3 className="font-display text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)]">
-          {reason ?? "What you wrote is the same line every coach in your space writes."}
+          {reason ?? "This might read generic. Pick A or B, or keep yours and continue."}
         </h3>
-        <blockquote className="border-l-4 border-[var(--brand-strong)] pl-4 py-1 text-[color:var(--text-muted)] italic">
+        <blockquote className="border-l-4 border-[var(--brand-strong)] pl-4 py-1 text-[color:var(--text-muted)] italic whitespace-pre-wrap">
           {original}
         </blockquote>
         <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-          Here are 2 differentiated versions. Pick one, modify it, or override with a reason.
+          You always have three options. The push-back never traps you.
         </p>
 
         {loading ? (
@@ -552,45 +599,29 @@ function PushBackModal({
               onClick={onPickA}
               className="w-full text-left p-4 rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--brand-strong)] transition"
             >
-              <div className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--brand-strong)] mb-1">Option A</div>
-              <div className="text-[color:var(--text)]">{options?.a}</div>
+              <div className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--brand-strong)] mb-1">Option A · use this</div>
+              <div className="text-[color:var(--text)] whitespace-pre-wrap">{options?.a}</div>
             </button>
             <button
               onClick={onPickB}
               className="w-full text-left p-4 rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--brand-strong)] transition"
             >
-              <div className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--brand-strong)] mb-1">Option B</div>
-              <div className="text-[color:var(--text)]">{options?.b}</div>
+              <div className="text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--brand-strong)] mb-1">Option B · use this</div>
+              <div className="text-[color:var(--text)] whitespace-pre-wrap">{options?.b}</div>
             </button>
           </div>
         )}
 
-        {!overrideOpen ? (
-          <div className="flex justify-between gap-3 pt-2">
-            <button onClick={() => setOverrideOpen(true)} className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] underline decoration-dotted underline-offset-2">
-              Override and keep my answer
-            </button>
-            <button onClick={onClose} className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-2 pt-2">
-            <label className="block text-[length:var(--t-label)] font-bold uppercase tracking-wider text-[color:var(--text-faint)]">
-              Override reason
-            </label>
-            <textarea
-              value={overrideReason}
-              onChange={(e) => setOverrideReason(e.target.value)}
-              placeholder="Why are you keeping the original? (This appears as a watermark on the final output.)"
-              rows={3}
-              className="w-full px-3 py-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-caption)] focus:border-[var(--brand-strong)] focus:outline-none"
-            />
-            <Button onClick={() => onOverride(overrideReason)} disabled={overrideReason.trim().length < 10} block>
-              Override + continue
-            </Button>
-          </div>
-        )}
+        {/* Primary escape — always available, one click, no reason required.
+            Coach is NEVER trapped. Logged as override with default reason. */}
+        <div className="pt-2 border-t border-[var(--border)] space-y-2">
+          <Button onClick={() => onOverride("")} block variant="ghost">
+            Keep my answer and continue →
+          </Button>
+          <p className="text-center text-[length:var(--t-caption)] text-[color:var(--text-faint)]">
+            (Choosing this watermarks your final output. Won't push back again on this question.)
+          </p>
+        </div>
       </div>
     </div>
   );
