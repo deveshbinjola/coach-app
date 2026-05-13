@@ -14,6 +14,7 @@ import Header from "@/components/Header";
 import SettingsForm from "@/components/SettingsForm";
 import AudienceSettingsPanel from "@/components/settings/AudienceSettingsPanel";
 import BrandKitPanel from "@/components/settings/BrandKitPanel";
+import EmailSendingPanel from "@/components/settings/EmailSendingPanel";
 import type { CoachSettings, CoachIntegration } from "@/lib/types";
 import type { AudienceSelf, AudienceServes, VoiceProfileSlug } from "@/lib/voice-profiles";
 import { DEFAULT_BRAND_KIT } from "@/lib/brand-kit";
@@ -107,6 +108,7 @@ export default async function SettingsPage({
                 logoUrl:    (settings as CoachSettings).brand_logo_url       ?? null,
               }}
             />
+            <EmailSendingPanel />
             <SettingsForm
               initial={settings as CoachSettings}
               gmailIntegration={(gmailIntegration as CoachIntegration | null) ?? null}

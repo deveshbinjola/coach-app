@@ -1,20 +1,19 @@
 // POST /api/brand-os/email
 //
-// Sends the Brand OS synthesis to the coach via Resend. Body: { runId, email }.
+// Sends the Brand OS synthesis to the coach via Resend, using the coach's
+// own connected Resend account if available, otherwise falling back to
+// the platform-owned Resend.
 //
-// If RESEND_API_KEY is missing we DON'T silently swallow — we surface a
-// 503 with a clear message so the coach knows email delivery isn't live
-// yet (vs. the previous "captured but never sent" silent failure).
+// Body: { runId, email }.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { renderSynthesisMarkdown } from "@/lib/brand-os/render-markdown";
 import { userDisplayName } from "@/lib/user-display";
+import { resolveResendSender, resendSend } from "@/lib/email/coach-resend";
 import type { BrandOsSynthesis } from "@/app/api/brand-os/synthesize/route";
 
 export const runtime = "edge";
-
-const FROM_DEFAULT = "Brand OS <brand-os@elevateaisystem.com>";
 
 export async function POST(request: NextRequest) {
   const supabase = createClient();
@@ -54,34 +53,26 @@ export async function POST(request: NextRequest) {
   const completedAt = run.completed_at ? new Date(run.completed_at as string).toLocaleString() : undefined;
   const md = renderSynthesisMarkdown(synthesis, { coachName, completedAt });
 
-  const resendKey = process.env.RESEND_API_KEY;
-  if (!resendKey) {
+  // BYOK fallback chain: coach → platform → fail.
+  const sender = await resolveResendSender(supabase, user.id);
+  if (!sender) {
     return NextResponse.json({
       error: "email_not_configured",
-      message: "Email delivery isn't live yet (add RESEND_API_KEY to env). Your address was saved — for now, use Download .md or Print PDF.",
+      message: "Connect your Resend in /settings → Email sending. Or ask the platform admin to set RESEND_API_KEY for the fallback sender.",
     }, { status: 503 });
   }
 
-  const from = process.env.RESEND_FROM ?? FROM_DEFAULT;
   const html = markdownToBasicHtml(md);
 
-  const resp = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${resendKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
+  try {
+    await resendSend(sender, {
       to: email,
-      subject: `Your Brand OS — ${synthesis.positioning_line?.slice(0, 60) ?? "Deliverable"}`,
+      subject: `Your Brand OS — ${(synthesis.positioning_line ?? "Deliverable").slice(0, 60)}`,
       html,
       text: md,
-    }),
-  });
-
-  if (!resp.ok) {
-    const detail = await resp.text();
+    });
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : "Resend send failed";
     return NextResponse.json({ error: "resend_error", detail: detail.slice(0, 500) }, { status: 502 });
   }
 
@@ -90,12 +81,16 @@ export async function POST(request: NextRequest) {
     .update({ emailed_at: new Date().toISOString() })
     .eq("id", runId);
 
-  return NextResponse.json({ ok: true, sent: email });
+  return NextResponse.json({
+    ok: true,
+    sent: email,
+    via: sender.source,                  // "coach" | "platform"
+    from_domain: sender.verifiedDomain,  // null when via platform
+  });
 }
 
 // Tiny markdown→HTML for the email body. Keeps the output portable without
-// pulling in a heavy markdown lib at the edge. Email clients render this
-// cleanly because Resend wraps it in their own template.
+// pulling in a heavy markdown lib at the edge.
 function markdownToBasicHtml(md: string): string {
   const lines = md.split("\n");
   const html: string[] = [];
@@ -127,7 +122,6 @@ function markdownToBasicHtml(md: string): string {
   }
   return `<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:680px;margin:0 auto;padding:32px;color:#111;line-height:1.6;">${html.join("\n")}</body></html>`;
 }
-
 function esc(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
