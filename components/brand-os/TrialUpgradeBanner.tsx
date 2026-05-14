@@ -41,24 +41,24 @@ export default function TrialUpgradeBanner() {
       </h2>
 
       <p className="text-[color:var(--text)] leading-relaxed text-[length:var(--t-body)]">
-        If yes, there's more. Your Brand OS is the fuel. The platform is where it does the work — <strong>drafts in your voice</strong>, <strong>replies to your leads</strong>, <strong>notes for the clients you already have</strong>.
+        If yes, there's more. Your Brand OS is the fuel. The platform is where it does the work — <strong>content in your voice</strong>, <strong>replies to your leads</strong>, <strong>rooms for the clients you already have</strong>.
       </p>
 
       <div className="grid sm:grid-cols-3 gap-3 pt-2">
         <Bullet
-          eyebrow="Studio"
-          title="Drafts that sound like you."
-          body="Every post, every caption, every newsletter — runs through your voice DNA before it lands."
+          eyebrow="Content"
+          title="Content that runs in your voice."
+          body="Drafts for every channel — captions, posts, newsletters, carousels. A library of past pieces to repurpose. Pillar-driven topic suggestions from your Brand OS."
         />
         <Bullet
-          eyebrow="Inbox"
+          eyebrow="Leads"
           title="Reply to leads in your voice."
           body="AI drafts the response from your samples. You edit. You send. Seconds, not hours."
         />
         <Bullet
           eyebrow="Clients"
           title="One room per paying buyer."
-          body="Session prep, notes, content built for them. All in one place. Powered by your DNA."
+          body="Session prep, notes, custom content per client. All in one place. Powered by your DNA."
         />
       </div>
 
