@@ -16,6 +16,7 @@ import AudienceSettingsPanel from "@/components/settings/AudienceSettingsPanel";
 import BrandKitPanel from "@/components/settings/BrandKitPanel";
 import EmailSendingPanel from "@/components/settings/EmailSendingPanel";
 import OnboardingResetPanel from "@/components/settings/OnboardingResetPanel";
+import ResonancePanel from "@/components/settings/ResonancePanel";
 import type { CoachSettings, CoachIntegration } from "@/lib/types";
 import type { AudienceSelf, AudienceServes, VoiceProfileSlug } from "@/lib/voice-profiles";
 import { DEFAULT_BRAND_KIT } from "@/lib/brand-kit";
@@ -145,6 +146,15 @@ export default async function SettingsPage({
                 }}
               />
               <OnboardingResetPanel />
+            </SettingsSection>
+
+            {/* ── RESONANCE LAYER ──────────────────────────────── */}
+            <SettingsSection
+              eyebrow="Resonance layer"
+              title="How you see your people — and what the AI won't touch."
+              description="Pain points and tags mirror how you already think, so sorting and segmenting is automatic. Sacred zones mark the content the AI is not allowed to write from scratch."
+            >
+              <ResonancePanel />
             </SettingsSection>
 
             {/* ── DELIVERY ─────────────────────────────────────── */}

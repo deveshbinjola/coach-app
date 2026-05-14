@@ -157,6 +157,11 @@ export type Lead = {
   next_followup_at: string | null;
   next_honest_action: LeadNextAction | null;
   pain_signal: PainSignal[];
+  /** Resonance Layer — the lead's primary pain point as a structured object.
+   *  Distinct from pain_signal (coarse enum quick-tag). NULL = unassigned. */
+  primary_pain_point_id: string | null;
+  /** Where the lead sits on their pain point's stage ladder. NULL = unset. */
+  pain_stage: string | null;
   discovery_call_completed: boolean;
   /** Qualification (P4). NULL = not yet assessed. */
   income_band: LeadIncomeBand | null;
@@ -177,6 +182,54 @@ export type Lead = {
   deal_value: number | null;
   created_at: string;
   updated_at: string;
+};
+
+// ───────────────────────────── Resonance Layer ─────────────────────────────
+// Pain point as a first-class object + multi-axis tagging. See
+// docs/2026-05-14-resonance-layer-spec.md.
+
+/** Coach-defined pain point. The wedge: coaches think in pain points first,
+ *  so a lead carries one as a structured object, not a tag. */
+export type PainPoint = {
+  id: string;
+  coach_id: string;
+  name: string;
+  description: string | null;
+  color: string;
+  /** Stage ladder for this pain point. Leads sit on one of these. */
+  stages: string[];
+  sort_order: number;
+  created_at: string;
+};
+
+/** The axis a tag lives on. Warmth + source already exist as their own
+ *  cp_leads columns; tags generalize program + free custom tags. */
+export type TagAxis = "program" | "source" | "custom";
+
+export type Tag = {
+  id: string;
+  coach_id: string;
+  axis: TagAxis;
+  label: string;
+  color: string;
+  created_at: string;
+};
+
+/** Default stage ladder, mirrors the DB default on cp_pain_points.stages. */
+export const DEFAULT_PAIN_STAGES = [
+  "aware",
+  "exploring",
+  "committed",
+  "working",
+  "integrated",
+] as const;
+
+export const TAG_AXES: TagAxis[] = ["program", "source", "custom"];
+
+export const TAG_AXIS_LABEL: Record<TagAxis, string> = {
+  program: "Program",
+  source: "Source",
+  custom: "Custom",
 };
 
 /** Why this message was drafted. Drives prompt branching in the Edge

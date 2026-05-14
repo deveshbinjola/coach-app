@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import {
@@ -22,6 +22,8 @@ import {
   type LeadStatus,
   type LeadTemperature,
   type PainSignal,
+  type PainPoint,
+  type Tag,
 } from "@/lib/types";
 
 const SOURCES: LeadSource[] = ["ig", "linkedin", "referral", "quiz", "in_person", "podcast", "newsletter", "other"];
@@ -57,6 +59,39 @@ export default function EditLeadForm({
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Resonance Layer — pain point object + program tags. Loaded on mount via
+  // the browser client (RLS-scoped to this coach).
+  const [painPoints, setPainPoints] = useState<PainPoint[]>([]);
+  const [programTags, setProgramTags] = useState<Tag[]>([]);
+  const [painPointId, setPainPointId] = useState<string>(lead.primary_pain_point_id ?? "");
+  const [painStage, setPainStage] = useState<string>(lead.pain_stage ?? "");
+  const [leadTagIds, setLeadTagIds] = useState<string[]>([]);
+  const [resonanceLoaded, setResonanceLoaded] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const supabase = createClient();
+      const [ppRes, tagRes, leadTagRes] = await Promise.all([
+        supabase.from("cp_pain_points").select("*").order("sort_order", { ascending: true }),
+        supabase.from("cp_tags").select("*").eq("axis", "program"),
+        supabase.from("cp_lead_tags").select("tag_id").eq("lead_id", lead.id),
+      ]);
+      if (cancelled) return;
+      setPainPoints((ppRes.data as PainPoint[]) ?? []);
+      setProgramTags((tagRes.data as Tag[]) ?? []);
+      setLeadTagIds(((leadTagRes.data as { tag_id: string }[]) ?? []).map((r) => r.tag_id));
+      setResonanceLoaded(true);
+    })();
+    return () => { cancelled = true; };
+  }, [lead.id]);
+
+  const activePainPoint = painPoints.find((p) => p.id === painPointId) ?? null;
+
+  function toggleLeadTag(id: string) {
+    setLeadTagIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
+  }
 
   const [form, setForm] = useState({
     full_name: lead.full_name,
@@ -114,6 +149,9 @@ export default function EditLeadForm({
         : null,
       next_honest_action: form.next_honest_action || null,
       pain_signal: form.pain_signal,
+      // Resonance Layer — pain point object + stage.
+      primary_pain_point_id: painPointId || null,
+      pain_stage: painPointId && painStage ? painStage : null,
       discovery_call_completed: form.discovery_call_completed,
       // P4 qualification — empty strings become null so the DB stays clean.
       income_band: form.income_band || null,
@@ -131,11 +169,30 @@ export default function EditLeadForm({
     };
 
     const { error } = await supabase.from("cp_leads").update(payload).eq("id", lead.id);
-    setSaving(false);
     if (error) {
+      setSaving(false);
       setError(error.message);
       return;
     }
+
+    // Reconcile program-axis tags. We only touch program tags here — other
+    // axes (source, custom) are managed elsewhere and left intact.
+    if (resonanceLoaded && programTags.length > 0) {
+      const programIds = programTags.map((t) => t.id);
+      const selected = leadTagIds.filter((id) => programIds.includes(id));
+      const { error: delErr } = await supabase
+        .from("cp_lead_tags")
+        .delete()
+        .eq("lead_id", lead.id)
+        .in("tag_id", programIds);
+      if (!delErr && selected.length > 0) {
+        await supabase
+          .from("cp_lead_tags")
+          .insert(selected.map((tag_id) => ({ lead_id: lead.id, tag_id })));
+      }
+    }
+
+    setSaving(false);
     router.push(`/leads/${lead.id}`);
     router.refresh();
   }
@@ -288,6 +345,77 @@ export default function EditLeadForm({
           <p className="text-xs text-gray-500 mt-1">
             What they're moving through. Used by the AI drafter to land in the right register.
           </p>
+        </div>
+
+        {/* Resonance Layer — pain point as an object + stage. The wedge:
+            sort and segment leads by what they're actually moving through. */}
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-3">
+          <div>
+            <label className="block text-xs font-semibold uppercase mb-1">Primary Pain Point</label>
+            {painPoints.length === 0 ? (
+              <p className="text-xs text-gray-500">
+                No pain points defined yet. Add them in{" "}
+                <a href="/settings" className="underline">Settings → Resonance layer</a>.
+              </p>
+            ) : (
+              <select
+                value={painPointId}
+                onChange={(e) => { setPainPointId(e.target.value); setPainStage(""); }}
+                className="w-full p-2 border border-gray-300 rounded-lg bg-white"
+              >
+                <option value="">— none —</option>
+                {painPoints.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {activePainPoint && activePainPoint.stages.length > 0 && (
+            <div>
+              <label className="block text-xs font-semibold uppercase mb-1">Stage</label>
+              <select
+                value={painStage}
+                onChange={(e) => setPainStage(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg bg-white"
+              >
+                <option value="">— unset —</option>
+                {activePainPoint.stages.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-semibold uppercase mb-1">Program</label>
+            {programTags.length === 0 ? (
+              <p className="text-xs text-gray-500">
+                No program tags yet. Add them in{" "}
+                <a href="/settings" className="underline">Settings → Resonance layer</a>.
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {programTags.map((t) => {
+                  const active = leadTagIds.includes(t.id);
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => toggleLeadTag(t.id)}
+                      className={`text-xs px-3 py-1.5 rounded-lg border transition ${
+                        active
+                          ? "bg-navy text-white border-navy font-semibold"
+                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-500"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Discovery call completed */}

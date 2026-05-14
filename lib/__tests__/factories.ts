@@ -43,6 +43,8 @@ export function makeLead(overrides: Partial<Lead> = {}): Lead {
     next_followup_at:         null,
     next_honest_action:       null,
     pain_signal:              [],
+    primary_pain_point_id:    null,
+    pain_stage:               null,
     discovery_call_completed: false,
     income_band:              null,
     readiness_signal:         null,

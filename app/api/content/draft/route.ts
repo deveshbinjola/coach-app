@@ -13,6 +13,7 @@ import {
   type VoiceTrainingSource,
 } from "@/lib/types";
 import { loadBrandVoiceOverlay, renderOverlayPromptBlock, type BrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
+import { loadSacredZones, checkSacred } from "@/lib/brand-os/sacred-zones";
 
 export const runtime = 'edge';
 
@@ -123,6 +124,15 @@ export async function POST(request: NextRequest) {
   const angle = cleanText(body.angle, 240);
   const audienceSignal = cleanText(body.audienceSignal, 500);
   const sourceContentId = typeof body.sourceContentId === "string" ? body.sourceContentId : "";
+
+  // Sacred zones — AI that refuses to write things. If the coach marked this
+  // kind sacred, a net-new draft is refused; a repurpose (sourceContentId
+  // present) is allowed. See lib/brand-os/sacred-zones.ts.
+  const sacredZones = await loadSacredZones(supabase, user.id);
+  const sacred = checkSacred(sacredZones, kind, Boolean(sourceContentId));
+  if (!sacred.ok) {
+    return NextResponse.json({ error: sacred.reason, sacred: true }, { status: 422 });
+  }
   const sourceLeadId = typeof body.sourceLeadId === "string" ? body.sourceLeadId : "";
   const sourceLabel = cleanText(body.sourceLabel, 180);
   const carouselBrandName = cleanText(body.carouselBrandName, 80);
