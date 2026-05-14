@@ -167,7 +167,25 @@ export async function provisionTripwireBuyer(
   if (!purchaseId) {
     return { ok: false, error: "no_purchase_id_after_upsert" };
   }
-  const trialToken = await signTrialToken({ purchaseId, coachId });
+  if (!process.env.SECRETS_MASTER_KEY) {
+    console.error("[tripwire-provision] SECRETS_MASTER_KEY not set — cannot sign trial token");
+    return {
+      ok: false,
+      error: "secrets_master_key_missing",
+      detail: "Set SECRETS_MASTER_KEY on Cloudflare Pages env (base64 32 bytes from `openssl rand -base64 32`) and redeploy.",
+    };
+  }
+  let trialToken: string;
+  try {
+    trialToken = await signTrialToken({ purchaseId, coachId });
+  } catch (err) {
+    console.error("[tripwire-provision] signTrialToken failed:", err);
+    return {
+      ok: false,
+      error: "token_sign_failed",
+      detail: err instanceof Error ? err.message : String(err),
+    };
+  }
   const trialUrl = `${baseAppUrl}/trial/${trialToken}`;
 
   // Send the welcome email pointing at the trial URL. ONE big button.

@@ -37,11 +37,22 @@ export async function GET(request: NextRequest) {
   }
 
   // 2. Provision (idempotent — webhook may have already run).
-  const admin = createAdminClient();
-  const result = await provisionTripwireBuyer(admin, stripeSession);
+  let result;
+  try {
+    const admin = createAdminClient();
+    result = await provisionTripwireBuyer(admin, stripeSession);
+  } catch (err) {
+    console.error("[trial/welcome] provision threw:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.redirect(
+      `${origin}/brand-os/trial/check-email?reason=provision_threw&detail=${encodeURIComponent(msg.slice(0, 200))}`,
+    );
+  }
   if (!result.ok) {
     console.error("[trial/welcome] provision failed:", result.error, result.detail);
-    return NextResponse.redirect(`${origin}/brand-os/trial/check-email?reason=${encodeURIComponent(result.error)}`);
+    const params = new URLSearchParams({ reason: result.error });
+    if (result.detail) params.set("detail", result.detail.slice(0, 200));
+    return NextResponse.redirect(`${origin}/brand-os/trial/check-email?${params.toString()}`);
   }
 
   // 3. Redirect to the trial URL. No cookies, no Supabase auth — the

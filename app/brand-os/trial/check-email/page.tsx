@@ -15,20 +15,24 @@ export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 const REASONS: Record<string, string> = {
-  missing_session:     "We didn't get the Stripe session ID back from the redirect.",
-  stripe_unavailable:  "Couldn't reach Stripe to confirm payment.",
-  session_not_found:   "That Stripe session ID doesn't exist or has expired.",
-  not_paid:            "Payment hasn't cleared yet. Wait a minute and refresh.",
-  no_email_on_session: "Stripe didn't capture an email on this purchase.",
-  user_create_failed:  "Could not provision a Supabase account for this email.",
-  verify_failed:       "Payment succeeded but the instant sign-in step didn't complete.",
-  wrong_product:       "This Stripe session isn't for the Brand OS Quick Start.",
+  missing_session:           "We didn't get the Stripe session ID back from the redirect.",
+  stripe_unavailable:        "Couldn't reach Stripe to confirm payment.",
+  session_not_found:         "That Stripe session ID doesn't exist or has expired.",
+  not_paid:                  "Payment hasn't cleared yet. Wait a minute and refresh.",
+  no_email_on_session:       "Stripe didn't capture an email on this purchase.",
+  user_create_failed:        "Could not provision a Supabase account for this email.",
+  verify_failed:             "Payment succeeded but the instant sign-in step didn't complete.",
+  wrong_product:             "This Stripe session isn't for the Brand OS Quick Start.",
+  secrets_master_key_missing: "Server is missing SECRETS_MASTER_KEY env var. The admin needs to set it: `openssl rand -base64 32` → paste into Cloudflare Pages → Settings → Environment variables → both Production and Preview → redeploy.",
+  token_sign_failed:         "Could not sign the trial-access token.",
+  provision_threw:           "Server crashed during provisioning. See logs.",
+  no_purchase_id_after_upsert: "Server could not record the purchase row.",
 };
 
 export default async function CheckEmailPage({
   searchParams,
 }: {
-  searchParams: { reason?: string; action_link?: string };
+  searchParams: { reason?: string; action_link?: string; detail?: string };
 }) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -37,6 +41,7 @@ export default async function CheckEmailPage({
   const reason = (searchParams.reason ?? "").trim();
   const reasonText = REASONS[reason] ?? "The auto-sign-in step didn't complete.";
   const actionLink = (searchParams.action_link ?? "").trim();
+  const detail = (searchParams.detail ?? "").trim();
 
   return (
     <div className="min-h-screen bg-[var(--surface)] flex items-center justify-center px-4 py-12">
@@ -87,6 +92,14 @@ export default async function CheckEmailPage({
           <p className="text-[length:var(--t-caption)] text-[color:var(--text-faint)] font-mono">
             ref: {reason}
           </p>
+        )}
+        {detail && (
+          <div className="rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-3 text-left">
+            <p className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)] mb-1">
+              Server detail
+            </p>
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text)] font-mono break-words">{detail}</p>
+          </div>
         )}
       </div>
     </div>
