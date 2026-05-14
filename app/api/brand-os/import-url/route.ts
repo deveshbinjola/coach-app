@@ -11,7 +11,7 @@
 // — the response will be too sparse and we surface a clear error.
 
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { resolveAuthOrTrial } from "@/lib/brand-os/auth-or-trial";
 
 export const runtime = "edge";
 
@@ -22,9 +22,8 @@ const MAX_BYTES = 1_500_000; // ~1.5 MB safeguard
 const MIN_EXTRACTED_CHARS = 120;
 
 export async function POST(request: NextRequest) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  const auth = await resolveAuthOrTrial(request);
+  if (!auth.ok) return auth.response;
 
   let body: Body;
   try {

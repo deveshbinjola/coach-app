@@ -327,9 +327,11 @@ export default function BrandOsRunner(props: Props) {
   async function generatePushBackOptions() {
     setLoadingOptions(true);
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (props.trialToken) headers["X-Trial-Token"] = props.trialToken;
       const res = await fetch("/api/brand-os/pushback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           runId: props.runId,
           questionId: currentId,
@@ -550,6 +552,7 @@ export default function BrandOsRunner(props: Props) {
             currentDraft={draft}
             onUseExisting={(text) => setDraft(text)}
             onAppend={(text) => setDraft((prev) => (prev ? `${prev}\n\n${text}` : text))}
+            trialToken={props.trialToken}
           />
         )}
 
@@ -559,6 +562,7 @@ export default function BrandOsRunner(props: Props) {
           value={draft}
           runId={props.runId}
           stanceQ1Raw={answerMap["stance.q1"]?.raw_text ?? ""}
+          trialToken={props.trialToken}
           onChange={(v) => {
             setDraft(v);
             // Auto-advance for single-choice questions — no Continue needed.
@@ -628,7 +632,7 @@ export default function BrandOsRunner(props: Props) {
 // ============================================================
 
 function QuestionInput({
-  question, audience, value, onChange, runId, stanceQ1Raw,
+  question, audience, value, onChange, runId, stanceQ1Raw, trialToken,
 }: {
   question: Question;
   audience: Audience;
@@ -636,6 +640,7 @@ function QuestionInput({
   onChange: (v: string) => void;
   runId: string;
   stanceQ1Raw: string;
+  trialToken?: string;
 }) {
   const placeholder = question.placeholder ? pick(question.placeholder, audience) : undefined;
 
@@ -763,7 +768,7 @@ function QuestionInput({
   }
 
   if (question.kind === "scoutTest") {
-    return <ScoutTestUI runId={runId} value={value} onChange={onChange} />;
+    return <ScoutTestUI runId={runId} value={value} onChange={onChange} trialToken={trialToken} />;
   }
 
   if (question.kind === "pillarScore") {
@@ -809,11 +814,14 @@ type ScoutPayload = {
 };
 
 function ScoutTestUI({
-  runId, value, onChange,
+  runId, value, onChange, trialToken,
 }: {
   runId: string;
   value: string;
   onChange: (v: string) => void;
+  /** When set, scout-test API calls send X-Trial-Token so trip-wire
+   *  buyers (no Supabase session) can still generate the test. */
+  trialToken?: string;
 }) {
   const payload = useMemo<ScoutPayload | null>(() => {
     if (!value) return null;
@@ -832,9 +840,11 @@ function ScoutTestUI({
     setBusy(true);
     setErr(null);
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (trialToken) headers["X-Trial-Token"] = trialToken;
       const res = await fetch("/api/brand-os/scout-test", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ runId }),
       });
       const data = await res.json();
@@ -860,9 +870,11 @@ function ScoutTestUI({
     setBusy(true);
     setErr(null);
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (trialToken) headers["X-Trial-Token"] = trialToken;
       const res = await fetch("/api/brand-os/scout-test", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ runId, picks }),
       });
       const data = await res.json();
@@ -1355,11 +1367,13 @@ function SignalImportHelper({
   currentDraft,
   onUseExisting,
   onAppend,
+  trialToken,
 }: {
   voiceSources: VoiceSourceRow[];
   currentDraft: string;
   onUseExisting: (text: string) => void;
   onAppend: (text: string) => void;
+  trialToken?: string;
 }) {
   const [url, setUrl] = useState("");
   const [fetching, setFetching] = useState(false);
@@ -1385,9 +1399,11 @@ function SignalImportHelper({
     setFetching(true);
     setFetchError(null);
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (trialToken) headers["X-Trial-Token"] = trialToken;
       const res = await fetch("/api/brand-os/import-url", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ url: url.trim() }),
       });
       const data = await res.json() as { text?: string; error?: string; title?: string };

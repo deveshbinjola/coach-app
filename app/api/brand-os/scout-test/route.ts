@@ -11,8 +11,8 @@
 // themselves, so we don't need to gate the truth behind a second round-trip.
 
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase-server";
 import { rateLimitByUser } from "@/lib/rate-limit";
+import { resolveAuthOrTrial } from "@/lib/brand-os/auth-or-trial";
 
 export const runtime = "edge";
 
@@ -28,11 +28,11 @@ type ScoutAnswerPayload = {
 };
 
 export async function POST(request: NextRequest) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await resolveAuthOrTrial(request);
+  if (!auth.ok) return auth.response;
+  const { coachId, dbClient } = auth;
 
-  const rl = rateLimitByUser(user.id, "brand-os/scout-test", 10, 60_000);
+  const rl = rateLimitByUser(coachId, "brand-os/scout-test", 10, 60_000);
   if (!rl.allowed) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
@@ -41,16 +41,16 @@ export async function POST(request: NextRequest) {
   if (!body?.runId) return NextResponse.json({ error: "runId required" }, { status: 400 });
 
   // Confirm the run belongs to this coach + grab audience.
-  const { data: run } = await supabase
+  const { data: run } = await dbClient
     .from("cp_brand_os_runs")
     .select("id, audience")
     .eq("id", body.runId)
-    .eq("coach_id", user.id)
+    .eq("coach_id", coachId)
     .maybeSingle();
   if (!run) return NextResponse.json({ error: "run_not_found" }, { status: 404 });
 
   // Pull the coach's signal.q1 answer (their pasted writing samples).
-  const { data: q1Answer } = await supabase
+  const { data: q1Answer } = await dbClient
     .from("cp_brand_os_answers")
     .select("raw_text")
     .eq("run_id", body.runId)
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
 
   const payload: ScoutAnswerPayload = { phase: "generated", sentences };
 
-  await supabase
+  await dbClient
     .from("cp_brand_os_answers")
     .upsert({
       run_id: body.runId,
@@ -147,9 +147,9 @@ export async function POST(request: NextRequest) {
 // answer row's phase to "revealed", and write the score to the run row.
 
 export async function PATCH(request: NextRequest) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await resolveAuthOrTrial(request);
+  if (!auth.ok) return auth.response;
+  const { coachId, dbClient } = auth;
 
   type PatchBody = { runId: string; picks: string[] };
   const body = (await request.json()) as PatchBody;
@@ -158,15 +158,15 @@ export async function PATCH(request: NextRequest) {
   }
 
   // Verify ownership.
-  const { data: run } = await supabase
+  const { data: run } = await dbClient
     .from("cp_brand_os_runs")
     .select("id")
     .eq("id", body.runId)
-    .eq("coach_id", user.id)
+    .eq("coach_id", coachId)
     .maybeSingle();
   if (!run) return NextResponse.json({ error: "run_not_found" }, { status: 404 });
 
-  const { data: existing } = await supabase
+  const { data: existing } = await dbClient
     .from("cp_brand_os_answers")
     .select("raw_text")
     .eq("run_id", body.runId)
@@ -194,7 +194,7 @@ export async function PATCH(request: NextRequest) {
   };
 
   await Promise.all([
-    supabase
+    dbClient
       .from("cp_brand_os_answers")
       .update({
         raw_text: JSON.stringify(revealed),
@@ -203,7 +203,7 @@ export async function PATCH(request: NextRequest) {
       })
       .eq("run_id", body.runId)
       .eq("question_id", "signal.q3"),
-    supabase
+    dbClient
       .from("cp_brand_os_runs")
       .update({ scout_test_score: score })
       .eq("id", body.runId),

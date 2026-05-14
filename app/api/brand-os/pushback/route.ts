@@ -5,8 +5,8 @@
 // override). Each alternative names the buyer it pulls and loses.
 
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase-server";
 import { rateLimitByUser } from "@/lib/rate-limit";
+import { resolveAuthOrTrial } from "@/lib/brand-os/auth-or-trial";
 
 export const runtime = "edge";
 
@@ -18,11 +18,11 @@ type Body = {
 };
 
 export async function POST(request: NextRequest) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const auth = await resolveAuthOrTrial(request);
+  if (!auth.ok) return auth.response;
+  const { coachId, dbClient } = auth;
 
-  const rl = rateLimitByUser(user.id, "brand-os/pushback", 15, 60_000);
+  const rl = rateLimitByUser(coachId, "brand-os/pushback", 15, 60_000);
   if (!rl.allowed) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
@@ -37,12 +37,12 @@ export async function POST(request: NextRequest) {
     }, { status: 200 });
   }
 
-  // Verify the run belongs to the caller (RLS already enforces but be explicit).
-  const { data: run } = await supabase
+  // Verify the run belongs to the caller.
+  const { data: run } = await dbClient
     .from("cp_brand_os_runs")
     .select("id, audience")
     .eq("id", body.runId)
-    .eq("coach_id", user.id)
+    .eq("coach_id", coachId)
     .maybeSingle();
   if (!run) return NextResponse.json({ error: "run_not_found" }, { status: 404 });
 

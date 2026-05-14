@@ -56,12 +56,17 @@ export default async function TrialRunPage({
     .select("question_id, raw_text, refined_text, locked_at")
     .eq("run_id", params.runId);
 
-  const { data: voiceSources } = await admin
-    .from("cp_voice_training_sources")
-    .select("id, source_type, title, transcript, created_at")
-    .eq("coach_id", coachId)
-    .order("created_at", { ascending: false })
-    .limit(20);
+  // Data isolation: trial buyers never see platform voice profile data,
+  // even when their email matches an existing platform account. Trial
+  // mode is a fresh, standalone experience — they paste samples in
+  // Signal Q1 directly.
+  const voiceSources: Array<{
+    id: string;
+    source_type: string;
+    title: string;
+    transcript: string;
+    created_at: string;
+  }> = [];
 
   // Pull email for the header.
   const { data: coachRow } = await admin
