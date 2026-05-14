@@ -25,9 +25,11 @@ const MIN_CAPTIONS = 5;   // below this, the signal is too noisy to trust
 const MAX_CAPTIONS = 50;  // above this, we'd just be paying for tokens
 const MIN_INTERVIEW_ANSWERS = 3; // need at least 3 of 5 to extract meaningful patterns
 
+const ALLOWED_ORIGIN = Deno.env.get("APP_URL") || "https://app.elevateaisystem.com";
+
 function corsHeaders() {
   return {
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",

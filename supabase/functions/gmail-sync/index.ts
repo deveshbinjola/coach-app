@@ -42,9 +42,11 @@ const FIRST_RUN_DAYS = 14;
 const OVERLAP_MINUTES = 5;
 const MAX_MESSAGES_PER_RUN = 50;
 
+const ALLOWED_ORIGIN = Deno.env.get("APP_URL") || "https://app.elevateaisystem.com";
+
 function corsHeaders() {
   return {
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",

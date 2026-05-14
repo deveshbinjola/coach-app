@@ -29,9 +29,11 @@ const MODEL = "claude-sonnet-4-6";
 const MAX_TOKENS = 800;
 const MAX_INBOUND_CHARS = 2000;
 
+const ALLOWED_ORIGIN = Deno.env.get("APP_URL") || "https://app.elevateaisystem.com";
+
 function corsHeaders() {
   return {
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
