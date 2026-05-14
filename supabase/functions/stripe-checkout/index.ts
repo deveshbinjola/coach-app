@@ -61,9 +61,11 @@ Deno.serve(async (req: Request) => {
       customerId = customer.id;
 
       // Use service role via separate client to bypass RLS for this admin update
+      const srkKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (!srkKey) return json({ error: "Server misconfigured" }, 500);
       const admin = createClient(
         Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+        srkKey
       );
       await admin
         .from("cp_coaches")

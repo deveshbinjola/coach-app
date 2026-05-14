@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { rateLimitByUser } from "@/lib/rate-limit";
 import type { VoiceProfile, VoiceTrainingSource } from "@/lib/types";
 
 export const runtime = 'edge';
@@ -23,6 +24,11 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const rl = rateLimitByUser(user.id, "voice/training-sources", 10, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
   const form = await request.formData();

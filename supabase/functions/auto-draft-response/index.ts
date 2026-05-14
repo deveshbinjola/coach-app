@@ -58,9 +58,11 @@ Deno.serve(async (req: Request) => {
 
     // Service-role client — bypasses RLS, used because the trigger has no
     // user JWT. We compensate by trusting only DB state, not client input.
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!serviceRoleKey) return json({ error: "Server misconfigured" }, 500);
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      serviceRoleKey
     );
 
     // ---------- Auth ----------
@@ -71,7 +73,6 @@ Deno.serve(async (req: Request) => {
     // Anything else → 401.
     const authHeader = req.headers.get("Authorization") ?? "";
     const token = authHeader.replace(/^Bearer\s+/i, "");
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
     let callerCoachId: string | null = null;
     if (token === serviceRoleKey) {

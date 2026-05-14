@@ -14,6 +14,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { rateLimitByUser } from "@/lib/rate-limit";
 import {
   loadBrandVoiceOverlay,
   saveBrandVoiceOverlay,
@@ -30,6 +31,11 @@ export async function POST(_request: NextRequest) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const rl = rateLimitByUser(user.id, "brand-os/retune", 5, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
 
   // Load current overlay — required. If they haven't run Brand OS, send
   // them there first.

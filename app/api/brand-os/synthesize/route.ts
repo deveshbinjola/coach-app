@@ -10,6 +10,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { rateLimitByUser } from "@/lib/rate-limit";
 import { getQuestion, pick, type Audience } from "@/lib/brand-os/questions";
 import { getVoiceProfile, deriveProfileSlug, type VoiceProfileSlug, type AudienceSelf, type AudienceServes } from "@/lib/voice-profiles";
 import { buildOverlayFromSynthesis, saveBrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
@@ -79,6 +80,11 @@ export async function POST(request: NextRequest) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const rl = rateLimitByUser(user.id, "brand-os/synthesize", 10, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
 
   const { searchParams } = new URL(request.url);
   const force = searchParams.get("force") === "true";

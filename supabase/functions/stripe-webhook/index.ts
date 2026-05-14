@@ -20,15 +20,21 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@17";
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
+function requireEnv(name: string): string {
+  const v = Deno.env.get(name);
+  if (!v) throw new Error(`Missing required env var: ${name}`);
+  return v;
+}
+
+const stripe = new Stripe(requireEnv("STRIPE_SECRET_KEY"), {
   apiVersion: "2024-09-30.acacia",
   httpClient: Stripe.createFetchHttpClient(),
 });
-const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
+const webhookSecret = requireEnv("STRIPE_WEBHOOK_SECRET");
 
 const supabase = createClient(
-  Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!  // bypass RLS — webhook is system-level
+  requireEnv("SUPABASE_URL"),
+  requireEnv("SUPABASE_SERVICE_ROLE_KEY")
 );
 
 Deno.serve(async (req: Request) => {

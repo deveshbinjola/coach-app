@@ -1,5 +1,3 @@
-const STATE_SECRET_FALLBACK = "coach-platform-oauth-state";
-
 export async function signOAuthState(userId: string, provider: string) {
   const payload = {
     user_id: userId,
@@ -41,7 +39,10 @@ export async function verifyOAuthState(
 }
 
 async function hmac(body: string) {
-  const secret = process.env.OAUTH_STATE_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || STATE_SECRET_FALLBACK;
+  const secret = process.env.OAUTH_STATE_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!secret) {
+    throw new Error("Missing OAUTH_STATE_SECRET or SUPABASE_SERVICE_ROLE_KEY — cannot sign OAuth state.");
+  }
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(secret),

@@ -8,8 +8,10 @@ import { createAdminClient } from "@/lib/supabase-admin";
 
 export const runtime = 'edge';
 
+const ALLOWED_ORIGIN = process.env.APP_URL || "https://app.elevateaisystem.com";
+
 const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Authorization, Content-Type",
   "Access-Control-Max-Age": "86400",

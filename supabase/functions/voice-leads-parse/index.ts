@@ -47,9 +47,11 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    const srkKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!srkKey) return json({ error: "Server misconfigured" }, 500);
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      srkKey
     );
 
     const authHeader = req.headers.get("Authorization") ?? "";

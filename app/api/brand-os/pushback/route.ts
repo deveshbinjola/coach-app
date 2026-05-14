@@ -6,6 +6,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { rateLimitByUser } from "@/lib/rate-limit";
 
 export const runtime = "edge";
 
@@ -20,6 +21,11 @@ export async function POST(request: NextRequest) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const rl = rateLimitByUser(user.id, "brand-os/pushback", 15, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
 
   const body = (await request.json()) as Body;
   const apiKey = process.env.ANTHROPIC_API_KEY;
