@@ -72,6 +72,15 @@ export default function LeadDetail({
   // immediately in downstream surfaces like ObjectionDeck without waiting
   // for router.refresh() to complete.
   const [currentLead, setCurrentLead] = useState<Lead>(lead);
+  // Conversion celebration — fires when a lead transitions to client status.
+  // Renders a fixed-position toast with confetti dots + "Your first client"
+  // copy + a button to jump to their client room.
+  const [conversion, setConversion] = useState<{ name: string; isFirst: boolean } | null>(null);
+  useEffect(() => {
+    if (!conversion) return;
+    const t = setTimeout(() => setConversion(null), 12000);
+    return () => clearTimeout(t);
+  }, [conversion]);
 
   const supabase = createClient();
 
@@ -231,9 +240,48 @@ export default function LeadDetail({
       return;
     }
     setCurrentLead((data as Lead | null) ?? { ...currentLead, status: newStatus });
-    if (newStatus === "client") {
+    if (newStatus === "client" && currentLead.status !== "client") {
+      // First-time lead → client transition. Spin up client room, fire
+      // celebration toast, AND check whether this is the coach's first
+      // client (drives the bigger version of the toast + flips
+      // has_active_clients + emphasizes the Clients nav surface).
       await ensureClientRoom();
+      void fireConversionCelebration(currentLead.full_name);
     }
+  }
+
+  /** Trip the celebration toast + side-effects when a lead becomes a
+   *  client. Side-effects:
+   *    - If has_active_clients was null/false → set true
+   *    - If emphasize_clients was false → set true (unquiet nav)
+   *  Both are fire-and-forget; the toast renders regardless. */
+  async function fireConversionCelebration(name: string) {
+    let isFirst = false;
+    try {
+      // Was this their first client?
+      const { count } = await supabase
+        .from("cp_leads")
+        .select("id", { count: "exact", head: true })
+        .eq("coach_id", lead.coach_id)
+        .eq("status", "client");
+      isFirst = (count ?? 0) <= 1; // this lead's update already counted
+
+      // Update coach-level flags.
+      const { data: coachRow } = await supabase
+        .from("cp_coaches")
+        .select("has_active_clients, emphasize_clients")
+        .eq("id", lead.coach_id)
+        .maybeSingle();
+      const patch: Record<string, unknown> = {};
+      if (coachRow?.has_active_clients !== true) patch.has_active_clients = true;
+      if (coachRow?.emphasize_clients !== true)  patch.emphasize_clients  = true;
+      if (Object.keys(patch).length > 0) {
+        await supabase.from("cp_coaches").update(patch).eq("id", lead.coach_id);
+      }
+    } catch {
+      // Never block the celebration on a side-effect failure.
+    }
+    setConversion({ name, isFirst });
   }
 
   async function ensureClientRoom() {
@@ -274,6 +322,13 @@ export default function LeadDetail({
 
   return (
     <div className="space-y-4">
+      {conversion && (
+        <ConversionCelebration
+          name={conversion.name}
+          isFirst={conversion.isFirst}
+          onDismiss={() => setConversion(null)}
+        />
+      )}
       {ErrorBanner}
       <div className="grid md:grid-cols-3 gap-6">
       {/* ── Confirm-delete modal ─────────────────────────────────────── */}
@@ -992,5 +1047,103 @@ function FirstResponseDraftPanel({
         </p>
       </Card>
     </>
+  );
+}
+
+// ============================================================
+// LEAD → CLIENT CONVERSION CELEBRATION
+// ============================================================
+//
+// Fixed-position toast that fires when a lead transitions to client status.
+// Larger framing for first-client moment (rare and worth celebrating).
+// Confetti dots are CSS-only — no library. 12-second auto-dismiss.
+
+function ConversionCelebration({
+  name, isFirst, onDismiss,
+}: {
+  name: string;
+  isFirst: boolean;
+  onDismiss: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-[100] pointer-events-none flex items-start justify-center pt-8 px-4"
+      role="status"
+      aria-live="polite"
+    >
+      {/* Confetti dots */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {Array.from({ length: 24 }).map((_, i) => (
+          <span
+            key={i}
+            className="absolute block w-2 h-2 rounded-sm"
+            style={{
+              left: `${(i * 4.2) % 100}%`,
+              top: `${(i * 7.5) % 30}%`,
+              background: i % 3 === 0 ? "var(--brand-strong)" : i % 3 === 1 ? "var(--warning)" : "var(--info)",
+              animation: `confetti-fall ${1.6 + (i % 5) * 0.3}s ease-in ${(i % 7) * 0.05}s forwards`,
+              opacity: 0,
+            }}
+          />
+        ))}
+      </div>
+
+      <style>{`
+        @keyframes confetti-fall {
+          0%   { transform: translateY(-20px) rotate(0deg);   opacity: 0; }
+          15%  { opacity: 1; }
+          100% { transform: translateY(60vh) rotate(540deg);  opacity: 0; }
+        }
+        @keyframes celebration-in {
+          0%   { transform: translateY(-12px) scale(0.96); opacity: 0; }
+          100% { transform: translateY(0) scale(1);        opacity: 1; }
+        }
+      `}</style>
+
+      <div
+        className="pointer-events-auto max-w-md w-full bg-[var(--surface-elevated)] border-2 border-[var(--brand-strong)] rounded-[var(--r-xl)] shadow-[var(--shadow-lg)] p-6 space-y-3"
+        style={{ animation: "celebration-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <Badge tone="brand" size="xs" uppercase>
+            {isFirst ? "🎉 First client" : "✓ Converted"}
+          </Badge>
+          <button
+            onClick={onDismiss}
+            className="text-[color:var(--text-faint)] hover:text-[color:var(--text)] leading-none text-lg"
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
+        </div>
+
+        <h2 className="font-display text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)] leading-tight">
+          {isFirst
+            ? `${name} is your first paying client.`
+            : `${name} is now a client.`}
+        </h2>
+
+        <p className="text-[color:var(--text-muted)] leading-relaxed text-[length:var(--t-caption)]">
+          {isFirst
+            ? "This is the moment your platform becomes a real business. Clients now lights up in your nav. Their session prep, notes, and content can all live in one room."
+            : "Their client room is ready. Session prep + notes + custom content can live there now."}
+        </p>
+
+        <div className="flex items-center gap-2 pt-2 border-t border-[var(--border)]">
+          <a
+            href="/clients"
+            className="inline-flex items-center justify-center h-9 px-4 rounded-[var(--r-md)] bg-[var(--brand-strong)] text-[color:var(--surface)] text-[length:var(--t-caption)] font-bold hover:bg-[color-mix(in_srgb,var(--brand)_85%,black)] transition"
+          >
+            Open Clients →
+          </a>
+          <button
+            onClick={onDismiss}
+            className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] hover:text-[color:var(--text)] px-3 h-9"
+          >
+            Stay here
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

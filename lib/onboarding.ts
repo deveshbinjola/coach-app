@@ -146,6 +146,10 @@ export async function resolveOnboardingGate(
  *  they should be, otherwise null. Pages call this at the top of their
  *  loader and `redirect()` if a path comes back.
  *
+ *  Also enforces the trial-tier scope: $7 trip-wire buyers (plan='trial')
+ *  can only access Brand OS routes. Any non-Brand-OS surface (Content,
+ *  Leads, Clients, Command Center) bounces them to a soft upgrade page.
+ *
  *  Usage:
  *    const redirectTo = await enforceOnboardingGate(supabase, user.id);
  *    if (redirectTo) redirect(redirectTo);
@@ -154,6 +158,23 @@ export async function enforceOnboardingGate(
   supabase: SupabaseClient,
   coachId: string,
 ): Promise<string | null> {
+  // Plan check first — trial buyers are scoped to Brand OS only.
+  const { data: planRow } = await supabase
+    .from("cp_coaches")
+    .select("plan")
+    .eq("id", coachId)
+    .maybeSingle();
+  if (planRow?.plan === "trial") {
+    // Trial users go to Brand OS run state, not the regular onboarding
+    // (no /onboarding reality questions for the $7 path).
+    const { resolveBrandOsRunState } = await import("@/lib/brand-os/run-state");
+    const rs = await resolveBrandOsRunState(supabase, coachId);
+    if (rs.kind === "complete")              return `/brand-os/run/${rs.runId}/output`;
+    if (rs.kind === "complete_no_synthesis") return `/brand-os/run/${rs.runId}/output`;
+    if (rs.kind === "in_progress")           return `/brand-os/run/${rs.runId}`;
+    return "/brand-os";
+  }
+
   const gate = await resolveOnboardingGate(supabase, coachId);
   if (gate.phase === "complete") return null;
   if (gate.phase === "reality_questions") return "/onboarding";
