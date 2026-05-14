@@ -4,6 +4,7 @@ import { userAvatarUrl, userDisplayName, userFirstName } from "@/lib/user-displa
 import Header from "@/components/Header";
 import CommandCenterView from "@/components/CommandCenterView";
 import type { Lead, Content, LeadMessage, VoiceProfile } from "@/lib/types";
+import { enforceOnboardingGate } from "@/lib/onboarding";
 
 export const runtime = 'edge';
 
@@ -51,6 +52,9 @@ export default async function CommandCenterPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+
+  const gateRedirect = await enforceOnboardingGate(supabase, user.id);
+  if (gateRedirect) redirect(gateRedirect);
 
   const now         = Date.now();
   const windowStart = new Date(now - REACH_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();

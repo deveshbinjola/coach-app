@@ -8,6 +8,7 @@ import type { BuyerMirror } from "@/components/content/BuyerMirrorBanner";
 import type { CoachSettings, Content, Lead, VoiceProfile, VoiceTrainingSource } from "@/lib/types";
 import type { BrandOsSynthesis } from "@/app/api/brand-os/synthesize/route";
 import { detectCorpusDelta, type BrandVoiceOverlay, type VoiceCorpusSnapshot } from "@/lib/brand-os/voice-overlay";
+import { enforceOnboardingGate } from "@/lib/onboarding";
 
 export const runtime = 'edge';
 
@@ -24,6 +25,11 @@ export default async function ContentPage({
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+
+  // Onboarding gate — bounce coaches who haven't finished Brand OS MVP
+  // or the reality questions back to the right step.
+  const gateRedirect = await enforceOnboardingGate(supabase, user.id);
+  if (gateRedirect) redirect(gateRedirect);
 
   // Load workspace data + Brand OS overlay + latest synthesis (for hooks)
   // in one round trip.

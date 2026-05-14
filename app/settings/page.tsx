@@ -15,6 +15,7 @@ import SettingsForm from "@/components/SettingsForm";
 import AudienceSettingsPanel from "@/components/settings/AudienceSettingsPanel";
 import BrandKitPanel from "@/components/settings/BrandKitPanel";
 import EmailSendingPanel from "@/components/settings/EmailSendingPanel";
+import OnboardingResetPanel from "@/components/settings/OnboardingResetPanel";
 import type { CoachSettings, CoachIntegration } from "@/lib/types";
 import type { AudienceSelf, AudienceServes, VoiceProfileSlug } from "@/lib/voice-profiles";
 import { DEFAULT_BRAND_KIT } from "@/lib/brand-kit";
@@ -109,6 +110,7 @@ export default async function SettingsPage({
               }}
             />
             <EmailSendingPanel />
+            <OnboardingResetPanel />
             <SettingsForm
               initial={settings as CoachSettings}
               gmailIntegration={(gmailIntegration as CoachIntegration | null) ?? null}

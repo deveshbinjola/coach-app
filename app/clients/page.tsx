@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase-server";
 import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import ClientsWorkspace from "@/components/clients/ClientsWorkspace";
+import { enforceOnboardingGate } from "@/lib/onboarding";
 import type {
   ClientEvent,
   ClientResource,
@@ -22,6 +23,9 @@ export default async function ClientsPage() {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+
+  const gateRedirect = await enforceOnboardingGate(supabase, user.id);
+  if (gateRedirect) redirect(gateRedirect);
 
   const [leadsRes, roomsRes, sessionsRes, tasksRes, resourcesRes, eventsRes] = await Promise.all([
     supabase
