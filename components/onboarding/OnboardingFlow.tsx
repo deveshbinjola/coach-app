@@ -101,28 +101,28 @@ export default function OnboardingFlow({ initial }: Props) {
           cardKey="leads"
           eyebrow="Lead list"
           question="Do you have a list of leads or prospects to import?"
-          why="If yes, paste or upload them. Your Lead inbox lands with real people in it instead of empty state."
+          why="If yes, paste them below — one per line. Your Lead inbox lands with real people in it instead of empty state."
           value={answers.has_leads_to_import}
           onChange={(v) => setAnswer("has_leads_to_import", v)}
-          followupYes={{
-            label: "Add leads",
-            href: "/leads?new=1",
-            hint: "Paste rows, upload CSV, or add manually.",
-          }}
+          followupBlock={
+            answers.has_leads_to_import === true
+              ? <PasteImportBlock asClients={false} hintLabel="leads" />
+              : null
+          }
         />
 
         <QuestionCard
           cardKey="clients"
           eyebrow="Active clients"
           question="Do you currently have active paying clients?"
-          why="If yes, we'll set up Client rooms for them — session prep, notes, retention. If no, you'll see Leads emphasized instead."
+          why="If yes, paste them below — one per line. We'll set them up as Client status so Client rooms light up immediately."
           value={answers.has_active_clients}
           onChange={(v) => setAnswer("has_active_clients", v)}
-          followupYes={{
-            label: "Add clients",
-            href: "/clients?new=1",
-            hint: "Paste rows or add manually. You can import later too.",
-          }}
+          followupBlock={
+            answers.has_active_clients === true
+              ? <PasteImportBlock asClients={true} hintLabel="clients" />
+              : null
+          }
         />
 
         <QuestionCard
@@ -159,7 +159,7 @@ export default function OnboardingFlow({ initial }: Props) {
 }
 
 function QuestionCard({
-  cardKey, eyebrow, question, why, value, onChange, followupYes,
+  cardKey, eyebrow, question, why, value, onChange, followupYes, followupBlock,
 }: {
   cardKey: CardKey;
   eyebrow: string;
@@ -167,7 +167,10 @@ function QuestionCard({
   why: string;
   value: boolean | null;
   onChange: (v: boolean) => void;
+  /** Simple "open another page" follow-up (legacy path). */
   followupYes?: { label: string; href: string; hint: string };
+  /** Inline rich block — used for paste-import widgets that live IN the card. */
+  followupBlock?: React.ReactNode;
 }) {
   const answered = value !== null;
   return (
@@ -194,7 +197,8 @@ function QuestionCard({
           <ToggleBtn label="No" active={value === false} onClick={() => onChange(false)} />
         </div>
       </div>
-      {value === true && followupYes && (
+      {value === true && followupBlock}
+      {value === true && !followupBlock && followupYes && (
         <div className="rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-3 flex items-center justify-between gap-3 flex-wrap">
           <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] min-w-0 flex-1">
             {followupYes.hint}
@@ -208,6 +212,78 @@ function QuestionCard({
         </div>
       )}
     </Card>
+  );
+}
+
+/** Inline paste-import widget. Used for both leads and clients (the only
+ *  difference is the asClients flag). Lives inside a QuestionCard when
+ *  the coach answers yes. */
+function PasteImportBlock({ asClients, hintLabel }: { asClients: boolean; hintLabel: string }) {
+  const [text, setText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<{ inserted: number; skipped_dupes: number } | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  const rowCount = text.split("\n").map((l) => l.trim()).filter(Boolean).length;
+
+  async function importRows() {
+    setSubmitting(true);
+    setErr(null);
+    setResult(null);
+    try {
+      const rows = text.split("\n").map((l) => l.trim()).filter(Boolean);
+      const res = await fetch("/api/coach/import-leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows, asClients }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? `HTTP ${res.status}`);
+      setResult({ inserted: data.inserted, skipped_dupes: data.skipped_dupes });
+      setText(""); // clear after success
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Import failed.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-3 space-y-2">
+      <p className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
+        Paste your {hintLabel} · one per line
+      </p>
+      <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed">
+        Each line: <code className="font-mono text-[length:var(--t-caption)]">Name</code> · or <code className="font-mono text-[length:var(--t-caption)]">Name, email@x.com</code> · or <code className="font-mono text-[length:var(--t-caption)]">Name, email, notes</code>. Tab/pipe separators also work. We dedupe by name+email.
+      </p>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder={
+          asClients
+            ? "Marcus Chen, marcus@example.com, $12K contract\nElena Park, elena@example.com\n…"
+            : "Jess Kim, jess@example.com, replied to IG post\nDavid Liu\nMarcus from Austin, marcus@example.com\n…"
+        }
+        rows={6}
+        className="w-full px-3 py-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-caption)] font-mono text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none"
+        disabled={submitting}
+      />
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+          {rowCount} row{rowCount === 1 ? "" : "s"} ready
+          {result && <span className="text-[color:var(--brand-strong)] font-bold ml-2">· ✓ {result.inserted} imported{result.skipped_dupes > 0 ? ` · ${result.skipped_dupes} dupes skipped` : ""}</span>}
+        </p>
+        <Button
+          variant="ghost"
+          onClick={importRows}
+          disabled={submitting || rowCount === 0}
+          className="!h-9 !px-3 text-[length:var(--t-caption)]"
+        >
+          {submitting ? "Importing…" : `Import ${rowCount} ${hintLabel}`}
+        </Button>
+      </div>
+      {err && <p className="text-[length:var(--t-caption)] text-[color:var(--danger)]">{err}</p>}
+    </div>
   );
 }
 

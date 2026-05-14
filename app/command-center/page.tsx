@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import CommandCenterView from "@/components/CommandCenterView";
 import type { Lead, Content, LeadMessage, VoiceProfile } from "@/lib/types";
 import { enforceOnboardingGate } from "@/lib/onboarding";
+import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
 
 export const runtime = 'edge';
 
@@ -55,6 +56,7 @@ export default async function CommandCenterPage() {
 
   const gateRedirect = await enforceOnboardingGate(supabase, user.id);
   if (gateRedirect) redirect(gateRedirect);
+  const headerEmphasis = await loadHeaderEmphasis(supabase, user.id);
 
   const now         = Date.now();
   const windowStart = new Date(now - REACH_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
@@ -180,6 +182,7 @@ export default async function CommandCenterPage() {
         email={user.email ?? ""}
         name={userDisplayName(user.user_metadata)}
         avatarUrl={userAvatarUrl(user.user_metadata)}
+        emphasis={headerEmphasis}
       />
       <main className="max-w-6xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
         <CommandCenterView

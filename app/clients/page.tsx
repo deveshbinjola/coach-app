@@ -4,6 +4,7 @@ import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import ClientsWorkspace from "@/components/clients/ClientsWorkspace";
 import { enforceOnboardingGate } from "@/lib/onboarding";
+import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
 import type {
   ClientEvent,
   ClientResource,
@@ -26,6 +27,7 @@ export default async function ClientsPage() {
 
   const gateRedirect = await enforceOnboardingGate(supabase, user.id);
   if (gateRedirect) redirect(gateRedirect);
+  const headerEmphasis = await loadHeaderEmphasis(supabase, user.id);
 
   const [leadsRes, roomsRes, sessionsRes, tasksRes, resourcesRes, eventsRes] = await Promise.all([
     supabase
@@ -71,6 +73,7 @@ export default async function ClientsPage() {
         email={user.email ?? ""}
         name={userDisplayName(user.user_metadata)}
         avatarUrl={userAvatarUrl(user.user_metadata)}
+        emphasis={headerEmphasis}
       />
       <main className="max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
         <ClientsWorkspace

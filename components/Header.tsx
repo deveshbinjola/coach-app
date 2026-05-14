@@ -41,13 +41,15 @@ function toDisplayName(email: string, name?: string): string {
 // Compose was its own top-nav item until 2026-04-27. Removing it shrunk
 // nav from 5 to 4, and made Compose feel like what it actually is: an
 // action ON your book, not a parallel app.
+// Brand OS lives on /voice (it's voice tooling) + standalone /brand-os
+// for the $7 public funnel. Removed from main nav 2026-05-13 — coaches
+// access it via the Voice page CTA card after Brand OS MVP completes.
 const NAV_ITEMS: Array<{ href: string; label: string }> = [
   { href: "/command-center", label: "Home" },
   { href: "/inbox", label: "Leads" },
   { href: "/clients", label: "Clients" },
   { href: "/voice", label: "Voice" },
   { href: "/content", label: "Content" },
-  { href: "/brand-os", label: "Brand OS" },
 ];
 
 type Props = {
@@ -56,9 +58,21 @@ type Props = {
   name?: string;
   /** Google/Supabase profile image. Falls back to initials if unavailable. */
   avatarUrl?: string;
+  /** Surface emphasis from onboarding answers. Items that match a "quieter"
+   *  surface get dimmer styling without being hidden. */
+  emphasis?: { content?: boolean; leads?: boolean; clients?: boolean };
 };
 
-export default function Header({ email, name, avatarUrl }: Props) {
+export default function Header({ email, name, avatarUrl, emphasis }: Props) {
+  // Map nav href → emphasis flag. Unmapped items (Home, Voice) always
+  // stay emphasized — they're foundational, not user-toggleable.
+  const isQuiet = (href: string): boolean => {
+    if (!emphasis) return false;
+    if (href === "/inbox")   return emphasis.leads === false;
+    if (href === "/clients") return emphasis.clients === false;
+    if (href === "/content") return emphasis.content === false;
+    return false;
+  };
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const [menuOpen, setMenuOpen] = useState(false);
@@ -143,6 +157,7 @@ export default function Header({ email, name, avatarUrl }: Props) {
               href={item.href}
               label={item.label}
               active={isActive(item.href)}
+              quiet={isQuiet(item.href)}
             />
           ))}
         </nav>
@@ -313,10 +328,14 @@ function NavLink({
   href,
   label,
   active,
+  quiet = false,
 }: {
   href: string;
   label: string;
   active: boolean;
+  /** When true, render at reduced opacity — the coach said no to this
+   *  surface in onboarding. Never hide, just de-emphasize. */
+  quiet?: boolean;
 }) {
   return (
     <a
@@ -325,8 +344,9 @@ function NavLink({
         active
           ? "bg-[var(--surface-elevated)] text-[color:var(--text)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border)]"
           : "text-[color:var(--text-muted)] hover:bg-[color-mix(in_srgb,var(--surface-elevated)_70%,transparent)] hover:text-[color:var(--text)]"
-      }`}
+      } ${quiet && !active ? "opacity-50 hover:opacity-100" : ""}`}
       aria-current={active ? "page" : undefined}
+      title={quiet ? "You marked this quieter in onboarding — change in Settings" : undefined}
     >
       {label}
     </a>

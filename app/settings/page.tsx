@@ -24,6 +24,35 @@ export const runtime = 'edge';
 
 export const dynamic = "force-dynamic";
 
+/** Settings section wrapper — eyebrow + title + description above a group
+ *  of cards. Replaces the flat "every panel stacked" layout with clear
+ *  scannable headers so coaches can skim by purpose. */
+function SettingsSection({
+  eyebrow, title, description, children,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-4">
+      <div className="space-y-1 pb-2 border-b border-[var(--border)]">
+        <p className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--brand-strong)]">
+          {eyebrow}
+        </p>
+        <h2 className="font-display text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)] leading-snug">
+          {title}
+        </h2>
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed">
+          {description}
+        </p>
+      </div>
+      <div className="space-y-4">{children}</div>
+    </section>
+  );
+}
+
 export default async function SettingsPage({
   searchParams,
 }: {
@@ -92,35 +121,58 @@ export default async function SettingsPage({
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
-            <AudienceSettingsPanel
-              initialSelf={audienceSelf}
-              initialServes={audienceServes}
-              initialSlug={voiceProfileSlug}
-            />
-            <BrandKitPanel
-              initial={{
-                primary:    (settings as CoachSettings).brand_primary_hex    ?? DEFAULT_BRAND_KIT.primaryHex,
-                accent:     (settings as CoachSettings).brand_accent_hex     ?? DEFAULT_BRAND_KIT.accentHex,
-                background: (settings as CoachSettings).brand_background_hex ?? DEFAULT_BRAND_KIT.backgroundHex,
-                text:       (settings as CoachSettings).brand_text_hex       ?? DEFAULT_BRAND_KIT.textHex,
-                fontFamily: (settings as CoachSettings).brand_font_family    ?? DEFAULT_BRAND_KIT.fontFamily,
-                fontWeight: (settings as CoachSettings).brand_font_weight    ?? DEFAULT_BRAND_KIT.fontWeight,
-                logoUrl:    (settings as CoachSettings).brand_logo_url       ?? null,
-              }}
-            />
-            <EmailSendingPanel />
-            <OnboardingResetPanel />
-            <SettingsForm
-              initial={settings as CoachSettings}
-              gmailIntegration={(gmailIntegration as CoachIntegration | null) ?? null}
-              gmailFlash={
-                searchParams.gmail
-                  ? { state: searchParams.gmail, reason: searchParams.reason }
-                  : null
-              }
-              upgradeIntent={searchParams.upgrade ?? null}
-            />
+          <div className="space-y-10">
+            {/* ── IDENTITY & BRAND ───────────────────────────── */}
+            <SettingsSection
+              eyebrow="Identity & Brand"
+              title="Who you are, who you serve, how you look."
+              description="The fuel everything else runs on. Audience drives voice register. Brand kit drives every visual asset. Onboarding answers drive which surfaces get emphasis."
+            >
+              <AudienceSettingsPanel
+                initialSelf={audienceSelf}
+                initialServes={audienceServes}
+                initialSlug={voiceProfileSlug}
+              />
+              <BrandKitPanel
+                initial={{
+                  primary:    (settings as CoachSettings).brand_primary_hex    ?? DEFAULT_BRAND_KIT.primaryHex,
+                  accent:     (settings as CoachSettings).brand_accent_hex     ?? DEFAULT_BRAND_KIT.accentHex,
+                  background: (settings as CoachSettings).brand_background_hex ?? DEFAULT_BRAND_KIT.backgroundHex,
+                  text:       (settings as CoachSettings).brand_text_hex       ?? DEFAULT_BRAND_KIT.textHex,
+                  fontFamily: (settings as CoachSettings).brand_font_family    ?? DEFAULT_BRAND_KIT.fontFamily,
+                  fontWeight: (settings as CoachSettings).brand_font_weight    ?? DEFAULT_BRAND_KIT.fontWeight,
+                  logoUrl:    (settings as CoachSettings).brand_logo_url       ?? null,
+                }}
+              />
+              <OnboardingResetPanel />
+            </SettingsSection>
+
+            {/* ── DELIVERY ─────────────────────────────────────── */}
+            <SettingsSection
+              eyebrow="Delivery"
+              title="How your work goes out."
+              description="Email sending and downstream delivery. Connect your own Resend so emails land from your domain."
+            >
+              <EmailSendingPanel />
+            </SettingsSection>
+
+            {/* ── INTEGRATIONS ─────────────────────────────────── */}
+            <SettingsSection
+              eyebrow="Integrations & ops"
+              title="Connect what already runs your business."
+              description="Gmail, reach targets, webhooks, API keys, and other developer-leaning controls."
+            >
+              <SettingsForm
+                initial={settings as CoachSettings}
+                gmailIntegration={(gmailIntegration as CoachIntegration | null) ?? null}
+                gmailFlash={
+                  searchParams.gmail
+                    ? { state: searchParams.gmail, reason: searchParams.reason }
+                    : null
+                }
+                upgradeIntent={searchParams.upgrade ?? null}
+              />
+            </SettingsSection>
           </div>
         )}
       </main>
