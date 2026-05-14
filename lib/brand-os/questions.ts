@@ -24,7 +24,8 @@ export type QuestionKind =
   | "choice"      // one of N preset choices
   | "scoutTest"   // Module 2 Q3 — agent generates, coach picks
   | "pillarScore" // Module 3 Q3 — tap-to-score grid for candidate stances
-  | "memoryPalace" // Module 3 Q13 — 4 sub-fields per stance
+  | "memoryPalace" // Module 3 Q13 — 4-field recall card per pillar
+  | "beliefLadder" // Module 4 Q5 — ordered rungs from current → required
   | "summary";    // agent-rendered summary, coach confirms
 
 export type Question = {
@@ -539,9 +540,9 @@ const FUNNEL: Question[] = [
     id: "funnel.q5",
     module: "funnel",
     order: 5,
-    kind: "longtext",
-    prompt: "Sequence the beliefs from current to required. Usually 3–5 rungs. Each rung is a piece of content.",
-    minChars: 80,
+    kind: "beliefLadder",
+    prompt: "Build the belief ladder. Bottom rung = what they believe today. Top rung = what they need to believe to buy.",
+    hint: "3–5 rungs. Each rung is one belief change — and one piece of content that drives it. We'll pull in what you wrote in Q3 + Q4.",
   },
   {
     id: "funnel.q6",

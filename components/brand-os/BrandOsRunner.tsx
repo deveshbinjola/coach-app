@@ -206,6 +206,50 @@ export default function BrandOsRunner(props: Props) {
         return;
       }
 
+      // Memory Palace (stance.q13) — JSON of pillar recall cards.
+      // Require at least 3 pillars with all 4 anchors filled.
+      if (currentQ.kind === "memoryPalace") {
+        try {
+          const parsed = JSON.parse(value || "{}") as { cards?: Array<{ image?: string; body_location?: string; sensory_cue?: string; recall_trigger?: string }> };
+          const complete = (parsed.cards ?? []).filter((c) =>
+            c.image && c.body_location && c.sensory_cue && c.recall_trigger
+          ).length;
+          if (complete < 1) {
+            setError(`Fill at least 1 pillar's recall card before continuing. (${complete} done so far.)`);
+            return;
+          }
+        } catch {
+          setError("Build your recall cards first.");
+          return;
+        }
+        setAdvancing(true);
+        await persistDraft(value);
+        await markLocked();
+        await advanceTo(props.nextQuestionId);
+        return;
+      }
+
+      // Belief Ladder (funnel.q5) — JSON of ordered rungs.
+      // Require at least 3 rungs each with a belief filled.
+      if (currentQ.kind === "beliefLadder") {
+        try {
+          const parsed = JSON.parse(value || "{}") as { rungs?: Array<{ belief?: string }> };
+          const complete = (parsed.rungs ?? []).filter((r) => (r.belief ?? "").trim().length >= 5).length;
+          if (complete < 3) {
+            setError(`A ladder needs at least 3 rungs with real beliefs written. (${complete} done so far.)`);
+            return;
+          }
+        } catch {
+          setError("Build your belief ladder first.");
+          return;
+        }
+        setAdvancing(true);
+        await persistDraft(value);
+        await markLocked();
+        await advanceTo(props.nextQuestionId);
+        return;
+      }
+
       // Pillar Score (stance.q3) — answer is JSON; require at least 3
       // candidates fully scored before Continue.
       if (currentQ.kind === "pillarScore") {
@@ -562,6 +606,9 @@ export default function BrandOsRunner(props: Props) {
           value={draft}
           runId={props.runId}
           stanceQ1Raw={answerMap["stance.q1"]?.raw_text ?? ""}
+          stanceQ3Raw={answerMap["stance.q3"]?.raw_text ?? ""}
+          funnelQ3Raw={answerMap["funnel.q3"]?.raw_text ?? ""}
+          funnelQ4Raw={answerMap["funnel.q4"]?.raw_text ?? ""}
           trialToken={props.trialToken}
           onChange={(v) => {
             setDraft(v);
@@ -632,7 +679,9 @@ export default function BrandOsRunner(props: Props) {
 // ============================================================
 
 function QuestionInput({
-  question, audience, value, onChange, runId, stanceQ1Raw, trialToken,
+  question, audience, value, onChange, runId,
+  stanceQ1Raw, stanceQ3Raw, funnelQ3Raw, funnelQ4Raw,
+  trialToken,
 }: {
   question: Question;
   audience: Audience;
@@ -640,6 +689,12 @@ function QuestionInput({
   onChange: (v: string) => void;
   runId: string;
   stanceQ1Raw: string;
+  /** Pillar Score JSON from stance.q3 — feeds Memory Palace pillar names. */
+  stanceQ3Raw: string;
+  /** Required belief from funnel.q3 — feeds Belief Ladder top rung. */
+  funnelQ3Raw: string;
+  /** Current belief from funnel.q4 — feeds Belief Ladder bottom rung. */
+  funnelQ4Raw: string;
   trialToken?: string;
 }) {
   const placeholder = question.placeholder ? pick(question.placeholder, audience) : undefined;
@@ -776,14 +831,16 @@ function QuestionInput({
   }
 
   if (question.kind === "memoryPalace") {
-    // Memory Palace specialized UI coming in next build.
+    return <MemoryPalaceUI pillarScoreRaw={stanceQ3Raw} value={value} onChange={onChange} />;
+  }
+
+  if (question.kind === "beliefLadder") {
     return (
-      <textarea
+      <BeliefLadderUI
+        requiredBelief={funnelQ3Raw}
+        currentBelief={funnelQ4Raw}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="(Specialized UI coming in next build — for now, answer in your own words and the output will be generated from it.)"
-        rows={8}
-        className="w-full px-3 py-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none leading-[var(--leading-relaxed)]"
+        onChange={onChange}
       />
     );
   }
@@ -1256,6 +1313,351 @@ function PillarBrainstormPad({ onSeed }: { onSeed: (items: string[]) => void }) 
         </p>
         <Button onClick={() => onSeed(items)} disabled={!canStart}>
           {canStart ? `Score these ${items.length} →` : "Add at least 3"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// MEMORY PALACE UI — Stance Q13
+// ============================================================
+//
+// For each "keeper" pillar from stance.q3, build a 4-anchor recall
+// card: image, body location, sensory cue, real-world trigger. So
+// the coach can pull the pillar to mind in 2 seconds on a sales call.
+
+type MemoryCard = {
+  pillar: string;
+  image: string;
+  body_location: string;
+  sensory_cue: string;
+  recall_trigger: string;
+};
+type MemoryPayload = { cards: MemoryCard[] };
+
+function MemoryPalaceUI({
+  pillarScoreRaw, value, onChange,
+}: {
+  pillarScoreRaw: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  // Derive keeper pillars from stance.q3 JSON. A pillar is a "keeper"
+  // when total depth+pull+anchor >= 7 (same threshold as the score grid).
+  const keepers = useMemo<string[]>(() => {
+    if (!pillarScoreRaw) return [];
+    try {
+      const parsed = JSON.parse(pillarScoreRaw) as { scores?: Array<{ candidate: string; depth?: number; pull?: number; anchor?: number }> };
+      return (parsed.scores ?? [])
+        .filter((s) => s.depth && s.pull && s.anchor && (s.depth + s.pull + s.anchor) >= 7)
+        .map((s) => s.candidate)
+        .slice(0, 5);
+    } catch {
+      return [];
+    }
+  }, [pillarScoreRaw]);
+
+  // Reconcile existing value against keeper list (in case pillars changed).
+  const initial = useMemo<MemoryPayload>(() => {
+    const blanks: MemoryCard[] = keepers.map((p) => ({
+      pillar: p, image: "", body_location: "", sensory_cue: "", recall_trigger: "",
+    }));
+    if (!value) return { cards: blanks };
+    try {
+      const parsed = JSON.parse(value) as MemoryPayload;
+      const byPillar: Record<string, MemoryCard> = {};
+      for (const c of parsed.cards ?? []) byPillar[c.pillar] = c;
+      const reconciled = keepers.length > 0
+        ? keepers.map((p) => byPillar[p] ?? blanks.find((b) => b.pillar === p)!)
+        : (parsed.cards ?? blanks);
+      return { cards: reconciled };
+    } catch {
+      return { cards: blanks };
+    }
+  }, [value, keepers]);
+
+  const [cards, setCards] = useState<MemoryCard[]>(initial.cards);
+
+  useEffect(() => {
+    onChange(JSON.stringify({ cards } satisfies MemoryPayload));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cards]);
+
+  function updateCard(idx: number, key: keyof MemoryCard, value: string) {
+    setCards((cur) => cur.map((c, i) => (i === idx ? { ...c, [key]: value } : c)));
+  }
+
+  if (keepers.length === 0 && cards.length === 0) {
+    return (
+      <div className="rounded-[var(--r-lg)] border border-dashed border-[var(--border)] bg-[var(--surface)] p-5">
+        <p className="text-[color:var(--text-muted)]">
+          We need your scored pillars from <strong>stance.q3</strong> to build the recall cards. Hit ← Back, score 3+ pillars at 7+, and return here.
+        </p>
+      </div>
+    );
+  }
+
+  const completeCount = cards.filter((c) =>
+    c.image.trim() && c.body_location.trim() && c.sensory_cue.trim() && c.recall_trigger.trim()
+  ).length;
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--border)] p-3 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed">
+        For each pillar, fill 4 anchors so it fires in 2 seconds on a sales call: <strong>image</strong> (visual), <strong>body</strong> (where you feel it), <strong>sense</strong> (smell/sound), <strong>trigger</strong> (the prospect moment).
+      </div>
+
+      <div className="space-y-3">
+        {cards.map((card, idx) => {
+          const isComplete = Boolean(
+            card.image.trim() && card.body_location.trim() && card.sensory_cue.trim() && card.recall_trigger.trim()
+          );
+          return (
+            <div
+              key={`${idx}-${card.pillar}`}
+              className={`rounded-[var(--r-lg)] border p-4 space-y-3 ${isComplete ? "border-[var(--brand-strong)] bg-[var(--brand-soft)]" : "border-[var(--border)] bg-[var(--surface-elevated)]"}`}
+            >
+              <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                <h4 className="font-display text-[length:var(--t-h3)] font-extrabold text-[color:var(--text)] leading-tight">
+                  {card.pillar || `(Pillar ${idx + 1})`}
+                </h4>
+                {isComplete && <Badge tone="brand" size="xs" uppercase>Card ready</Badge>}
+              </div>
+
+              <MemoryField
+                label="Image"
+                hint="The visual that anchors this pillar. Be sensory."
+                placeholder="e.g. Stack of $20s on a kitchen counter, lit by morning light"
+                value={card.image}
+                onChange={(v) => updateCard(idx, "image", v)}
+              />
+              <MemoryField
+                label="Body location"
+                hint="Where in your body do you feel this pillar? Be specific."
+                placeholder="e.g. Sternum — warm and heavy"
+                value={card.body_location}
+                onChange={(v) => updateCard(idx, "body_location", v)}
+              />
+              <MemoryField
+                label="Sensory cue"
+                hint="A smell, sound, or texture tied to it."
+                placeholder="e.g. Smell of coffee in the kitchen at 6am"
+                value={card.sensory_cue}
+                onChange={(v) => updateCard(idx, "sensory_cue", v)}
+              />
+              <MemoryField
+                label="Real-world recall trigger"
+                hint="What does a prospect say/do that makes this pillar fire?"
+                placeholder='e.g. Prospect says "I just need to push harder"'
+                value={card.recall_trigger}
+                onChange={(v) => updateCard(idx, "recall_trigger", v)}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+        {completeCount} of {cards.length} cards complete. <span className="text-[color:var(--text-faint)]">Even one is better than zero — but we recommend filling all 3.</span>
+      </p>
+    </div>
+  );
+}
+
+function MemoryField({
+  label, hint, placeholder, value, onChange,
+}: {
+  label: string;
+  hint: string;
+  placeholder: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <label className="block space-y-1">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">{label}</span>
+        <span className="text-[length:var(--t-caption)] text-[color:var(--text-faint)] italic">{hint}</span>
+      </div>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full h-10 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none"
+      />
+    </label>
+  );
+}
+
+// ============================================================
+// BELIEF LADDER UI — Funnel Q5
+// ============================================================
+//
+// Sequenced rungs from current belief (bottom) → required belief (top).
+// Each rung is one belief change AND one piece of content. We seed the
+// top and bottom rungs from funnel.q3 and funnel.q4 if they're filled.
+
+type LadderRung = { belief: string; content_idea: string };
+type LadderPayload = { rungs: LadderRung[] };
+
+function BeliefLadderUI({
+  requiredBelief, currentBelief, value, onChange,
+}: {
+  requiredBelief: string;
+  currentBelief: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const seed = useMemo<LadderPayload>(() => {
+    if (value) {
+      try {
+        const parsed = JSON.parse(value) as LadderPayload;
+        if ((parsed.rungs ?? []).length > 0) return parsed;
+      } catch {}
+    }
+    // Build initial ladder from prior answers. Rungs[0] = bottom (current),
+    // rungs[last] = top (required).
+    const r: LadderRung[] = [];
+    r.push({ belief: currentBelief.trim() || "", content_idea: "" });
+    r.push({ belief: "", content_idea: "" });
+    r.push({ belief: "", content_idea: "" });
+    r.push({ belief: requiredBelief.trim() || "", content_idea: "" });
+    return { rungs: r };
+  }, [value, requiredBelief, currentBelief]);
+
+  const [rungs, setRungs] = useState<LadderRung[]>(seed.rungs);
+
+  useEffect(() => {
+    onChange(JSON.stringify({ rungs } satisfies LadderPayload));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rungs]);
+
+  function updateRung(idx: number, key: keyof LadderRung, v: string) {
+    setRungs((cur) => cur.map((r, i) => (i === idx ? { ...r, [key]: v } : r)));
+  }
+  function addRung() {
+    // Insert before the top (required) rung if we have a topping rung.
+    setRungs((cur) => {
+      if (cur.length >= 6) return cur; // cap at 6
+      const next = [...cur];
+      next.splice(Math.max(1, next.length - 1), 0, { belief: "", content_idea: "" });
+      return next;
+    });
+  }
+  function removeRung(idx: number) {
+    setRungs((cur) => (cur.length <= 2 ? cur : cur.filter((_, i) => i !== idx)));
+  }
+  function moveRung(idx: number, dir: -1 | 1) {
+    setRungs((cur) => {
+      const next = [...cur];
+      const target = idx + dir;
+      if (target < 0 || target >= next.length) return cur;
+      [next[idx], next[target]] = [next[target], next[idx]];
+      return next;
+    });
+  }
+
+  // Render top → bottom so visually the ladder goes "up." But the rungs
+  // array stays bottom-to-top (rungs[0] = current, rungs[last] = required).
+  const renderOrder = useMemo(() => rungs.map((_, i) => i).reverse(), [rungs]);
+
+  const filledCount = rungs.filter((r) => r.belief.trim().length >= 5).length;
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--border)] p-3 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed">
+        Bottom rung is what they believe today. Top rung is what they need to believe to buy. Each rung between = one belief change = one piece of content.
+      </div>
+
+      <div className="space-y-2">
+        {renderOrder.map((i) => {
+          const r = rungs[i];
+          const isTop = i === rungs.length - 1;
+          const isBottom = i === 0;
+          const filled = r.belief.trim().length >= 5;
+          return (
+            <div
+              key={`rung-${i}`}
+              className={`rounded-[var(--r-lg)] border p-4 space-y-2 ${
+                filled
+                  ? isTop
+                    ? "border-[var(--brand-strong)] bg-[var(--brand-soft)]"
+                    : isBottom
+                      ? "border-[var(--border)] bg-[var(--surface-elevated)]"
+                      : "border-[color-mix(in_srgb,var(--brand)_30%,var(--border))] bg-[var(--surface-elevated)]"
+                  : "border-[var(--border)] bg-[var(--surface)]"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[length:var(--t-caption)] text-[color:var(--text-faint)] uppercase tracking-wider">
+                    Rung {i + 1}
+                  </span>
+                  {isBottom && <Badge size="xs" uppercase>Current belief</Badge>}
+                  {isTop && <Badge tone="brand" size="xs" uppercase>Required belief</Badge>}
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => moveRung(i, -1)}
+                    disabled={i === 0}
+                    className="w-7 h-7 rounded-[var(--r-sm)] border border-[var(--border)] bg-[var(--surface)] text-[color:var(--text-muted)] hover:border-[var(--text-muted)] disabled:opacity-30 disabled:cursor-not-allowed"
+                    title="Move down"
+                  >↓</button>
+                  <button
+                    type="button"
+                    onClick={() => moveRung(i, 1)}
+                    disabled={i === rungs.length - 1}
+                    className="w-7 h-7 rounded-[var(--r-sm)] border border-[var(--border)] bg-[var(--surface)] text-[color:var(--text-muted)] hover:border-[var(--text-muted)] disabled:opacity-30 disabled:cursor-not-allowed"
+                    title="Move up"
+                  >↑</button>
+                  {rungs.length > 2 && !isTop && !isBottom && (
+                    <button
+                      type="button"
+                      onClick={() => removeRung(i)}
+                      className="w-7 h-7 rounded-[var(--r-sm)] border border-[var(--border)] bg-[var(--surface)] text-[color:var(--text-faint)] hover:text-[color:var(--danger)]"
+                      title="Remove rung"
+                    >×</button>
+                  )}
+                </div>
+              </div>
+
+              <input
+                type="text"
+                value={r.belief}
+                onChange={(e) => updateRung(i, "belief", e.target.value)}
+                placeholder={
+                  isBottom ? "What they believe today (e.g. 'I just need to grind harder')"
+                  : isTop ? "What they need to believe to buy"
+                  : "An intermediate belief that moves them up one step"
+                }
+                className="w-full h-10 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none"
+              />
+              <input
+                type="text"
+                value={r.content_idea}
+                onChange={(e) => updateRung(i, "content_idea", e.target.value)}
+                placeholder='Content idea that drives this belief (e.g. "A story about hitting the wall in my own business")'
+                className="w-full h-10 px-3 rounded-[var(--r-md)] border border-dashed border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-caption)] text-[color:var(--text-muted)] focus:border-[var(--brand-strong)] focus:outline-none"
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+          {filledCount} of {rungs.length} rungs filled
+        </p>
+        <Button
+          variant="ghost"
+          onClick={addRung}
+          disabled={rungs.length >= 6}
+          className="!h-8 !px-3 text-[length:var(--t-caption)]"
+        >
+          {rungs.length >= 6 ? "Max 6 rungs" : "+ Add rung"}
         </Button>
       </div>
     </div>
