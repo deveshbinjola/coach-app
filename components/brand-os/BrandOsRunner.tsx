@@ -250,6 +250,47 @@ export default function BrandOsRunner(props: Props) {
         return;
       }
 
+      // Objection Proof Map (funnel.q9) — proof artifact per objection.
+      if (currentQ.kind === "objectionProof") {
+        try {
+          const parsed = JSON.parse(value || "{}") as { artifacts?: Array<{ proof_text?: string }> };
+          const complete = (parsed.artifacts ?? []).filter((a) => (a.proof_text ?? "").trim().length >= 6).length;
+          if (complete < 2) {
+            setError(`Name at least 2 proof artifacts before continuing. (${complete} done so far.)`);
+            return;
+          }
+        } catch {
+          setError("Map proof artifacts first.");
+          return;
+        }
+        setAdvancing(true);
+        await persistDraft(value);
+        await markLocked();
+        await advanceTo(props.nextQuestionId);
+        return;
+      }
+
+      // Repurpose Rules (distribution.q3) — main piece + 3 derivatives.
+      if (currentQ.kind === "repurposeRules") {
+        try {
+          const parsed = JSON.parse(value || "{}") as { main?: { topic?: string }; derivatives?: Array<{ format?: string; channel?: string }> };
+          const mainFilled = (parsed.main?.topic ?? "").trim().length >= 5;
+          const derivCount = (parsed.derivatives ?? []).filter((d) => (d.format ?? "").trim() && (d.channel ?? "").trim()).length;
+          if (!mainFilled || derivCount < 2) {
+            setError("Name your main piece and at least 2 derivatives before continuing.");
+            return;
+          }
+        } catch {
+          setError("Set up your repurpose rules first.");
+          return;
+        }
+        setAdvancing(true);
+        await persistDraft(value);
+        await markLocked();
+        await advanceTo(props.nextQuestionId);
+        return;
+      }
+
       // Pre-Mortem (funnel.q10) — 3 failure-mode cards.
       if (currentQ.kind === "preMortem") {
         try {
@@ -650,6 +691,8 @@ export default function BrandOsRunner(props: Props) {
           stanceQ3Raw={answerMap["stance.q3"]?.raw_text ?? ""}
           funnelQ3Raw={answerMap["funnel.q3"]?.raw_text ?? ""}
           funnelQ4Raw={answerMap["funnel.q4"]?.raw_text ?? ""}
+          funnelQ6Raw={answerMap["funnel.q6"]?.raw_text ?? ""}
+          distributionQ1Raw={answerMap["distribution.q1"]?.raw_text ?? ""}
           trialToken={props.trialToken}
           onChange={(v) => {
             setDraft(v);
@@ -721,7 +764,7 @@ export default function BrandOsRunner(props: Props) {
 
 function QuestionInput({
   question, audience, value, onChange, runId,
-  stanceQ1Raw, stanceQ3Raw, funnelQ3Raw, funnelQ4Raw,
+  stanceQ1Raw, stanceQ3Raw, funnelQ3Raw, funnelQ4Raw, funnelQ6Raw, distributionQ1Raw,
   trialToken,
 }: {
   question: Question;
@@ -736,6 +779,10 @@ function QuestionInput({
   funnelQ3Raw: string;
   /** Current belief from funnel.q4 — feeds Belief Ladder bottom rung. */
   funnelQ4Raw: string;
+  /** Objections list from funnel.q6 — feeds Objection Proof builder. */
+  funnelQ6Raw: string;
+  /** Primary channel from distribution.q1 — seeds Repurpose Rules main piece. */
+  distributionQ1Raw: string;
   trialToken?: string;
 }) {
   const placeholder = question.placeholder ? pick(question.placeholder, audience) : undefined;
@@ -892,6 +939,14 @@ function QuestionInput({
 
   if (question.kind === "preMortem") {
     return <PreMortemUI value={value} onChange={onChange} />;
+  }
+
+  if (question.kind === "objectionProof") {
+    return <ObjectionProofUI objectionsRaw={funnelQ6Raw} value={value} onChange={onChange} />;
+  }
+
+  if (question.kind === "repurposeRules") {
+    return <RepurposeRulesUI primaryChannel={distributionQ1Raw} value={value} onChange={onChange} />;
   }
 
   return null;
@@ -1985,6 +2040,319 @@ function PreMortemUI({
       <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
         {complete} of 3 failure modes named. <span className="text-[color:var(--text-faint)]">Need 2+ to continue.</span>
       </p>
+    </div>
+  );
+}
+
+// ============================================================
+// OBJECTION PROOF UI — Funnel Q9
+// ============================================================
+//
+// Pulls the 5 objections from funnel.q6 (list) and asks for one
+// proof artifact per objection. Proof type tagged so the synthesis
+// knows what category of asset to expect.
+
+type ProofType = "client_quote" | "case_study" | "screenshot" | "your_story" | "data" | "other";
+type ObjectionArtifact = {
+  objection: string;
+  proof_type: ProofType;
+  proof_text: string;
+};
+type ObjectionProofPayload = { artifacts: ObjectionArtifact[] };
+
+const PROOF_TYPES: Array<{ key: ProofType; label: string }> = [
+  { key: "client_quote", label: "Client quote" },
+  { key: "case_study",   label: "Case study" },
+  { key: "screenshot",   label: "Screenshot" },
+  { key: "your_story",   label: "Your own story" },
+  { key: "data",         label: "Data/stat" },
+  { key: "other",        label: "Other" },
+];
+
+function ObjectionProofUI({
+  objectionsRaw, value, onChange,
+}: {
+  objectionsRaw: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const objections = useMemo(() => {
+    return (objectionsRaw ?? "")
+      .split("\n")
+      .map((l) => l.replace(/^[-\d.)\s]+/, "").trim())
+      .filter((l) => l.length > 0)
+      .slice(0, 5);
+  }, [objectionsRaw]);
+
+  const initial = useMemo<ObjectionProofPayload>(() => {
+    const blanks: ObjectionArtifact[] = objections.map((o) => ({
+      objection: o, proof_type: "client_quote", proof_text: "",
+    }));
+    if (!value) return { artifacts: blanks };
+    try {
+      const parsed = JSON.parse(value) as ObjectionProofPayload;
+      const byObj: Record<string, ObjectionArtifact> = {};
+      for (const a of parsed.artifacts ?? []) byObj[a.objection] = a;
+      const reconciled = objections.length > 0
+        ? objections.map((o) => byObj[o] ?? blanks.find((b) => b.objection === o)!)
+        : (parsed.artifacts ?? blanks);
+      return { artifacts: reconciled };
+    } catch {
+      return { artifacts: blanks };
+    }
+  }, [value, objections]);
+
+  const [artifacts, setArtifacts] = useState<ObjectionArtifact[]>(initial.artifacts);
+
+  useEffect(() => {
+    onChange(JSON.stringify({ artifacts } satisfies ObjectionProofPayload));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [artifacts]);
+
+  function update(idx: number, key: keyof ObjectionArtifact, v: string) {
+    setArtifacts((cur) => cur.map((a, i) => (i === idx ? { ...a, [key]: v } : a)));
+  }
+
+  if (objections.length === 0) {
+    return (
+      <div className="rounded-[var(--r-lg)] border border-dashed border-[var(--border)] bg-[var(--surface)] p-5">
+        <p className="text-[color:var(--text-muted)]">
+          We need your objections list from <strong>funnel.q6</strong> first. Hit ← Back, write 5 real objections, and return here to map proof to each.
+        </p>
+      </div>
+    );
+  }
+
+  const complete = artifacts.filter((a) => a.proof_text.trim().length >= 6).length;
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--border)] p-3 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed">
+        For each objection, name <strong>one specific, retrievable proof artifact</strong>. Not "I have testimonials" — the exact thing you can paste or link to right now.
+      </div>
+
+      {artifacts.map((a, idx) => {
+        const isComplete = a.proof_text.trim().length >= 6;
+        return (
+          <div
+            key={`${idx}-${a.objection.slice(0, 20)}`}
+            className={`rounded-[var(--r-lg)] border p-4 space-y-3 ${
+              isComplete
+                ? "border-[var(--brand-strong)] bg-[var(--brand-soft)]"
+                : "border-[var(--border)] bg-[var(--surface-elevated)]"
+            }`}
+          >
+            <div className="space-y-1">
+              <p className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
+                Objection {idx + 1}
+              </p>
+              <p className="text-[color:var(--text)] font-bold leading-snug">
+                "{a.objection}"
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5">
+              {PROOF_TYPES.map((p) => {
+                const active = a.proof_type === p.key;
+                return (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => update(idx, "proof_type", p.key)}
+                    className={`px-2.5 h-7 rounded-[var(--r-pill)] text-[length:var(--t-caption)] font-bold border transition ${
+                      active
+                        ? "border-[var(--brand-strong)] bg-[var(--brand-strong)] text-[color:var(--surface)]"
+                        : "border-[var(--border)] bg-[var(--surface)] text-[color:var(--text-muted)] hover:border-[var(--text-muted)]"
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <textarea
+              value={a.proof_text}
+              onChange={(e) => update(idx, "proof_text", e.target.value)}
+              placeholder={proofPlaceholder(a.proof_type)}
+              rows={2}
+              className="w-full px-3 py-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none leading-snug"
+            />
+          </div>
+        );
+      })}
+
+      <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+        {complete} of {artifacts.length} proofs mapped. <span className="text-[color:var(--text-faint)]">Need 2+ to continue.</span>
+      </p>
+    </div>
+  );
+}
+
+function proofPlaceholder(t: ProofType): string {
+  switch (t) {
+    case "client_quote": return 'e.g. Marcus said: "I closed three $5K retainers in the first 30 days using your scripts."';
+    case "case_study":   return "e.g. Link to the case-study post + the key result line";
+    case "screenshot":   return "e.g. Stripe dashboard screenshot showing the 5 paid invoices in March";
+    case "your_story":   return "e.g. My own jump from $4K/mo → $18K/mo in 60 days, captured in the April Signal";
+    case "data":         return "e.g. 7 of 10 cohort 2 alumni hired help within 30 days of graduating";
+    default:             return "Describe the proof artifact you'll point to";
+  }
+}
+
+// ============================================================
+// REPURPOSE RULES UI — Distribution Q3
+// ============================================================
+//
+// 1 main piece + 3 derivative pieces. Each derivative has a format
+// (carousel, reel, tweet thread, newsletter section, etc.) and a
+// channel. Seeds the main piece's channel from distribution.q1.
+
+type RepurposeMain = { topic: string; channel: string };
+type RepurposeDerivative = { format: string; channel: string };
+type RepurposePayload = { main: RepurposeMain; derivatives: RepurposeDerivative[] };
+
+function RepurposeRulesUI({
+  primaryChannel, value, onChange,
+}: {
+  primaryChannel: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const seed = useMemo<RepurposePayload>(() => {
+    const channelSeed = (primaryChannel ?? "").trim();
+    if (!value) {
+      return {
+        main: { topic: "", channel: channelSeed },
+        derivatives: [
+          { format: "", channel: "" },
+          { format: "", channel: "" },
+          { format: "", channel: "" },
+        ],
+      };
+    }
+    try {
+      const parsed = JSON.parse(value) as RepurposePayload;
+      // Force main.channel default to primary channel if blank.
+      const main = parsed.main ?? { topic: "", channel: channelSeed };
+      if (!main.channel) main.channel = channelSeed;
+      const derivatives = parsed.derivatives ?? [];
+      while (derivatives.length < 3) derivatives.push({ format: "", channel: "" });
+      return { main, derivatives: derivatives.slice(0, 3) };
+    } catch {
+      return {
+        main: { topic: "", channel: channelSeed },
+        derivatives: [
+          { format: "", channel: "" },
+          { format: "", channel: "" },
+          { format: "", channel: "" },
+        ],
+      };
+    }
+  }, [value, primaryChannel]);
+
+  const [main, setMain] = useState<RepurposeMain>(seed.main);
+  const [derivatives, setDerivatives] = useState<RepurposeDerivative[]>(seed.derivatives);
+
+  useEffect(() => {
+    onChange(JSON.stringify({ main, derivatives } satisfies RepurposePayload));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [main, derivatives]);
+
+  function updateDerivative(idx: number, key: keyof RepurposeDerivative, v: string) {
+    setDerivatives((cur) => cur.map((d, i) => (i === idx ? { ...d, [key]: v } : d)));
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--border)] p-3 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed">
+        <strong>Main piece</strong> = the heavy-lift original. <strong>Derivatives</strong> = one beat each, reshaped for a different channel's native rhythm.
+      </div>
+
+      {/* MAIN PIECE */}
+      <div className={`rounded-[var(--r-lg)] border-2 p-4 space-y-3 ${
+        main.topic.trim().length >= 5
+          ? "border-[var(--brand-strong)] bg-[var(--brand-soft)]"
+          : "border-[var(--border)] bg-[var(--surface-elevated)]"
+      }`}>
+        <div className="flex items-baseline justify-between gap-2 flex-wrap">
+          <Badge tone="brand" size="xs" uppercase>Main piece</Badge>
+          <span className="text-[length:var(--t-caption)] text-[color:var(--text-faint)]">The original, longest form</span>
+        </div>
+        <label className="block space-y-1">
+          <span className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
+            Topic / format
+          </span>
+          <input
+            type="text"
+            value={main.topic}
+            onChange={(e) => setMain({ ...main, topic: e.target.value })}
+            placeholder="e.g. 1,500-word essay on why coaches stall at $10K/mo"
+            className="w-full h-10 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none"
+          />
+        </label>
+        <label className="block space-y-1">
+          <span className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
+            Lives on
+          </span>
+          <input
+            type="text"
+            value={main.channel}
+            onChange={(e) => setMain({ ...main, channel: e.target.value })}
+            placeholder="e.g. Newsletter (Beehiiv)"
+            className="w-full h-10 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none"
+          />
+        </label>
+      </div>
+
+      {/* DERIVATIVES */}
+      <div className="space-y-2">
+        <p className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)] px-1">
+          ↓ Reshape into 3 derivatives
+        </p>
+        {derivatives.map((d, idx) => {
+          const filled = d.format.trim() && d.channel.trim();
+          return (
+            <div
+              key={idx}
+              className={`rounded-[var(--r-lg)] border p-3 space-y-2 ${
+                filled
+                  ? "border-[color-mix(in_srgb,var(--brand)_30%,var(--border))] bg-[var(--surface-elevated)]"
+                  : "border-[var(--border)] bg-[var(--surface)]"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[length:var(--t-caption)] text-[color:var(--text-faint)] uppercase tracking-wider">
+                  Derivative {idx + 1}
+                </span>
+                {filled && <Badge size="xs" uppercase>Mapped</Badge>}
+              </div>
+              <div className="grid sm:grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  value={d.format}
+                  onChange={(e) => updateDerivative(idx, "format", e.target.value)}
+                  placeholder={
+                    idx === 0 ? "e.g. 8-slide carousel of the key beats"
+                    : idx === 1 ? "e.g. 60s reel of the sharpest line"
+                    : "e.g. 2-tweet thread with the contrarian frame"
+                  }
+                  className="h-10 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none"
+                />
+                <input
+                  type="text"
+                  value={d.channel}
+                  onChange={(e) => updateDerivative(idx, "channel", e.target.value)}
+                  placeholder={
+                    idx === 0 ? "Instagram" : idx === 1 ? "Reels / TikTok" : "X / LinkedIn"
+                  }
+                  className="h-10 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none"
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

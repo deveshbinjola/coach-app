@@ -28,6 +28,8 @@ export type QuestionKind =
   | "beliefLadder" // Module 4 Q5 — ordered rungs from current → required
   | "ctaTriad"     // Module 4 Q8 — 3 fixed CTA styles with primary pick
   | "preMortem"    // Module 4 Q10 — 3 failure-mode cards with sub-fields
+  | "objectionProof" // Module 4 Q9 — proof artifact per objection from Q6
+  | "repurposeRules" // Module 5 Q3 — 1 main piece + 3 derivative channel mappings
   | "summary";    // agent-rendered summary, coach confirms
 
 export type Question = {
@@ -550,10 +552,11 @@ const FUNNEL: Question[] = [
     id: "funnel.q6",
     module: "funnel",
     order: 6,
-    kind: "longtext",
+    kind: "list",
+    listTarget: 5,
     prompt: "Top 5 real objections. Not 'I can't afford it.' The real ones underneath.",
-    hint: "Examples: 'I've tried 4 of these. Why is yours different?' / 'I'm scared if this works, I'll have to change.'",
-    minChars: 100,
+    hint: "One per line. Examples: 'I've tried 4 of these. Why is yours different?' / 'I'm scared if this works, I'll have to change.'",
+    minChars: 80,
   },
   {
     id: "funnel.q7",
@@ -577,10 +580,9 @@ const FUNNEL: Question[] = [
     id: "funnel.q9",
     module: "funnel",
     order: 9,
-    kind: "longtext",
-    prompt: "For each of your 5 objections, name the proof artifact that answers it.",
-    hint: "Client quote, case study, screenshot, your own story, data. Specific, named, retrievable.",
-    minChars: 100,
+    kind: "objectionProof",
+    prompt: "For each objection from Q6, name the proof artifact that answers it.",
+    hint: "Specific, named, retrievable. A client quote you can paste. A case study URL. A screenshot. A story you've already written.",
   },
   {
     id: "funnel.q10",
@@ -618,9 +620,9 @@ const DISTRIBUTION: Question[] = [
     id: "distribution.q3",
     module: "distribution",
     order: 3,
-    kind: "longtext",
-    prompt: "Repurpose rules. For one main piece on the primary channel, what are the 3 derivative pieces and which channel each lives on?",
-    minChars: 60,
+    kind: "repurposeRules",
+    prompt: "Repurpose rules. Map one main piece to 3 derivative pieces — and which channel each lives on.",
+    hint: "The main piece does the heavy lifting. Derivatives extract one beat each, reshaped for a different channel's rhythm.",
   },
   {
     id: "distribution.q4",
