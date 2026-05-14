@@ -3,7 +3,7 @@
 // TrialUpgradeBanner — bottom of the Brand OS deliverable page.
 //
 // Shown to plan='trial' coaches only (the $7 trip-wire buyers). One-click
-// activation of a 10-day free platform trial: flips plan to 'standard',
+// activation of a 14-day free platform trial: flips plan to 'standard',
 // unlocks Content / Leads / Clients / Command Center. Lands them in
 // /onboarding to set up their reality-question state.
 
@@ -40,7 +40,7 @@ export default function TrialUpgradeBanner() {
       </div>
 
       <h2 className="font-display text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] leading-tight">
-        Want the rest of the platform free for 10 days?
+        Want the rest of the platform free for 14 days?
       </h2>
 
       <p className="text-[color:var(--text)] leading-relaxed">
@@ -67,13 +67,13 @@ export default function TrialUpgradeBanner() {
 
       <div className="pt-3 border-t border-[color-mix(in_srgb,var(--brand)_20%,var(--border))] flex items-center justify-between flex-wrap gap-3">
         <div className="space-y-0.5 min-w-0">
-          <p className="font-bold text-[color:var(--text)]">10 days free · no card on file</p>
+          <p className="font-bold text-[color:var(--text)]">14 days free · no card on file</p>
           <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-            After 10 days, choose a plan or stay on Brand OS-only. Either way, your $7 deliverable is yours forever.
+            After 14 days, choose a plan or stay on Brand OS-only. Either way, your $7 deliverable is yours forever.
           </p>
         </div>
         <Button onClick={activate} disabled={submitting} className="!h-11 !px-6">
-          {submitting ? "Activating…" : "Start 10-day free trial →"}
+          {submitting ? "Activating…" : "Start 14-day free trial →"}
         </Button>
       </div>
 

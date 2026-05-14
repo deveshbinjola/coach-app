@@ -47,13 +47,9 @@ export default async function TrialOutputPage({
       <main className="max-w-3xl mx-auto px-3 py-6 sm:px-8 sm:py-10 space-y-8 print:max-w-none print:py-4">
 
         <section className="border-b border-[var(--border)] pb-6 space-y-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge tone="brand" size="xs" uppercase>
-              Brand OS · {run.variant === "mvp" ? "Quick Start" : "Full Run"}
-            </Badge>
-            <Badge tone="muted" size="xs" uppercase>Audience {audience}</Badge>
-            <Badge tone="muted" size="xs" uppercase>Trial access</Badge>
-          </div>
+          <Badge tone="brand" size="xs" uppercase>
+            Brand OS · {run.variant === "mvp" ? "Quick Start" : "Full Run"}
+          </Badge>
           <h1 className="font-display text-[length:var(--t-h1)] font-extrabold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">
             Your Brand OS
           </h1>
@@ -73,12 +69,9 @@ export default async function TrialOutputPage({
         {/* Trial-tier upgrade prompt — points back into the platform with
             a real sign-up flow when the buyer is ready. */}
         <section className="rounded-[var(--r-lg)] border-2 border-[var(--brand-strong)] bg-[linear-gradient(135deg,var(--brand-soft)_0%,var(--surface-elevated)_100%)] p-6 sm:p-8 space-y-4 print:hidden">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge tone="brand" size="xs" uppercase>You finished Brand OS</Badge>
-            <Badge tone="muted" size="xs" uppercase>What's next</Badge>
-          </div>
+          <Badge tone="brand" size="xs" uppercase>You finished Brand OS · What's next</Badge>
           <h2 className="font-display text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] leading-tight">
-            Want the rest of the platform free for 10 days?
+            Want the rest of the platform free for 14 days?
           </h2>
           <p className="text-[color:var(--text)] leading-relaxed">
             Your Brand OS gave you the fuel. The full platform turns it into <strong>drafts that sound like you</strong>, a <strong>lead inbox</strong> in your voice, and a <strong>client room</strong> for every paying buyer.
@@ -87,7 +80,7 @@ export default async function TrialOutputPage({
             href="/login?upgrade=trial"
             className="inline-flex items-center justify-center h-11 px-6 rounded-[var(--r-md)] bg-[var(--brand-strong)] text-[color:var(--surface)] text-[length:var(--t-body)] font-bold hover:bg-[color-mix(in_srgb,var(--brand)_85%,black)] transition"
           >
-            Start 10-day free trial →
+            Start 14-day free trial →
           </a>
           <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
             No card on file. You'll log in with the email tied to your $7 purchase.

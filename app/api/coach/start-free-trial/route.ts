@@ -16,7 +16,10 @@ import { createAdminClient } from "@/lib/supabase-admin";
 
 export const runtime = "edge";
 
-const TRIAL_DAYS = 10;
+// 14-day standard SaaS trial. Long enough to actually use the platform
+// for two real content cycles, short enough that the conversion moment
+// stays present.
+const TRIAL_DAYS = 14;
 
 export async function POST(_request: NextRequest) {
   const supabase = createClient();

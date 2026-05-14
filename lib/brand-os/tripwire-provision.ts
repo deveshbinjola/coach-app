@@ -135,13 +135,23 @@ export async function provisionTripwireBuyer(
     }
   }
 
-  // Ensure cp_coaches row exists. Use upsert to avoid races between
-  // welcome path + webhook (both can hit this within seconds).
+  // Ensure cp_coaches row exists. Captures email + display name so the
+  // customer record is complete on day one. Use upsert to avoid races
+  // between welcome path + webhook (both can hit this within seconds).
+  const displayName = email.split("@")[0];
   await admin.from("cp_coaches").upsert({
     id: coachId,
     email,
+    full_name: displayName,
     plan: "trial",
   }, { onConflict: "id" });
+
+  // Subscribe to The Signal newsletter via Beehiiv. Fire-and-forget;
+  // never blocks the buyer's checkout flow. Only fires on first
+  // provision (not on idempotent retries).
+  if (!existing?.user_provisioned_at) {
+    void subscribeToBeehiiv(email, displayName);
+  }
 
   // Generate magic link — used by welcome page for auto-login redirect,
   // AND emailed as fallback.
@@ -263,6 +273,47 @@ function welcomeEmailHtml(trialUrl: string, email: string): string {
     Sent to <strong>${email}</strong> · reply with anything weird and we'll fix it.
   </p>
 </body></html>`;
+}
+
+// Push a new $7 buyer to The Signal newsletter (Beehiiv). Tagged
+// with utm so we can attribute the source in Beehiiv analytics.
+// Non-blocking: if BEEHIIV_API_KEY isn't set or the API call fails,
+// we log and move on — the customer still gets their product.
+async function subscribeToBeehiiv(email: string, displayName: string): Promise<void> {
+  const apiKey = process.env.BEEHIIV_API_KEY;
+  const pubId = process.env.BEEHIIV_PUB_ID ?? "f390a157-1409-46d7-8d9e-1eff7e3a4d64";
+  if (!apiKey) {
+    console.warn("[tripwire-provision] BEEHIIV_API_KEY not set — skipping newsletter signup for", email);
+    return;
+  }
+  try {
+    const resp = await fetch(`https://api.beehiiv.com/v2/publications/${pubId}/subscriptions`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        reactivate_existing: true,
+        send_welcome_email: true,
+        utm_source: "brand_os_tripwire",
+        utm_medium: "product_signup",
+        utm_campaign: "brand_os_7_purchase",
+        custom_fields: [{ name: "first_name", value: displayName }],
+      }),
+    });
+    if (!resp.ok) {
+      const detail = await resp.text();
+      console.warn(
+        "[tripwire-provision] Beehiiv subscribe failed:",
+        resp.status,
+        detail.slice(0, 200),
+      );
+    }
+  } catch (err) {
+    console.error("[tripwire-provision] Beehiiv subscribe error:", err);
+  }
 }
 
 function welcomeEmailText(trialUrl: string): string {
