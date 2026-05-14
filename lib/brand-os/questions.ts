@@ -26,6 +26,8 @@ export type QuestionKind =
   | "pillarScore" // Module 3 Q3 — tap-to-score grid for candidate stances
   | "memoryPalace" // Module 3 Q13 — 4-field recall card per pillar
   | "beliefLadder" // Module 4 Q5 — ordered rungs from current → required
+  | "ctaTriad"     // Module 4 Q8 — 3 fixed CTA styles with primary pick
+  | "preMortem"    // Module 4 Q10 — 3 failure-mode cards with sub-fields
   | "summary";    // agent-rendered summary, coach confirms
 
 export type Question = {
@@ -567,10 +569,9 @@ const FUNNEL: Question[] = [
     id: "funnel.q8",
     module: "funnel",
     order: 8,
-    kind: "longtext",
-    prompt: "Three CTA versions — invitational, scarcity-anchored (real not fake), identity-anchored.",
-    hint: "Pick one as primary, two as alternates.",
-    minChars: 90,
+    kind: "ctaTriad",
+    prompt: "Write three versions of your CTA. Then pick one as primary.",
+    hint: "Each version uses a different lever — invitation, real scarcity, or identity. The primary is what you'll lead with for the next 45 days; the alternates are for A/B testing later.",
   },
   {
     id: "funnel.q9",
@@ -585,10 +586,9 @@ const FUNNEL: Question[] = [
     id: "funnel.q10",
     module: "funnel",
     order: 10,
-    kind: "longtext",
+    kind: "preMortem",
     prompt: "Pre-mortem. 45 days from today: the funnel didn't work. Pipeline empty. Why?",
-    hint: "Give 3 specific failure modes. For each: early signal you missed, fix that wasn't taken, push-back override (if any) that contributed.",
-    minChars: 120,
+    hint: "Name 3 specific failure modes. For each: the early signal you'd miss, the fix you'd not take, and the override (if any) that would contribute.",
     flags: ["blocking"],
   },
 ];

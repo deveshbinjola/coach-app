@@ -229,6 +229,47 @@ export default function BrandOsRunner(props: Props) {
         return;
       }
 
+      // CTA Triad (funnel.q8) — 3 styled CTAs, one marked primary.
+      if (currentQ.kind === "ctaTriad") {
+        try {
+          const parsed = JSON.parse(value || "{}") as { versions?: Array<{ text?: string; primary?: boolean }> };
+          const filled = (parsed.versions ?? []).filter((v) => (v.text ?? "").trim().length >= 10);
+          const hasPrimary = (parsed.versions ?? []).some((v) => v.primary && (v.text ?? "").trim().length >= 10);
+          if (filled.length < 1 || !hasPrimary) {
+            setError("Write at least 1 CTA and mark it as primary before continuing.");
+            return;
+          }
+        } catch {
+          setError("Write your CTAs first.");
+          return;
+        }
+        setAdvancing(true);
+        await persistDraft(value);
+        await markLocked();
+        await advanceTo(props.nextQuestionId);
+        return;
+      }
+
+      // Pre-Mortem (funnel.q10) — 3 failure-mode cards.
+      if (currentQ.kind === "preMortem") {
+        try {
+          const parsed = JSON.parse(value || "{}") as { modes?: Array<{ failure?: string }> };
+          const complete = (parsed.modes ?? []).filter((m) => (m.failure ?? "").trim().length >= 10).length;
+          if (complete < 2) {
+            setError(`Name at least 2 failure modes before continuing. (${complete} done so far.)`);
+            return;
+          }
+        } catch {
+          setError("Walk through the pre-mortem first.");
+          return;
+        }
+        setAdvancing(true);
+        await persistDraft(value);
+        await markLocked();
+        await advanceTo(props.nextQuestionId);
+        return;
+      }
+
       // Belief Ladder (funnel.q5) — JSON of ordered rungs.
       // Require at least 3 rungs each with a belief filled.
       if (currentQ.kind === "beliefLadder") {
@@ -843,6 +884,14 @@ function QuestionInput({
         onChange={onChange}
       />
     );
+  }
+
+  if (question.kind === "ctaTriad") {
+    return <CtaTriadUI value={value} onChange={onChange} />;
+  }
+
+  if (question.kind === "preMortem") {
+    return <PreMortemUI value={value} onChange={onChange} />;
   }
 
   return null;
@@ -1660,6 +1709,282 @@ function BeliefLadderUI({
           {rungs.length >= 6 ? "Max 6 rungs" : "+ Add rung"}
         </Button>
       </div>
+    </div>
+  );
+}
+
+// ============================================================
+// CTA TRIAD UI — Funnel Q8
+// ============================================================
+//
+// 3 fixed CTA styles, one marked primary. Each gets a text input
+// + style hint. The "primary" radio is a single-select across all 3.
+
+type CtaStyle = "invitational" | "scarcity" | "identity";
+type CtaVersion = { style: CtaStyle; text: string; primary: boolean };
+type CtaTriadPayload = { versions: CtaVersion[] };
+
+const CTA_STYLES: Array<{
+  key: CtaStyle; label: string; hint: string; example: string;
+}> = [
+  {
+    key: "invitational",
+    label: "Invitational",
+    hint: "Low-pressure. 'Come closer, here's the door.'",
+    example: 'e.g. "If this hit, the door is here: book a clarity call."',
+  },
+  {
+    key: "scarcity",
+    label: "Scarcity (real)",
+    hint: "Real deadline or real limit. NOT fake urgency.",
+    example: 'e.g. "Cohort 3 closes Friday. 4 seats left, then waitlist."',
+  },
+  {
+    key: "identity",
+    label: "Identity-anchored",
+    hint: "Resonance with who the reader IS.",
+    example: 'e.g. "If you\'re a $25K/mo coach who knows their brand is the next step — this is yours."',
+  },
+];
+
+function CtaTriadUI({
+  value, onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const initial = useMemo<CtaTriadPayload>(() => {
+    if (!value) {
+      return {
+        versions: CTA_STYLES.map((s, i) => ({ style: s.key, text: "", primary: i === 0 })),
+      };
+    }
+    try {
+      const parsed = JSON.parse(value) as CtaTriadPayload;
+      // Reconcile against the 3 styles in case schema changed.
+      const byStyle: Record<string, CtaVersion> = {};
+      for (const v of parsed.versions ?? []) byStyle[v.style] = v;
+      const reconciled = CTA_STYLES.map((s, i) => byStyle[s.key] ?? { style: s.key, text: "", primary: i === 0 });
+      // Ensure exactly one primary.
+      if (!reconciled.some((v) => v.primary)) reconciled[0].primary = true;
+      return { versions: reconciled };
+    } catch {
+      return { versions: CTA_STYLES.map((s, i) => ({ style: s.key, text: "", primary: i === 0 })) };
+    }
+  }, [value]);
+
+  const [versions, setVersions] = useState<CtaVersion[]>(initial.versions);
+
+  useEffect(() => {
+    onChange(JSON.stringify({ versions } satisfies CtaTriadPayload));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [versions]);
+
+  function updateText(style: CtaStyle, text: string) {
+    setVersions((cur) => cur.map((v) => (v.style === style ? { ...v, text } : v)));
+  }
+  function setPrimary(style: CtaStyle) {
+    setVersions((cur) => cur.map((v) => ({ ...v, primary: v.style === style })));
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--border)] p-3 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed">
+        Write one CTA per style. Tap the radio on whichever you'll lead with. The other two stay as alternates for A/B testing.
+      </div>
+
+      {CTA_STYLES.map((s) => {
+        const v = versions.find((x) => x.style === s.key)!;
+        const isPrimary = v.primary;
+        return (
+          <div
+            key={s.key}
+            className={`rounded-[var(--r-lg)] border p-4 space-y-2 transition ${
+              isPrimary
+                ? "border-[var(--brand-strong)] bg-[var(--brand-soft)]"
+                : "border-[var(--border)] bg-[var(--surface-elevated)]"
+            }`}
+          >
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setPrimary(s.key)}
+                  className={`w-5 h-5 rounded-full border-2 transition shrink-0 ${
+                    isPrimary
+                      ? "border-[var(--brand-strong)] bg-[var(--brand-strong)]"
+                      : "border-[var(--border)] bg-[var(--surface)]"
+                  }`}
+                  aria-pressed={isPrimary}
+                  title="Set as primary"
+                >
+                  {isPrimary && <span className="block w-2 h-2 rounded-full bg-[var(--surface)] m-auto" />}
+                </button>
+                <div>
+                  <p className="font-display font-extrabold text-[color:var(--text)] leading-tight">{s.label}</p>
+                  <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">{s.hint}</p>
+                </div>
+              </div>
+              {isPrimary && <Badge tone="brand" size="xs" uppercase>Primary</Badge>}
+            </div>
+
+            <textarea
+              value={v.text}
+              onChange={(e) => updateText(s.key, e.target.value)}
+              placeholder={s.example}
+              rows={2}
+              className="w-full px-3 py-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none leading-snug"
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ============================================================
+// PRE-MORTEM UI — Funnel Q10
+// ============================================================
+//
+// "45 days from today, the funnel failed. Why?" — 3 failure-mode
+// cards each with: failure description, early signal, fix not taken.
+
+type PreMortemMode = {
+  failure: string;
+  early_signal: string;
+  fix_not_taken: string;
+};
+type PreMortemPayload = { modes: PreMortemMode[] };
+
+const PREMORTEM_PLACEHOLDERS = [
+  {
+    failure: "e.g. I burned through 45 days without ever testing a new CTA",
+    early_signal: "e.g. Engagement dropped after week 2 and I kept posting anyway",
+    fix_not_taken: "e.g. Should have rotated CTAs at day 14 — pushed back on it",
+  },
+  {
+    failure: "e.g. I drifted off the one channel I committed to",
+    early_signal: "e.g. Caught myself drafting LinkedIn posts on day 12 'just to test'",
+    fix_not_taken: "e.g. Should have closed LinkedIn for 30 days",
+  },
+  {
+    failure: "e.g. Every piece sounded like every other coach by week 4",
+    early_signal: "e.g. My Q1 voice samples weren't getting referenced in drafts anymore",
+    fix_not_taken: "e.g. Should have re-tuned voice DNA on day 21",
+  },
+];
+
+function PreMortemUI({
+  value, onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const initial = useMemo<PreMortemPayload>(() => {
+    if (!value) {
+      return { modes: [
+        { failure: "", early_signal: "", fix_not_taken: "" },
+        { failure: "", early_signal: "", fix_not_taken: "" },
+        { failure: "", early_signal: "", fix_not_taken: "" },
+      ]};
+    }
+    try {
+      const parsed = JSON.parse(value) as PreMortemPayload;
+      const modes = parsed.modes ?? [];
+      while (modes.length < 3) modes.push({ failure: "", early_signal: "", fix_not_taken: "" });
+      return { modes: modes.slice(0, 3) };
+    } catch {
+      return { modes: [
+        { failure: "", early_signal: "", fix_not_taken: "" },
+        { failure: "", early_signal: "", fix_not_taken: "" },
+        { failure: "", early_signal: "", fix_not_taken: "" },
+      ]};
+    }
+  }, [value]);
+
+  const [modes, setModes] = useState<PreMortemMode[]>(initial.modes);
+
+  useEffect(() => {
+    onChange(JSON.stringify({ modes } satisfies PreMortemPayload));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modes]);
+
+  function update(idx: number, key: keyof PreMortemMode, v: string) {
+    setModes((cur) => cur.map((m, i) => (i === idx ? { ...m, [key]: v } : m)));
+  }
+
+  const complete = modes.filter((m) => m.failure.trim().length >= 10).length;
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-[var(--r-md)] bg-[var(--surface)] border border-[var(--border)] p-3 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed">
+        Imagine 45 days have passed and the funnel didn't work. Walk through 3 failure modes <em>now</em> so you spot them later. Naming them in advance is what makes the signals visible in real time.
+      </div>
+
+      {modes.map((m, idx) => {
+        const isComplete = m.failure.trim().length >= 10;
+        const ph = PREMORTEM_PLACEHOLDERS[idx] ?? PREMORTEM_PLACEHOLDERS[0];
+        return (
+          <div
+            key={idx}
+            className={`rounded-[var(--r-lg)] border p-4 space-y-3 ${
+              isComplete
+                ? "border-[color-mix(in_srgb,var(--warning)_40%,var(--border))] bg-[color-mix(in_srgb,var(--warning)_6%,var(--surface-elevated))]"
+                : "border-[var(--border)] bg-[var(--surface-elevated)]"
+            }`}
+          >
+            <div className="flex items-baseline justify-between gap-2 flex-wrap">
+              <h4 className="font-display text-[length:var(--t-h3)] font-extrabold text-[color:var(--text)] leading-tight">
+                Failure mode {idx + 1}
+              </h4>
+              {isComplete && <Badge tone="warning" size="xs" uppercase>Named</Badge>}
+            </div>
+
+            <label className="block space-y-1">
+              <span className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
+                What broke?
+              </span>
+              <textarea
+                value={m.failure}
+                onChange={(e) => update(idx, "failure", e.target.value)}
+                placeholder={ph.failure}
+                rows={2}
+                className="w-full px-3 py-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none leading-snug"
+              />
+            </label>
+
+            <label className="block space-y-1">
+              <span className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
+                Early signal you'd miss
+              </span>
+              <textarea
+                value={m.early_signal}
+                onChange={(e) => update(idx, "early_signal", e.target.value)}
+                placeholder={ph.early_signal}
+                rows={2}
+                className="w-full px-3 py-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none leading-snug"
+              />
+            </label>
+
+            <label className="block space-y-1">
+              <span className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
+                Fix you'd not take
+              </span>
+              <textarea
+                value={m.fix_not_taken}
+                onChange={(e) => update(idx, "fix_not_taken", e.target.value)}
+                placeholder={ph.fix_not_taken}
+                rows={2}
+                className="w-full px-3 py-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none leading-snug"
+              />
+            </label>
+          </div>
+        );
+      })}
+
+      <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+        {complete} of 3 failure modes named. <span className="text-[color:var(--text-faint)]">Need 2+ to continue.</span>
+      </p>
     </div>
   );
 }
