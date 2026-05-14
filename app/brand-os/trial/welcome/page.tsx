@@ -56,15 +56,33 @@ export default async function TripwireWelcome({
   const result = await provisionTripwireBuyer(admin, stripeSession);
   if (!result.ok) return <FallbackPage reason={result.error} />;
 
-  // Auto-login: redirect the browser to the Supabase magic-link URL. The
-  // link's redirectTo is /brand-os, so the buyer lands in Brand OS signed
-  // in — no email step. The link is single-use and short-lived.
+  // Auto-login: convert the magic-link hashed_token to a real session
+  // SERVER-SIDE using verifyOtp. The cookie handler in supabase-server.ts
+  // writes the auth cookies straight onto app.elevateaisystem.com, then
+  // we redirect — same as a normal logged-in user load.
+  //
+  // This sidesteps the Supabase verify-redirect chain entirely (which puts
+  // the token in URL fragment or query and expects client JS to handle it).
+  // No fragment, no flicker, no /login bounce.
+  if (result.hashedToken) {
+    const { error: verifyErr } = await supabase.auth.verifyOtp({
+      token_hash: result.hashedToken,
+      type: "magiclink",
+    });
+    if (!verifyErr) {
+      redirect("/brand-os");
+    }
+    // Verification failed — fall through to action_link fallback.
+    console.error("[trial/welcome] verifyOtp failed:", verifyErr);
+  }
+
+  // Fallback: redirect to the magic-link action URL. Supabase handles
+  // verification, then forwards to /auth/callback?next=/brand-os which
+  // exchanges code → session.
   if (result.actionLink) {
     redirect(result.actionLink);
   }
 
-  // No actionLink (rare — would happen if generateLink returned null).
-  // Fall back to email path.
   return <FallbackPage reason="no_link_generated" email={result.email} />;
 }
 

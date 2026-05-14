@@ -29,9 +29,12 @@ export type ProvisionResult = {
   ok: true;
   coachId: string;
   email: string;
-  /** Magic-link URL the buyer can click to sign in. We redirect them to
-   *  this URL on the synchronous welcome path so they're auto-logged-in. */
+  /** Magic-link URL the buyer can click to sign in. Used as email fallback. */
   actionLink: string | null;
+  /** Hashed token from generateLink — passed to verifyOtp to convert into
+   *  a real session server-side. Lets the welcome page set auth cookies
+   *  directly without going through the Supabase redirect chain. */
+  hashedToken: string | null;
   /** Whether this run actually created a new user (vs. found existing). */
   newUser: boolean;
   /** Whether the welcome email got sent (false if Resend not configured). */
@@ -129,14 +132,23 @@ export async function provisionTripwireBuyer(
   }, { onConflict: "id" });
 
   // Generate magic link — used by welcome page for auto-login redirect,
-  // AND emailed as fallback if welcome path fails.
+  // AND emailed as fallback.
+  //
+  // CRITICAL: redirectTo must point at /auth/callback (with ?next=/brand-os),
+  // NOT directly at /brand-os. The callback route runs
+  // exchangeCodeForSession() server-side which SETS the auth cookies
+  // before forwarding the user. Without this hop, the user lands on
+  // /brand-os with the auth code in the URL fragment but no session
+  // cookies set — so the server component sees them as anonymous and
+  // bounces them to /login.
   const baseAppUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.elevateaisystem.com";
   const { data: link } = await admin.auth.admin.generateLink({
     type: "magiclink",
     email,
-    options: { redirectTo: `${baseAppUrl}/brand-os` },
+    options: { redirectTo: `${baseAppUrl}/auth/callback?next=/brand-os` },
   });
   const actionLink = link?.properties?.action_link ?? null;
+  const hashedToken = (link?.properties as { hashed_token?: string } | undefined)?.hashed_token ?? null;
 
   // Send welcome email (best-effort; never blocks). Only once per session.
   let emailSent = false;
@@ -176,7 +188,7 @@ export async function provisionTripwireBuyer(
     })
     .eq("stripe_session_id", session.id);
 
-  return { ok: true, coachId, email, actionLink, newUser, emailSent };
+  return { ok: true, coachId, email, actionLink, hashedToken, newUser, emailSent };
 }
 
 // ── Email templates ───────────────────────────────────────
