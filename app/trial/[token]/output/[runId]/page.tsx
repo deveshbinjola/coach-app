@@ -66,28 +66,63 @@ export default async function TrialOutputPage({
           trialToken={params.token}
         />
 
-        {/* Trial-tier upgrade prompt — points back into the platform with
-            a real sign-up flow when the buyer is ready. */}
-        <section className="rounded-[var(--r-lg)] border-2 border-[var(--brand-strong)] bg-[linear-gradient(135deg,var(--brand-soft)_0%,var(--surface-elevated)_100%)] p-6 sm:p-8 space-y-4 print:hidden">
-          <Badge tone="brand" size="xs" uppercase>You finished Brand OS · What's next</Badge>
+        {/* Post-Brand-OS invitation. Frames the platform as where the
+            Brand OS does its work — not as a "trial to sell." */}
+        <section className="rounded-[var(--r-lg)] border-2 border-[var(--brand-strong)] bg-[linear-gradient(135deg,var(--brand-soft)_0%,var(--surface-elevated)_100%)] p-6 sm:p-8 space-y-5 print:hidden">
+          <Badge tone="brand" size="xs" uppercase>You finished Brand OS</Badge>
           <h2 className="font-display text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] leading-tight">
-            Want the rest of the platform free for 14 days?
+            Did that feel like you?
           </h2>
-          <p className="text-[color:var(--text)] leading-relaxed">
-            Your Brand OS gave you the fuel. The full platform turns it into <strong>drafts that sound like you</strong>, a <strong>lead inbox</strong> in your voice, and a <strong>client room</strong> for every paying buyer.
+          <p className="text-[color:var(--text)] leading-relaxed text-[length:var(--t-body)]">
+            If yes, there's more. Your Brand OS is the fuel. The platform is where it does the work — <strong>drafts in your voice</strong>, <strong>replies to your leads</strong>, <strong>notes for the clients you already have</strong>.
           </p>
-          <a
-            href="/login?upgrade=trial"
-            className="inline-flex items-center justify-center h-11 px-6 rounded-[var(--r-md)] bg-[var(--brand-strong)] text-[color:var(--surface)] text-[length:var(--t-body)] font-bold hover:bg-[color-mix(in_srgb,var(--brand)_85%,black)] transition"
-          >
-            Start 14-day free trial →
-          </a>
-          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-            No card on file. You'll log in with the email tied to your $7 purchase.
-          </p>
+
+          <div className="grid sm:grid-cols-3 gap-3 pt-2">
+            <UpsellCard
+              eyebrow="Studio"
+              title="Drafts that sound like you."
+              body="Every post, every caption, every newsletter — runs through your voice DNA before it lands in front of you."
+            />
+            <UpsellCard
+              eyebrow="Inbox"
+              title="Reply to leads in your voice."
+              body="AI drafts the response from your samples. You edit. You send. Seconds, not hours."
+            />
+            <UpsellCard
+              eyebrow="Clients"
+              title="One room per paying buyer."
+              body="Session prep, notes, content built for them. All in one place. Powered by your DNA."
+            />
+          </div>
+
+          <div className="pt-3 border-t border-[color-mix(in_srgb,var(--brand)_25%,var(--border))] flex items-center justify-between flex-wrap gap-3">
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+              Free for 14 days · No card · Your Brand OS is yours forever
+            </p>
+            <a
+              href="/login?upgrade=trial"
+              className="inline-flex items-center justify-center h-11 px-6 rounded-[var(--r-md)] bg-[var(--brand-strong)] text-[color:var(--surface)] text-[length:var(--t-body)] font-bold hover:bg-[color-mix(in_srgb,var(--brand)_85%,black)] transition"
+            >
+              Explore the platform →
+            </a>
+          </div>
         </section>
 
       </main>
+    </div>
+  );
+}
+
+function UpsellCard({ eyebrow, title, body }: { eyebrow: string; title: string; body: string }) {
+  return (
+    <div className="rounded-[var(--r-md)] border border-[color-mix(in_srgb,var(--brand)_20%,var(--border))] bg-[var(--surface-elevated)] p-4 space-y-1.5">
+      <p className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--brand-strong)]">
+        {eyebrow}
+      </p>
+      <p className="font-bold text-[color:var(--text)] leading-snug">{title}</p>
+      <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed">
+        {body}
+      </p>
     </div>
   );
 }

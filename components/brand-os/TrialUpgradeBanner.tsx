@@ -33,47 +33,41 @@ export default function TrialUpgradeBanner() {
   }
 
   return (
-    <Card className="p-6 sm:p-8 border-2 border-[var(--brand-strong)] bg-[linear-gradient(135deg,var(--brand-soft)_0%,var(--surface-elevated)_100%)] space-y-4 print:hidden">
-      <div className="flex items-center gap-2 flex-wrap">
-        <Badge tone="brand" size="xs" uppercase>You finished Brand OS</Badge>
-        <Badge tone="muted" size="xs" uppercase>What's next</Badge>
-      </div>
+    <Card className="p-6 sm:p-8 border-2 border-[var(--brand-strong)] bg-[linear-gradient(135deg,var(--brand-soft)_0%,var(--surface-elevated)_100%)] space-y-5 print:hidden">
+      <Badge tone="brand" size="xs" uppercase>You finished Brand OS</Badge>
 
       <h2 className="font-display text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] leading-tight">
-        Want the rest of the platform free for 14 days?
+        Did that feel like you?
       </h2>
 
-      <p className="text-[color:var(--text)] leading-relaxed">
-        Your Brand OS just gave you the fuel. The platform turns that fuel into <strong>drafts that sound like you</strong>, a <strong>lead inbox</strong> that runs in your voice, and a <strong>client room</strong> for every paying buyer.
+      <p className="text-[color:var(--text)] leading-relaxed text-[length:var(--t-body)]">
+        If yes, there's more. Your Brand OS is the fuel. The platform is where it does the work — <strong>drafts in your voice</strong>, <strong>replies to your leads</strong>, <strong>notes for the clients you already have</strong>.
       </p>
 
       <div className="grid sm:grid-cols-3 gap-3 pt-2">
         <Bullet
-          eyebrow="Content"
-          title="Auto-uses your voice DNA"
-          body="Drafts use your vocab, your pillars, address your named avatar — no prompting."
+          eyebrow="Studio"
+          title="Drafts that sound like you."
+          body="Every post, every caption, every newsletter — runs through your voice DNA before it lands."
         />
         <Bullet
-          eyebrow="Leads"
-          title="Reply in your voice"
-          body="AI drafts every reply from your real voice samples. Edit + send in seconds."
+          eyebrow="Inbox"
+          title="Reply to leads in your voice."
+          body="AI drafts the response from your samples. You edit. You send. Seconds, not hours."
         />
         <Bullet
           eyebrow="Clients"
-          title="Session prep + notes"
-          body="Client rooms with session prep, tasks, retention triggers. All in one place."
+          title="One room per paying buyer."
+          body="Session prep, notes, content built for them. All in one place. Powered by your DNA."
         />
       </div>
 
-      <div className="pt-3 border-t border-[color-mix(in_srgb,var(--brand)_20%,var(--border))] flex items-center justify-between flex-wrap gap-3">
-        <div className="space-y-0.5 min-w-0">
-          <p className="font-bold text-[color:var(--text)]">14 days free · no card on file</p>
-          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-            After 14 days, choose a plan or stay on Brand OS-only. Either way, your $7 deliverable is yours forever.
-          </p>
-        </div>
+      <div className="pt-3 border-t border-[color-mix(in_srgb,var(--brand)_25%,var(--border))] flex items-center justify-between flex-wrap gap-3">
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+          Free for 14 days · No card · Your Brand OS is yours forever
+        </p>
         <Button onClick={activate} disabled={submitting} className="!h-11 !px-6">
-          {submitting ? "Activating…" : "Start 14-day free trial →"}
+          {submitting ? "Activating…" : "Explore the platform →"}
         </Button>
       </div>
 
