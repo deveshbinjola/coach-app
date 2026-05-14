@@ -251,12 +251,14 @@ export default function BrandOsRunner(props: Props) {
       }
 
       // Objection Proof Map (funnel.q9) — proof artifact per objection.
+      // Lowered threshold to 1 — coaches often have one strong proof and
+      // map the rest later. Quality beats quota here.
       if (currentQ.kind === "objectionProof") {
         try {
           const parsed = JSON.parse(value || "{}") as { artifacts?: Array<{ proof_text?: string }> };
           const complete = (parsed.artifacts ?? []).filter((a) => (a.proof_text ?? "").trim().length >= 6).length;
-          if (complete < 2) {
-            setError(`Name at least 2 proof artifacts before continuing. (${complete} done so far.)`);
+          if (complete < 1) {
+            setError(`Name at least 1 proof artifact before continuing.`);
             return;
           }
         } catch {
@@ -2076,33 +2078,54 @@ function ObjectionProofUI({
   value: string;
   onChange: (v: string) => void;
 }) {
-  const objections = useMemo(() => {
-    return (objectionsRaw ?? "")
-      .split("\n")
-      .map((l) => l.replace(/^[-\d.)\s]+/, "").trim())
-      .filter((l) => l.length > 0)
-      .slice(0, 5);
+  // Robust split: try newlines first, fall back to sentence boundaries
+  // for coaches who wrote Q6 as one prose blob. Keeps quoted-clause
+  // sentences intact (e.g. 'I'm scared, but I want to change.' stays whole).
+  const parsedObjections = useMemo(() => {
+    const raw = (objectionsRaw ?? "").trim();
+    if (!raw) return [] as string[];
+    const lines = raw.split("\n").map((l) => l.replace(/^[-\d.)\s]+/, "").trim()).filter((l) => l.length > 0);
+    if (lines.length >= 2) return lines.slice(0, 7);
+    // Single-line fallback: split on ". " into sentences. Strip stray quotes.
+    return raw
+      .replace(/^["'\s]+|["'\s]+$/g, "")
+      .split(/(?<=\.)\s+(?=[A-Z"'])/)
+      .map((s) => s.trim().replace(/^["']+|["']+$/g, ""))
+      .filter((s) => s.length > 3)
+      .slice(0, 7);
   }, [objectionsRaw]);
 
   const initial = useMemo<ObjectionProofPayload>(() => {
-    const blanks: ObjectionArtifact[] = objections.map((o) => ({
+    const blanks: ObjectionArtifact[] = parsedObjections.map((o) => ({
       objection: o, proof_type: "client_quote", proof_text: "",
     }));
     if (!value) return { artifacts: blanks };
     try {
       const parsed = JSON.parse(value) as ObjectionProofPayload;
-      const byObj: Record<string, ObjectionArtifact> = {};
-      for (const a of parsed.artifacts ?? []) byObj[a.objection] = a;
-      const reconciled = objections.length > 0
-        ? objections.map((o) => byObj[o] ?? blanks.find((b) => b.objection === o)!)
-        : (parsed.artifacts ?? blanks);
-      return { artifacts: reconciled };
+      // Prefer the existing stored artifacts (preserves manual adds).
+      // Only fall back to parsed objections if storage is empty.
+      if ((parsed.artifacts ?? []).length > 0) return parsed;
+      return { artifacts: blanks };
     } catch {
       return { artifacts: blanks };
     }
-  }, [value, objections]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, parsedObjections]);
 
   const [artifacts, setArtifacts] = useState<ObjectionArtifact[]>(initial.artifacts);
+
+  function addObjectionSlot() {
+    setArtifacts((cur) => [
+      ...cur,
+      { objection: "", proof_type: "client_quote", proof_text: "" },
+    ]);
+  }
+  function removeObjection(idx: number) {
+    setArtifacts((cur) => cur.filter((_, i) => i !== idx));
+  }
+  function updateObjectionText(idx: number, text: string) {
+    setArtifacts((cur) => cur.map((a, i) => (i === idx ? { ...a, objection: text } : a)));
+  }
 
   useEffect(() => {
     onChange(JSON.stringify({ artifacts } satisfies ObjectionProofPayload));
@@ -2113,17 +2136,21 @@ function ObjectionProofUI({
     setArtifacts((cur) => cur.map((a, i) => (i === idx ? { ...a, [key]: v } : a)));
   }
 
-  if (objections.length === 0) {
+  if (artifacts.length === 0) {
     return (
-      <div className="rounded-[var(--r-lg)] border border-dashed border-[var(--border)] bg-[var(--surface)] p-5">
+      <div className="rounded-[var(--r-lg)] border border-dashed border-[var(--border)] bg-[var(--surface)] p-5 space-y-3">
         <p className="text-[color:var(--text-muted)]">
-          We need your objections list from <strong>funnel.q6</strong> first. Hit ← Back, write 5 real objections, and return here to map proof to each.
+          We didn't pick up your objections from <strong>funnel.q6</strong>. Hit ← Back to write them, or add slots manually below.
         </p>
+        <Button variant="ghost" onClick={addObjectionSlot} className="!h-9 !px-3 text-[length:var(--t-caption)]">
+          + Add an objection
+        </Button>
       </div>
     );
   }
 
   const complete = artifacts.filter((a) => a.proof_text.trim().length >= 6).length;
+  const didNotSplit = artifacts.length === 1 && artifacts[0].objection.length > 60;
 
   return (
     <div className="space-y-3">
@@ -2131,25 +2158,42 @@ function ObjectionProofUI({
         For each objection, name <strong>one specific, retrievable proof artifact</strong>. Not "I have testimonials" — the exact thing you can paste or link to right now.
       </div>
 
+      {didNotSplit && (
+        <div className="rounded-[var(--r-md)] border border-[var(--warning)] bg-[var(--warning-soft)] p-3 text-[length:var(--t-caption)] text-[color:#936300] leading-relaxed">
+          Heads up: your Q6 objections came through as one long block. You can edit the objection text directly in each card below, or hit <strong>+ Add objection</strong> to split them out manually.
+        </div>
+      )}
+
       {artifacts.map((a, idx) => {
         const isComplete = a.proof_text.trim().length >= 6;
         return (
           <div
-            key={`${idx}-${a.objection.slice(0, 20)}`}
+            key={`obj-card-${idx}`}
             className={`rounded-[var(--r-lg)] border p-4 space-y-3 ${
               isComplete
                 ? "border-[var(--brand-strong)] bg-[var(--brand-soft)]"
                 : "border-[var(--border)] bg-[var(--surface-elevated)]"
             }`}
           >
-            <div className="space-y-1">
+            <div className="flex items-start justify-between gap-2">
               <p className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
                 Objection {idx + 1}
               </p>
-              <p className="text-[color:var(--text)] font-bold leading-snug">
-                "{a.objection}"
-              </p>
+              <button
+                type="button"
+                onClick={() => removeObjection(idx)}
+                className="text-[color:var(--text-faint)] hover:text-[color:var(--danger)] leading-none text-lg px-1"
+                title="Remove this objection slot"
+              >×</button>
             </div>
+
+            <textarea
+              value={a.objection}
+              onChange={(e) => updateObjectionText(idx, e.target.value)}
+              placeholder="The objection — paste or edit. Keep it punchy."
+              rows={2}
+              className="w-full px-3 py-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-body)] text-[color:var(--text)] font-bold focus:border-[var(--brand-strong)] focus:outline-none leading-snug"
+            />
 
             <div className="flex flex-wrap gap-1.5">
               {PROOF_TYPES.map((p) => {
@@ -2182,9 +2226,18 @@ function ObjectionProofUI({
         );
       })}
 
-      <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-        {complete} of {artifacts.length} proofs mapped. <span className="text-[color:var(--text-faint)]">Need 2+ to continue.</span>
-      </p>
+      <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+          {complete} of {artifacts.length} proofs mapped. <span className="text-[color:var(--text-faint)]">Need 1+ to continue.</span>
+        </p>
+        <Button
+          variant="ghost"
+          onClick={addObjectionSlot}
+          className="!h-8 !px-3 text-[length:var(--t-caption)]"
+        >
+          + Add objection
+        </Button>
+      </div>
     </div>
   );
 }
