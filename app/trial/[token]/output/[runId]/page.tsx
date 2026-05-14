@@ -8,6 +8,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { verifyTrialToken } from "@/lib/brand-os/trial-token";
 import { Badge } from "@/components/ui";
 import SynthesisRenderer from "@/components/brand-os/SynthesisRenderer";
+import TrialHeader from "@/components/brand-os/TrialHeader";
 import type { BrandOsSynthesis } from "@/app/api/brand-os/synthesize/route";
 
 export const runtime = "edge";
@@ -42,7 +43,7 @@ export default async function TrialOutputPage({
 
   return (
     <div className="min-h-screen bg-[var(--surface)]">
-      <TrialHeader token={params.token} />
+      <TrialHeader email={defaultEmail} />
       <main className="max-w-3xl mx-auto px-3 py-6 sm:px-8 sm:py-10 space-y-8 print:max-w-none print:py-4">
 
         <section className="border-b border-[var(--border)] pb-6 space-y-2">
@@ -98,16 +99,3 @@ export default async function TrialOutputPage({
   );
 }
 
-function TrialHeader({ token }: { token: string }) {
-  return (
-    <header className="border-b border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 sm:px-8 flex items-center justify-between gap-3 print:hidden">
-      <a href={`/trial/${token}`} className="flex items-center gap-2 text-[color:var(--text)] font-bold">
-        <span className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-[var(--brand-strong)] text-[color:var(--surface)] font-extrabold text-sm">B</span>
-        <span>Brand OS</span>
-      </a>
-      <span className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] font-mono">
-        Trial access · save this URL
-      </span>
-    </header>
-  );
-}

@@ -7,6 +7,7 @@
 import { redirect, notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase-admin";
 import BrandOsRunner from "@/components/brand-os/BrandOsRunner";
+import TrialHeader from "@/components/brand-os/TrialHeader";
 import { verifyTrialToken } from "@/lib/brand-os/trial-token";
 import {
   getQuestion,
@@ -62,13 +63,21 @@ export default async function TrialRunPage({
     .order("created_at", { ascending: false })
     .limit(20);
 
+  // Pull email for the header.
+  const { data: coachRow } = await admin
+    .from("cp_coaches")
+    .select("email")
+    .eq("id", coachId)
+    .maybeSingle();
+  const buyerEmail = (coachRow?.email as string | null) ?? "";
+
   const totalQuestions = run.variant === "mvp" ? MVP_QUESTION_IDS.length : BRAND_OS_QUESTIONS.length;
   const lockedCount = (answers ?? []).filter((a) => a.locked_at).length;
   const progressPct = Math.round((lockedCount / totalQuestions) * 100);
 
   return (
     <div className="min-h-screen bg-[var(--surface)]">
-      <TrialHeader token={params.token} />
+      <TrialHeader email={buyerEmail} />
       <main className="max-w-2xl mx-auto px-3 py-6 sm:px-6 sm:py-10">
         <BrandOsRunner
           runId={params.runId}
@@ -101,16 +110,3 @@ export default async function TrialRunPage({
   );
 }
 
-function TrialHeader({ token }: { token: string }) {
-  return (
-    <header className="border-b border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 sm:px-8 flex items-center justify-between gap-3">
-      <a href={`/trial/${token}`} className="flex items-center gap-2 text-[color:var(--text)] font-bold">
-        <span className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-[var(--brand-strong)] text-[color:var(--surface)] font-extrabold text-sm">B</span>
-        <span>Brand OS</span>
-      </a>
-      <span className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] font-mono">
-        Trial access · save this URL
-      </span>
-    </header>
-  );
-}

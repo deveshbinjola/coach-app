@@ -247,6 +247,16 @@ export default function BrandOsRunner(props: Props) {
         return;
       }
 
+      // Summary questions are pure transition cards — no input required.
+      // Lock the row (with an empty string) and advance.
+      if (currentQ.kind === "summary") {
+        setAdvancing(true);
+        await persistDraft("");
+        await markLocked();
+        await advanceTo(props.nextQuestionId);
+        return;
+      }
+
       // Min-char gating.
       const min = currentQ.minChars ?? 0;
       if (value.trim().length < min) {
@@ -641,7 +651,25 @@ function QuestionInput({
     );
   }
 
-  if (question.kind === "longtext" || question.kind === "summary") {
+  if (question.kind === "summary") {
+    // Transition card between modules. No textbox — just an
+    // affirmation of progress and a clean handoff to the next module.
+    return (
+      <div className="rounded-[var(--r-lg)] border-2 border-[var(--brand-strong)] bg-[var(--brand-soft)] p-5 sm:p-6 space-y-3">
+        <p className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--brand-strong)]">
+          ✓ Module complete
+        </p>
+        <p className="text-[color:var(--text)] leading-relaxed">
+          You can keep moving. AI-generated summaries of what you wrote in this module will surface in your final deliverable.
+        </p>
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed">
+          If anything from the questions you just answered feels off, hit <strong>← Back</strong> to revisit. Otherwise: <strong>Continue →</strong> to the next module.
+        </p>
+      </div>
+    );
+  }
+
+  if (question.kind === "longtext") {
     return (
       <textarea
         value={value}
