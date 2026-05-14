@@ -185,6 +185,30 @@ export default function BrandOsRunner(props: Props) {
       .eq("id", props.runId);
   }
 
+  /** Skip the current question entirely. Persists whatever the coach has
+   *  typed (even if blank), locks the row, advances. Bypasses all gates
+   *  EXCEPT for questions flagged "blocking" — those genuinely break
+   *  downstream synthesis if empty (e.g. funnel.q1 destination, signal.q1
+   *  voice samples). For everything else, skip is honored. */
+  async function skipQuestion() {
+    if (!currentQ || advancing) return;
+    if (currentQ.flags?.includes("blocking")) {
+      setError("This one really matters for the deliverable — can't skip. Even a sentence helps.");
+      return;
+    }
+    try {
+      setError(null);
+      setAdvancing(true);
+      await persistDraft(draft);
+      await markLocked();
+      await advanceTo(props.nextQuestionId);
+    } catch (err) {
+      console.error("[brand-os] skipQuestion error:", err);
+      setError(err instanceof Error ? err.message : "Could not advance. Try again.");
+      setAdvancing(false);
+    }
+  }
+
   /** Single lock + advance path. Accepts an optional explicit value so choice
    *  buttons can auto-advance without waiting for the React state-flush race.
    *  Wraps everything in try/catch so errors surface visibly instead of leaving
@@ -385,10 +409,16 @@ export default function BrandOsRunner(props: Props) {
         return;
       }
 
-      // Min-char gating.
+      // Min-char gating — softer messaging so coaches can choose to
+      // skip instead of feeling forced to pad. Blocking-flagged questions
+      // still gate hard (those break downstream synthesis).
       const min = currentQ.minChars ?? 0;
       if (value.trim().length < min) {
-        setError(`Stay with this. We need at least ${min} characters before you can move on. (You have ${value.trim().length}.)`);
+        if (currentQ.flags?.includes("blocking")) {
+          setError(`This one shapes your deliverable. We need ${min} characters minimum. (You have ${value.trim().length}.)`);
+        } else {
+          setError(`Aim for ${min}+ characters for a useful answer. If you'd rather skip, hit "Skip for now." (You have ${value.trim().length}.)`);
+        }
         return;
       }
 
@@ -734,12 +764,27 @@ export default function BrandOsRunner(props: Props) {
                 : "Take your time. Auto-saves as you type."}
           </span>
 
-          {/* Continue is hidden for choice questions (auto-advance handles it). */}
-          {currentQ.kind !== "choice" && (
-            <Button onClick={() => lockAndAdvance()} disabled={advancing}>
-              {advancing ? "Advancing…" : props.nextQuestionId ? "Continue →" : "Generate output →"}
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {/* Skip — for non-blocking questions where the coach wants to
+                move on without a long answer. Hidden on choice (auto-
+                advance), and on the strict blocking-flagged questions. */}
+            {currentQ.kind !== "choice" && !currentQ.flags?.includes("blocking") && (
+              <Button
+                onClick={skipQuestion}
+                variant="ghost"
+                disabled={advancing}
+                className="!px-3 text-[length:var(--t-caption)]"
+              >
+                Skip for now
+              </Button>
+            )}
+            {/* Continue is hidden for choice questions (auto-advance handles it). */}
+            {currentQ.kind !== "choice" && (
+              <Button onClick={() => lockAndAdvance()} disabled={advancing}>
+                {advancing ? "Advancing…" : props.nextQuestionId ? "Continue →" : "Generate output →"}
+              </Button>
+            )}
+          </div>
         </div>
       </Card>
 
