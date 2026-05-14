@@ -22,6 +22,26 @@ import {
 } from "@/lib/brand-os/questions";
 import { detectPushBack, triggerForQuestion } from "@/lib/brand-os/pushback";
 
+// Mirror of /api/trial/[token]/persist op union. Kept inline to avoid an
+// import cycle through the route file.
+type TrialOp =
+  | { op: "upsert_answer"; run_id: string; question_id: string; module: string; raw_text: string }
+  | { op: "lock_answer"; run_id: string; question_id: string }
+  | { op: "set_current_question"; run_id: string; current_question_id: string; current_module: string }
+  | { op: "complete_run"; run_id: string }
+  | { op: "set_audience"; run_id: string; audience: "M" | "W" | "X" }
+  | {
+      op: "log_pushback";
+      run_id: string;
+      module: string;
+      question_id: string;
+      user_original: string;
+      option_a?: string;
+      option_b?: string;
+      action: "pick_a" | "pick_b" | "override";
+      override_reason?: string;
+    };
+
 type AnswerRow = {
   question_id: string;
   raw_text: string | null;
@@ -51,11 +71,40 @@ type Props = {
   /** Existing voice training sources from /voice setup. Used by Signal
    *  Module to offer "use these" instead of forcing the coach to paste again. */
   voiceSources: VoiceSourceRow[];
+  /** When present, this runner is operating in standalone trial mode.
+   *  All writes route to /api/trial/[trialToken]/persist instead of the
+   *  authenticated supabase client (which trial buyers don't have). */
+  trialToken?: string;
+  /** When in trial mode, navigation goes back to /trial/[token]/... paths
+   *  instead of /brand-os/run/... paths. */
+  trialBasePath?: string;
 };
 
 export default function BrandOsRunner(props: Props) {
   const router = useRouter();
   const supabase = createClient();
+
+  // Trial-mode writes go through the token-scoped proxy. The proxy
+  // validates the URL token and performs the same writes via admin.
+  // Read paths still hit Supabase directly with the user client — but
+  // trial-mode pages already pass all the answer/run data as props from
+  // their server-side admin fetch, so the read path is unused there.
+  const isTrial = Boolean(props.trialToken);
+  const persistViaTrial = async (op: TrialOp): Promise<{ ok: true } | { ok: false; error: string }> => {
+    if (!props.trialToken) return { ok: false, error: "no_trial_token" };
+    try {
+      const res = await fetch(`/api/trial/${props.trialToken}/persist`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(op),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return { ok: false, error: data?.error ?? `HTTP ${res.status}` };
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "fetch_failed" };
+    }
+  };
 
   const [currentId, setCurrentId] = useState(props.currentQuestionId);
   const [audience, setAudience] = useState<Audience>(props.audience);
@@ -92,10 +141,20 @@ export default function BrandOsRunner(props: Props) {
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [currentId]);
 
-  // Debounced auto-save.
+  // Debounced auto-save. Routes through trial proxy if in trial mode.
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const persistDraft = useCallback(async (text: string) => {
     if (!currentQ) return;
+    if (isTrial) {
+      await persistViaTrial({
+        op: "upsert_answer",
+        run_id: props.runId,
+        module: currentQ.module,
+        question_id: currentId,
+        raw_text: text,
+      });
+      return;
+    }
     await supabase
       .from("cp_brand_os_answers")
       .upsert({
@@ -105,7 +164,7 @@ export default function BrandOsRunner(props: Props) {
         raw_text: text,
         updated_at: new Date().toISOString(),
       }, { onConflict: "run_id,question_id" });
-  }, [supabase, props.runId, currentId, currentQ]);
+  }, [supabase, props.runId, currentId, currentQ, isTrial, persistViaTrial]);
 
   useEffect(() => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -116,6 +175,10 @@ export default function BrandOsRunner(props: Props) {
   // Pre-flight audience capture writes to run.audience.
   async function setRunAudience(value: Audience) {
     setAudience(value);
+    if (isTrial) {
+      await persistViaTrial({ op: "set_audience", run_id: props.runId, audience: value });
+      return;
+    }
     await supabase
       .from("cp_brand_os_runs")
       .update({ audience: value })
@@ -224,17 +287,27 @@ export default function BrandOsRunner(props: Props) {
     if (!prevId) return;
     setAdvancing(true);
     const prev = getQuestion(prevId);
-    const { error: upErr } = await supabase
-      .from("cp_brand_os_runs")
-      .update({
+    if (isTrial) {
+      const r = await persistViaTrial({
+        op: "set_current_question",
+        run_id: props.runId,
         current_question_id: prevId,
         current_module: prev?.module ?? "preflight",
-      })
-      .eq("id", props.runId);
-    if (upErr) {
-      setError(upErr.message);
-      setAdvancing(false);
-      return;
+      });
+      if (!r.ok) { setError(r.error); setAdvancing(false); return; }
+    } else {
+      const { error: upErr } = await supabase
+        .from("cp_brand_os_runs")
+        .update({
+          current_question_id: prevId,
+          current_module: prev?.module ?? "preflight",
+        })
+        .eq("id", props.runId);
+      if (upErr) {
+        setError(upErr.message);
+        setAdvancing(false);
+        return;
+      }
     }
     setCurrentId(prevId);
     setAdvancing(false);
@@ -271,15 +344,28 @@ export default function BrandOsRunner(props: Props) {
       setAdvancing(true);
       setPushBackOpen(false);
       const chosen = which === "a" ? pushBackOptions.a : pushBackOptions.b;
-      await supabase.from("cp_brand_os_pushbacks").insert({
-        run_id: props.runId,
-        module: currentQ.module,
-        question_id: currentId,
-        user_original: draft,
-        option_a: pushBackOptions.a,
-        option_b: pushBackOptions.b,
-        action: which === "a" ? "pick_a" : "pick_b",
-      });
+      if (isTrial) {
+        await persistViaTrial({
+          op: "log_pushback",
+          run_id: props.runId,
+          module: currentQ.module,
+          question_id: currentId,
+          user_original: draft,
+          option_a: pushBackOptions.a,
+          option_b: pushBackOptions.b,
+          action: which === "a" ? "pick_a" : "pick_b",
+        });
+      } else {
+        await supabase.from("cp_brand_os_pushbacks").insert({
+          run_id: props.runId,
+          module: currentQ.module,
+          question_id: currentId,
+          user_original: draft,
+          option_a: pushBackOptions.a,
+          option_b: pushBackOptions.b,
+          action: which === "a" ? "pick_a" : "pick_b",
+        });
+      }
       setDraft(chosen);
       await persistDraft(chosen);
       await markLocked();
@@ -296,16 +382,30 @@ export default function BrandOsRunner(props: Props) {
     try {
       setAdvancing(true);
       setPushBackOpen(false);
-      await supabase.from("cp_brand_os_pushbacks").insert({
-        run_id: props.runId,
-        module: currentQ.module,
-        question_id: currentId,
-        user_original: draft,
-        option_a: pushBackOptions?.a ?? "",
-        option_b: pushBackOptions?.b ?? "",
-        action: "override",
-        override_reason: reason || "(no reason given)",
-      });
+      if (isTrial) {
+        await persistViaTrial({
+          op: "log_pushback",
+          run_id: props.runId,
+          module: currentQ.module,
+          question_id: currentId,
+          user_original: draft,
+          option_a: pushBackOptions?.a ?? "",
+          option_b: pushBackOptions?.b ?? "",
+          action: "override",
+          override_reason: reason || "(no reason given)",
+        });
+      } else {
+        await supabase.from("cp_brand_os_pushbacks").insert({
+          run_id: props.runId,
+          module: currentQ.module,
+          question_id: currentId,
+          user_original: draft,
+          option_a: pushBackOptions?.a ?? "",
+          option_b: pushBackOptions?.b ?? "",
+          action: "override",
+          override_reason: reason || "(no reason given)",
+        });
+      }
       // Make sure the original answer is persisted, then lock + advance.
       await persistDraft(draft);
       await markLocked();
@@ -319,6 +419,10 @@ export default function BrandOsRunner(props: Props) {
 
   async function markLocked() {
     if (!currentQ) return;
+    if (isTrial) {
+      await persistViaTrial({ op: "lock_answer", run_id: props.runId, question_id: currentId });
+      return;
+    }
     await supabase
       .from("cp_brand_os_answers")
       .update({ locked_at: new Date().toISOString() })
@@ -334,37 +438,51 @@ export default function BrandOsRunner(props: Props) {
   async function advanceTo(targetId: string | null) {
     if (!targetId) {
       // End of variant — mark complete + push to output.
-      const { error: completeErr } = await supabase
-        .from("cp_brand_os_runs")
-        .update({ state: "complete", completed_at: new Date().toISOString() })
-        .eq("id", props.runId);
-      if (completeErr) {
-        setError(completeErr.message);
-        setAdvancing(false);
-        return;
+      if (isTrial) {
+        const r = await persistViaTrial({ op: "complete_run", run_id: props.runId });
+        if (!r.ok) { setError(r.error); setAdvancing(false); return; }
+      } else {
+        const { error: completeErr } = await supabase
+          .from("cp_brand_os_runs")
+          .update({ state: "complete", completed_at: new Date().toISOString() })
+          .eq("id", props.runId);
+        if (completeErr) {
+          setError(completeErr.message);
+          setAdvancing(false);
+          return;
+        }
       }
-      router.push(`/brand-os/run/${props.runId}/output`);
+      const outputUrl = isTrial && props.trialBasePath
+        ? `${props.trialBasePath}/output/${props.runId}`
+        : `/brand-os/run/${props.runId}/output`;
+      router.push(outputUrl);
       return;
     }
     const target = getQuestion(targetId);
-    const { error: upErr } = await supabase
-      .from("cp_brand_os_runs")
-      .update({
+    if (isTrial) {
+      const r = await persistViaTrial({
+        op: "set_current_question",
+        run_id: props.runId,
         current_question_id: targetId,
         current_module: target?.module ?? "preflight",
-      })
-      .eq("id", props.runId);
-    if (upErr) {
-      setError(upErr.message);
-      setAdvancing(false);
-      return;
+      });
+      if (!r.ok) { setError(r.error); setAdvancing(false); return; }
+    } else {
+      const { error: upErr } = await supabase
+        .from("cp_brand_os_runs")
+        .update({
+          current_question_id: targetId,
+          current_module: target?.module ?? "preflight",
+        })
+        .eq("id", props.runId);
+      if (upErr) {
+        setError(upErr.message);
+        setAdvancing(false);
+        return;
+      }
     }
-    // Update local state immediately so the question swaps without waiting
-    // for the server round-trip…
     setCurrentId(targetId);
     setAdvancing(false);
-    // …then ask Next.js to re-fetch the server component so progress count,
-    // module breadcrumb, and answerMap reflect the new DB state.
     router.refresh();
   }
 

@@ -10,10 +10,12 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { createAdminClient } from "@/lib/supabase-admin";
 import { rateLimitByUser } from "@/lib/rate-limit";
 import { getQuestion, pick, type Audience } from "@/lib/brand-os/questions";
 import { getVoiceProfile, deriveProfileSlug, type VoiceProfileSlug, type AudienceSelf, type AudienceServes } from "@/lib/voice-profiles";
 import { buildOverlayFromSynthesis, saveBrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
+import { verifyTrialToken } from "@/lib/brand-os/trial-token";
 
 export const runtime = "edge";
 
@@ -77,11 +79,28 @@ export type BrandOsSynthesis = {
 };
 
 export async function POST(request: NextRequest) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Authenticate: either a real Supabase session OR a trial token in the
+  // X-Trial-Token header (trip-wire buyers don't have a session). Both
+  // paths resolve to a coachId we can scope reads/writes by.
+  const trialTokenHeader = request.headers.get("x-trial-token");
+  let coachId: string | null = null;
+  let dbClient;
+  if (trialTokenHeader) {
+    const verify = await verifyTrialToken(trialTokenHeader);
+    if (!verify.ok) {
+      return NextResponse.json({ error: "Unauthorized", reason: verify.reason }, { status: 401 });
+    }
+    coachId = verify.payload.coachId;
+    dbClient = createAdminClient();
+  } else {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    coachId = user.id;
+    dbClient = supabase;
+  }
 
-  const rl = rateLimitByUser(user.id, "brand-os/synthesize", 10, 60_000);
+  const rl = rateLimitByUser(coachId, "brand-os/synthesize", 10, 60_000);
   if (!rl.allowed) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
@@ -99,11 +118,11 @@ export async function POST(request: NextRequest) {
   if (!runId) return NextResponse.json({ error: "runId required" }, { status: 400 });
 
   // Verify ownership + grab run.
-  const { data: run } = await supabase
+  const { data: run } = await dbClient
     .from("cp_brand_os_runs")
     .select("id, audience, variant, synthesis_json")
     .eq("id", runId)
-    .eq("coach_id", user.id)
+    .eq("coach_id", coachId)
     .maybeSingle();
   if (!run) return NextResponse.json({ error: "run_not_found" }, { status: 404 });
 
@@ -113,7 +132,7 @@ export async function POST(request: NextRequest) {
   if (!force && run.synthesis_json) {
     try {
       const overlay = buildOverlayFromSynthesis(run.synthesis_json as BrandOsSynthesis, runId);
-      await saveBrandVoiceOverlay(supabase, user.id, overlay);
+      await saveBrandVoiceOverlay(dbClient, coachId, overlay);
     } catch (e) {
       console.error("[brand-os/synthesize] overlay refresh on cache hit failed:", e);
     }
@@ -121,7 +140,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Pull all answers.
-  const { data: answers } = await supabase
+  const { data: answers } = await dbClient
     .from("cp_brand_os_answers")
     .select("question_id, raw_text, module")
     .eq("run_id", runId);
@@ -131,10 +150,10 @@ export async function POST(request: NextRequest) {
   }
 
   // Pull coach voice profile for tone register.
-  const { data: coach } = await supabase
+  const { data: coach } = await dbClient
     .from("cp_coaches")
     .select("audience_self, audience_serves, voice_profile_slug")
-    .eq("id", user.id)
+    .eq("id", coachId)
     .maybeSingle();
 
   const audience = run.audience as Audience;
@@ -199,7 +218,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Persist the synthesis on the run.
-  await supabase
+  await dbClient
     .from("cp_brand_os_runs")
     .update({
       synthesis_json: synthesis,
@@ -213,7 +232,7 @@ export async function POST(request: NextRequest) {
   // synthesis is the deliverable, overlay is a bonus channel.
   try {
     const overlay = buildOverlayFromSynthesis(synthesis, runId);
-    await saveBrandVoiceOverlay(supabase, user.id, overlay);
+    await saveBrandVoiceOverlay(dbClient, coachId, overlay);
   } catch (e) {
     console.error("[brand-os/synthesize] failed to persist voice overlay:", e);
   }

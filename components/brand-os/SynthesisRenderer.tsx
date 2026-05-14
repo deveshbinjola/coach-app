@@ -12,11 +12,15 @@ type Props = {
   runId: string;
   initialSynthesis: BrandOsSynthesis | null;
   defaultEmail: string;
+  /** When present, all API calls send X-Trial-Token so trip-wire buyers
+   *  (who don't have Supabase session cookies) can still synthesize +
+   *  download + email their deliverable. */
+  trialToken?: string;
 };
 
 type Status = "idle" | "generating" | "ready" | "error";
 
-export default function SynthesisRenderer({ runId, initialSynthesis, defaultEmail }: Props) {
+export default function SynthesisRenderer({ runId, initialSynthesis, defaultEmail, trialToken }: Props) {
   const [synthesis, setSynthesis] = useState<BrandOsSynthesis | null>(initialSynthesis);
   const [status, setStatus] = useState<Status>(initialSynthesis ? "ready" : "idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -31,9 +35,11 @@ export default function SynthesisRenderer({ runId, initialSynthesis, defaultEmai
     setStatus("generating");
     setErrorMsg(null);
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (trialToken) headers["X-Trial-Token"] = trialToken;
       const res = await fetch(`/api/brand-os/synthesize${force ? "?force=true" : ""}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ runId }),
       });
       const data = await res.json();
@@ -52,7 +58,7 @@ export default function SynthesisRenderer({ runId, initialSynthesis, defaultEmai
 
   return (
     <div className="space-y-8">
-      <Toolbar runId={runId} defaultEmail={defaultEmail} onRegenerate={() => generate(true)} />
+      <Toolbar runId={runId} defaultEmail={defaultEmail} onRegenerate={() => generate(true)} trialToken={trialToken} />
       <PositioningCard s={synthesis} />
       <VoiceDnaCard s={synthesis} />
       <BuyerMirrorCard s={synthesis} />
@@ -96,7 +102,7 @@ function ErrorState({ message, onRetry }: { message: string | null; onRetry: () 
 
 // ─── Toolbar ──────────────────────────────────────────────
 
-function Toolbar({ runId, defaultEmail, onRegenerate }: { runId: string; defaultEmail: string; onRegenerate: () => void }) {
+function Toolbar({ runId, defaultEmail, onRegenerate, trialToken }: { runId: string; defaultEmail: string; onRegenerate: () => void; trialToken?: string }) {
   const [email, setEmail] = useState(defaultEmail);
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState<{ kind: "ok" | "err"; msg: string } | null>(null);
@@ -107,9 +113,11 @@ function Toolbar({ runId, defaultEmail, onRegenerate }: { runId: string; default
     setSending(true);
     setStatus(null);
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (trialToken) headers["X-Trial-Token"] = trialToken;
       const res = await fetch("/api/brand-os/email", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ runId, email }),
       });
       const data = await res.json().catch(() => ({}));
@@ -125,7 +133,7 @@ function Toolbar({ runId, defaultEmail, onRegenerate }: { runId: string; default
   async function copyMd() {
     setCopying(true);
     try {
-      const res = await fetch(`/api/brand-os/download-md?runId=${runId}`);
+      const res = await fetch(`/api/brand-os/download-md?runId=${runId}${trialToken ? `&trialToken=${encodeURIComponent(trialToken)}` : ""}`);
       if (!res.ok) throw new Error("Download failed.");
       const text = await res.text();
       await navigator.clipboard.writeText(text);
@@ -142,7 +150,7 @@ function Toolbar({ runId, defaultEmail, onRegenerate }: { runId: string; default
       <div className="flex flex-wrap items-center gap-2">
         <Button onClick={() => window.print()} variant="ghost">Print / Save PDF</Button>
         <a
-          href={`/api/brand-os/download-md?runId=${runId}`}
+          href={`/api/brand-os/download-md?runId=${runId}${trialToken ? `&trialToken=${encodeURIComponent(trialToken)}` : ""}`}
           className="inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] text-[length:var(--t-body)] font-bold hover:border-[var(--text-muted)] transition"
           download
         >

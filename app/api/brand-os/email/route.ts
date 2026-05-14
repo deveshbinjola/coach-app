@@ -8,17 +8,34 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { createAdminClient } from "@/lib/supabase-admin";
 import { renderSynthesisMarkdown } from "@/lib/brand-os/render-markdown";
 import { userDisplayName } from "@/lib/user-display";
 import { resolveResendSender, resendSend } from "@/lib/email/coach-resend";
+import { verifyTrialToken } from "@/lib/brand-os/trial-token";
 import type { BrandOsSynthesis } from "@/app/api/brand-os/synthesize/route";
 
 export const runtime = "edge";
 
 export async function POST(request: NextRequest) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Dual auth: session cookie OR trial token header.
+  const trialTokenHeader = request.headers.get("x-trial-token");
+  let coachId: string | null = null;
+  let userMetadata: Record<string, unknown> = {};
+  let dbClient;
+  if (trialTokenHeader) {
+    const verify = await verifyTrialToken(trialTokenHeader);
+    if (!verify.ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    coachId = verify.payload.coachId;
+    dbClient = createAdminClient();
+  } else {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    coachId = user.id;
+    userMetadata = user.user_metadata ?? {};
+    dbClient = supabase;
+  }
 
   let body: { runId?: string; email?: string };
   try {
@@ -31,11 +48,11 @@ export async function POST(request: NextRequest) {
   if (!runId || !email) return NextResponse.json({ error: "runId and email required" }, { status: 400 });
 
   // Verify ownership + pull synthesis.
-  const { data: run } = await supabase
+  const { data: run } = await dbClient
     .from("cp_brand_os_runs")
     .select("synthesis_json, completed_at")
     .eq("id", runId)
-    .eq("coach_id", user.id)
+    .eq("coach_id", coachId)
     .maybeSingle();
   if (!run) return NextResponse.json({ error: "run_not_found" }, { status: 404 });
   if (!run.synthesis_json) {
@@ -43,18 +60,18 @@ export async function POST(request: NextRequest) {
   }
 
   // Always capture the address — useful as a lead artifact even if send fails.
-  await supabase
+  await dbClient
     .from("cp_brand_os_runs")
     .update({ delivery_email: email })
     .eq("id", runId);
 
   const synthesis = run.synthesis_json as BrandOsSynthesis;
-  const coachName = userDisplayName(user.user_metadata);
+  const coachName = userDisplayName(userMetadata);
   const completedAt = run.completed_at ? new Date(run.completed_at as string).toLocaleString() : undefined;
   const md = renderSynthesisMarkdown(synthesis, { coachName, completedAt });
 
   // BYOK fallback chain: coach → platform → fail.
-  const sender = await resolveResendSender(supabase, user.id);
+  const sender = await resolveResendSender(dbClient, coachId);
   if (!sender) {
     return NextResponse.json({
       error: "email_not_configured",
@@ -76,7 +93,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "resend_error", detail: detail.slice(0, 500) }, { status: 502 });
   }
 
-  await supabase
+  await dbClient
     .from("cp_brand_os_runs")
     .update({ emailed_at: new Date().toISOString() })
     .eq("id", runId);

@@ -13,6 +13,7 @@
 // cp_tripwire_purchases row is stamped, magic-link email queued.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { signTrialToken } from "@/lib/brand-os/trial-token";
 
 export type StripeSessionForProvision = {
   id: string;
@@ -31,10 +32,15 @@ export type ProvisionResult = {
   email: string;
   /** Magic-link URL the buyer can click to sign in. Used as email fallback. */
   actionLink: string | null;
-  /** Hashed token from generateLink — passed to verifyOtp to convert into
-   *  a real session server-side. Lets the welcome page set auth cookies
-   *  directly without going through the Supabase redirect chain. */
+  /** Hashed token from generateLink — kept around as a session-upgrade
+   *  path if/when the buyer wants the full platform later. */
   hashedToken: string | null;
+  /** URL-bearer token for the standalone trial path. The single, durable
+   *  credential the buyer carries in their email + their browser URL. */
+  trialToken: string;
+  /** Full URL the buyer should land on. Always prefer this over the
+   *  Supabase magic link for trip-wire flow. */
+  trialUrl: string;
   /** Whether this run actually created a new user (vs. found existing). */
   newUser: boolean;
   /** Whether the welcome email got sent (false if Resend not configured). */
@@ -85,19 +91,25 @@ export async function provisionTripwireBuyer(
     .maybeSingle();
 
   // Always upsert the purchase row first (covers first-time + replay).
-  await admin.from("cp_tripwire_purchases").upsert({
-    email,
-    stripe_session_id: session.id,
-    stripe_payment_intent_id: session.payment_intent ?? null,
-    amount_cents: session.amount_total ?? 0,
-    currency: session.currency ?? "usd",
-    product: "brand_os_mvp",
-    status: "paid",
-    paid_at: new Date().toISOString(),
-    utm_source: session.metadata?.utm_source ?? null,
-    utm_medium: session.metadata?.utm_medium ?? null,
-    utm_campaign: session.metadata?.utm_campaign ?? null,
-  }, { onConflict: "stripe_session_id" });
+  // We need the row id back to sign the trial token.
+  const { data: upserted } = await admin
+    .from("cp_tripwire_purchases")
+    .upsert({
+      email,
+      stripe_session_id: session.id,
+      stripe_payment_intent_id: session.payment_intent ?? null,
+      amount_cents: session.amount_total ?? 0,
+      currency: session.currency ?? "usd",
+      product: "brand_os_mvp",
+      status: "paid",
+      paid_at: new Date().toISOString(),
+      utm_source: session.metadata?.utm_source ?? null,
+      utm_medium: session.metadata?.utm_medium ?? null,
+      utm_campaign: session.metadata?.utm_campaign ?? null,
+    }, { onConflict: "stripe_session_id" })
+    .select("id")
+    .single();
+  const purchaseId = (upserted?.id as string | undefined) ?? existing?.id;
 
   // Provision the user. If existing → attach. If not → create.
   let coachId: string | null = existing?.coach_id ?? null;
@@ -150,11 +162,21 @@ export async function provisionTripwireBuyer(
   const actionLink = link?.properties?.action_link ?? null;
   const hashedToken = (link?.properties as { hashed_token?: string } | undefined)?.hashed_token ?? null;
 
-  // Send welcome email (best-effort; never blocks). Only once per session.
+  // Sign the trial token. This is the URL-bearer credential the buyer
+  // uses to access /trial/[token]/... — no Supabase login needed.
+  if (!purchaseId) {
+    return { ok: false, error: "no_purchase_id_after_upsert" };
+  }
+  const trialToken = await signTrialToken({ purchaseId, coachId });
+  const trialUrl = `${baseAppUrl}/trial/${trialToken}`;
+
+  // Send the welcome email pointing at the trial URL. ONE big button.
+  // No magic-link verify chain. Same URL works on any device forever
+  // (until token expires in 60 days).
   let emailSent = false;
   if (!existing?.user_provisioned_at) {
     const resendKey = process.env.RESEND_API_KEY;
-    if (resendKey && actionLink) {
+    if (resendKey) {
       try {
         const from = process.env.RESEND_FROM ?? "Brand OS <brand-os@elevateaisystem.com>";
         const resp = await fetch("https://api.resend.com/emails", {
@@ -166,9 +188,9 @@ export async function provisionTripwireBuyer(
           body: JSON.stringify({
             from,
             to: email,
-            subject: "Your Brand OS access · backup link",
-            html: backupEmailHtml(actionLink, email),
-            text: backupEmailText(actionLink),
+            subject: "Your Brand OS — click to start",
+            html: welcomeEmailHtml(trialUrl, email),
+            text: welcomeEmailText(trialUrl),
           }),
         });
         emailSent = resp.ok;
@@ -188,42 +210,58 @@ export async function provisionTripwireBuyer(
     })
     .eq("stripe_session_id", session.id);
 
-  return { ok: true, coachId, email, actionLink, hashedToken, newUser, emailSent };
+  return { ok: true, coachId, email, actionLink, hashedToken, trialToken, trialUrl, newUser, emailSent };
 }
 
 // ── Email templates ───────────────────────────────────────
 
-function backupEmailHtml(link: string, email: string): string {
+function welcomeEmailHtml(trialUrl: string, email: string): string {
   return `<!doctype html>
 <html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;padding:32px;color:#111;line-height:1.6;">
   <div style="text-align:left;padding-bottom:24px;border-bottom:2px solid #00FF41;">
     <strong style="color:#0A0F1C;font-size:18px;">ElevateAI · Brand OS</strong>
   </div>
 
-  <h1 style="font-size:24px;font-weight:800;margin:24px 0 12px 0;">Backup access link.</h1>
-  <p>You should already be inside Brand OS from the checkout redirect. This is your backup — use it to resume from another device, or if the redirect missed you.</p>
+  <h1 style="font-size:24px;font-weight:800;margin:24px 0 12px 0;">Your Brand OS is ready.</h1>
+  <p>Click below to start. About 90 minutes, one question at a time. We push back when answers read generic. Save this email — same link resumes you from any device.</p>
 
   <p style="margin:28px 0;">
-    <a href="${link}" style="display:inline-block;background:#00FF41;color:#0A0F1C;padding:14px 24px;border-radius:8px;font-weight:700;text-decoration:none;font-size:16px;">Open Brand OS →</a>
+    <a href="${trialUrl}" style="display:inline-block;background:#00FF41;color:#0A0F1C;padding:14px 24px;border-radius:8px;font-weight:700;text-decoration:none;font-size:16px;">Start Brand OS →</a>
   </p>
 
-  <p style="font-size:14px;color:#666;">Signs you in as <strong>${email}</strong>. Save this email — you can use this link from any device to pick up where you left off.</p>
+  <p style="font-size:14px;color:#666;">Bookmark this URL — it's your access for the next 60 days. No password needed.</p>
+
+  <p style="font-size:14px;color:#444;margin-top:24px;">What you'll get when you finish:</p>
+  <ul style="font-size:14px;color:#444;">
+    <li>Your <strong>positioning line</strong> — sharper than "I help X go from Y to Z"</li>
+    <li>Your <strong>voice DNA</strong> — vocab to use, vocab to never use</li>
+    <li>Your <strong>buyer mirror</strong> — one named avatar with body-state detail</li>
+    <li>Your <strong>3 content pillars</strong> + 5 ready-to-draft hooks</li>
+    <li>A portable <strong>.md file</strong> you can paste into ChatGPT / Claude / Gemini</li>
+  </ul>
 
   <p style="font-size:13px;color:#999;margin-top:40px;border-top:1px solid #eee;padding-top:16px;">
     ElevateAI Systems · elevateaisystem.com<br>
-    Reply with anything weird and we'll fix it.
+    Sent to <strong>${email}</strong> · reply with anything weird and we'll fix it.
   </p>
 </body></html>`;
 }
 
-function backupEmailText(link: string): string {
-  return `Backup access link.
+function welcomeEmailText(trialUrl: string): string {
+  return `Your Brand OS is ready.
 
-You should already be inside Brand OS from the checkout redirect. This is your backup — use it to resume from another device.
+Click below to start. About 90 minutes, one question at a time.
 
-${link}
+${trialUrl}
 
-Save this email — works from any device.
+Save this email — same link resumes you from any device. Valid 60 days.
+
+What you'll get:
+- Your positioning line (sharper than the generic template)
+- Your voice DNA (vocab to use, vocab to never use)
+- Your buyer mirror (named avatar)
+- 3 content pillars + 5 ready-to-draft hooks
+- A portable .md file for ChatGPT/Claude/Gemini
 
 ElevateAI Systems · elevateaisystem.com`;
 }
