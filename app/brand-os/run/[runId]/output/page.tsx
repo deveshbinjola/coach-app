@@ -15,6 +15,7 @@ import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import { Badge } from "@/components/ui";
 import SynthesisRenderer from "@/components/brand-os/SynthesisRenderer";
+import TrialUpgradeBanner from "@/components/brand-os/TrialUpgradeBanner";
 import type { BrandOsSynthesis } from "@/app/api/brand-os/synthesize/route";
 
 export const runtime = "edge";
@@ -35,6 +36,16 @@ export default async function BrandOsOutputPage({ params }: { params: { runId: s
 
   const audience = run.audience as "M" | "W" | "X";
   const synthesis = (run.synthesis_json ?? null) as BrandOsSynthesis | null;
+
+  // Plan-aware: $7 trip-wire buyers (plan='trial') see the platform
+  // upgrade banner. Full coaches on MVP see the existing "go deeper"
+  // Full Run upsell.
+  const { data: coachRow } = await supabase
+    .from("cp_coaches")
+    .select("plan")
+    .eq("id", user.id)
+    .maybeSingle();
+  const isTrialTier = (coachRow?.plan as string | null) === "trial";
 
   return (
     <div className="min-h-screen bg-[var(--surface)]">
@@ -68,9 +79,14 @@ export default async function BrandOsOutputPage({ params }: { params: { runId: s
           defaultEmail={user.email ?? ""}
         />
 
-        {/* MVP completers — surface the Full Run upgrade without yanking
-            them away from the deliverable they just opened. */}
-        {run.variant === "mvp" && (
+        {/* $7 tripwire buyers — surface the 10-day free platform trial. */}
+        {isTrialTier && <TrialUpgradeBanner />}
+
+        {/* MVP completers on the full platform — surface the Full Run
+            upgrade without yanking them away from the deliverable they
+            just opened. (Trial-tier coaches don't see this — they get
+            the platform upgrade above instead.) */}
+        {run.variant === "mvp" && !isTrialTier && (
           <section className="rounded-[var(--r-lg)] border-2 border-dashed border-[color-mix(in_srgb,var(--brand)_30%,var(--border))] bg-[var(--surface-elevated)] p-5 sm:p-6 print:hidden">
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div className="min-w-0 space-y-1">

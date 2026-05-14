@@ -158,13 +158,27 @@ export async function enforceOnboardingGate(
   supabase: SupabaseClient,
   coachId: string,
 ): Promise<string | null> {
-  // Plan check first — trial buyers are scoped to Brand OS only.
+  // Plan check first — trial buyers are scoped to Brand OS only, and
+  // any 10-day free trial that has expired gets downgraded back to
+  // brand-os-only on this page load (lazy expiration).
   const { data: planRow } = await supabase
     .from("cp_coaches")
-    .select("plan")
+    .select("plan, trial_ends_at")
     .eq("id", coachId)
     .maybeSingle();
-  if (planRow?.plan === "trial") {
+  const trialExpired =
+    planRow?.plan === "standard" &&
+    planRow.trial_ends_at &&
+    new Date(planRow.trial_ends_at as string).getTime() < Date.now();
+  if (trialExpired) {
+    // Fire-and-forget downgrade; we treat the coach as trial-tier for
+    // this request either way.
+    void supabase
+      .from("cp_coaches")
+      .update({ plan: "trial", updated_at: new Date().toISOString() })
+      .eq("id", coachId);
+  }
+  if (planRow?.plan === "trial" || trialExpired) {
     // Trial users go to Brand OS run state, not the regular onboarding
     // (no /onboarding reality questions for the $7 path).
     const { resolveBrandOsRunState } = await import("@/lib/brand-os/run-state");
