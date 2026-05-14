@@ -48,7 +48,18 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const publicPaths = ["/login", "/auth/callback", "/manifest.webmanifest", "/sw.js"];
+  const publicPaths = [
+    "/login",
+    "/auth/callback",
+    "/manifest.webmanifest",
+    "/sw.js",
+    // Brand OS $7 trip-wire flow — token-based access, no Supabase auth.
+    // The token in the URL is the credential; routes verify it themselves.
+    "/trial/",                  // /trial/[token]/... — all standalone Brand OS surfaces
+    "/brand-os/trial/welcome",  // Stripe success redirect handler
+    "/brand-os/trial/check-email", // Fallback page when auto-login fails
+    "/brand-os/trial/expired",  // Bad/expired token landing
+  ];
   const isApi = path.startsWith("/api/");
   const isPublic = isApi || publicPaths.some((p) => path.startsWith(p));
 
