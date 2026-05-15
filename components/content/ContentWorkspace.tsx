@@ -40,6 +40,7 @@ import BuyerMirrorBanner, { type BuyerMirror } from "@/components/content/BuyerM
 import VoiceRetuneBanner from "@/components/content/VoiceRetuneBanner";
 import EditorialMasthead from "@/components/content/EditorialMasthead";
 import EditorialSectionHeader from "@/components/content/EditorialSectionHeader";
+import SacredZonesInline from "@/components/content/SacredZonesInline";
 
 type DraftKind = "instagram_caption" | "linkedin_post" | "newsletter" | "carousel";
 type CarouselOutcome = "saves" | "conversations" | "authority";
@@ -1023,6 +1024,10 @@ export default function ContentWorkspace({
           </div>
         </div>
       </Modal>
+
+      {/* Sacred zones — toggles for the AI's "I won't write this from scratch"
+          rule. Belongs here, adjacent to drafting, not buried in Settings. */}
+      <SacredZonesInline />
 
       <EditorialSectionHeader
         number={2}

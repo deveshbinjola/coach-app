@@ -275,37 +275,8 @@ export default function ResonancePanel() {
             </div>
           </section>
 
-          {/* ── Sacred zones ────────────────────────────── */}
-          <section className="pt-4 border-t border-[var(--border)] space-y-3">
-            <SectionHead
-              title="Sacred zones"
-              hint="Content the AI will not write from scratch. It can still repurpose an existing piece into a sacred zone — you write the source, the platform fans it out."
-            />
-            <div className="grid sm:grid-cols-2 gap-2">
-              {SACRED_ZONE_KINDS.map((kind) => {
-                const on = sacred.includes(kind);
-                return (
-                  <button
-                    key={kind}
-                    type="button"
-                    onClick={() => toggleSacred(kind)}
-                    className={`flex items-center justify-between text-left px-3 py-2.5 rounded-[var(--r-md)] border transition ${
-                      on
-                        ? "bg-[var(--brand-soft)] border-[var(--brand-strong)]"
-                        : "bg-[var(--surface)] border-[var(--border)] hover:border-[var(--text-faint)]"
-                    }`}
-                  >
-                    <span className="text-[length:var(--t-body)] text-[color:var(--text)]">
-                      {SACRED_ZONE_LABEL[kind]}
-                    </span>
-                    <span className={`text-[length:var(--t-label)] uppercase tracking-wider font-bold ${on ? "text-[color:var(--brand-strong)]" : "text-[color:var(--text-faint)]"}`}>
-                      {on ? "Sacred" : "Open"}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
+          {/* Sacred zones moved to /content — managed inline where drafts
+              are generated. See components/content/SacredZonesInline.tsx. */}
         </>
       )}
     </Card>
