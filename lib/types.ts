@@ -453,6 +453,84 @@ export type ClientRoom = {
   updated_at: string;
 };
 
+// ───────────────────────────── Offerings ───────────────────────────────────
+// Coach-defined offering objects. A client can be in many offerings at once
+// via cp_offering_members. See docs/2026-05-14-offerings-spec.md.
+
+export type OfferingKind =
+  | "one_on_one"
+  | "private_intensive"
+  | "mens_group"
+  | "private_retreat"
+  | "online_retreat"
+  | "custom";
+
+export type OfferingStatus = "active" | "archived";
+
+export type Offering = {
+  id: string;
+  coach_id: string;
+  name: string;
+  kind: OfferingKind;
+  status: OfferingStatus;
+  description: string | null;
+  /** null = unlimited */
+  capacity: number | null;
+  /** Cents. null = unset. */
+  price_cents: number | null;
+  /** Date string YYYY-MM-DD. For cohort-shaped offerings. */
+  starts_at: string | null;
+  ends_at: string | null;
+  color: string;
+  sort_order: number;
+  created_at: string;
+};
+
+export type OfferingMemberRole = "member" | "lead" | "co_facilitator";
+export type OfferingMemberStatus = "active" | "paused" | "completed" | "dropped";
+
+export type OfferingMember = {
+  offering_id: string;
+  client_room_id: string;
+  role: OfferingMemberRole;
+  status: OfferingMemberStatus;
+  joined_at: string;
+  notes: string | null;
+};
+
+export const OFFERING_KINDS: OfferingKind[] = [
+  "one_on_one",
+  "private_intensive",
+  "mens_group",
+  "private_retreat",
+  "online_retreat",
+  "custom",
+];
+
+export const OFFERING_KIND_LABEL: Record<OfferingKind, string> = {
+  one_on_one:        "1:1 coaching",
+  private_intensive: "Private intensive",
+  mens_group:        "Men's group",
+  private_retreat:   "Private retreat",
+  online_retreat:    "Online retreat",
+  custom:            "Other",
+};
+
+export const OFFERING_MEMBER_ROLES: OfferingMemberRole[] = ["member", "lead", "co_facilitator"];
+export const OFFERING_MEMBER_STATUSES: OfferingMemberStatus[] = ["active", "paused", "completed", "dropped"];
+
+export const OFFERING_MEMBER_ROLE_LABEL: Record<OfferingMemberRole, string> = {
+  member:         "Member",
+  lead:           "Lead",
+  co_facilitator: "Co-facilitator",
+};
+export const OFFERING_MEMBER_STATUS_LABEL: Record<OfferingMemberStatus, string> = {
+  active:    "Active",
+  paused:    "Paused",
+  completed: "Completed",
+  dropped:   "Dropped",
+};
+
 export type ClientSession = {
   id: string;
   coach_id: string;
