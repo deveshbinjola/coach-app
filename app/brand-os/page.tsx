@@ -43,37 +43,9 @@ export default async function BrandOsLanding() {
   const inProgress = (runs ?? []).filter((r) => r.state === "in_progress") as RunRow[];
   const completed  = (runs ?? []).filter((r) => r.state === "complete") as RunRow[];
 
-  // $7 trip-wire buyers land here from the magic-link email. They paid for
-  // the FULL Brand OS, so we auto-create a Full run and drop them straight
-  // into it — no variant picker, no friction. Only fires if they have no
-  // existing run yet.
-  const { data: planRow } = await supabase
-    .from("cp_coaches")
-    .select("plan, audience_serves, voice_profile_slug")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (planRow?.plan === "trial" && inProgress.length === 0 && completed.length === 0) {
-    const audienceServes = (planRow as { audience_serves?: string } | null)?.audience_serves;
-    const initialAudience: "M" | "W" | "X" =
-      audienceServes === "men"   ? "M"
-      : audienceServes === "women" ? "W"
-      : "X";
-    const profileSlug = (planRow as { voice_profile_slug?: string } | null)?.voice_profile_slug ?? null;
-
-    const { data: created } = await supabase
-      .from("cp_brand_os_runs")
-      .insert({
-        coach_id: user.id,
-        variant: "full",
-        audience: initialAudience,
-        voice_profile_slug: profileSlug,
-        current_module: "preflight",
-        current_question_id: "preflight.audience",
-      })
-      .select("id")
-      .single();
-    if (created) redirect(`/brand-os/run/${created.id}`);
-  }
+  // Every coach — trip-wire buyers included — picks their own variant in the
+  // "Start a new run" section below (Quick Start MVP vs Full run). No
+  // auto-create, no forced path.
 
   return (
     <div className="min-h-screen bg-[var(--surface)]">

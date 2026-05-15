@@ -4,7 +4,8 @@
 // signed bearer credential — we decode it, verify the signature, look up
 // the buyer's run state, and redirect into Brand OS.
 //
-// First visit: auto-creates a Full Brand OS run.
+// First visit: redirects to the variant picker (/trial/[token]/start) so
+// the buyer chooses Quick Start MVP vs Full run.
 // Return visit: routes to the resume URL (in-progress run) or output page
 // (completed run).
 //
@@ -27,7 +28,7 @@ export async function GET(
   }
   const { coachId } = verify.payload;
 
-  // Look up the buyer's runs. Trial buyers always run the Full variant.
+  // Look up the buyer's runs.
   const admin = createAdminClient();
   const { data: runs } = await admin
     .from("cp_brand_os_runs")
@@ -59,35 +60,6 @@ export async function GET(
     return NextResponse.redirect(new URL(`/trial/${token}/run/${inProgress.id}`, _request.url));
   }
 
-  // No run yet → create a new Full run and drop them in.
-  const { data: coach } = await admin
-    .from("cp_coaches")
-    .select("audience_serves, voice_profile_slug")
-    .eq("id", coachId)
-    .maybeSingle();
-  const audienceServes = (coach as { audience_serves?: string } | null)?.audience_serves;
-  const initialAudience: "M" | "W" | "X" =
-    audienceServes === "men"   ? "M"
-    : audienceServes === "women" ? "W"
-    : "X";
-  const profileSlug = (coach as { voice_profile_slug?: string } | null)?.voice_profile_slug ?? null;
-
-  const { data: created, error: createErr } = await admin
-    .from("cp_brand_os_runs")
-    .insert({
-      coach_id: coachId,
-      variant: "full",
-      audience: initialAudience,
-      voice_profile_slug: profileSlug,
-      current_module: "preflight",
-      current_question_id: "preflight.audience",
-    })
-    .select("id")
-    .single();
-  if (createErr || !created) {
-    console.error("[trial/[token]] run create failed:", createErr);
-    return NextResponse.redirect(new URL(`/brand-os/trial/expired?reason=run_create_failed`, _request.url));
-  }
-
-  return NextResponse.redirect(new URL(`/trial/${token}/run/${created.id}`, _request.url));
+  // No run yet → let the buyer choose Quick Start MVP vs Full run.
+  return NextResponse.redirect(new URL(`/trial/${token}/start`, _request.url));
 }
