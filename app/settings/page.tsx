@@ -17,7 +17,6 @@ import BrandKitPanel from "@/components/settings/BrandKitPanel";
 import EmailSendingPanel from "@/components/settings/EmailSendingPanel";
 import OnboardingResetPanel from "@/components/settings/OnboardingResetPanel";
 import ResonancePanel from "@/components/settings/ResonancePanel";
-import OfferingsPanel from "@/components/settings/OfferingsPanel";
 import type { CoachSettings, CoachIntegration } from "@/lib/types";
 import type { AudienceSelf, AudienceServes, VoiceProfileSlug } from "@/lib/voice-profiles";
 import { DEFAULT_BRAND_KIT } from "@/lib/brand-kit";
@@ -156,7 +155,6 @@ export default async function SettingsPage({
               description="Pain points and tags mirror how you already think, so sorting and segmenting is automatic. Sacred zones mark the content the AI is not allowed to write from scratch."
             >
               <ResonancePanel />
-              <OfferingsPanel />
             </SettingsSection>
 
             {/* ── DELIVERY ─────────────────────────────────────── */}

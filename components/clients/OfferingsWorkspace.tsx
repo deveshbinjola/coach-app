@@ -8,6 +8,7 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui";
+import AddOfferingForm from "@/components/clients/AddOfferingForm";
 import {
   OFFERING_KIND_LABEL,
   type Offering,
@@ -20,25 +21,26 @@ export default function OfferingsWorkspace({ offerings }: { offerings: OfferingC
   const archived = offerings.filter((o) => o.status === "archived");
 
   if (active.length === 0 && archived.length === 0) {
-    return <EmptyState />;
+    return (
+      <div className="space-y-6">
+        <AddOfferingForm open />
+        <EmptyState />
+      </div>
+    );
   }
 
   return (
     <div className="space-y-8">
+      <AddOfferingForm />
       {active.length > 0 ? (
         <section className="space-y-3">
-          <h2 className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
-            Active offerings
-          </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {active.map((o) => (
               <OfferingTile key={o.id} offering={o} />
             ))}
           </div>
         </section>
-      ) : (
-        <EmptyState />
-      )}
+      ) : null}
 
       {archived.length > 0 && (
         <section className="space-y-3 opacity-80">

@@ -461,6 +461,8 @@ export type OfferingKind =
   | "one_on_one"
   | "private_intensive"
   | "mens_group"
+  | "womens_group"
+  | "mixed_group"
   | "private_retreat"
   | "online_retreat"
   | "custom";
@@ -502,6 +504,8 @@ export const OFFERING_KINDS: OfferingKind[] = [
   "one_on_one",
   "private_intensive",
   "mens_group",
+  "womens_group",
+  "mixed_group",
   "private_retreat",
   "online_retreat",
   "custom",
@@ -510,7 +514,9 @@ export const OFFERING_KINDS: OfferingKind[] = [
 export const OFFERING_KIND_LABEL: Record<OfferingKind, string> = {
   one_on_one:        "1:1 coaching",
   private_intensive: "Private intensive",
-  mens_group:        "Men's group",
+  mens_group:        "Men's group — masculine embodiment",
+  womens_group:      "Women's group",
+  mixed_group:       "Mixed / polarity group",
   private_retreat:   "Private retreat",
   online_retreat:    "Online retreat",
   custom:            "Other",
