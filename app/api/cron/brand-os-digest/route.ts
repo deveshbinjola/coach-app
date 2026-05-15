@@ -11,6 +11,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { resendSend, type ResendSender } from "@/lib/email/coach-resend";
+import { syncBuyersToNotion, type BuyerPerson } from "@/lib/notion/buyers-sync";
 
 export const runtime = "edge";
 
@@ -168,6 +169,11 @@ export async function GET(request: NextRequest) {
     boughtNotStarted: boughtNotStarted.length,
   };
 
+  // ── Notion sync ───────────────────────────────────────
+  // Done before the email so the digest can report what landed in Notion.
+  // Safe to skip silently if env vars aren't set yet.
+  const notion = await syncBuyersToNotion(people as BuyerPerson[]);
+
   // ── Email ─────────────────────────────────────────────
   const platformKey = process.env.RESEND_API_KEY;
   if (!platformKey) {
@@ -176,6 +182,7 @@ export async function GET(request: NextRequest) {
       reason: "RESEND_API_KEY not configured",
       digest,
       people,
+      notion,
     });
   }
 
@@ -260,7 +267,11 @@ export async function GET(request: NextRequest) {
       )}
 
       <p style="color:#9CA3AF;font-size:12px;margin-top:24px">
-        Synced to the Brand OS Buyers Notion database. Sent automatically every week.
+        Notion sync: ${
+          notion.ok
+            ? `${notion.created} created, ${notion.updated} updated`
+            : `not synced (${escapeHtml(notion.reason ?? "see response")})`
+        }. Sent automatically every week.
       </p>
     </div>
   `;
@@ -284,7 +295,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const { id } = await resendSend(sender, { to: DIGEST_TO, subject, html, text });
-    return NextResponse.json({ sent: true, emailId: id, digest, people });
+    return NextResponse.json({ sent: true, emailId: id, digest, people, notion });
   } catch (err) {
     return NextResponse.json(
       {
@@ -292,6 +303,7 @@ export async function GET(request: NextRequest) {
         reason: err instanceof Error ? err.message : "send failed",
         digest,
         people,
+        notion,
       },
       { status: 502 }
     );
