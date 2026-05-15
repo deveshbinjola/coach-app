@@ -38,6 +38,8 @@ import { brandKitFromSettings, fontFamilyStack, googleFontsHref, readableTextOn,
 import BrandOsPillarStrip, { type ResonanceHook, type StripPillar } from "@/components/content/BrandOsPillarStrip";
 import BuyerMirrorBanner, { type BuyerMirror } from "@/components/content/BuyerMirrorBanner";
 import VoiceRetuneBanner from "@/components/content/VoiceRetuneBanner";
+import EditorialMasthead from "@/components/content/EditorialMasthead";
+import EditorialSectionHeader from "@/components/content/EditorialSectionHeader";
 
 type DraftKind = "instagram_caption" | "linkedin_post" | "newsletter" | "carousel";
 type CarouselOutcome = "saves" | "conversations" | "authority";
@@ -681,26 +683,20 @@ export default function ContentWorkspace({
         hasRunBrandOs={hasRunBrandOs}
         onPickHook={handlePickBrandHook}
       />
-      <section className="rounded-[var(--r-xl)] border border-[var(--border)] bg-[linear-gradient(135deg,var(--surface-elevated),var(--surface),var(--brand-soft))] p-4 sm:p-7 overflow-hidden">
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
-          <div className="min-w-0">
-            <Badge tone="brand" size="xs" uppercase>
-              Voice + leads + content
-            </Badge>
-            <h1 className="mt-4 max-w-3xl break-words text-[length:var(--t-h1)] font-extrabold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">
-              Turn what your market says into what you publish next.
-            </h1>
-            <p className="mt-3 text-[length:var(--t-body)] leading-[var(--leading-relaxed)] text-[color:var(--text-muted)] max-w-2xl">
-              Draft from your imported voice, live lead objections, and the patterns already showing up in your pipeline.
-            </p>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-3">
-            <SignalTile label="Voice asset" value={voiceStats.confidence} detail={`${voiceStats.totalSignals} signals`} />
-            <SignalTile label="Imported" value={sourceSummary.primary} detail={sourceSummary.detail} />
-            <SignalTile label="Market" value={`${leadSignals.length || 0} signals`} detail="from active leads" />
-          </div>
-        </div>
-      </section>
+      <EditorialMasthead
+        tiles={[
+          { label: "Voice asset", value: voiceStats.confidence, detail: `${voiceStats.totalSignals} signals` },
+          { label: "Imported",    value: sourceSummary.primary, detail: sourceSummary.detail },
+          { label: "Market",      value: `${leadSignals.length || 0} signals`, detail: "from active leads" },
+        ]}
+      />
+
+      <EditorialSectionHeader
+        number={1}
+        kicker="The Desk"
+        lede="Where today's piece is composed. Voice on the left, signal on the right."
+        tone="accent"
+      />
 
       <div id="draft-room" className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] scroll-mt-4">
         <Card className="space-y-5">
@@ -1024,6 +1020,12 @@ export default function ContentWorkspace({
           </div>
         </div>
       </Modal>
+
+      <EditorialSectionHeader
+        number={2}
+        kicker="The Library"
+        lede="The pieces worth keeping. Archive the noise — keep the five you would actually reuse."
+      />
 
       <Card padding="none" className="overflow-hidden">
         <div className="flex flex-col gap-3 border-b border-[var(--border-faint)] px-4 py-4 sm:px-5 lg:flex-row lg:items-start lg:justify-between">
