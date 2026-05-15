@@ -677,12 +677,6 @@ export default function ContentWorkspace({
       {voiceRetune && (
         <VoiceRetuneBanner newSources={voiceRetune.newSources} newChars={voiceRetune.newChars} />
       )}
-      <BrandOsPillarStrip
-        pillars={brandPillars}
-        hooks={brandHooks}
-        hasRunBrandOs={hasRunBrandOs}
-        onPickHook={handlePickBrandHook}
-      />
       <EditorialMasthead
         tiles={[
           { label: "Voice asset", value: voiceStats.confidence, detail: `${voiceStats.totalSignals} signals` },
@@ -696,6 +690,15 @@ export default function ContentWorkspace({
         kicker="The Desk"
         lede="Where today's piece is composed. Voice on the left, signal on the right."
         tone="accent"
+      />
+
+      {/* Pillars + hooks live INSIDE The Desk — inputs adjacent to the
+          drafting surface so the click-to-prefill hook flow feels natural. */}
+      <BrandOsPillarStrip
+        pillars={brandPillars}
+        hooks={brandHooks}
+        hasRunBrandOs={hasRunBrandOs}
+        onPickHook={handlePickBrandHook}
       />
 
       <div id="draft-room" className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] scroll-mt-4">

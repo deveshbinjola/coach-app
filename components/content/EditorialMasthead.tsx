@@ -107,17 +107,7 @@ export default function EditorialMasthead({ date, issueNumber, tiles }: Props) {
         ))}
       </div>
 
-      {/* Corner seal — only on wide screens, decorative */}
-      <div className="em-seal hidden lg:flex" aria-hidden>
-        <span className="em-seal-inner">
-          <span className="em-seal-arc">
-            ELEVATE · SIGNAL DESK · ELEVATE · SIGNAL DESK ·
-          </span>
-          <span className="em-seal-core">ED</span>
-        </span>
-      </div>
-
-      {/* Scoped styles — animation + seal + drop cap */}
+      {/* Scoped styles — animation + drop cap */}
       <style>{`
         .em-rule {
           height: 1px;
@@ -165,57 +155,8 @@ export default function EditorialMasthead({ date, issueNumber, tiles }: Props) {
           to { transform: scaleX(1); opacity: 1; }
         }
 
-        /* Decorative rotating seal */
-        .em-seal {
-          position: absolute;
-          right: 28px;
-          top: 28px;
-          width: 96px;
-          height: 96px;
-          align-items: center;
-          justify-content: center;
-          pointer-events: none;
-          opacity: 0.85;
-        }
-        .em-seal-inner {
-          position: relative;
-          width: 100%;
-          height: 100%;
-        }
-        .em-seal-arc {
-          position: absolute;
-          inset: 0;
-          display: block;
-          font-size: 9px;
-          letter-spacing: 0.14em;
-          font-weight: 700;
-          text-transform: uppercase;
-          color: var(--text-faint);
-          animation: em-seal-spin 28s linear infinite;
-          /* CSS-only circular text via clip + transform — a single-line arc */
-          white-space: nowrap;
-          line-height: 96px;
-          text-align: center;
-          transform-origin: 50% 50%;
-        }
-        .em-seal-core {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 900;
-          font-size: 14px;
-          letter-spacing: 0.04em;
-          color: var(--brand-strong);
-          border: 1px solid color-mix(in srgb, var(--brand) 40%, var(--border));
-          border-radius: 50%;
-        }
-        @keyframes em-seal-spin { to { transform: rotate(360deg); } }
-
         @media (prefers-reduced-motion: reduce) {
           .em-strip, .em-headline, .em-display, .em-lede, .em-stamp, .em-rule { animation: none; }
-          .em-seal-arc { animation: none; }
         }
       `}</style>
     </section>
