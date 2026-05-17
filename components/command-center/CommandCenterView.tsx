@@ -72,7 +72,7 @@ type Props = {
   trustMessages:  LeadMessage[];
   voiceProfile:   VoiceProfile | null;
   /** Used for the display-size greeting at the top of the page
-   *  ("Aloha, Sunny."). */
+   *  ("Hey, Sunny."). */
   coachFirstName: string;
 };
 
@@ -660,14 +660,14 @@ export default function CommandCenterView({
 
   return (
     <div className="space-y-7">
-      <header className="flex items-baseline gap-3">
+      <header>
         <h1
           className="font-display text-[length:var(--t-h1)] font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]"
         >
-          Aloha, {coachFirstName}.
+          Hey, {coachFirstName}.
         </h1>
-        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-          {greetingSubline}
+        <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">
+          Take a breath before you start. &nbsp;In through the nose&hellip; slow exhale.
         </p>
       </header>
 
