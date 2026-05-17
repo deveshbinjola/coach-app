@@ -287,23 +287,18 @@ export default function ClientsWorkspace({
 
   return (
     <div className="space-y-5">
-      <section className="rounded-[var(--r-xl)] border border-[var(--border)] bg-[linear-gradient(135deg,var(--surface-elevated),var(--surface),var(--brand-soft))] p-5 sm:p-7">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="min-w-0 max-w-3xl">
-            <Badge tone="brand" size="xs" uppercase>
-              Client Rooms
-            </Badge>
-            <h1 className="mt-4 text-[length:var(--t-h1)] font-extrabold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">
-              Keep the relationship moving after the sale.
-            </h1>
-            <p className="mt-3 text-[length:var(--t-body)] leading-[var(--leading-relaxed)] text-[color:var(--text-muted)]">
-              Sessions become memory, homework, follow-up, and the next focus for every active client.
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-2 sm:min-w-[360px]">
-            <HeroStat label="Clients" value={String(leads.length)} />
-            <HeroStat label="Open tasks" value={String(tasks.filter((task) => task.status === "open").length)} />
-            <HeroStat label="Rooms" value={String(rooms.length)} />
+      <section className="rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 shadow-[var(--shadow-xs)]">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <Badge tone="brand" size="xs" uppercase>
+            Client Rooms
+          </Badge>
+          <span className="text-[length:var(--t-body)] font-extrabold text-[color:var(--text)]">
+            Keep the relationship moving after the sale.
+          </span>
+          <div className="flex items-center gap-4 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+            <span><b className="text-[color:var(--text)]">{leads.length}</b> clients</span>
+            <span><b className="text-[color:var(--text)]">{tasks.filter((task) => task.status === "open").length}</b> open tasks</span>
+            <span><b className="text-[color:var(--text)]">{rooms.length}</b> rooms</span>
           </div>
         </div>
       </section>
@@ -741,19 +736,6 @@ function EmptyClients() {
         Go to leads
       </a>
     </Card>
-  );
-}
-
-function HeroStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[var(--r-lg)] border border-[var(--border-faint)] bg-[color-mix(in_srgb,var(--surface-elevated)_78%,transparent)] px-3 py-4 text-center">
-      <div className="text-2xl font-extrabold tabular-nums text-[color:var(--text)]">
-        {value}
-      </div>
-      <div className="mt-1 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
-        {label}
-      </div>
-    </div>
   );
 }
 

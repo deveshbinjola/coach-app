@@ -67,95 +67,77 @@ export default function CommandHero({
         : `${sessionMinutes} min session · capture, reach, or sharpen voice`;
 
   return (
-    <section className="rounded-[var(--r-xl)] border border-[var(--border)] bg-[linear-gradient(135deg,var(--surface-elevated)_0%,var(--surface-elevated)_62%,var(--brand-soft)_100%)] p-6 sm:p-8 overflow-hidden relative shadow-[var(--shadow-xs)]">
-      <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-7">
-        <div className="max-w-3xl">
+    <section className="space-y-3">
+      {/* Status bar */}
+      <div className="rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 shadow-[var(--shadow-xs)]">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
           <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-faint)] bg-white/70 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)]">
             Coach OS
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" />
             Live
           </div>
-          <h1 className="mt-4 text-3xl sm:text-5xl font-extrabold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">
+          <h1 className="text-[length:var(--t-body)] font-extrabold text-[color:var(--text)]">
             {headline}
           </h1>
-          <p className="mt-3 text-[length:var(--t-body)] text-[color:var(--text-muted)] leading-[var(--leading-relaxed)]">
-            {subline}
-          </p>
-          <div className="mt-7">
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
-              Choose the next work session
-            </div>
-            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
-              <SessionCard
-                label="Rescue leads"
-                detail={rescueCount > 0 ? `${rescueCount} waiting` : "Board clean"}
-                href={focusHref}
-                active={rescueCount > 0}
-              />
-              <SessionCard
-                label="Draft replies"
-                detail={draftCount > 0 ? `${draftCount} ready` : "Open composer"}
-                href="/inbox?compose=open"
-                active={rescueCount === 0 && draftCount > 0}
-              />
-              <SessionCard
-                label="Sharpen voice"
-                detail={voiceTrustPct === null ? "Learning" : `${voiceTrustPct}% trust`}
-                href="/voice"
-                active={rescueCount === 0 && draftCount === 0 && voiceTrustPct !== null && voiceTrustPct < 80}
-              />
-              <SessionCard
-                label="Capture leads"
-                detail={`${primaryValue} ${primaryLabel}`}
-                href="/leads/capture"
-                active={rescueCount === 0 && draftCount === 0 && summary.activeCount === 0}
-              />
-            </div>
+          <div className="flex items-center gap-4 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+            <span><b className="text-[color:var(--text)]">{primaryValue}</b> {primaryLabel}</span>
+            <span><b className="text-[color:var(--text)]">{draftCount}</b> drafts</span>
+            <span><b className="text-[color:var(--text)]">{reachCount}/{reachTarget}</b> reach</span>
           </div>
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2 max-w-2xl">
-            <CommandMetric label={primaryLabel} value={primaryValue} />
-            <CommandMetric label="drafts ready" value={String(draftCount)} />
-            <CommandMetric label="reach this week" value={`${reachCount}/${reachTarget}`} />
+          <div className="ml-auto hidden lg:flex items-center gap-2 text-[length:var(--t-caption)] text-[color:var(--text-faint)]">
+            <span>{formatTimeLeft(now)}</span>
+            {voiceTrustPct !== null && <span>· {voiceTrustPct}% voice</span>}
           </div>
         </div>
-        <div className="rounded-[var(--r-lg)] border border-white/10 bg-[var(--navy)] p-4 min-w-full sm:min-w-[390px] lg:min-w-[370px] text-[color:var(--text-inverse)] shadow-[var(--shadow-md)]">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand)]">
-                Active session · {formatTimeLeft(now)}
-              </div>
-              <div className="mt-1 text-[length:var(--t-h3)] font-extrabold text-[color:var(--text-inverse)]">
-                {sessionLabel}
-              </div>
-            </div>
-            <div className="text-right text-[length:var(--t-caption)] text-white/55 font-bold">
-              {sessionMinutes} min
-            </div>
-          </div>
-          <p className="mt-3 text-[length:var(--t-caption)] font-bold text-white/65">
-            {focusLabel}
-          </p>
-          <div className="mt-4 h-2 rounded-full bg-white/10 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-[var(--brand)]"
-              style={{
-                width: `${rescueCount > 0 ? Math.min(100, Math.max(12, 100 - rescueCount * 16)) : bookedProgress}%`,
-              }}
-            />
-          </div>
-          <div className="mt-2 flex items-center justify-between text-[length:var(--t-caption)] text-white/55">
-            <span>
-              {sessionSubline}
-            </span>
-            <span>{voiceTrustPct === null ? "Voice learning" : `${voiceTrustPct}% voice trust`}</span>
-          </div>
-          <a
+      </div>
+
+      {/* Session cards + focus CTA */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-3">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
+          <SessionCard
+            label="Rescue leads"
+            detail={rescueCount > 0 ? `${rescueCount} waiting` : "Board clean"}
             href={focusHref}
-            className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-4 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] hover:bg-[var(--brand-strong)] transition"
-          >
-            Start focus
-          </a>
+            active={rescueCount > 0}
+          />
+          <SessionCard
+            label="Draft replies"
+            detail={draftCount > 0 ? `${draftCount} ready` : "Open composer"}
+            href="/inbox?compose=open"
+            active={rescueCount === 0 && draftCount > 0}
+          />
+          <SessionCard
+            label="Sharpen voice"
+            detail={voiceTrustPct === null ? "Learning" : `${voiceTrustPct}% trust`}
+            href="/voice"
+            active={rescueCount === 0 && draftCount === 0 && voiceTrustPct !== null && voiceTrustPct < 80}
+          />
+          <SessionCard
+            label="Capture leads"
+            detail={`${primaryValue} ${primaryLabel}`}
+            href="/leads/capture"
+            active={rescueCount === 0 && draftCount === 0 && summary.activeCount === 0}
+          />
         </div>
+        <a
+          href={focusHref}
+          className="flex items-center justify-between gap-3 rounded-[var(--r-lg)] bg-[var(--navy)] px-4 py-3 text-[color:var(--text-inverse)] shadow-[var(--shadow-md)] transition hover:-translate-y-px hover:shadow-[var(--shadow-lg)]"
+        >
+          <div className="min-w-0">
+            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand)]">
+              {sessionLabel}
+            </div>
+            <div className="mt-0.5 text-[length:var(--t-caption)] font-extrabold">
+              {focusLabel}
+            </div>
+            <div className="mt-0.5 text-[length:var(--t-caption)] text-white/50">
+              {sessionMinutes} min · {rescueCount > 0 ? `${rescueCount} leads` : bookedCount < bookedGoal ? `${bookedCount}/${bookedGoal} calls` : "board clean"}
+            </div>
+          </div>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand)] text-[color:var(--navy)] font-bold">
+            &rarr;
+          </span>
+        </a>
       </div>
     </section>
   );
@@ -203,19 +185,6 @@ function SessionCard({
         {detail}
       </div>
     </a>
-  );
-}
-
-function CommandMetric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[var(--r-md)] border border-[var(--border-faint)] bg-white/70 p-3">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-faint)]">
-        {label}
-      </div>
-      <div className="mt-1 text-xl font-extrabold tabular-nums text-[color:var(--text)] truncate">
-        {value}
-      </div>
-    </div>
   );
 }
 

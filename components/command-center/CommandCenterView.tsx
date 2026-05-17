@@ -660,13 +660,13 @@ export default function CommandCenterView({
 
   return (
     <div className="space-y-7">
-      <header className="pt-1">
+      <header className="flex items-baseline gap-3">
         <h1
-          className="font-display text-[length:var(--t-display)] font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]"
+          className="font-display text-[length:var(--t-h1)] font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]"
         >
           Aloha, {coachFirstName}.
         </h1>
-        <p className="mt-2 text-[length:var(--t-body)] text-[color:var(--text-muted)] leading-[var(--leading-base)]">
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
           {greetingSubline}
         </p>
       </header>
