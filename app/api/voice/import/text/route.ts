@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { rateLimitByUser } from "@/lib/rate-limit";
 import type { VoiceProfile, VoiceTrainingSource } from "@/lib/types";
+import {
+  SYSTEM_RULE_HEADER,
+  SYSTEM_RULE_FOOTER,
+  safeParseJson,
+  detectGenericPhrases,
+} from "@/lib/voice/extract-rules";
 
 export const runtime = 'edge';
 
@@ -285,12 +291,12 @@ async function extractRules(
   if (!apiKey) return fallbackRules(sourceType, transcript);
 
   const system = [
-    "You extract voice memory rules for a coach AI assistant.",
-    `The source is ${sourceType}.`,
-    "Use only the provided imported writing and active voice profile.",
-    "Return JSON only with this shape: {\"rules\":[{\"text\":\"...\",\"confidence\":\"preliminary\"|\"real\",\"category\":\"hook\"|\"story\"|\"cta\"|\"belief\"|\"offer\"|\"avoid\"|\"rhythm\"}]}",
-    "No em dash characters.",
-  ].join(" ");
+    SYSTEM_RULE_HEADER,
+    `The source is a ${sourceType} written by this coach.`,
+    `Rules must help future ${sourceType} drafts sound like THIS coach, not like a generic ${sourceType} writer.`,
+    "Use only the provided imported writing and the active voice profile.",
+    SYSTEM_RULE_FOOTER,
+  ].join("\n");
 
   const prompt = [
     "ACTIVE VOICE PROFILE:",
@@ -318,13 +324,26 @@ async function extractRules(
       }),
     });
 
-    if (!response.ok) return fallbackRules(sourceType, transcript);
+    if (!response.ok) {
+      console.warn(`[voice/${sourceType}] Anthropic HTTP`, response.status, "— using fallback");
+      return fallbackRules(sourceType, transcript);
+    }
     const data = await response.json();
-    const parsed = JSON.parse(String(data?.content?.[0]?.text ?? "").trim()) as {
-      rules?: Array<{ text?: unknown; confidence?: unknown; category?: unknown }>;
-    };
+    const raw = String(data?.content?.[0]?.text ?? "");
+    const parsed = safeParseJson<{ rules?: Array<{ text?: unknown; confidence?: unknown; category?: unknown; evidence?: unknown }> }>(raw);
+    if (!parsed?.rules) {
+      console.warn(`[voice/${sourceType}] Could not parse rules JSON — using fallback. Raw head:`, raw.slice(0, 200));
+      return fallbackRules(sourceType, transcript);
+    }
+    for (const r of parsed.rules) {
+      const hits = detectGenericPhrases(String(r?.text ?? ""));
+      if (hits.length > 0) {
+        console.warn(`[voice/${sourceType}] generic rule produced:`, { text: r.text, hits });
+      }
+    }
     return normalizeRules(parsed.rules);
-  } catch {
+  } catch (err) {
+    console.warn(`[voice/${sourceType}] extract threw — using fallback:`, err);
     return fallbackRules(sourceType, transcript);
   }
 }
