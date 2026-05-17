@@ -98,6 +98,7 @@ export default function VoiceHomePanel({
           trainingTypeCount={trainingTypeCount}
         />
         <BrandOsCta state={brandOsState} />
+        <FrameworkCta />
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 items-start">
           <div className="space-y-5">
             <PathSwitcher altPath={altPath} onChange={setAltPath} />
@@ -142,6 +143,7 @@ export default function VoiceHomePanel({
         trainingTypeCount={trainingTypeCount}
       />
       <BrandOsCta state={brandOsState} />
+      <FrameworkCta />
       <VoiceAssetPanel
         stats={assetStats}
         sourceCount={sources.length}
@@ -2033,6 +2035,37 @@ function BrandOsCta({ state }: { state: BrandOsRunState }) {
         </div>
         <span className="text-[color:var(--brand-strong)] font-bold whitespace-nowrap group-hover:translate-x-1 transition-transform">
           Run Brand OS →
+        </span>
+      </div>
+    </a>
+  );
+}
+
+// ── Framework Generator cross-sell — surfaced on /voice ──────────────────
+
+function FrameworkCta() {
+  return (
+    <a
+      href="/framework"
+      className="block rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] p-5 hover:border-[var(--brand-strong)] transition group"
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <Badge tone="brand" size="xs" uppercase>
+              Framework Generator
+            </Badge>
+          </div>
+          <h3 className="font-display text-[length:var(--t-h3)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
+            Coin your signature method.
+          </h3>
+          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1 leading-[var(--leading-relaxed)]">
+            Turn your process into a named acronym — the kind of IP that powers
+            carousels, lead magnets, and client conversations.
+          </p>
+        </div>
+        <span className="text-[color:var(--brand-strong)] font-bold whitespace-nowrap group-hover:translate-x-1 transition-transform">
+          Build one →
         </span>
       </div>
     </a>
