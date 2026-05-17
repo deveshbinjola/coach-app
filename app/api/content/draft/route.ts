@@ -24,7 +24,7 @@ type DraftKind = "instagram_caption" | "linkedin_post" | "newsletter" | "carouse
 type CarouselOutcome = "saves" | "conversations" | "authority";
 type CarouselFramework = "listicle" | "mistake_fix" | "framework";
 type CarouselStyle = "onyx_gold" | "forest_sand" | "editorial_gold" | "hard_facts" | "imported";
-type CarouselHook = "curiosity_gap" | "contrarian" | "identity_callout" | "number_outcome" | "pain_question";
+type CarouselHook = "curiosity_gap" | "contrarian" | "identity_callout" | "number_outcome" | "pain_question" | "framework_reveal";
 
 type DraftBody = {
   kind?: unknown;
@@ -337,12 +337,30 @@ async function modelDraft({
           `Framework: ${CAROUSEL_FRAMEWORK_COPY[carouselFramework]}`,
           `Visual system: ${CAROUSEL_STYLE_COPY[carouselStyle]}`,
           "",
-          "STRUCTURE (8 slides, every slide earns the next swipe):",
-          "  Slide 1 — COVER HOOK. The strongest single line. Under 10 words.",
-          "  Slide 2 — SECOND HOOK. Restate the promise from a different angle.",
-          "  Slides 3-6 — VALUE STACK. One beat per slide: proof, example, contrast, or unfolding.",
-          "  Slide 7 — PAYOFF. The synthesis sentence the reader will remember.",
-          "  Slide 8 — ONE CTA. Match the outcome above.",
+          ...(carouselFramework === "framework"
+            ? [
+                "STRUCTURE (8 slides — ACRONYM-FIRST, the framework IS the product):",
+                "  Slide 1 — COVER HOOK. Tease the system. Under 10 words. Do NOT name the acronym yet.",
+                "  Slide 2 — ACRONYM REVEAL. Name the 3-5 letter framework in large text. This is the screenshot-bait slide. Format: 'The [ACRONYM] Framework' with expansion below.",
+                "  Slides 3-6 — LETTER BREAKDOWN. One slide per letter of the acronym. Each letter = one principle with a single concrete example or counter-insight.",
+                "  Slide 7 — PAYOFF REFRAME. The synthesis: what changes when you apply the full framework. One philosophical or counterintuitive sentence.",
+                "  Slide 8 — ONE CTA. Match the outcome above.",
+                "",
+                "ACRONYM ENGINEERING RULES:",
+                "  - 3-5 letters. Pronounceable as a word if possible.",
+                "  - Must feel ownable by this coach, not generic.",
+                "  - Each letter maps to ONE concrete principle (not an abstract noun).",
+                "  - The acronym should compress a complex insight into something memorable and shareable.",
+                "  - Good: TRAP, VIBE, LIT, DRAG. Bad: SUCCESS, GROWTH, POWER.",
+              ]
+            : [
+                "STRUCTURE (8 slides, every slide earns the next swipe):",
+                "  Slide 1 — COVER HOOK. The strongest single line. Under 10 words.",
+                "  Slide 2 — SECOND HOOK. Restate the promise from a different angle.",
+                "  Slides 3-6 — VALUE STACK. One beat per slide: proof, example, contrast, or unfolding.",
+                "  Slide 7 — PAYOFF. The synthesis sentence the reader will remember.",
+                "  Slide 8 — ONE CTA. Match the outcome above.",
+              ]),
           "",
           "COVER HOOK ARCHETYPES (pick one and commit to it):",
           "  - CURIOSITY GAP: 'The one thing nobody tells you about [X]'",
@@ -351,6 +369,7 @@ async function modelDraft({
           "  - NUMBER OUTCOME: 'How I [specific result] in [timeframe]'",
           "  - PAIN QUESTION: 'Tired of [specific pain]?'",
           "  - DISBELIEF: 'I was wrong about [common belief].'",
+          "  - FRAMEWORK REVEAL: 'There's a 4-letter system behind [result].' (Use when framework type is selected.)",
           "Cover does 60% of the swipe-through work. Generic 'tips' headlines fail.",
           ...(carouselHookText
             ? [
@@ -530,30 +549,54 @@ function deterministicDraft({
     "the conversation your market keeps starting";
 
   const body =
-    spec.kind === "carousel"
+    spec.kind === "carousel" && carouselFramework === "framework"
       ? [
           `Slide 1: ${carouselHookText || carouselCover(topic, carouselFramework, carouselHook)}`,
           "",
-          `Slide 2: ${carouselSecondHook(carouselHook)}`,
-          "The real problem is usually one layer deeper.",
+          "Slide 2: The CORE Framework",
+          "Clarity, Ownership, Rhythm, Edge",
           "",
-          `Slide 3: ${carouselValueOne(carouselFramework)}`,
-          "Name the pattern clearly.",
+          "Slide 3: C, Clarity",
+          "Name what you actually want. Not what sounds right.",
           "",
-          "Slide 4: The cost compounds quietly",
-          "Avoiding it does not keep it neutral.",
+          "Slide 4: O, Ownership",
+          "Stop outsourcing your decisions to other people's playbooks.",
           "",
-          "Slide 5: Try this cleaner move",
-          "Make the next step smaller and more honest.",
+          "Slide 5: R, Rhythm",
+          "Consistency in the right direction beats intensity in the wrong one.",
           "",
-          "Slide 6: Repeat it until it sticks",
-          "Consistency beats another complex system.",
+          "Slide 6: E, Edge",
+          "Your unfair advantage is the thing only you can say.",
           "",
           "Slide 7: The reframe",
-          "You do not need more pressure. You need cleaner signal.",
+          "You do not need more information. You need a system that holds.",
           "",
           `Slide 8: ${cta}`,
         ].join("\n")
+      : spec.kind === "carousel"
+        ? [
+            `Slide 1: ${carouselHookText || carouselCover(topic, carouselFramework, carouselHook)}`,
+            "",
+            `Slide 2: ${carouselSecondHook(carouselHook)}`,
+            "The real problem is usually one layer deeper.",
+            "",
+            `Slide 3: ${carouselValueOne(carouselFramework)}`,
+            "Name the pattern clearly.",
+            "",
+            "Slide 4: The cost compounds quietly",
+            "Avoiding it does not keep it neutral.",
+            "",
+            "Slide 5: Try this cleaner move",
+            "Make the next step smaller and more honest.",
+            "",
+            "Slide 6: Repeat it until it sticks",
+            "Consistency beats another complex system.",
+            "",
+            "Slide 7: The reframe",
+            "You do not need more pressure. You need cleaner signal.",
+            "",
+            `Slide 8: ${cta}`,
+          ].join("\n")
       : [
           opener,
           "",
@@ -639,7 +682,7 @@ const CAROUSEL_CTA_BY_OUTCOME: Record<CarouselOutcome, string> = {
 const CAROUSEL_FRAMEWORK_COPY: Record<CarouselFramework, string> = {
   listicle: "Listicle, save magnet with numbered useful points",
   mistake_fix: "Mistake / Fix, contrarian point of view with a better move",
-  framework: "Framework, named system that creates proprietary IP",
+  framework: "Framework, named system that creates proprietary IP. The acronym IS the product.",
 };
 
 const CAROUSEL_HOOK_COPY: Record<CarouselHook, string> = {
@@ -648,6 +691,7 @@ const CAROUSEL_HOOK_COPY: Record<CarouselHook, string> = {
   identity_callout: "Identity callout, names the exact reader",
   number_outcome: "Number plus outcome, clear count and clear promise",
   pain_question: "Pain question, opens with the objection or ache the lead already has",
+  framework_reveal: "Framework reveal, teases a named system without naming it yet. The acronym lives on Slide 2.",
 };
 
 const CAROUSEL_STYLE_COPY: Record<CarouselStyle, string> = {
@@ -669,7 +713,8 @@ function normalizeCarouselHook(value: unknown): CarouselHook {
     value === "contrarian" ||
     value === "identity_callout" ||
     value === "number_outcome" ||
-    value === "pain_question"
+    value === "pain_question" ||
+    value === "framework_reveal"
     ? value
     : "contrarian";
 }
@@ -691,6 +736,7 @@ function normalizeCarouselStyle(value: unknown): CarouselStyle {
 }
 
 function carouselCover(topic: string, framework: CarouselFramework, hook: CarouselHook): string {
+  if (hook === "framework_reveal") return `There's a system behind ${topic}`.slice(0, 80);
   if (hook === "pain_question") return `Why ${topic} keeps happening`.slice(0, 80);
   if (hook === "identity_callout") return `For coaches stuck in ${topic}`.slice(0, 80);
   if (hook === "number_outcome") return `7 ways to fix ${topic}`.slice(0, 80);
@@ -700,6 +746,7 @@ function carouselCover(topic: string, framework: CarouselFramework, hook: Carous
 }
 
 function carouselSecondHook(hook: CarouselHook): string {
+  if (hook === "framework_reveal") return "Here is the framework";
   if (hook === "pain_question") return "The question underneath it";
   if (hook === "identity_callout") return "This is probably you";
   if (hook === "number_outcome") return "Start with the first move";
