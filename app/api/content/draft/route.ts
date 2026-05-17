@@ -41,6 +41,7 @@ type DraftBody = {
   carouselHook?: unknown;
   carouselFramework?: unknown;
   carouselStyle?: unknown;
+  carouselHookText?: unknown;
 };
 
 type DraftSpec = {
@@ -142,6 +143,7 @@ export async function POST(request: NextRequest) {
   const carouselHook = normalizeCarouselHook(body.carouselHook);
   const carouselFramework = normalizeCarouselFramework(body.carouselFramework);
   const carouselStyle = normalizeCarouselStyle(body.carouselStyle);
+  const carouselHookText = cleanText(body.carouselHookText, 200);
   const spec = SPECS[kind];
 
   const [profileRes, leadsRes, sourcesRes, sourceContentRes, brandOverlay] = await Promise.all([
@@ -211,6 +213,7 @@ export async function POST(request: NextRequest) {
     carouselHook,
     carouselFramework,
     carouselStyle,
+    carouselHookText,
   });
   const draft = await modelDraft({
     spec,
@@ -225,6 +228,7 @@ export async function POST(request: NextRequest) {
     carouselHook,
     carouselFramework,
     carouselStyle,
+    carouselHookText,
     fallback,
   });
 
@@ -283,6 +287,7 @@ async function modelDraft({
   carouselHook,
   carouselFramework,
   carouselStyle,
+  carouselHookText,
   fallback,
 }: {
   spec: DraftSpec;
@@ -297,6 +302,7 @@ async function modelDraft({
   carouselHook: CarouselHook;
   carouselFramework: CarouselFramework;
   carouselStyle: CarouselStyle;
+  carouselHookText: string;
   fallback: { title: string; body: string; pillar: ContentPillar };
 }) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -346,6 +352,13 @@ async function modelDraft({
           "  - PAIN QUESTION: 'Tired of [specific pain]?'",
           "  - DISBELIEF: 'I was wrong about [common belief].'",
           "Cover does 60% of the swipe-through work. Generic 'tips' headlines fail.",
+          ...(carouselHookText
+            ? [
+                "",
+                "CHOSEN COVER HOOK (use this VERBATIM as Slide 1 — do not modify or generate a new one):",
+                `  "${carouselHookText}"`,
+              ]
+            : []),
           "",
           `CTA FOR THIS POST (${carouselOutcome}):`,
           `  ${CAROUSEL_CTA_BY_OUTCOME[carouselOutcome]}`,
@@ -490,6 +503,7 @@ function deterministicDraft({
   carouselHook,
   carouselFramework,
   carouselStyle,
+  carouselHookText,
 }: {
   spec: DraftSpec;
   angle: string;
@@ -502,6 +516,7 @@ function deterministicDraft({
   carouselHook: CarouselHook;
   carouselFramework: CarouselFramework;
   carouselStyle: CarouselStyle;
+  carouselHookText: string;
 }) {
   const opener = firstString((profile?.voice_json as Record<string, unknown> | undefined)?.openers) ??
     "Here is the thing I keep noticing:";
@@ -517,7 +532,7 @@ function deterministicDraft({
   const body =
     spec.kind === "carousel"
       ? [
-          `Slide 1: ${carouselCover(topic, carouselFramework, carouselHook)}`,
+          `Slide 1: ${carouselHookText || carouselCover(topic, carouselFramework, carouselHook)}`,
           "",
           `Slide 2: ${carouselSecondHook(carouselHook)}`,
           "The real problem is usually one layer deeper.",

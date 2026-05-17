@@ -105,27 +105,30 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
 
   return (
     <>
-      <section className="mb-8 rounded-[var(--r-xl)] border border-[var(--border)] bg-[linear-gradient(135deg,var(--surface-elevated)_0%,var(--surface-elevated)_63%,var(--brand-soft)_100%)] p-5 sm:p-7">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 items-start">
-          <div className="min-w-0 max-w-2xl">
+      <section className="mb-5 space-y-3">
+        {/* Status bar */}
+        <div className="rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 shadow-[var(--shadow-xs)]">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-faint)] bg-white/70 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)]">
               Lead Room
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" />
               Session
             </div>
-            <h1 className="mt-4 text-[length:var(--t-h1)] font-extrabold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">
-              Work the room, not the database.
-            </h1>
-            <p className="text-[length:var(--t-body)] text-[color:var(--text-muted)] mt-2 max-w-xl leading-[var(--leading-base)]">
+            <span className="text-[length:var(--t-body)] font-extrabold text-[color:var(--text)]">
               {leadRoomSentence}
-            </p>
-            <div className="mt-6 flex items-center gap-2 flex-wrap">
+            </span>
+            <div className="flex items-center gap-4 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+              <span><b className="text-[color:var(--text)]">{activeLeads.length}</b> active</span>
+              <span><b className="text-[color:var(--text)]">{hotLeads.length}</b> hot</span>
+              <span><b className="text-[color:var(--text)]">{needsTouch.length}</b> to touch</span>
+            </div>
+            <div className="ml-auto flex items-center gap-2 flex-wrap">
               <a
                 href="/leads/capture"
                 title="Paste text, speak, or drop a screenshot. AI parses each lead."
-                className="inline-flex items-center justify-center h-11 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
+                className="inline-flex items-center justify-center h-8 px-3 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
               >
-                Capture leads
+                Capture
               </a>
               <button
                 type="button"
@@ -136,71 +139,34 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
                     ? "Add at least one lead before composing"
                     : "Draft a personalized message to a slice of your book"
                 }
-                className="inline-flex items-center justify-center h-11 px-4 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--surface-deep)] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center h-8 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--surface-deep)] transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Draft next move
               </button>
             </div>
           </div>
-
-          <div className="rounded-[var(--r-lg)] bg-[var(--navy)] p-4 text-[color:var(--text-inverse)] shadow-[var(--shadow-md)]">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand)]">
-                  Rescue session
-                </div>
-                <div className="mt-1 text-[length:var(--t-h3)] font-extrabold">
-                  {needsTouch.length > 0 ? `${sessionMinutes} minutes` : "Board clean"}
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-extrabold leading-none tabular-nums text-[color:var(--brand)]">
-                  {needsTouch.length}
-                </div>
-                <div className="mt-1 text-[length:var(--t-caption)] font-bold text-white/50">
-                  to touch
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 space-y-2">
-              {rescueStack.length === 0 ? (
-                <div className="rounded-[var(--r-md)] border border-white/10 bg-white/[0.06] p-3 text-[length:var(--t-caption)] text-white/60">
-                  Nothing urgent is leaking. Capture the next real conversation.
-                </div>
-              ) : (
-                rescueStack.map((lead) => (
-                  <a
-                    key={lead.id}
-                    href={`/leads/${lead.id}`}
-                    className="flex items-center justify-between gap-3 rounded-[var(--r-md)] border border-white/10 bg-white/[0.06] p-3 transition hover:bg-white/[0.10]"
-                  >
-                    <div className="min-w-0">
-                      <div className="truncate text-[length:var(--t-caption)] font-extrabold">
-                        {lead.full_name}
-                      </div>
-                      <div className="mt-0.5 truncate text-[length:var(--t-caption)] text-white/50">
-                        {lead.next_honest_action ? "Has next move" : "Needs direction"}
-                      </div>
-                    </div>
-                    <span className="text-[color:var(--brand)]">&rarr;</span>
-                  </a>
-                ))
-              )}
-            </div>
-
-            <div className="mt-4">
-              <button
-                type="button"
-                onClick={openCompose}
-                disabled={leads.length === 0}
-                className="inline-flex h-10 w-full items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-4 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[var(--brand-strong)] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Start rescue session
-              </button>
-            </div>
-          </div>
         </div>
+
+        {/* Rescue strip — only shows when leads need attention */}
+        {rescueStack.length > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto">
+            <div className="shrink-0 rounded-[var(--r-md)] bg-[var(--navy)] px-3 py-2 text-[color:var(--text-inverse)]">
+              <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand)]">Rescue</div>
+              <div className="text-[length:var(--t-caption)] font-extrabold">{sessionMinutes} min</div>
+            </div>
+            {rescueStack.map((lead) => (
+              <a
+                key={lead.id}
+                href={`/leads/${lead.id}`}
+                className="shrink-0 flex items-center gap-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] px-3 py-2 transition hover:border-[var(--brand)] hover:-translate-y-px"
+              >
+                <span className="text-[length:var(--t-caption)] font-extrabold text-[color:var(--text)]">{lead.full_name}</span>
+                <span className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">{lead.next_honest_action ? "Has next move" : "Needs direction"}</span>
+                <span className="text-[color:var(--brand)]">&rarr;</span>
+              </a>
+            ))}
+          </div>
+        )}
       </section>
 
       <LeadList leads={leads} now={now} />

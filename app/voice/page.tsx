@@ -107,13 +107,12 @@ export default async function VoicePage() {
         avatarUrl={userAvatarUrl(user?.user_metadata)}
       />
       <main className="max-w-5xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
-        <div className="mb-8">
-          <h1 className="text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
+        <div className="mb-4 flex items-baseline gap-3">
+          <h1 className="text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
             Voice
           </h1>
-          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1.5 max-w-2xl leading-[var(--leading-base)]">
-            The source of truth every AI draft, Compose message, and warm
-            outreach runs through.
+          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-base)]">
+            Source of truth for every AI draft and outreach.
           </p>
         </div>
 
