@@ -373,10 +373,13 @@ function DisclosureSection({
   defaultOpen?: boolean;
   children: ReactNode;
 }) {
+  const [open, setOpen] = useState(defaultOpen);
+
   return (
     <details
       id={id}
-      open={defaultOpen}
+      open={open}
+      onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
       className="group scroll-mt-24 rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)]"
     >
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 sm:px-5">
