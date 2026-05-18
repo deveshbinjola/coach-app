@@ -47,9 +47,12 @@ type Props = {
   offeringId: string;
   roster: RosterRow[];
   eligible: EligibleRoom[];
+  stripeReady: boolean;
+  hasPriceCents: boolean;
+  existingPaymentLink: string | null;
 };
 
-export default function OfferingDetail({ offeringId, roster, eligible }: Props) {
+export default function OfferingDetail({ offeringId, roster, eligible, stripeReady, hasPriceCents, existingPaymentLink }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -133,6 +136,14 @@ export default function OfferingDetail({ offeringId, roster, eligible }: Props) 
           {err}
         </div>
       )}
+
+      {/* Payment link */}
+      <PaymentLinkSection
+        offeringId={offeringId}
+        stripeReady={stripeReady}
+        hasPriceCents={hasPriceCents}
+        existingLink={existingPaymentLink}
+      />
 
       {/* Roster */}
       <Card padding="none" className="overflow-hidden">
@@ -227,6 +238,111 @@ export default function OfferingDetail({ offeringId, roster, eligible }: Props) 
         </Card>
       )}
     </div>
+  );
+}
+
+function PaymentLinkSection({
+  offeringId, stripeReady, hasPriceCents, existingLink,
+}: {
+  offeringId: string;
+  stripeReady: boolean;
+  hasPriceCents: boolean;
+  existingLink: string | null;
+}) {
+  const router = useRouter();
+  const [linkUrl, setLinkUrl] = useState<string | null>(existingLink);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  if (!stripeReady) {
+    return (
+      <Card className="p-5">
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+          <a href="/settings" className="underline text-[color:var(--brand-strong)]">Connect Stripe</a> in Settings to generate payment links for this offering.
+        </p>
+      </Card>
+    );
+  }
+
+  if (!hasPriceCents) {
+    return (
+      <Card className="p-5">
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+          Set a price on this offering to generate a payment link.
+        </p>
+      </Card>
+    );
+  }
+
+  async function createLink() {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/stripe/payment-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ offering_id: offeringId }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.url) {
+        setError(json.error ?? "Failed to create payment link.");
+        return;
+      }
+      setLinkUrl(json.url);
+      router.refresh();
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function copyLink() {
+    if (!linkUrl) return;
+    await navigator.clipboard.writeText(linkUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  if (linkUrl) {
+    return (
+      <Card className="p-5 space-y-3">
+        <div>
+          <h2 className="text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)]">Payment link</h2>
+          <p className="mt-0.5 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+            Share this link with clients. When they pay, they are auto-enrolled.
+          </p>
+        </div>
+        <div className="flex gap-2 items-center">
+          <input
+            readOnly
+            value={linkUrl}
+            className="flex-1 h-10 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[length:var(--t-caption)] text-[color:var(--text-muted)] font-mono truncate"
+          />
+          <Button onClick={copyLink}>
+            {copied ? "Copied!" : "Copy"}
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="p-5 space-y-3">
+      <div>
+        <h2 className="text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)]">Payment link</h2>
+        <p className="mt-0.5 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+          Generate a Stripe payment link for this offering. Clients who pay are auto-enrolled.
+        </p>
+      </div>
+      <Button onClick={createLink} disabled={busy}>
+        {busy ? "Creating…" : "Create payment link"}
+      </Button>
+      {error && (
+        <p className="text-[length:var(--t-caption)] text-[color:var(--danger)]">{error}</p>
+      )}
+    </Card>
   );
 }
 

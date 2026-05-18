@@ -48,8 +48,8 @@ export default async function OfferingDetailPage({
   if (!offeringRow) notFound();
   const offering = offeringRow as Offering;
 
-  // ── All this coach's rooms + leads (we'll filter members vs eligible) ─
-  const [membersRes, roomsRes, leadsRes] = await Promise.all([
+  // ── All this coach's rooms + leads + Stripe state ────────────────────
+  const [membersRes, roomsRes, leadsRes, { data: stripeRow }, { data: linkRow }] = await Promise.all([
     supabase
       .from("cp_offering_members")
       .select("*")
@@ -61,6 +61,17 @@ export default async function OfferingDetailPage({
     supabase
       .from("cp_leads")
       .select("id, full_name, email, referred_by_lead_id"),
+    supabase
+      .from("cp_stripe_accounts")
+      .select("charges_enabled")
+      .eq("coach_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("cp_payment_links")
+      .select("url, active")
+      .eq("offering_id", offering.id)
+      .eq("coach_id", user.id)
+      .maybeSingle(),
   ]);
   const members = (membersRes.data ?? []) as OfferingMember[];
   const rooms = (roomsRes.data ?? []) as ClientRoom[];
@@ -128,6 +139,11 @@ export default async function OfferingDetailPage({
           <div className="flex items-center gap-2 flex-wrap">
             <Badge tone="brand" size="xs" uppercase>{OFFERING_KIND_LABEL[offering.kind]}</Badge>
             {offering.status === "archived" && <Badge tone="muted" size="xs" uppercase>Archived</Badge>}
+            {offering.price_cents != null && offering.price_cents > 0 && (
+              <Badge tone="brand" size="xs" uppercase>
+                ${(offering.price_cents / 100).toLocaleString()} / seat
+              </Badge>
+            )}
             {offering.capacity != null && (
               <Badge tone="muted" size="xs" uppercase>
                 {roster.filter((r) => r.status === "active").length} / {offering.capacity} active
@@ -153,6 +169,9 @@ export default async function OfferingDetailPage({
           offeringId={offering.id}
           roster={roster}
           eligible={eligible}
+          stripeReady={Boolean(stripeRow?.charges_enabled)}
+          hasPriceCents={Boolean(offering.price_cents && offering.price_cents > 0)}
+          existingPaymentLink={linkRow?.active ? (linkRow.url as string) : null}
         />
 
       </main>
