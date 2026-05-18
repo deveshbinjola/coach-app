@@ -49,6 +49,7 @@ export async function GET(
 
   const complete   = rows.find((r) => r.state === "complete" && r.synthesis_json);
   const inProgress = rows.find((r) => r.state === "active" || r.state === null || r.state === "draft");
+  const anyRun     = rows[0];
 
   // Completed → output page (token-scoped)
   if (complete) {
@@ -58,6 +59,13 @@ export async function GET(
   // In progress → resume
   if (inProgress) {
     return NextResponse.redirect(new URL(`/trial/${token}/run/${inProgress.id}`, _request.url));
+  }
+
+  // Run exists but in an unexpected state (e.g. "synthesizing", "complete"
+  // without synthesis_json) → send to the runner so it can recover rather
+  // than looping between /start and this route.
+  if (anyRun) {
+    return NextResponse.redirect(new URL(`/trial/${token}/run/${anyRun.id}`, _request.url));
   }
 
   // No run yet → let the buyer choose Quick Start MVP vs Full run.
