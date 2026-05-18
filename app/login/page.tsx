@@ -1,15 +1,14 @@
 "use client";
 
-// Login — the entry gate.
+// Login — dark split-screen entry gate.
 //
 //   1. Google SSO (primary) — one click, no email round-trip.
 //   2. Magic link (secondary) — email-only fallback.
 //
-// Design: dark split — atmospheric brand on the left, focused auth on
-// the right. Feels like stepping into a threshold, not reading a
-// landing page.
+// Design: atmospheric brand panel (left) + focused auth (right).
+// Staggered cascade animations, geometric texture, tactile button states.
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 
 export default function LoginPage() {
@@ -19,663 +18,618 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const glowRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    document.body.classList.add("login-body");
-
-    let ticking = false;
-    const onMove = (e: PointerEvent) => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const x = (e.clientX / window.innerWidth) * 100;
-        const y = (e.clientY / window.innerHeight) * 100;
-        glowRef.current?.style.setProperty("--gx", x + "%");
-        glowRef.current?.style.setProperty("--gy", y + "%");
-        ticking = false;
-      });
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      document.querySelectorAll(".login-glow, .login-grain, .login-orb").forEach((el) => (el as HTMLElement).style.display = "none");
-    }
-
-    return () => {
-      document.body.classList.remove("login-body");
-      window.removeEventListener("pointermove", onMove);
-    };
-  }, []);
-
-  async function onGoogleSignIn() {
-    setError(null);
+  async function handleGoogle() {
     setGoogleLoading(true);
+    setError(null);
     const supabase = createClient();
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+    const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: `${location.origin}/api/auth/callback` },
     });
-    if (oauthError) {
-      setError(oauthError.message);
-      setGoogleLoading(false);
-    }
+    if (err) { setError(err.message); setGoogleLoading(false); }
   }
 
-  async function onMagicLinkSubmit(e: React.FormEvent) {
+  async function handleMagicLink(e: React.FormEvent) {
     e.preventDefault();
+    if (!email.trim()) return;
     setLoading(true);
     setError(null);
     const supabase = createClient();
-    const { error: otpError } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    const { error: err } = await supabase.auth.signInWithOtp({
+      email: email.trim(),
+      options: { emailRedirectTo: `${location.origin}/api/auth/callback` },
     });
     setLoading(false);
-    if (otpError) setError(otpError.message);
+    if (err) setError(err.message);
     else setSent(true);
   }
 
   return (
     <>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300,0;9..144,500,30;9..144,700,30;9..144,800,100&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-      />
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,100..900,0..100;1,9..144,100..900,0..100&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-      {/* Atmosphere */}
-      <div className="login-glow" ref={glowRef} aria-hidden="true" />
-      <div className="login-grain" aria-hidden="true" />
+        .login-page {
+          min-height: 100vh;
+          display: grid;
+          grid-template-columns: 1.15fr 0.85fr;
+          background: #060a14;
+          font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+          overflow: hidden;
+        }
 
-      <div className="login-split">
-        {/* ── LEFT: Brand atmosphere ── */}
+        /* ── Left: Brand Panel ─────────────────────── */
+        .login-brand {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 4rem 3.5rem;
+          background:
+            radial-gradient(ellipse 80% 60% at 20% 30%, rgba(0,255,65,0.06) 0%, transparent 70%),
+            linear-gradient(165deg, #0a1020 0%, #060a14 100%);
+          overflow: hidden;
+        }
+
+        .login-brand::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px);
+          background-size: 48px 48px;
+          mask-image: radial-gradient(ellipse 70% 50% at 50% 50%, black 20%, transparent 70%);
+          pointer-events: none;
+        }
+
+        .login-vertical-text {
+          position: absolute;
+          left: 1.25rem;
+          top: 50%;
+          transform: translateY(-50%) rotate(-90deg);
+          font-family: 'Fraunces', serif;
+          font-size: 7rem;
+          font-weight: 900;
+          letter-spacing: 0.25em;
+          color: rgba(255,255,255,0.04);
+          white-space: nowrap;
+          pointer-events: none;
+          user-select: none;
+        }
+
+        .login-corner-accent {
+          position: absolute;
+          top: 2rem;
+          right: 2rem;
+          width: 48px;
+          height: 48px;
+          border-top: 2px solid rgba(0,255,65,0.25);
+          border-right: 2px solid rgba(0,255,65,0.25);
+          opacity: 0;
+          animation: login-corner-grow 0.6s ease-out 1.2s forwards;
+        }
+        @keyframes login-corner-grow {
+          from { opacity: 0; width: 0; height: 0; }
+          to { opacity: 1; width: 48px; height: 48px; }
+        }
+
+        .login-leaf {
+          width: 44px;
+          height: 44px;
+          margin-bottom: 2.5rem;
+        }
+        .login-leaf svg {
+          width: 100%;
+          height: 100%;
+          fill: #00ff41;
+          filter: drop-shadow(0 0 20px rgba(0,255,65,0.3));
+        }
+
+        .login-tagline {
+          font-family: 'Fraunces', serif;
+          font-optical-sizing: auto;
+          font-variation-settings: "SOFT" 80;
+          font-size: 2.75rem;
+          font-weight: 800;
+          line-height: 1.12;
+          color: #fff;
+          margin-bottom: 1rem;
+          max-width: 440px;
+        }
+        .login-tagline em {
+          font-style: normal;
+          color: #00ff41;
+        }
+
+        .login-subtitle {
+          font-size: 1rem;
+          font-weight: 400;
+          color: rgba(255,255,255,0.45);
+          line-height: 1.7;
+          max-width: 380px;
+          margin-bottom: 3rem;
+        }
+
+        .login-proof-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 0.85rem;
+        }
+        .login-proof-item {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: rgba(255,255,255,0.55);
+          transition: transform 0.25s ease, color 0.25s ease;
+          cursor: default;
+        }
+        .login-proof-item:hover {
+          transform: translateX(4px);
+          color: rgba(255,255,255,0.75);
+        }
+        .login-proof-icon {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: rgba(0,255,65,0.12);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          font-size: 0.65rem;
+          color: #00ff41;
+          transition: box-shadow 0.25s ease;
+        }
+        .login-proof-item:hover .login-proof-icon {
+          box-shadow: 0 0 12px rgba(0,255,65,0.3);
+        }
+
+        .login-quote {
+          margin-top: auto;
+          padding-top: 3rem;
+          font-size: 0.8rem;
+          font-style: italic;
+          color: rgba(255,255,255,0.4);
+          line-height: 1.65;
+          border-left: 2px solid rgba(0,255,65,0.3);
+          padding-left: 1rem;
+          max-width: 340px;
+        }
+
+        /* ── Right: Auth Panel ─────────────────────── */
+        .login-auth {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 3rem 2.5rem;
+          background:
+            radial-gradient(ellipse 80% 60% at 80% 20%, rgba(0,255,65,0.03) 0%, transparent 60%),
+            #0c1121;
+        }
+
+        .login-auth::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+          background-size: 32px 32px;
+          mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, black 10%, transparent 80%);
+          pointer-events: none;
+        }
+
+        .login-auth-card {
+          width: 100%;
+          max-width: 380px;
+          position: relative;
+          z-index: 1;
+        }
+
+        .login-mobile-logo {
+          display: none;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 2rem;
+          font-family: 'Fraunces', serif;
+          font-weight: 800;
+          font-size: 1.25rem;
+          color: #fff;
+        }
+        .login-mobile-logo svg {
+          width: 28px;
+          height: 28px;
+          fill: #00ff41;
+        }
+
+        .login-auth-heading {
+          font-family: 'Fraunces', serif;
+          font-variation-settings: "SOFT" 60;
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: #fff;
+          margin-bottom: 0.35rem;
+        }
+
+        .login-auth-sub {
+          font-size: 0.875rem;
+          color: rgba(255,255,255,0.4);
+          margin-bottom: 2rem;
+        }
+
+        /* Google button */
+        .login-google-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.625rem;
+          width: 100%;
+          padding: 0.875rem 1rem;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px;
+          background: rgba(255,255,255,0.04);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+          color: #fff;
+          font-family: inherit;
+          font-size: 0.9rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .login-google-btn:hover {
+          background: rgba(255,255,255,0.07);
+          border-color: rgba(255,255,255,0.18);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 16px rgba(0,0,0,0.2);
+        }
+        .login-google-btn:active {
+          transform: scale(0.985);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+        .login-google-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .login-google-btn svg {
+          width: 18px;
+          height: 18px;
+          flex-shrink: 0;
+        }
+
+        /* Divider */
+        .login-divider {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin: 1.75rem 0;
+        }
+        .login-divider-line {
+          flex: 1;
+          height: 1px;
+          background: rgba(255,255,255,0.08);
+        }
+        .login-divider-diamond {
+          color: #00ff41;
+          font-size: 0.55rem;
+          opacity: 0.6;
+        }
+
+        /* Magic link form */
+        .login-email-label {
+          display: block;
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: rgba(255,255,255,0.5);
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          margin-bottom: 0.5rem;
+        }
+
+        .login-email-input {
+          width: 100%;
+          padding: 0.8rem 1rem;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px;
+          background: rgba(255,255,255,0.03);
+          color: #fff;
+          font-family: inherit;
+          font-size: 0.9rem;
+          outline: none;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .login-email-input::placeholder { color: rgba(255,255,255,0.2); }
+        .login-email-input:focus {
+          border-color: rgba(0,255,65,0.4);
+          box-shadow: 0 0 0 3px rgba(0,255,65,0.08);
+        }
+
+        .login-submit-btn {
+          position: relative;
+          width: 100%;
+          margin-top: 0.75rem;
+          padding: 0.85rem 1rem;
+          border: none;
+          border-radius: 10px;
+          background: #00ff41;
+          color: #060a14;
+          font-family: inherit;
+          font-size: 0.9rem;
+          font-weight: 700;
+          cursor: pointer;
+          overflow: hidden;
+          transition: all 0.2s ease;
+        }
+        .login-submit-btn:hover {
+          background: #1aff55;
+          box-shadow: 0 4px 20px rgba(0,255,65,0.25);
+        }
+        .login-submit-btn:active {
+          transform: scale(0.985);
+          box-shadow: 0 2px 10px rgba(0,255,65,0.15);
+        }
+        .login-submit-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        /* Loading shimmer */
+        .login-submit-btn.login-shimmer::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          animation: login-shimmer-slide 1.5s ease-in-out infinite;
+        }
+        @keyframes login-shimmer-slide {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
+
+        /* Error */
+        .login-error {
+          margin-top: 1rem;
+          padding: 0.65rem 0.85rem;
+          border-radius: 8px;
+          background: rgba(255,60,60,0.08);
+          border-left: 3px solid rgba(255,60,60,0.6);
+          font-size: 0.8rem;
+          color: rgba(255,100,100,0.9);
+        }
+
+        /* Success */
+        .login-sent {
+          text-align: center;
+          padding: 2rem 0;
+        }
+        .login-sent-icon {
+          font-size: 2.5rem;
+          margin-bottom: 0.75rem;
+        }
+        .login-sent-heading {
+          font-family: 'Fraunces', serif;
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #fff;
+          margin-bottom: 0.5rem;
+        }
+        .login-sent-text {
+          font-size: 0.875rem;
+          color: rgba(255,255,255,0.5);
+          line-height: 1.6;
+        }
+        .login-sent-email {
+          color: #00ff41;
+          font-weight: 600;
+        }
+
+        /* Terms */
+        .login-terms {
+          margin-top: 2.5rem;
+          text-align: center;
+          font-size: 0.7rem;
+          color: rgba(255,255,255,0.25);
+        }
+        .login-terms a {
+          color: rgba(255,255,255,0.35);
+          text-decoration: none;
+        }
+        .login-terms a:hover {
+          color: rgba(255,255,255,0.55);
+        }
+        .login-dot-sep {
+          display: inline-block;
+          margin: 0 0.5rem;
+          color: #00ff41;
+          opacity: 0.3;
+        }
+
+        /* ── Staggered Cascade Animations ─────────── */
+        @keyframes login-fade-up {
+          from { opacity: 0; transform: translateY(18px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .login-stagger-1 { opacity: 0; animation: login-fade-up 0.6s ease-out 0.15s forwards; }
+        .login-stagger-2 { opacity: 0; animation: login-fade-up 0.6s ease-out 0.3s forwards; }
+        .login-stagger-3 { opacity: 0; animation: login-fade-up 0.6s ease-out 0.45s forwards; }
+        .login-stagger-4 { opacity: 0; animation: login-fade-up 0.6s ease-out 0.6s forwards; }
+        .login-stagger-5 { opacity: 0; animation: login-fade-up 0.6s ease-out 0.75s forwards; }
+        .login-stagger-6 { opacity: 0; animation: login-fade-up 0.6s ease-out 0.9s forwards; }
+
+        .login-stagger-r1 { opacity: 0; animation: login-fade-up 0.6s ease-out 0.35s forwards; }
+        .login-stagger-r2 { opacity: 0; animation: login-fade-up 0.6s ease-out 0.5s forwards; }
+        .login-stagger-r3 { opacity: 0; animation: login-fade-up 0.6s ease-out 0.65s forwards; }
+        .login-stagger-r4 { opacity: 0; animation: login-fade-up 0.6s ease-out 0.8s forwards; }
+        .login-stagger-r5 { opacity: 0; animation: login-fade-up 0.6s ease-out 0.95s forwards; }
+
+        /* ── Responsive ───────────────────────────── */
+        @media (max-width: 1024px) {
+          .login-page { grid-template-columns: 1fr 1fr; }
+          .login-tagline { font-size: 2.25rem; }
+          .login-brand { padding: 3rem 2.5rem; }
+        }
+        @media (max-width: 768px) {
+          .login-page {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto;
+          }
+          .login-brand { display: none; }
+          .login-auth {
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+          }
+          .login-mobile-logo { display: flex; }
+        }
+        @media (max-width: 420px) {
+          .login-auth { padding: 1.5rem 1.25rem; }
+          .login-auth-heading { font-size: 1.5rem; }
+          .login-google-btn { padding: 0.75rem 0.875rem; font-size: 0.85rem; }
+          .login-submit-btn { padding: 0.75rem 0.875rem; font-size: 0.85rem; }
+        }
+      `}</style>
+
+      <div className="login-page">
+        {/* ── Left: Brand Panel ── */}
         <div className="login-brand">
-          <div className="login-orb login-orb-1" aria-hidden="true" />
-          <div className="login-orb login-orb-2" aria-hidden="true" />
+          <div className="login-vertical-text">ELEVATE</div>
+          <div className="login-corner-accent" />
 
-          <div className="login-brand-inner">
-            <div className="login-logo">
-              <span className="login-logo-dot" />
-              <span className="login-logo-text">
-                ElevateAI<span className="login-logo-period">.</span>
-              </span>
-            </div>
-
-            <h1 className="login-statement">
-              Your next client is already
-              <br />
-              <em>in your DMs.</em>
-            </h1>
-
-            <div className="login-proof">
-              <div className="login-proof-item">
-                <span className="login-proof-icon">✦</span>
-                <span>Voice-trained AI that sounds like you</span>
-              </div>
-              <div className="login-proof-item">
-                <span className="login-proof-icon">◆</span>
-                <span>Content, leads, clients — one nervous system</span>
-              </div>
-              <div className="login-proof-item">
-                <span className="login-proof-icon">●</span>
-                <span>Free forever for your first 500 leads</span>
-              </div>
-            </div>
-
-            <p className="login-quiet">
-              &ldquo;AI that sounds like a coach, not a chatbot.&rdquo;
-            </p>
+          <div className="login-leaf login-stagger-1">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <path d="M50 5C50 5 20 25 15 55C10 85 35 95 50 95C65 95 90 85 85 55C80 25 50 5 50 5ZM50 85C40 85 25 75 28 55C31 35 50 20 50 20C50 20 69 35 72 55C75 75 60 85 50 85Z" />
+            </svg>
           </div>
 
-          <div className="login-brand-foot">
-            <span>COACH PLATFORM</span>
-            <span className="login-brand-sep" />
-            <span>BUILT FOR COACHES, BY A COACH</span>
-          </div>
+          <h1 className="login-tagline login-stagger-2">
+            Your coaching practice,{" "}
+            <em>elevated</em> by AI.
+          </h1>
+
+          <p className="login-subtitle login-stagger-3">
+            The command center for coaches who build with clarity,
+            content, and systems — not chaos.
+          </p>
+
+          <ul className="login-proof-list login-stagger-4">
+            <li className="login-proof-item">
+              <span className="login-proof-icon">✦</span>
+              Brand voice, content pillars, and messaging — all in one place
+            </li>
+            <li className="login-proof-item">
+              <span className="login-proof-icon">✦</span>
+              AI-powered content engine built on your real voice
+            </li>
+            <li className="login-proof-item">
+              <span className="login-proof-icon">✦</span>
+              Client rooms, lead tracking, and Stripe payments
+            </li>
+          </ul>
+
+          <p className="login-quote login-stagger-5">
+            &ldquo;The system does what used to take me all week —
+            now I coach.&rdquo;
+          </p>
         </div>
 
-        {/* ── RIGHT: Auth zone ── */}
+        {/* ── Right: Auth Panel ── */}
         <div className="login-auth">
-          <div className="login-auth-inner">
-            <div className="login-auth-header">
-              <p className="login-auth-label">Sign in</p>
-              <h2 className="login-auth-title">Welcome back.</h2>
-              <p className="login-auth-sub">
-                Or create your account — same button, we handle the rest.
-              </p>
+          <div className="login-auth-card">
+            <div className="login-mobile-logo login-stagger-r1">
+              <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 5C50 5 20 25 15 55C10 85 35 95 50 95C65 95 90 85 85 55C80 25 50 5 50 5ZM50 85C40 85 25 75 28 55C31 35 50 20 50 20C50 20 69 35 72 55C75 75 60 85 50 85Z" />
+              </svg>
+              ElevateAI
             </div>
 
             {sent ? (
               <div className="login-sent">
-                <div className="login-sent-icon">✓</div>
-                <p className="login-sent-title">Check your email</p>
-                <p className="login-sent-body">
-                  We sent a magic link to <strong>{email}</strong>.
-                  <br />Click it to sign in — it expires in 10 minutes.
+                <div className="login-sent-icon">✉️</div>
+                <h2 className="login-sent-heading">Check your inbox</h2>
+                <p className="login-sent-text">
+                  We sent a magic link to{" "}
+                  <span className="login-sent-email">{email}</span>.
+                  <br />
+                  Click it to sign in — no password needed.
                 </p>
-                <button className="login-sent-retry" onClick={() => setSent(false)}>
-                  Use a different email →
-                </button>
               </div>
             ) : (
-              <div className="login-form-zone">
+              <>
+                <h2 className="login-auth-heading login-stagger-r1">
+                  Welcome back
+                </h2>
+                <p className="login-auth-sub login-stagger-r2">
+                  Sign in to your coaching command center
+                </p>
+
+                {/* Google */}
                 <button
                   type="button"
-                  onClick={onGoogleSignIn}
+                  className="login-google-btn login-stagger-r2"
+                  onClick={handleGoogle}
                   disabled={googleLoading}
-                  className="login-google"
                 >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                   </svg>
-                  <span className="login-google-label">
-                    {googleLoading ? "Redirecting…" : "Continue with Google"}
-                  </span>
-                  <span className="login-google-arrow">→</span>
+                  {googleLoading ? "Connecting…" : "Continue with Google"}
                 </button>
 
-                <div className="login-divider">
-                  <span className="login-divider-line" />
-                  <span className="login-divider-text">or</span>
-                  <span className="login-divider-line" />
+                {/* Divider */}
+                <div className="login-divider login-stagger-r3">
+                  <div className="login-divider-line" />
+                  <span className="login-divider-diamond">◆</span>
+                  <div className="login-divider-line" />
                 </div>
 
-                <form onSubmit={onMagicLinkSubmit} className="login-magic">
-                  <label className="login-field-label" htmlFor="login-email">Email address</label>
+                {/* Magic link */}
+                <form onSubmit={handleMagicLink}>
+                  <label className="login-email-label login-stagger-r3">
+                    Email address
+                  </label>
                   <input
-                    id="login-email"
                     type="email"
-                    required
+                    className="login-email-input login-stagger-r4"
+                    placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@yourcoachingbiz.com"
-                    className="login-input"
+                    required
                   />
                   <button
                     type="submit"
-                    disabled={loading || !email}
-                    className="login-submit"
+                    className={`login-submit-btn login-stagger-r4${loading ? " login-shimmer" : ""}`}
+                    disabled={loading}
                   >
-                    {loading ? "Sending…" : "Send magic link"}
+                    {loading ? "Sending link…" : "Send magic link"}
                   </button>
                 </form>
 
                 {error && (
-                  <p className="login-error" role="alert">{error}</p>
+                  <div className="login-error">{error}</div>
                 )}
-              </div>
+
+                <p className="login-terms login-stagger-r5">
+                  By signing in you agree to the{" "}
+                  <a href="/terms">Terms</a>
+                  <span className="login-dot-sep">•</span>
+                  <a href="/privacy">Privacy</a>
+                </p>
+              </>
             )}
-
-            <div className="login-terms">
-              No credit card required · 500 leads free forever
-            </div>
-          </div>
-
-          <div className="login-auth-links">
-            <a href="https://elevateaisystem.com">elevateaisystem.com</a>
-            <span className="login-auth-links-sep">·</span>
-            <a href="https://elevateaisystem.com/pricing">Pricing</a>
           </div>
         </div>
       </div>
-
-      <style>{loginCSS}</style>
     </>
   );
 }
-
-const loginCSS = `
-/* ─── Reset on body ─── */
-.login-body {
-  margin: 0;
-  padding: 0;
-  background: #060A14;
-  color: #FAFAF8;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  overflow: hidden;
-  height: 100vh;
-}
-.login-body *, .login-body *::before, .login-body *::after { box-sizing: border-box; }
-.login-body a { color: inherit; text-decoration: none; }
-.login-body ::selection { background: #00FF41; color: #0A0F1C; }
-
-/* ─── Atmosphere ─── */
-.login-glow {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background: radial-gradient(900px circle at var(--gx, 30%) var(--gy, 40%),
-    rgba(0,255,65,0.07), transparent 50%);
-  transition: background 0.4s ease-out;
-}
-.login-grain {
-  position: fixed; inset: 0; z-index: 1; pointer-events: none;
-  opacity: 0.3; mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-}
-
-/* ─── Split layout ─── */
-.login-split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 100vh;
-  position: relative;
-  z-index: 2;
-}
-
-/* ─── LEFT: Brand ─── */
-.login-brand {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 3rem 4rem;
-  overflow: hidden;
-  border-right: 1px solid rgba(255,255,255,0.04);
-}
-.login-brand-inner {
-  position: relative;
-  z-index: 2;
-  max-width: 520px;
-  opacity: 0;
-  animation: login-rise 0.9s 0.1s cubic-bezier(.16,1,.3,1) both;
-}
-.login-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-}
-.login-orb-1 {
-  width: 500px; height: 500px;
-  top: -15%; right: -10%;
-  background: radial-gradient(circle, rgba(0,255,65,0.12), transparent 65%);
-  animation: login-drift 20s ease-in-out infinite;
-}
-.login-orb-2 {
-  width: 350px; height: 350px;
-  bottom: -10%; left: 10%;
-  background: radial-gradient(circle, rgba(0,255,65,0.06), transparent 65%);
-  animation: login-drift 16s ease-in-out infinite reverse;
-}
-@keyframes login-drift {
-  0%,100% { transform: translate(0,0) scale(1); }
-  50% { transform: translate(3%,-4%) scale(1.08); }
-}
-
-.login-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin-bottom: 3rem;
-}
-.login-logo-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  background: #00FF41;
-  box-shadow: 0 0 12px rgba(0,255,65,0.5), 0 0 40px rgba(0,255,65,0.2);
-  animation: login-pulse 3s ease-in-out infinite;
-}
-@keyframes login-pulse {
-  0%,100% { box-shadow: 0 0 12px rgba(0,255,65,0.5), 0 0 40px rgba(0,255,65,0.2); }
-  50% { box-shadow: 0 0 18px rgba(0,255,65,0.7), 0 0 60px rgba(0,255,65,0.3); }
-}
-.login-logo-text {
-  font-family: 'Fraunces', Georgia, serif;
-  font-weight: 800;
-  font-size: 1.15rem;
-  letter-spacing: -0.02em;
-  color: #FAFAF8;
-  font-variation-settings: "SOFT" 30, "opsz" 144;
-}
-.login-logo-period { color: #00CC34; }
-
-.login-statement {
-  font-family: 'Fraunces', Georgia, serif;
-  font-weight: 300;
-  font-size: clamp(2rem, 3.2vw, 3.2rem);
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  color: rgba(250,250,248,0.92);
-  margin: 0 0 2.5rem;
-  font-variation-settings: "SOFT" 0, "opsz" 144;
-}
-.login-statement em {
-  font-style: normal;
-  font-weight: 800;
-  color: #00FF41;
-  font-variation-settings: "SOFT" 100, "opsz" 144;
-  text-shadow: 0 0 40px rgba(0,255,65,0.25);
-}
-
-.login-proof {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  margin-bottom: 3rem;
-}
-.login-proof-item {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  font-size: 0.88rem;
-  color: rgba(250,250,248,0.55);
-  letter-spacing: 0.01em;
-}
-.login-proof-icon {
-  width: 20px;
-  text-align: center;
-  color: #00CC34;
-  font-size: 0.7rem;
-  flex-shrink: 0;
-}
-
-.login-quiet {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: rgba(250,250,248,0.3);
-  font-variation-settings: "SOFT" 100;
-  letter-spacing: -0.005em;
-  line-height: 1.5;
-  border-left: 2px solid rgba(0,255,65,0.2);
-  padding-left: 1rem;
-}
-
-.login-brand-foot {
-  position: absolute;
-  bottom: 2rem;
-  left: 4rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(250,250,248,0.2);
-}
-.login-brand-sep {
-  width: 1px;
-  height: 12px;
-  background: rgba(250,250,248,0.1);
-}
-
-/* ─── RIGHT: Auth ─── */
-.login-auth {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 3rem;
-  position: relative;
-  background: linear-gradient(170deg, #080D18 0%, #0C1220 40%, #0A0F1C 100%);
-}
-.login-auth-inner {
-  width: 100%;
-  max-width: 400px;
-  opacity: 0;
-  animation: login-rise 0.9s 0.25s cubic-bezier(.16,1,.3,1) both;
-}
-
-.login-auth-header { margin-bottom: 2.5rem; }
-.login-auth-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #00CC34;
-  margin-bottom: 0.75rem;
-}
-.login-auth-title {
-  font-family: 'Fraunces', Georgia, serif;
-  font-weight: 800;
-  font-size: 2rem;
-  letter-spacing: -0.03em;
-  color: #FAFAF8;
-  margin: 0 0 0.5rem;
-  font-variation-settings: "SOFT" 30, "opsz" 96;
-}
-.login-auth-sub {
-  font-size: 0.85rem;
-  color: rgba(250,250,248,0.4);
-  line-height: 1.5;
-  margin: 0;
-}
-
-/* Google button */
-.login-google {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.95rem 1.25rem;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  color: #FAFAF8;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 600;
-  font-size: 0.92rem;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-}
-.login-google:hover:not(:disabled) {
-  background: rgba(255,255,255,0.1);
-  border-color: rgba(0,255,65,0.25);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,255,65,0.1);
-}
-.login-google:disabled { opacity: 0.5; cursor: wait; }
-.login-google svg { width: 20px; height: 20px; flex-shrink: 0; }
-.login-google-label { flex: 1; }
-.login-google-arrow {
-  color: rgba(250,250,248,0.3);
-  transition: color 0.2s, transform 0.2s;
-}
-.login-google:hover:not(:disabled) .login-google-arrow {
-  color: #00FF41;
-  transform: translateX(3px);
-}
-
-/* Divider */
-.login-divider {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-.login-divider-line {
-  flex: 1;
-  height: 1px;
-  background: rgba(255,255,255,0.06);
-}
-.login-divider-text {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: rgba(250,250,248,0.2);
-}
-
-/* Magic link form */
-.login-magic {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-.login-field-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(250,250,248,0.35);
-}
-.login-input {
-  width: 100%;
-  height: 48px;
-  padding: 0 1rem;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  color: #FAFAF8;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.9rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.login-input:focus {
-  outline: none;
-  border-color: rgba(0,255,65,0.4);
-  box-shadow: 0 0 0 3px rgba(0,255,65,0.08), 0 0 20px rgba(0,255,65,0.06);
-}
-.login-input::placeholder { color: rgba(250,250,248,0.2); }
-
-.login-submit {
-  width: 100%;
-  height: 48px;
-  background: #00FF41;
-  color: #0A0F1C;
-  border: none;
-  border-radius: 10px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 700;
-  font-size: 0.88rem;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
-}
-.login-submit:hover:not(:disabled) {
-  background: #00E63B;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(0,255,65,0.3), 0 0 60px rgba(0,255,65,0.1);
-}
-.login-submit:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* Error */
-.login-error {
-  margin-top: 0.75rem;
-  font-size: 0.8rem;
-  color: #FF4040;
-  font-weight: 500;
-}
-
-/* Sent state */
-.login-sent {
-  text-align: center;
-  padding: 2rem 1rem;
-  border: 1px solid rgba(0,255,65,0.2);
-  border-radius: 14px;
-  background: rgba(0,255,65,0.04);
-}
-.login-sent-icon {
-  width: 48px; height: 48px;
-  border-radius: 50%;
-  background: rgba(0,255,65,0.12);
-  color: #00FF41;
-  font-size: 1.3rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1rem;
-  box-shadow: 0 0 30px rgba(0,255,65,0.15);
-}
-.login-sent-title {
-  font-family: 'Fraunces', Georgia, serif;
-  font-weight: 700;
-  font-size: 1.25rem;
-  color: #FAFAF8;
-  margin-bottom: 0.5rem;
-}
-.login-sent-body {
-  font-size: 0.85rem;
-  color: rgba(250,250,248,0.5);
-  line-height: 1.6;
-  margin-bottom: 1.25rem;
-}
-.login-sent-body strong { color: #FAFAF8; }
-.login-sent-retry {
-  background: none;
-  border: none;
-  color: #00CC34;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  border-bottom: 1px dotted rgba(0,204,52,0.4);
-  padding-bottom: 2px;
-  transition: color 0.15s;
-}
-.login-sent-retry:hover { color: #00FF41; }
-
-/* Terms */
-.login-terms {
-  margin-top: 2rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(250,250,248,0.2);
-  text-align: center;
-}
-
-/* Bottom links */
-.login-auth-links {
-  position: absolute;
-  bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(250,250,248,0.2);
-}
-.login-auth-links a {
-  transition: color 0.15s;
-  border-bottom: 1px solid transparent;
-}
-.login-auth-links a:hover {
-  color: rgba(250,250,248,0.5);
-  border-bottom-color: rgba(250,250,248,0.15);
-}
-.login-auth-links-sep { color: rgba(250,250,248,0.1); }
-
-/* Animation */
-@keyframes login-rise {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ─── Responsive ─── */
-@media (max-width: 900px) {
-  .login-split {
-    grid-template-columns: 1fr;
-    height: auto;
-    min-height: 100vh;
-  }
-  .login-brand {
-    padding: 2.5rem 2rem 2rem;
-    border-right: none;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  .login-brand-inner { max-width: 100%; }
-  .login-statement { font-size: clamp(1.6rem, 5vw, 2.2rem); margin-bottom: 1.5rem; }
-  .login-proof { margin-bottom: 1.5rem; }
-  .login-quiet { display: none; }
-  .login-brand-foot { position: static; margin-top: 1.5rem; }
-  .login-auth { padding: 2rem 1.5rem 3rem; min-height: auto; }
-  .login-auth-inner { max-width: 100%; }
-}
-@media (max-width: 480px) {
-  .login-brand { padding: 2rem 1.25rem 1.5rem; }
-  .login-auth { padding: 1.5rem 1.25rem 2.5rem; }
-  .login-auth-title { font-size: 1.5rem; }
-}
-`;
