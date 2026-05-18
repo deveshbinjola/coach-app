@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase-server";
 import { userAvatarUrl, userDisplayName, userFirstName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import CommandCenterView from "@/components/CommandCenterView";
-import type { Lead, Content, LeadMessage, VoiceProfile } from "@/lib/types";
+import type { Lead, Content, LeadMessage, VoiceProfile, Offering, OfferingMember } from "@/lib/types";
 import { enforceOnboardingGate } from "@/lib/onboarding";
 import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
 
@@ -68,7 +68,7 @@ export default async function CommandCenterPage() {
     now - 28 * 24 * 60 * 60 * 1000
   ).toISOString();
 
-  const [leadsRes, messagesRes, draftsRes, contentRes, trustMessagesRes, voiceRes] =
+  const [leadsRes, messagesRes, draftsRes, contentRes, trustMessagesRes, voiceRes, offeringsRes, offeringMembersRes] =
     await Promise.all([
       supabase
         .from("cp_leads")
@@ -120,6 +120,16 @@ export default async function CommandCenterPage() {
         .order("version", { ascending: false })
         .limit(1)
         .maybeSingle(),
+
+      supabase
+        .from("cp_offerings")
+        .select("id, name, capacity, price_cents, status")
+        .eq("coach_id", coachId)
+        .eq("status", "active"),
+
+      supabase
+        .from("cp_offering_members")
+        .select("offering_id, status"),
     ]);
 
   const leads    = (leadsRes.data   ?? []) as Lead[];
@@ -170,6 +180,20 @@ export default async function CommandCenterPage() {
     })
     .filter((x): x is NonNullable<typeof x> => x !== null);
 
+  // ── Offerings revenue ──────────────────────────────────────────
+  const offerings = (offeringsRes.data ?? []) as Array<Pick<Offering, "id" | "name" | "capacity" | "price_cents" | "status">>;
+  const offeringMembers = (offeringMembersRes.data ?? []) as Array<{ offering_id: string; status: string }>;
+  const enrolledCounts: Record<string, number> = {};
+  for (const m of offeringMembers) {
+    if (m.status === "active") enrolledCounts[m.offering_id] = (enrolledCounts[m.offering_id] ?? 0) + 1;
+  }
+  const offeringRevenue = offerings.map((o) => ({
+    name: o.name,
+    enrolled: enrolledCounts[o.id] ?? 0,
+    capacity: o.capacity,
+    price_cents: o.price_cents,
+  }));
+
   const reachTargetRaw = user.user_metadata?.reach_target_per_week;
   const reachTarget =
     typeof reachTargetRaw === "number" && reachTargetRaw > 0
@@ -197,6 +221,7 @@ export default async function CommandCenterPage() {
           trustMessages={(trustMessagesRes.data ?? []) as LeadMessage[]}
           voiceProfile={(voiceRes.data as VoiceProfile | null) ?? null}
           coachFirstName={userFirstName(user.email, user.user_metadata)}
+          offeringRevenue={offeringRevenue}
         />
       </main>
     </div>

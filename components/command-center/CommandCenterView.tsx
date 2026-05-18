@@ -42,6 +42,7 @@ import { Badge, Card, LeadAvatar } from "@/components/ui";
 import SlaBadge from "@/components/SlaBadge";
 import VoiceTrustCard from "@/components/VoiceTrustCard";
 import CommandHero from "@/components/command-center/CommandHero";
+import RevenueCard, { type OfferingRevenueSummary } from "@/components/command-center/RevenueCard";
 import FirstRunCommandCenter from "@/components/command-center/FirstRunCommandCenter";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -74,6 +75,7 @@ type Props = {
   /** Used for the display-size greeting at the top of the page
    *  ("Hey, Sunny."). */
   coachFirstName: string;
+  offeringRevenue: OfferingRevenueSummary[];
 };
 
 // Tiny derived summary that drives the top-of-page strip.
@@ -577,6 +579,7 @@ export default function CommandCenterView({
   trustMessages,
   voiceProfile,
   coachFirstName,
+  offeringRevenue,
 }: Props) {
   const [contentItems, setContentItems] = useState<Content[]>(content ?? []);
   const [fixingContentId, setFixingContentId] = useState<string | null>(null);
@@ -703,6 +706,7 @@ export default function CommandCenterView({
         </div>
 
         <div className="space-y-5">
+          <RevenueCard offerings={offeringRevenue} />
           <ReachCard count={reachCount} target={reachTarget} dailyReach={dailyReach} now={now} />
           <HonestQuestion question={honestQuestion} />
           <BillboardCard now={now} />
