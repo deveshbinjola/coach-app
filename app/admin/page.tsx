@@ -40,11 +40,24 @@ interface Offering {
   capacity: number | null;
 }
 
+interface BrandOsRun {
+  id: string;
+  coach_id: string;
+  state: "in_progress" | "complete" | "abandoned";
+  variant: "mvp" | "full";
+  audience: "M" | "W" | "X";
+  current_module: string;
+  started_at: string;
+  completed_at: string | null;
+  label: string | null;
+}
+
 interface AdminData {
   coaches: Coach[];
   payments: Payment[];
   stripeAccounts: StripeAccount[];
   offerings: Offering[];
+  brandOsRuns: BrandOsRun[];
   totalLeads: number;
   totalRevenue: number;
 }
@@ -256,6 +269,15 @@ export default function AdminPage() {
     return new Date().getTime() - d.getTime() < 7 * 86400000;
   }).length;
 
+  const coachMap = Object.fromEntries(data.coaches.map((c) => [c.id, c]));
+  const bosInProgress = data.brandOsRuns.filter((r) => r.state === "in_progress");
+  const bosComplete = data.brandOsRuns.filter((r) => r.state === "complete");
+  const bosMvp = bosComplete.filter((r) => r.variant === "mvp");
+  const bosFull = bosComplete.filter((r) => r.variant === "full");
+  const bosAbandoned = data.brandOsRuns.filter((r) => r.state === "abandoned");
+  const coachesWithRuns = new Set(data.brandOsRuns.map((r) => r.coach_id));
+  const coachesNoRun = data.coaches.filter((c) => !coachesWithRuns.has(c.id));
+
   return (
     <>
       <style>{adminStyles}</style>
@@ -398,6 +420,112 @@ export default function AdminPage() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+            </section>
+
+            <section className="adm-section">
+              <h2 className="adm-section-title">Brand OS</h2>
+              <div className="adm-metrics" style={{ padding: 0, marginBottom: "var(--s4)" }}>
+                <div className="adm-metric-card">
+                  <div className="adm-metric-value">{data.brandOsRuns.length}</div>
+                  <div className="adm-metric-label">Total runs</div>
+                </div>
+                <div className="adm-metric-card">
+                  <div className="adm-metric-value adm-val-warning">{bosInProgress.length}</div>
+                  <div className="adm-metric-label">In progress</div>
+                </div>
+                <div className="adm-metric-card">
+                  <div className="adm-metric-value adm-val-brand">{bosMvp.length}</div>
+                  <div className="adm-metric-label">MVP complete</div>
+                </div>
+                <div className="adm-metric-card">
+                  <div className="adm-metric-value adm-val-success">{bosFull.length}</div>
+                  <div className="adm-metric-label">Full run complete</div>
+                </div>
+                <div className="adm-metric-card">
+                  <div className="adm-metric-value" style={{ color: "var(--text-faint)" }}>{bosAbandoned.length}</div>
+                  <div className="adm-metric-label">Abandoned</div>
+                </div>
+                <div className="adm-metric-card">
+                  <div className="adm-metric-value" style={{ color: "var(--text-muted)" }}>{coachesNoRun.length}</div>
+                  <div className="adm-metric-label">Never started</div>
+                </div>
+              </div>
+
+              {data.brandOsRuns.length === 0 ? (
+                <p className="adm-empty">No Brand OS runs yet.</p>
+              ) : (
+                <div className="adm-table-wrap">
+                  <table className="adm-table">
+                    <thead>
+                      <tr>
+                        <th>Coach</th>
+                        <th>Email</th>
+                        <th>Variant</th>
+                        <th>Status</th>
+                        <th>Current Module</th>
+                        <th>Started</th>
+                        <th>Completed</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.brandOsRuns.map((r) => {
+                        const coach = coachMap[r.coach_id];
+                        return (
+                          <tr key={r.id}>
+                            <td className="adm-td-name">{coach?.full_name ?? r.label ?? "—"}</td>
+                            <td className="adm-td-email">{coach?.email ?? "—"}</td>
+                            <td>
+                              <span className={`adm-badge ${r.variant === "full" ? "adm-badge-brand" : "adm-badge-neutral"}`}>
+                                {r.variant}
+                              </span>
+                            </td>
+                            <td>
+                              <span className={`adm-badge ${
+                                r.state === "complete" ? "adm-badge-success" :
+                                r.state === "in_progress" ? "adm-badge-warning" :
+                                "adm-badge-danger"
+                              }`}>
+                                {r.state === "in_progress" ? "in progress" : r.state}
+                              </span>
+                            </td>
+                            <td style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.75rem" }}>
+                              {r.state === "complete" ? "—" : r.current_module}
+                            </td>
+                            <td>{ago(r.started_at)}</td>
+                            <td>{r.completed_at ? ago(r.completed_at) : "—"}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {coachesNoRun.length > 0 && (
+                <div style={{ marginTop: "var(--s4)" }}>
+                  <h3 className="adm-section-subtitle">Never Started Brand OS</h3>
+                  <div className="adm-table-wrap">
+                    <table className="adm-table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Email</th>
+                          <th>Signed up</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {coachesNoRun.map((c) => (
+                          <tr key={c.id}>
+                            <td className="adm-td-name">{c.full_name ?? "—"}</td>
+                            <td className="adm-td-email">{c.email}</td>
+                            <td>{ago(c.created_at)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </section>
@@ -622,6 +750,25 @@ const adminStyles = `
   .adm-badge-neutral {
     background: var(--surface-deep);
     color: var(--text-faint);
+  }
+  .adm-badge-brand {
+    background: rgba(0, 255, 65, 0.1);
+    color: var(--brand);
+  }
+  .adm-badge-danger {
+    background: #FEE2E2;
+    color: #DC2626;
+  }
+
+  .adm-val-warning { color: #B45309; }
+  .adm-val-brand { color: var(--brand); }
+  .adm-val-success { color: var(--success); }
+
+  .adm-section-subtitle {
+    font-size: var(--t-body);
+    font-weight: 600;
+    margin-bottom: var(--s2);
+    color: var(--text-muted);
   }
 
   .adm-empty {
