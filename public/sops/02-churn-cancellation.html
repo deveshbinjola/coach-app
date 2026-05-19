@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOP: Churn &amp; Cancellation</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#FAFAF8;color:#0A0F1C;line-height:1.7}
+.hero{background:#0A0F1C;color:#fff;padding:3.5rem 2rem 2.5rem;text-align:center}
+.hero h1{font-family:'Playfair Display',serif;font-weight:900;font-size:2.4rem;margin-bottom:.75rem;line-height:1.2}
+.hero h1 .accent{color:#00FF41}
+.hero .meta{font-size:.95rem;opacity:.7;font-weight:500}
+.hero .meta span{display:inline-block;margin:0 .5rem}
+.container{max-width:900px;margin:0 auto;padding:2rem}
+.section-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#00FF41;margin-bottom:.35rem}
+h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.5rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid #e8e8e4}
+h3{font-weight:700;font-size:1.15rem;margin:1.5rem 0 .75rem;color:#0A0F1C}
+section{margin-bottom:2.5rem}
+p{margin-bottom:1rem}
+ul,ol{margin:0 0 1rem 1.5rem}
+li{margin-bottom:.5rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0 1.5rem;font-size:.92rem}
+thead th{background:#0A0F1C;color:#fff;padding:.65rem .75rem;text-align:left;font-weight:600;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
+tbody td{padding:.6rem .75rem;border-bottom:1px solid #e8e8e4}
+tbody tr:hover{background:#f0ede6}
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:4px;font-size:.78rem;font-weight:600}
+.badge-high{background:#ffe0e0;color:#c00}
+.badge-medium{background:#fff3d0;color:#8a6d00}
+.badge-target{background:#d4ffd4;color:#0b6e23}
+code{font-family:'Fira Code','Source Code Pro',monospace;font-size:.88em;background:#f0ede6;padding:.15rem .4rem;border-radius:3px}
+pre{background:#0A0F1C;color:#00FF41;padding:1.25rem 1.5rem;border-radius:8px;overflow-x:auto;margin:1rem 0 1.5rem;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0;color:inherit}
+.email-card{background:#f8f8f5;border-left:4px solid #00FF41;padding:1.25rem 1.5rem;border-radius:0 8px 8px 0;margin:1rem 0 1.5rem}
+.email-card .email-subject{font-weight:700;font-size:.95rem;margin-bottom:.5rem;color:#0A0F1C}
+.email-card pre{background:#0A0F1C;margin:.75rem 0 0}
+hr{border:none;border-top:1px solid #e8e8e4;margin:2rem 0}
+strong{font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Churn &amp; <span class="accent">Cancellation</span></h1>
+  <div class="meta">
+    <span>Owner: Sunny</span>
+    <span>|</span>
+    <span>Trigger: Coach cancels or payment fails repeatedly</span>
+  </div>
+  <div class="meta" style="margin-top:.4rem;opacity:.5">Goal: Understand why, save if possible, part well if not</div>
+</div>
+
+<div class="container">
+
+<section>
+<div class="section-eyebrow">Classification</div>
+<h2>Types of Churn</h2>
+<table>
+<thead><tr><th>Type</th><th>Signal</th><th>Urgency</th></tr></thead>
+<tbody>
+<tr><td><strong>Voluntary</strong></td><td>Coach clicks cancel or emails to cancel</td><td><span class="badge badge-high">High &mdash; act within 4 hours</span></td></tr>
+<tr><td><strong>Involuntary</strong></td><td>Stripe payment fails, card expired</td><td><span class="badge badge-medium">Medium &mdash; dunning handles first</span></td></tr>
+<tr><td><strong>Silent</strong></td><td>No login in 21+ days, still paying</td><td><span class="badge badge-medium">Medium &mdash; outreach before they cancel</span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<div class="section-eyebrow">Voluntary Flow</div>
+<h2>Voluntary Cancellation Flow</h2>
+
+<h3>Step 1: Cancellation Request Received</h3>
+
+<p><strong>If they click cancel in-app (future &mdash; not built yet):</strong></p>
+<ul>
+<li>Show a 1-screen exit survey before processing:
+  <ul>
+    <li>"What's the main reason?" (pick one)
+      <ul>
+        <li>Not using it enough</li>
+        <li>Too expensive for what I get</li>
+        <li>Missing a feature I need</li>
+        <li>Switching to another tool</li>
+        <li>Business is pausing/closing</li>
+        <li>Other</li>
+      </ul>
+    </li>
+    <li>"Anything we could have done differently?" (optional text)</li>
+  </ul>
+</li>
+<li>Store response in <code>cp_churn_feedback</code> (create this table when building the feature)</li>
+</ul>
+
+<p><strong>If they email/DM to cancel:</strong></p>
+<ul>
+<li>Acknowledge within 4 hours</li>
+<li>Ask: "Before I process this &mdash; mind sharing what's not working? 2 sentences is enough."</li>
+<li>Process cancellation regardless of whether they respond (never hold someone hostage)</li>
+</ul>
+
+<h3>Step 2: Process the Cancellation</h3>
+<ol>
+<li>Cancel subscription in Stripe (end of billing period, not immediate)</li>
+<li>Update <code>cp_coaches.plan</code> to <code>cancelled</code> (or create a status field)</li>
+<li>Send confirmation email:</li>
+</ol>
+
+<div class="email-card">
+<div class="email-subject">Subject: Your account is cancelled</div>
+<pre><code>[First name] --
+
+Done. Your access runs through [billing period end date].
+
+Your data stays intact for 90 days. If you come back within that
+window, everything will be right where you left it.
+
+If you ever want to restart: app.elevateaisystem.com -- same login.
+
+No hard feelings. I hope the work we did on your voice and leads
+was useful regardless.
+
+Sunny</code></pre>
+</div>
+
+<h3>Step 3: Win-back Sequence</h3>
+
+<p><strong>Day 14 after cancellation:</strong></p>
+<div class="email-card">
+<div class="email-subject">Subject: Quick question, [first name]</div>
+<pre><code>[First name] --
+
+It's been 2 weeks since you cancelled. No pitch -- just curious:
+
+Did you find something that works better?
+Or did the timing just not line up?
+
+Either way, I'd love the honest answer. Helps me build a better
+product for the coaches who stay.
+
+Sunny</code></pre>
+</div>
+
+<p><strong>Day 45 after cancellation (only if they had &gt; 5 leads in the system):</strong></p>
+<div class="email-card">
+<div class="email-subject">Subject: Your leads are still here</div>
+<pre><code>[First name] --
+
+Your [X] leads and voice profile are still saved in the platform.
+They'll be deleted at the 90-day mark ([date]).
+
+If you want to pick back up -- same login, founding pricing still
+honored if you were a founder.
+
+No pressure. Just didn't want your data to disappear without a
+heads-up.
+
+Sunny</code></pre>
+</div>
+
+<p><strong>Day 85 &mdash; Final notice before data deletion:</strong></p>
+<div class="email-card">
+<div class="email-subject">Subject: Data deletion in 5 days</div>
+<pre><code>[First name] -- your ElevateAI data (leads, voice profile, drafts)
+will be permanently deleted on [date].
+
+Want to export it? Reply and I'll send you a CSV within 24 hours.
+Want to reactivate? Just log in at app.elevateaisystem.com.
+
+Sunny</code></pre>
+</div>
+</section>
+
+<section>
+<div class="section-eyebrow">Involuntary</div>
+<h2>Involuntary Churn (Dunning)</h2>
+
+<h3>Stripe Payment Failure Sequence</h3>
+
+<p><strong>Attempt 1 fails (Day 0):</strong></p>
+<ul>
+<li>Stripe auto-retries in 3 days</li>
+<li>Send email immediately:</li>
+</ul>
+<div class="email-card">
+<div class="email-subject">Subject: Payment failed &mdash; quick fix</div>
+<pre><code>[First name] --
+
+Your monthly payment of $[amount] didn't go through.
+Usually it's an expired card.
+
+Update your payment method here: [Stripe customer portal link]
+
+If you do nothing, Stripe will retry in 3 days.
+
+Sunny</code></pre>
+</div>
+
+<p><strong>Attempt 2 fails (Day 3):</strong></p>
+<ul>
+<li>Stripe retries in 5 more days</li>
+<li>Send email:</li>
+</ul>
+<div class="email-card">
+<div class="email-subject">Subject: Second try didn't work either</div>
+<pre><code>[First name] -- payment still failing. Stripe will try one more
+time on [date]. After that your account pauses.
+
+Takes 30 seconds to fix: [Stripe portal link]
+
+If something's going on financially, reply -- we'll figure it out.</code></pre>
+</div>
+
+<p><strong>Attempt 3 fails (Day 8):</strong></p>
+<ul>
+<li>Pause account access (read-only mode &mdash; they can see data but not use AI features)</li>
+<li>Send email:</li>
+</ul>
+<div class="email-card">
+<div class="email-subject">Subject: Account paused &mdash; your data is safe</div>
+<pre><code>[First name] -- after 3 failed attempts, your account is now paused.
+
+Your leads, voice profile, and drafts are all safe. Nothing deleted.
+
+To reactivate: update your card at [Stripe portal link] and you're
+back instantly.
+
+If you'd rather cancel, reply "cancel" and I'll process it.
+
+Sunny</code></pre>
+</div>
+
+<p><strong>Day 30 of paused state with no action:</strong></p>
+<ul>
+<li>Treat as voluntary cancellation</li>
+<li>Enter win-back sequence above</li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Prevention</div>
+<h2>Silent Churn Prevention</h2>
+
+<h3>Weekly automated check (Atlas runs this):</h3>
+<p>Query coaches who:</p>
+<ul>
+<li>Have <code>payment_status = paid</code></li>
+<li>Last login &gt; 14 days ago</li>
+<li>Have &gt; 0 leads</li>
+</ul>
+
+<p><strong>Day 14 of inactivity &mdash; nudge:</strong></p>
+<div class="email-card">
+<div class="email-subject">Subject: Your leads are waiting</div>
+<pre><code>[First name] -- you have [X] leads in your inbox and haven't
+logged in for 2 weeks.
+
+[Lead name] last messaged [X days] ago. Want me to draft a
+follow-up in your voice? Just reply "yes" and I'll send you
+the draft.
+
+Sunny</code></pre>
+</div>
+
+<p><strong>Day 21 of inactivity &mdash; personal outreach:</strong></p>
+<p>Sunny sends a personal DM (Slack for founders, email for standard):</p>
+<pre><code>Hey [name] -- haven't seen you in the platform for a few weeks.
+Everything good? Want to hop on a quick call to troubleshoot?</code></pre>
+</section>
+
+<section>
+<div class="section-eyebrow">Data</div>
+<h2>Data Retention Policy</h2>
+<table>
+<thead><tr><th>Event</th><th>Data kept for</th><th>Then</th></tr></thead>
+<tbody>
+<tr><td>Active subscription</td><td>Indefinite</td><td>&mdash;</td></tr>
+<tr><td>Cancelled</td><td>90 days</td><td>Permanent deletion</td></tr>
+<tr><td>Payment paused</td><td>60 days paused + 90 days after formal cancel</td><td>Permanent deletion</td></tr>
+<tr><td>Account never activated</td><td>180 days</td><td>Permanent deletion</td></tr>
+</tbody>
+</table>
+
+<p><strong>What gets deleted:</strong></p>
+<ul>
+<li><code>cp_leads</code> rows scoped to that coach</li>
+<li><code>cp_voice_profiles</code> scoped to that coach</li>
+<li><code>cp_lead_messages</code> scoped to that coach</li>
+<li><code>cp_client_rooms</code> scoped to that coach</li>
+<li><code>cp_coaches</code> row itself</li>
+</ul>
+
+<p><strong>What gets kept (anonymized):</strong></p>
+<ul>
+<li>Payment records in <code>cp_payments</code> (for accounting/tax)</li>
+<li>Aggregate usage stats (for product analytics)</li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Performance</div>
+<h2>Metrics to Track</h2>
+<table>
+<thead><tr><th>Metric</th><th>Target</th><th>Check</th></tr></thead>
+<tbody>
+<tr><td>Monthly churn rate</td><td><span class="badge badge-target">&lt; 5%</span></td><td>1st of every month</td></tr>
+<tr><td>Voluntary vs involuntary split</td><td><span class="badge badge-target">60/40 or better</span></td><td>Monthly</td></tr>
+<tr><td>Win-back conversion (Day 14 email)</td><td><span class="badge badge-target">&gt; 10%</span></td><td>Monthly</td></tr>
+<tr><td>Dunning recovery rate</td><td><span class="badge badge-target">&gt; 60%</span></td><td>Monthly</td></tr>
+<tr><td>Avg days from last login to cancel</td><td>Track trend</td><td>Monthly</td></tr>
+<tr><td>Top cancellation reason</td><td>&mdash;</td><td>Monthly review</td></tr>
+</tbody>
+</table>
+</section>
+
+</div>
+</body>
+</html>

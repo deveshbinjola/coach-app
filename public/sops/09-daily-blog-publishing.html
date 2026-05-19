@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOP: Daily Blog Publishing</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#FAFAF8;color:#0A0F1C;line-height:1.7}
+.hero{background:#0A0F1C;color:#fff;padding:3.5rem 2rem 2.5rem;text-align:center}
+.hero h1{font-family:'Playfair Display',serif;font-weight:900;font-size:2.4rem;margin-bottom:.75rem;line-height:1.2}
+.hero h1 .accent{color:#00FF41}
+.hero .meta{font-size:.95rem;opacity:.7;font-weight:500}
+.hero .meta span{display:inline-block;margin:0 .5rem}
+.container{max-width:900px;margin:0 auto;padding:2rem}
+.section-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#00FF41;margin-bottom:.35rem}
+h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.5rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid #e8e8e4}
+h3{font-weight:700;font-size:1.15rem;margin:1.5rem 0 .75rem;color:#0A0F1C}
+section{margin-bottom:2.5rem}
+p{margin-bottom:1rem}
+ul,ol{margin:0 0 1rem 1.5rem}
+li{margin-bottom:.5rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0 1.5rem;font-size:.92rem}
+thead th{background:#0A0F1C;color:#fff;padding:.65rem .75rem;text-align:left;font-weight:600;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
+tbody td{padding:.6rem .75rem;border-bottom:1px solid #e8e8e4}
+tbody tr:hover{background:#f0ede6}
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:4px;font-size:.78rem;font-weight:600}
+.badge-target{background:#d4ffd4;color:#0b6e23}
+.badge-cat{background:#e8e0ff;color:#4a3080}
+code{font-family:'Fira Code','Source Code Pro',monospace;font-size:.88em;background:#f0ede6;padding:.15rem .4rem;border-radius:3px}
+pre{background:#0A0F1C;color:#00FF41;padding:1.25rem 1.5rem;border-radius:8px;overflow-x:auto;margin:1rem 0 1.5rem;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0;color:inherit}
+.callout{background:#f8f8f5;border-left:4px solid #00FF41;padding:1.25rem 1.5rem;border-radius:0 8px 8px 0;margin:1rem 0 1.5rem}
+.callout-warning{border-left-color:#ff6b35}
+.checklist{list-style:none;margin-left:0;padding-left:0}
+.checklist li{padding:.4rem 0 .4rem 2rem;position:relative}
+.checklist li::before{content:'';position:absolute;left:0;top:.55rem;width:18px;height:18px;border:2px solid #ccc;border-radius:3px}
+hr{border:none;border-top:1px solid #e8e8e4;margin:2rem 0}
+strong{font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Daily <span class="accent">Blog</span> Publishing</h1>
+  <div class="meta">
+    <span>Owner: Loki (write), Atlas (QA + publish)</span>
+  </div>
+  <div class="meta">
+    <span>Cadence: Every weekday, 7am HST</span>
+    <span>|</span>
+    <span>Platform: The Signal on elevateaisystem.com/blog</span>
+  </div>
+  <div class="meta" style="margin-top:.4rem;opacity:.5">Goal: 1 post per day, never remove posts, always add</div>
+</div>
+
+<div class="container">
+
+<section>
+<div class="section-eyebrow">Schedule</div>
+<h2>Daily Workflow</h2>
+<table>
+<thead><tr><th>Time</th><th>Task</th><th>Owner</th></tr></thead>
+<tbody>
+<tr><td><strong>7:00am</strong></td><td>Blog post generated</td><td>Loki (automated via scheduled task)</td></tr>
+<tr><td><strong>7:05am</strong></td><td>Post added to blog index</td><td>Atlas (automated)</td></tr>
+<tr><td><strong>7:10am</strong></td><td>Internal links + topic cluster links injected</td><td>Atlas (automated)</td></tr>
+<tr><td><strong>7:15am</strong></td><td>OG image generated (1200x630 PNG)</td><td>Loki</td></tr>
+<tr><td><strong>7:30am</strong></td><td>QA check &mdash; build passes, page renders, links work</td><td>Atlas</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<div class="section-eyebrow">Requirements</div>
+<h2>Post Requirements</h2>
+
+<h3>Content</h3>
+<ul class="checklist">
+<li>Audience: coaches &amp; creators</li>
+<li>Category: <span class="badge badge-cat">marketing</span> <span class="badge badge-cat">strategy</span> or <span class="badge badge-cat">tools</span> (only these 3)</li>
+<li>2-3+ inline visual elements (charts, graphs, comparison tables, stat callouts, flowcharts)</li>
+<li>Visuals built with HTML/CSS/SVG in brand colors &mdash; no external image dependencies</li>
+</ul>
+
+<h3>SEO</h3>
+<ul class="checklist">
+<li>SEO meta tags (title, description)</li>
+<li>JSON-LD <code>BlogPosting</code> schema</li>
+<li>LinkedIn share metadata</li>
+<li>Category badge</li>
+</ul>
+
+<h3>OG Image</h3>
+<ul class="checklist">
+<li>1200x630 PNG saved to <code>Website/blog/images/{slug}-og.png</code></li>
+<li>Wired into: <code>og:image</code>, <code>twitter:image</code>, JSON-LD <code>BlogPosting.image</code></li>
+<li>Brand template: navy <code>#0A0F1C</code> bg, green <code>#00FF41</code> accent + left side bar, top-right radial glow</li>
+<li>"THE SIGNAL . ELEVATEAI" eyebrow, category pill, white headline, stat callout</li>
+</ul>
+
+<h3>File Structure</h3>
+<ul>
+<li><strong>Post HTML:</strong> <code>Website/blog/{slug}.html</code></li>
+<li><strong>OG image:</strong> <code>Website/blog/images/{slug}-og.png</code></li>
+<li><strong>Index:</strong> <code>Website/blog.html</code> (updated with new entry)</li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Topics</div>
+<h2>Topic Selection</h2>
+
+<h3>Content Pillars (rotate through these)</h3>
+<ol>
+<li><strong>AI for coaches</strong> &mdash; tools, workflows, automation, prompt engineering</li>
+<li><strong>Lead generation</strong> &mdash; funnels, content strategy, organic growth, SEO/AEO/GEO</li>
+<li><strong>Business systems</strong> &mdash; pricing, offers, client management, scaling</li>
+</ol>
+
+<h3>Topic Sources</h3>
+<ul>
+<li>News from AI/coaching industry</li>
+<li>Questions from coaches in DMs/Slack</li>
+<li>Platform feature launches (write about the problem it solves, not the feature)</li>
+<li>Competitor analysis</li>
+<li>Keyword research (ELEVATE method: SEO + AEO + GEO + LLMO)</li>
+</ul>
+
+<h3>Hard Rules</h3>
+<div class="callout callout-warning">
+<ul style="margin-bottom:0">
+<li>Never remove existing posts &mdash; always add</li>
+<li>Never publish duplicate topics (check existing blog index first)</li>
+<li>No motivational fluff &mdash; every post must teach something concrete</li>
+<li>Every post must have a clear "so what" for a coach reading it</li>
+</ul>
+</div>
+</section>
+
+<section>
+<div class="section-eyebrow">Quality</div>
+<h2>QA Checklist (Atlas runs this)</h2>
+<ul class="checklist">
+<li><code>Website/blog/{slug}.html</code> exists and renders</li>
+<li>Added to <code>blog.html</code> index with correct category, date, teaser</li>
+<li>OG image exists at correct path</li>
+<li>Meta tags present (title, description, og:image, twitter:image)</li>
+<li>JSON-LD schema present and valid</li>
+<li>Internal links injected (topic cluster "Keep Reading" links)</li>
+<li>No broken links</li>
+<li>Visuals render correctly (SVG/CSS charts)</li>
+<li>Cloudflare Pages build passes</li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Recovery</div>
+<h2>Recovery</h2>
+
+<div class="callout">
+<h3 style="margin-top:0">If a post doesn't generate by 7am:</h3>
+<ul style="margin-bottom:0">
+<li>Atlas flags it</li>
+<li>Loki regenerates with explicit topic assignment</li>
+<li>Target: published by noon same day</li>
+</ul>
+</div>
+
+<div class="callout">
+<h3 style="margin-top:0">If QA finds issues:</h3>
+<ul style="margin-bottom:0">
+<li>Fix immediately &mdash; don't publish broken posts</li>
+<li>If fix takes &gt; 1 hour, skip the day (rare) and double-post tomorrow</li>
+</ul>
+</div>
+</section>
+
+<section>
+<div class="section-eyebrow">Performance</div>
+<h2>Metrics</h2>
+<table>
+<thead><tr><th>Metric</th><th>Target</th><th>Frequency</th></tr></thead>
+<tbody>
+<tr><td>Posts per week</td><td><span class="badge badge-target">5 (weekdays)</span></td><td>Weekly</td></tr>
+<tr><td>Posts per month</td><td><span class="badge badge-target">20+</span></td><td>Monthly</td></tr>
+<tr><td>Organic traffic growth</td><td><span class="badge badge-target">+10% month-over-month</span></td><td>Monthly</td></tr>
+<tr><td>Average time on page</td><td><span class="badge badge-target">&gt; 2 minutes</span></td><td>Monthly</td></tr>
+<tr><td>Posts with all QA checks passing</td><td><span class="badge badge-target">100%</span></td><td>Weekly</td></tr>
+</tbody>
+</table>
+</section>
+
+</div>
+</body>
+</html>
