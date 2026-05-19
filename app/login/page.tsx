@@ -88,10 +88,9 @@ export default function LoginPage() {
         .lp-feat:hover { background: rgba(0,255,65,0.1); border-color: rgba(0,255,65,0.25); }
         .lp-feat-dot { width: 5px; height: 5px; border-radius: 50%; background: #00FF41; opacity: 0.7; }
 
-        .lp-logo { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 1.5rem; align-self: flex-start; }
-        .lp-logo-dot { width: 10px; height: 10px; border-radius: 50%; background: #00FF41; box-shadow: 0 0 12px rgba(0,255,65,0.5), 0 0 40px rgba(0,255,65,0.2); animation: lp-pulse 3s ease-in-out infinite; }
-        @keyframes lp-pulse { 0%,100% { box-shadow: 0 0 12px rgba(0,255,65,0.5), 0 0 40px rgba(0,255,65,0.2); } 50% { box-shadow: 0 0 18px rgba(0,255,65,0.7), 0 0 60px rgba(0,255,65,0.3); } }
-        .lp-logo-text { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; font-variation-settings: "SOFT" 30, "opsz" 144; }
+        .lp-logo { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 1.5rem; align-self: flex-start; }
+        .lp-logo svg { width: 28px; height: 28px; filter: drop-shadow(0 0 8px rgba(0,255,65,0.4)); }
+        .lp-logo-text { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; font-variation-settings: "SOFT" 30, "opsz" 144; color: #FAFAF8; }
         .lp-logo-text span { color: #00CC34; }
 
         .lp-headline { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: clamp(1.5rem, 2.2vw, 2rem); line-height: 1.12; letter-spacing: -0.02em; color: rgba(250,250,248,0.92); margin-bottom: 3.5rem; align-self: flex-start; font-variation-settings: "SOFT" 30, "opsz" 144; }
@@ -159,8 +158,8 @@ export default function LoginPage() {
         .lp-right { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 3rem 2.5rem; background: linear-gradient(170deg, #080D18 0%, #0C1220 40%, #0A0F1C 100%); position: relative; }
         .lp-auth-card { width: 100%; max-width: 400px; opacity: 0; animation: lp-rise 0.9s 0.25s cubic-bezier(.16,1,.3,1) both; }
 
-        .lp-mobile-logo { display: none; align-items: center; gap: 0.5rem; margin-bottom: 2rem; font-family: 'Fraunces', serif; font-weight: 800; font-size: 1.25rem; }
-        .lp-mobile-logo .mdot { width: 10px; height: 10px; border-radius: 50%; background: #00FF41; box-shadow: 0 0 12px rgba(0,255,65,0.5); }
+        .lp-mobile-logo { display: none; align-items: center; gap: 0.5rem; margin-bottom: 2rem; font-family: 'Fraunces', serif; font-weight: 800; font-size: 1.25rem; color: #FAFAF8; }
+        .lp-mobile-logo svg { filter: drop-shadow(0 0 8px rgba(0,255,65,0.4)); }
 
         .lp-auth-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: #00CC34; margin-bottom: 0.75rem; }
         .lp-auth-title { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 2rem; letter-spacing: -0.03em; color: #FAFAF8; margin: 0 0 0.5rem; font-variation-settings: "SOFT" 30, "opsz" 96; }
@@ -210,23 +209,36 @@ export default function LoginPage() {
         .lp-terms a:hover { color: rgba(255,255,255,0.9); }
         .lp-terms .tdot { display: inline-block; margin: 0 0.5rem; color: #00FF41; opacity: 0.3; }
 
-        .lp-foot-links { position: absolute; bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(250,250,248,0.5); }
+        .lp-foot-links { position: absolute; bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: #FAFAF8; }
         .lp-foot-links a { color: inherit; text-decoration: none; transition: color 0.15s; }
-        .lp-foot-links a:hover { color: rgba(250,250,248,0.85); }
+        .lp-foot-links a:hover { color: #00FF41; }
 
         @keyframes lp-rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        @media (max-width: 1024px) { .lp { grid-template-columns: 1fr 1fr; } .lp-headline { font-size: 1.35rem; } .lp-phone-wrap { max-width: 300px; } .lp-features { display: none; } .lp-left-inner { max-width: 380px; } }
-        @media (max-width: 768px) { .lp { grid-template-columns: 1fr; } .lp-left { display: none; } .lp-right { min-height: 100vh; padding: 2rem 1.5rem; } .lp-mobile-logo { display: flex; } }
-        @media (max-width: 420px) { .lp-right { padding: 1.5rem 1.25rem; } .lp-auth-title { font-size: 1.5rem; } }
+        @media (max-width: 1200px) { .lp-features { display: none; } }
+        @media (max-width: 1024px) { .lp { grid-template-columns: 1fr 1fr; } .lp-headline { font-size: 1.35rem; } .lp-phone-wrap { max-width: 300px; } .lp-left-inner { max-width: 380px; } }
+        @media (max-width: 768px) {
+          .lp { grid-template-columns: 1fr; grid-template-rows: auto auto; }
+          .lp-right { order: -1; min-height: auto; padding: 2.5rem 1.5rem 2rem; }
+          .lp-left { padding: 1rem 1.5rem 2.5rem; border-right: none; border-top: 1px solid rgba(255,255,255,0.04); }
+          .lp-left-inner { max-width: 340px; }
+          .lp-headline { font-size: 1.3rem; margin-bottom: 2rem; }
+          .lp-phone-wrap { max-width: 280px; }
+          .lp-phone-notice { font-size: 0.5rem; }
+          .lp-features { display: flex !important; flex-direction: row; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
+          .lp-phone-row { flex-direction: column; gap: 1rem; }
+          .lp-mobile-logo { display: flex; }
+          .lp-foot-links { position: static; margin-top: 1.5rem; }
+        }
+        @media (max-width: 420px) { .lp-right { padding: 2rem 1.25rem 1.5rem; } .lp-auth-title { font-size: 1.5rem; } .lp-left { padding: 1rem 1.25rem 2rem; } }
       `}</style>
 
       <div className="lp">
         <div className="lp-left">
           <div className="lp-left-inner">
             <div className="lp-logo" style={{ opacity: 0, animation: 'lp-rise 0.9s 0.1s cubic-bezier(.16,1,.3,1) both' }}>
-              <span className="lp-logo-dot" />
-              <span className="lp-logo-text">ElevateAI<span>.</span></span>
+              <svg viewBox="0 0 32 32" fill="none"><path d="M16 2C12 8 6 14 6 20a10 10 0 0 0 20 0c0-6-6-12-10-18z" fill="#00FF41"/><path d="M16 12v14M16 26c-2-3-4-5-4-8s2-5 4-8c2 3 4 5 4 8s-2 5-4 8z" stroke="#0A0F1C" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              <span className="lp-logo-text">Elevate AI <span>Coach</span></span>
             </div>
 
             <h1 className="lp-headline" style={{ opacity: 0, animation: 'lp-rise 0.9s 0.2s cubic-bezier(.16,1,.3,1) both' }}>
@@ -308,8 +320,8 @@ export default function LoginPage() {
         <div className="lp-right">
           <div className="lp-auth-card">
             <div className="lp-mobile-logo">
-              <span className="mdot" />
-              ElevateAI
+              <svg viewBox="0 0 32 32" fill="none" style={{ width: 24, height: 24 }}><path d="M16 2C12 8 6 14 6 20a10 10 0 0 0 20 0c0-6-6-12-10-18z" fill="#00FF41"/><path d="M16 12v14M16 26c-2-3-4-5-4-8s2-5 4-8c2 3 4 5 4 8s-2 5-4 8z" stroke="#0A0F1C" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              Elevate AI Coach
             </div>
 
             {sent ? (
