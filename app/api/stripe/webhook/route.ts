@@ -8,10 +8,9 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { stripe } from "@/lib/stripe";
-import type Stripe from "stripe";
+import { verifyWebhookSignature } from "@/lib/stripe";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -21,27 +20,39 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
-  let event: Stripe.Event;
+  let event: Record<string, unknown>;
   try {
-    event = stripe.webhooks.constructEvent(
+    event = await verifyWebhookSignature(
       body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET!,
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json({ error: `Webhook signature verification failed: ${message}` }, { status: 400 });
+    return NextResponse.json({ error: `Webhook verification failed: ${message}` }, { status: 400 });
   }
 
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    await handleCheckoutCompleted(session);
+    const session = event.data as { object: CheckoutSession };
+    await handleCheckoutCompleted(session.object);
   }
 
   return NextResponse.json({ received: true });
 }
 
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+interface CheckoutSession {
+  id: string;
+  payment_intent?: string | { id: string } | null;
+  amount_total?: number | null;
+  currency?: string | null;
+  customer_details?: {
+    email?: string | null;
+    name?: string | null;
+  } | null;
+  metadata?: Record<string, string> | null;
+}
+
+async function handleCheckoutCompleted(session: CheckoutSession) {
   const admin = createAdminClient();
 
   const offeringId = session.metadata?.offering_id;
@@ -71,12 +82,9 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     metadata: session.metadata ?? {},
   });
 
-  // Auto-enroll: find or create a client room for this buyer, then
-  // add them to the offering.
   const email = session.customer_details?.email;
   if (!email) return;
 
-  // Check if a lead already exists for this email under this coach.
   const { data: existingLead } = await admin
     .from("cp_leads")
     .select("id")
@@ -103,7 +111,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     leadId = newLead.id;
   }
 
-  // Find or create a client room for this lead under this coach.
   const { data: existingRoom } = await admin
     .from("cp_client_rooms")
     .select("id")
@@ -114,7 +121,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   let roomId: string;
   if (existingRoom) {
     roomId = existingRoom.id;
-
     await admin
       .from("cp_client_rooms")
       .update({ payment_status: "paid" })
@@ -140,7 +146,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     roomId = newRoom.id;
   }
 
-  // Add to offering (skip if already enrolled).
   const { data: alreadyMember } = await admin
     .from("cp_offering_members")
     .select("offering_id")

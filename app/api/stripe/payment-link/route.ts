@@ -7,9 +7,9 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { stripe } from "@/lib/stripe";
+import { createPrice, createPaymentLink } from "@/lib/stripe";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 export async function POST(request: NextRequest) {
   const supabase = createClient();
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: existingLink.url });
   }
 
-  const price = await stripe.prices.create(
+  const price = await createPrice(
     {
       unit_amount: offering.price_cents,
       currency: "usd",
@@ -65,12 +65,12 @@ export async function POST(request: NextRequest) {
         metadata: { offering_id: offering.id, coach_id: user.id },
       },
     },
-    { stripeAccount: stripeAccount.stripe_account_id }
+    stripeAccount.stripe_account_id,
   );
 
   const appUrl = process.env.APP_URL ?? "http://localhost:3000";
 
-  const paymentLink = await stripe.paymentLinks.create(
+  const paymentLink = await createPaymentLink(
     {
       line_items: [{ price: price.id, quantity: 1 }],
       after_completion: {
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
         coach_id: user.id,
       },
     },
-    { stripeAccount: stripeAccount.stripe_account_id }
+    stripeAccount.stripe_account_id,
   );
 
   await supabase.from("cp_payment_links").upsert({

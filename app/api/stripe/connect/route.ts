@@ -7,9 +7,9 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { stripe } from "@/lib/stripe";
+import { createAccount, createAccountLink } from "@/lib/stripe";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 export async function POST() {
   const supabase = createClient();
@@ -29,7 +29,7 @@ export async function POST() {
   if (existing) {
     stripeAccountId = existing.stripe_account_id;
   } else {
-    const account = await stripe.accounts.create({
+    const account = await createAccount({
       type: "standard",
       email: user.email,
       metadata: { coach_id: user.id },
@@ -39,11 +39,11 @@ export async function POST() {
     await supabase.from("cp_stripe_accounts").insert({
       coach_id: user.id,
       stripe_account_id: account.id,
-      livemode: (account as unknown as { livemode?: boolean }).livemode ?? false,
+      livemode: account.livemode ?? false,
     });
   }
 
-  const accountLink = await stripe.accountLinks.create({
+  const accountLink = await createAccountLink({
     account: stripeAccountId,
     refresh_url: `${appUrl}/api/stripe/connect/callback?refresh=1`,
     return_url: `${appUrl}/api/stripe/connect/callback`,

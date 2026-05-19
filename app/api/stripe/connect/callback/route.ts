@@ -10,9 +10,9 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { stripe } from "@/lib/stripe";
+import { retrieveAccount } from "@/lib/stripe";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
   const supabase = createClient();
@@ -35,14 +35,14 @@ export async function GET(request: NextRequest) {
     .maybeSingle();
 
   if (row) {
-    const account = await stripe.accounts.retrieve(row.stripe_account_id);
+    const account = await retrieveAccount(row.stripe_account_id);
     await supabase
       .from("cp_stripe_accounts")
       .update({
         details_submitted: account.details_submitted ?? false,
         charges_enabled: account.charges_enabled ?? false,
         display_name: account.business_profile?.name ?? account.email ?? null,
-        livemode: (account as unknown as { livemode?: boolean }).livemode ?? false,
+        livemode: account.livemode ?? false,
         updated_at: new Date().toISOString(),
       })
       .eq("coach_id", user.id);
