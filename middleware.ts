@@ -48,6 +48,16 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+
+  // Admin gate — hardcoded to Sunny's email. No config, no env var, no DB lookup.
+  const ADMIN_EMAIL = "sunny.binjola@gmail.com";
+  if (path.startsWith("/admin")) {
+    if (!user || user.email !== ADMIN_EMAIL) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    return response;
+  }
+
   const publicPaths = [
     "/login",
     "/auth/callback",
