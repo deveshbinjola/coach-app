@@ -453,6 +453,27 @@ export default function LoginPage() {
           opacity: 0.3;
         }
 
+        /* Trust signals */
+        .login-trust {
+          display: flex;
+          justify-content: center;
+          gap: 1.25rem;
+          margin-top: 1.75rem;
+          flex-wrap: wrap;
+        }
+        .login-trust-item {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          font-size: 0.7rem;
+          color: rgba(255,255,255,0.3);
+          white-space: nowrap;
+        }
+        .login-trust-icon {
+          font-size: 0.6rem;
+          color: rgba(0,255,65,0.5);
+        }
+
         /* ── Staggered Cascade Animations ─────────── */
         @keyframes login-fade-up {
           from { opacity: 0; transform: translateY(18px); }
@@ -618,6 +639,18 @@ export default function LoginPage() {
                 {error && (
                   <div className="login-error">{error}</div>
                 )}
+
+                <div className="login-trust login-stagger-r5">
+                  <span className="login-trust-item">
+                    <span className="login-trust-icon">🔒</span> Secure sign-in
+                  </span>
+                  <span className="login-trust-item">
+                    <span className="login-trust-icon">✦</span> No credit card required
+                  </span>
+                  <span className="login-trust-item">
+                    <span className="login-trust-icon">∞</span> 500 leads free forever
+                  </span>
+                </div>
 
                 <p className="login-terms login-stagger-r5">
                   By signing in you agree to the{" "}
