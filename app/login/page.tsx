@@ -79,11 +79,13 @@ export default function LoginPage() {
         }
         @keyframes lp-drift { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(3%,-4%) scale(1.08); } }
 
-        .lp-left-inner { position: relative; z-index: 2; width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; }
+        .lp-left-inner { position: relative; z-index: 2; width: 100%; max-width: 520px; display: flex; flex-direction: column; align-items: flex-start; }
 
-        /* Feature pills */
-        .lp-features { display: flex; flex-wrap: wrap; gap: 0.5rem; align-self: flex-start; margin-bottom: 1.5rem; opacity: 0; animation: lp-rise 0.9s 0.9s cubic-bezier(.16,1,.3,1) both; }
-        .lp-feat { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; border-radius: 100px; background: rgba(0,255,65,0.06); border: 1px solid rgba(0,255,65,0.12); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.06em; color: rgba(250,250,248,0.6); white-space: nowrap; }
+        /* Feature pills — vertical strip right of phone */
+        .lp-phone-row { display: flex; gap: 1.25rem; align-items: center; width: 100%; }
+        .lp-features { display: flex; flex-direction: column; gap: 0.45rem; opacity: 0; animation: lp-rise 0.9s 0.9s cubic-bezier(.16,1,.3,1) both; flex-shrink: 0; }
+        .lp-feat { display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.75rem; border-radius: 100px; background: rgba(0,255,65,0.06); border: 1px solid rgba(0,255,65,0.12); font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.06em; color: rgba(250,250,248,0.7); white-space: nowrap; transition: background 0.2s, border-color 0.2s; }
+        .lp-feat:hover { background: rgba(0,255,65,0.1); border-color: rgba(0,255,65,0.25); }
         .lp-feat-dot { width: 5px; height: 5px; border-radius: 50%; background: #00FF41; opacity: 0.7; }
 
         .lp-logo { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 1.5rem; align-self: flex-start; }
@@ -92,17 +94,17 @@ export default function LoginPage() {
         .lp-logo-text { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; font-variation-settings: "SOFT" 30, "opsz" 144; }
         .lp-logo-text span { color: #00CC34; }
 
-        .lp-headline { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: clamp(1.5rem, 2.2vw, 2rem); line-height: 1.12; letter-spacing: -0.02em; color: rgba(250,250,248,0.92); margin-bottom: 2rem; align-self: flex-start; font-variation-settings: "SOFT" 30, "opsz" 144; }
+        .lp-headline { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: clamp(1.5rem, 2.2vw, 2rem); line-height: 1.12; letter-spacing: -0.02em; color: rgba(250,250,248,0.92); margin-bottom: 3.5rem; align-self: flex-start; font-variation-settings: "SOFT" 30, "opsz" 144; }
         .lp-headline em { font-style: normal; color: #00FF41; font-variation-settings: "SOFT" 100, "opsz" 144; text-shadow: 0 0 40px rgba(0,255,65,0.25); }
 
         /* Phone mockup */
         .lp-phone-wrap { width: 100%; max-width: 340px; position: relative; opacity: 0; animation: lp-rise 1s 0.3s cubic-bezier(.16,1,.3,1) both; }
-        .lp-phone-notice { position: absolute; top: -38px; right: -20px; transform: none; display: flex; align-items: center; gap: 0.5rem; background: rgba(10,15,28,0.92); backdrop-filter: blur(12px); color: #fff; padding: 0.45rem 0.85rem; border-radius: 100px; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.05em; white-space: nowrap; box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 8px 24px rgba(10,15,28,0.2); z-index: 5; opacity: 0; animation: lp-noticeIn 0.6s 1.2s cubic-bezier(.2,.8,.2,1) both, lp-bob 4s 2s ease-in-out infinite; }
+        .lp-phone-notice { position: absolute; top: -32px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 0.5rem; background: rgba(10,15,28,0.92); backdrop-filter: blur(12px); color: #fff; padding: 0.45rem 0.85rem; border-radius: 100px; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.05em; white-space: nowrap; box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 8px 24px rgba(10,15,28,0.2); z-index: 5; opacity: 0; animation: lp-noticeIn 0.6s 1.2s cubic-bezier(.2,.8,.2,1) both, lp-bob 4s 2s ease-in-out infinite; }
         .lp-phone-notice .ndot { width: 6px; height: 6px; border-radius: 50%; background: #00FF41; box-shadow: 0 0 8px #00FF41; }
         .lp-phone-notice strong { color: #00FF41; font-weight: 700; }
         .lp-phone-notice .sep { opacity: 0.4; }
-        @keyframes lp-noticeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes lp-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+        @keyframes lp-noticeIn { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        @keyframes lp-bob { 0%,100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -3px); } }
 
         .lp-phone { width: 100%; background: linear-gradient(135deg, #0A0F1C 0%, #1F2937 25%, #0A0F1C 75%, #000 100%); border-radius: 40px; padding: 10px; box-shadow: 0 0 0 1.5px rgba(0,0,0,0.4), 0 2px 0 rgba(255,255,255,0.04) inset, 0 30px 60px rgba(10,15,28,0.30), 0 60px 120px rgba(10,15,28,0.20), 0 0 80px rgba(0,255,65,0.08); animation: lp-float 5s ease-in-out infinite; position: relative; }
         @keyframes lp-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
@@ -214,7 +216,7 @@ export default function LoginPage() {
 
         @keyframes lp-rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        @media (max-width: 1024px) { .lp { grid-template-columns: 1fr 1fr; } .lp-headline { font-size: 1.35rem; } .lp-phone-wrap { max-width: 300px; } }
+        @media (max-width: 1024px) { .lp { grid-template-columns: 1fr 1fr; } .lp-headline { font-size: 1.35rem; } .lp-phone-wrap { max-width: 300px; } .lp-features { display: none; } .lp-left-inner { max-width: 380px; } }
         @media (max-width: 768px) { .lp { grid-template-columns: 1fr; } .lp-left { display: none; } .lp-right { min-height: 100vh; padding: 2rem 1.5rem; } .lp-mobile-logo { display: flex; } }
         @media (max-width: 420px) { .lp-right { padding: 1.5rem 1.25rem; } .lp-auth-title { font-size: 1.5rem; } }
       `}</style>
@@ -231,73 +233,74 @@ export default function LoginPage() {
               Your next client is already <em>in your DMs.</em>
             </h1>
 
-            <div className="lp-phone-wrap">
-              <div className="lp-phone-notice">
-                <span className="ndot" />
-                <strong>1 new lead</strong>
-                <span className="sep">·</span>
-                Auto-Response drafted in 2.3s
-              </div>
-              <div className="lp-phone">
-                <div className="lp-screen">
-                  <div className="lp-sb">
-                    <span>9:41</span>
-                    <div className="r">
-                      <svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5" opacity=".3"/></svg>
-                      <svg viewBox="0 0 26 12" fill="none" stroke="currentColor" strokeWidth="1" style={{ width: 22, height: 10 }}><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/><rect x="23" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
-                    </div>
-                  </div>
-                  <div className="lp-ah">
-                    <div className="lp-ah-back">‹</div>
-                    <div className="lp-ah-av">M</div>
-                    <div className="lp-ah-info">
-                      <div className="lp-ah-name">Marcus Reyes</div>
-                      <div className="lp-ah-status"><span className="od" />online · new lead</div>
-                    </div>
-                  </div>
-                  <div className="lp-thread">
-                    <div className="lp-inbound">
-                      <div className="lp-ma">M</div>
-                      <div>
-                        <div className="lp-bubble">Been following your work. Curious about coaching — what does it look like to work with you?</div>
-                        <div className="lp-ts">9:38 AM · IG DM</div>
-                      </div>
-                    </div>
-                    <div className="lp-aid"><span>✦</span> AI suggested replies <span>✦</span></div>
-                    <div className="lp-sug bad">
-                      <div className="lp-sug-head">
-                        <span className="lp-sug-src">Generic AI</span>
-                        <span style={{ color: '#8A8A9E' }}>Edit · 100%</span>
-                      </div>
-                      <p className="lp-sug-txt">Hi Marcus! Thanks for reaching out. Would you like to schedule a discovery call to see if working together is a fit?</p>
-                    </div>
-                    <div className="lp-sug good">
-                      <div className="lp-sug-head">
-                        <span className="lp-sug-src">Your voice · trained</span>
-                        <span style={{ color: '#00CC34', fontWeight: 700 }}>Edit · 0%</span>
-                      </div>
-                      <p className="lp-sug-txt">Marcus. Appreciate you being here. Before logistics, what&apos;s the real reason you&apos;re reaching out? Not &ldquo;I want to grow.&rdquo; The honest one. Tell me that and I&apos;ll tell you if I&apos;m the right person.</p>
-                    </div>
-                  </div>
-                  <div className="lp-compose">
-                    <div className="lp-compose-input">Type a message · or pick a suggestion</div>
-                    <div className="lp-compose-send">↑</div>
-                  </div>
-                  <div className="lp-home-ind" />
+            <div className="lp-phone-row">
+              <div className="lp-phone-wrap">
+                <div className="lp-phone-notice">
+                  <span className="ndot" />
+                  <strong>1 new lead</strong>
+                  <span className="sep">·</span>
+                  Auto-Response drafted in 2.3s
                 </div>
+                <div className="lp-phone">
+                  <div className="lp-screen">
+                    <div className="lp-sb">
+                      <span>9:41</span>
+                      <div className="r">
+                        <svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5" opacity=".3"/></svg>
+                        <svg viewBox="0 0 26 12" fill="none" stroke="currentColor" strokeWidth="1" style={{ width: 22, height: 10 }}><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/><rect x="23" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
+                      </div>
+                    </div>
+                    <div className="lp-ah">
+                      <div className="lp-ah-back">‹</div>
+                      <div className="lp-ah-av">M</div>
+                      <div className="lp-ah-info">
+                        <div className="lp-ah-name">Marcus Reyes</div>
+                        <div className="lp-ah-status"><span className="od" />online · new lead</div>
+                      </div>
+                    </div>
+                    <div className="lp-thread">
+                      <div className="lp-inbound">
+                        <div className="lp-ma">M</div>
+                        <div>
+                          <div className="lp-bubble">Been following your work. Curious about coaching — what does it look like to work with you?</div>
+                          <div className="lp-ts">9:38 AM · IG DM</div>
+                        </div>
+                      </div>
+                      <div className="lp-aid"><span>✦</span> AI suggested replies <span>✦</span></div>
+                      <div className="lp-sug bad">
+                        <div className="lp-sug-head">
+                          <span className="lp-sug-src">Generic AI</span>
+                          <span style={{ color: '#8A8A9E' }}>Edit · 100%</span>
+                        </div>
+                        <p className="lp-sug-txt">Hi Marcus! Thanks for reaching out. Would you like to schedule a discovery call to see if working together is a fit?</p>
+                      </div>
+                      <div className="lp-sug good">
+                        <div className="lp-sug-head">
+                          <span className="lp-sug-src">Your voice · trained</span>
+                          <span style={{ color: '#00CC34', fontWeight: 700 }}>Edit · 0%</span>
+                        </div>
+                        <p className="lp-sug-txt">Marcus. Appreciate you being here. Before logistics, what&apos;s the real reason you&apos;re reaching out? Not &ldquo;I want to grow.&rdquo; The honest one. Tell me that and I&apos;ll tell you if I&apos;m the right person.</p>
+                      </div>
+                    </div>
+                    <div className="lp-compose">
+                      <div className="lp-compose-input">Type a message · or pick a suggestion</div>
+                      <div className="lp-compose-send">↑</div>
+                    </div>
+                    <div className="lp-home-ind" />
+                  </div>
+                </div>
+                <p className="lp-caption" style={{ opacity: 0, animation: 'lp-rise 0.8s 0.8s cubic-bezier(.16,1,.3,1) both' }}>
+                  Both written by AI. Only one sounds like a <strong>coach</strong>.
+                </p>
               </div>
-            </div>
 
-            <p className="lp-caption" style={{ opacity: 0, animation: 'lp-rise 0.8s 0.8s cubic-bezier(.16,1,.3,1) both' }}>
-              Both written by AI. Only one sounds like a <strong>coach</strong>.
-            </p>
-
-            <div className="lp-features">
-              <span className="lp-feat"><span className="lp-feat-dot" />Lead CRM</span>
-              <span className="lp-feat"><span className="lp-feat-dot" />Authentic Voice</span>
-              <span className="lp-feat"><span className="lp-feat-dot" />Content Engine</span>
-              <span className="lp-feat"><span className="lp-feat-dot" />Client Rooms</span>
-              <span className="lp-feat"><span className="lp-feat-dot" />Stripe Payments</span>
+              <div className="lp-features">
+                <span className="lp-feat"><span className="lp-feat-dot" />Lead CRM</span>
+                <span className="lp-feat"><span className="lp-feat-dot" />Authentic Voice</span>
+                <span className="lp-feat"><span className="lp-feat-dot" />Content Engine</span>
+                <span className="lp-feat"><span className="lp-feat-dot" />Client Rooms</span>
+                <span className="lp-feat"><span className="lp-feat-dot" />Stripe Payments</span>
+              </div>
             </div>
           </div>
         </div>
