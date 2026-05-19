@@ -81,6 +81,11 @@ export default function LoginPage() {
 
         .lp-left-inner { position: relative; z-index: 2; width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; }
 
+        /* Feature pills */
+        .lp-features { display: flex; flex-wrap: wrap; gap: 0.5rem; align-self: flex-start; margin-bottom: 1.5rem; opacity: 0; animation: lp-rise 0.9s 0.9s cubic-bezier(.16,1,.3,1) both; }
+        .lp-feat { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; border-radius: 100px; background: rgba(0,255,65,0.06); border: 1px solid rgba(0,255,65,0.12); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.06em; color: rgba(250,250,248,0.6); white-space: nowrap; }
+        .lp-feat-dot { width: 5px; height: 5px; border-radius: 50%; background: #00FF41; opacity: 0.7; }
+
         .lp-logo { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 1.5rem; align-self: flex-start; }
         .lp-logo-dot { width: 10px; height: 10px; border-radius: 50%; background: #00FF41; box-shadow: 0 0 12px rgba(0,255,65,0.5), 0 0 40px rgba(0,255,65,0.2); animation: lp-pulse 3s ease-in-out infinite; }
         @keyframes lp-pulse { 0%,100% { box-shadow: 0 0 12px rgba(0,255,65,0.5), 0 0 40px rgba(0,255,65,0.2); } 50% { box-shadow: 0 0 18px rgba(0,255,65,0.7), 0 0 60px rgba(0,255,65,0.3); } }
@@ -92,12 +97,12 @@ export default function LoginPage() {
 
         /* Phone mockup */
         .lp-phone-wrap { width: 100%; max-width: 340px; position: relative; opacity: 0; animation: lp-rise 1s 0.3s cubic-bezier(.16,1,.3,1) both; }
-        .lp-phone-notice { position: absolute; top: -44px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 0.5rem; background: rgba(10,15,28,0.92); backdrop-filter: blur(12px); color: #fff; padding: 0.45rem 0.85rem; border-radius: 100px; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.05em; white-space: nowrap; box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 8px 24px rgba(10,15,28,0.2); z-index: 5; opacity: 0; animation: lp-noticeIn 0.6s 1.2s cubic-bezier(.2,.8,.2,1) both, lp-bob 4s 2s ease-in-out infinite; }
+        .lp-phone-notice { position: absolute; top: -38px; right: -20px; transform: none; display: flex; align-items: center; gap: 0.5rem; background: rgba(10,15,28,0.92); backdrop-filter: blur(12px); color: #fff; padding: 0.45rem 0.85rem; border-radius: 100px; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.05em; white-space: nowrap; box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 8px 24px rgba(10,15,28,0.2); z-index: 5; opacity: 0; animation: lp-noticeIn 0.6s 1.2s cubic-bezier(.2,.8,.2,1) both, lp-bob 4s 2s ease-in-out infinite; }
         .lp-phone-notice .ndot { width: 6px; height: 6px; border-radius: 50%; background: #00FF41; box-shadow: 0 0 8px #00FF41; }
         .lp-phone-notice strong { color: #00FF41; font-weight: 700; }
         .lp-phone-notice .sep { opacity: 0.4; }
-        @keyframes lp-noticeIn { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
-        @keyframes lp-bob { 0%,100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -3px); } }
+        @keyframes lp-noticeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes lp-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 
         .lp-phone { width: 100%; background: linear-gradient(135deg, #0A0F1C 0%, #1F2937 25%, #0A0F1C 75%, #000 100%); border-radius: 40px; padding: 10px; box-shadow: 0 0 0 1.5px rgba(0,0,0,0.4), 0 2px 0 rgba(255,255,255,0.04) inset, 0 30px 60px rgba(10,15,28,0.30), 0 60px 120px rgba(10,15,28,0.20), 0 0 80px rgba(0,255,65,0.08); animation: lp-float 5s ease-in-out infinite; position: relative; }
         @keyframes lp-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
@@ -157,7 +162,7 @@ export default function LoginPage() {
 
         .lp-auth-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: #00CC34; margin-bottom: 0.75rem; }
         .lp-auth-title { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 2rem; letter-spacing: -0.03em; color: #FAFAF8; margin: 0 0 0.5rem; font-variation-settings: "SOFT" 30, "opsz" 96; }
-        .lp-auth-sub { font-size: 0.85rem; color: rgba(250,250,248,0.4); line-height: 1.5; margin: 0 0 2.5rem; }
+        .lp-auth-sub { font-size: 0.85rem; color: rgba(250,250,248,0.7); line-height: 1.5; margin: 0 0 2.5rem; }
 
         .lp-google { width: 100%; display: flex; align-items: center; gap: 0.75rem; padding: 0.95rem 1.25rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #FAFAF8; font-family: inherit; font-weight: 600; font-size: 0.92rem; cursor: pointer; transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
         .lp-google:hover:not(:disabled) { background: rgba(255,255,255,0.1); border-color: rgba(0,255,65,0.25); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,255,65,0.1); }
@@ -170,9 +175,9 @@ export default function LoginPage() {
 
         .lp-divider { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0; }
         .lp-divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
-        .lp-divider-text { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(250,250,248,0.2); }
+        .lp-divider-text { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(250,250,248,0.45); }
 
-        .lp-field-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(250,250,248,0.35); display: block; margin-bottom: 0.5rem; }
+        .lp-field-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(250,250,248,0.7); display: block; margin-bottom: 0.5rem; }
         .lp-input { width: 100%; height: 48px; padding: 0 1rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #FAFAF8; font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
         .lp-input:focus { border-color: rgba(0,255,65,0.4); box-shadow: 0 0 0 3px rgba(0,255,65,0.08); }
         .lp-input::placeholder { color: rgba(250,250,248,0.2); }
@@ -195,17 +200,17 @@ export default function LoginPage() {
         .lp-sent-retry:hover { color: #00FF41; }
 
         .lp-trust { display: flex; justify-content: center; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; }
-        .lp-trust-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 500; color: rgba(255,255,255,0.65); white-space: nowrap; }
+        .lp-trust-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.85); white-space: nowrap; }
         .lp-trust-icon { color: #00FF41; font-size: 0.7rem; }
 
-        .lp-terms { margin-top: 1.5rem; text-align: center; font-size: 0.72rem; color: rgba(255,255,255,0.3); }
-        .lp-terms a { color: rgba(255,255,255,0.4); text-decoration: none; }
-        .lp-terms a:hover { color: rgba(255,255,255,0.6); }
+        .lp-terms { margin-top: 1.5rem; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.55); }
+        .lp-terms a { color: rgba(255,255,255,0.65); text-decoration: none; }
+        .lp-terms a:hover { color: rgba(255,255,255,0.9); }
         .lp-terms .tdot { display: inline-block; margin: 0 0.5rem; color: #00FF41; opacity: 0.3; }
 
-        .lp-foot-links { position: absolute; bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(250,250,248,0.2); }
+        .lp-foot-links { position: absolute; bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(250,250,248,0.5); }
         .lp-foot-links a { color: inherit; text-decoration: none; transition: color 0.15s; }
-        .lp-foot-links a:hover { color: rgba(250,250,248,0.5); }
+        .lp-foot-links a:hover { color: rgba(250,250,248,0.85); }
 
         @keyframes lp-rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -286,6 +291,14 @@ export default function LoginPage() {
             <p className="lp-caption" style={{ opacity: 0, animation: 'lp-rise 0.8s 0.8s cubic-bezier(.16,1,.3,1) both' }}>
               Both written by AI. Only one sounds like a <strong>coach</strong>.
             </p>
+
+            <div className="lp-features">
+              <span className="lp-feat"><span className="lp-feat-dot" />Lead CRM</span>
+              <span className="lp-feat"><span className="lp-feat-dot" />Authentic Voice</span>
+              <span className="lp-feat"><span className="lp-feat-dot" />Content Engine</span>
+              <span className="lp-feat"><span className="lp-feat-dot" />Client Rooms</span>
+              <span className="lp-feat"><span className="lp-feat-dot" />Stripe Payments</span>
+            </div>
           </div>
         </div>
 
