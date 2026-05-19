@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOP: Weekly Signal Newsletter</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#FAFAF8;color:#0A0F1C;line-height:1.7}
+.hero{background:#0A0F1C;color:#fff;padding:3.5rem 2rem 2.5rem;text-align:center}
+.hero h1{font-family:'Playfair Display',serif;font-weight:900;font-size:2.4rem;margin-bottom:.75rem;line-height:1.2}
+.hero h1 .accent{color:#00FF41}
+.hero .meta{font-size:.95rem;opacity:.7;font-weight:500}
+.hero .meta span{display:inline-block;margin:0 .5rem}
+.container{max-width:900px;margin:0 auto;padding:2rem}
+.section-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#00FF41;margin-bottom:.35rem}
+h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.5rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid #e8e8e4}
+h3{font-weight:700;font-size:1.15rem;margin:1.5rem 0 .75rem;color:#0A0F1C}
+section{margin-bottom:2.5rem}
+p{margin-bottom:1rem}
+ul,ol{margin:0 0 1rem 1.5rem}
+li{margin-bottom:.5rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0 1.5rem;font-size:.92rem}
+thead th{background:#0A0F1C;color:#fff;padding:.65rem .75rem;text-align:left;font-weight:600;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
+tbody td{padding:.6rem .75rem;border-bottom:1px solid #e8e8e4}
+tbody tr:hover{background:#f0ede6}
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:4px;font-size:.78rem;font-weight:600}
+.badge-target{background:#d4ffd4;color:#0b6e23}
+code{font-family:'Fira Code','Source Code Pro',monospace;font-size:.88em;background:#f0ede6;padding:.15rem .4rem;border-radius:3px}
+pre{background:#0A0F1C;color:#00FF41;padding:1.25rem 1.5rem;border-radius:8px;overflow-x:auto;margin:1rem 0 1.5rem;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0;color:inherit}
+.callout{background:#f8f8f5;border-left:4px solid #00FF41;padding:1.25rem 1.5rem;border-radius:0 8px 8px 0;margin:1rem 0 1.5rem}
+.callout-warning{border-left-color:#ff6b35}
+.checklist{list-style:none;margin-left:0;padding-left:0}
+.checklist li{padding:.4rem 0 .4rem 2rem;position:relative}
+.checklist li::before{content:'';position:absolute;left:0;top:.55rem;width:18px;height:18px;border:2px solid #ccc;border-radius:3px}
+hr{border:none;border-top:1px solid #e8e8e4;margin:2rem 0}
+strong{font-weight:700}
+.format-card{background:#0A0F1C;color:#fff;padding:1.5rem;border-radius:8px;margin:1rem 0 1.5rem;text-align:center}
+.format-card .numbers{display:flex;justify-content:center;gap:2rem;margin-top:1rem}
+.format-card .num-block{text-align:center}
+.format-card .num{font-size:2rem;font-weight:800;color:#00FF41}
+.format-card .num-label{font-size:.8rem;opacity:.7;margin-top:.2rem}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Weekly <span class="accent">Signal</span> Newsletter</h1>
+  <div class="meta">
+    <span>Owner: Loki (draft), Sunny (review + send)</span>
+  </div>
+  <div class="meta">
+    <span>Cadence: Every Monday</span>
+    <span>|</span>
+    <span>Platform: Beehiiv</span>
+  </div>
+  <div class="meta" style="margin-top:.4rem;opacity:.5">Goal: Consistent weekly newsletter that builds authority and drives platform signups</div>
+</div>
+
+<div class="container">
+
+<section>
+<div class="section-eyebrow">Format</div>
+<h2>Format: The Signal</h2>
+<p>Every issue follows the same structure:</p>
+
+<div class="format-card">
+  <div class="numbers">
+    <div class="num-block"><div class="num">3</div><div class="num-label">Technologies</div></div>
+    <div class="num-block"><div class="num">2</div><div class="num-label">Ideas</div></div>
+    <div class="num-block"><div class="num">1</div><div class="num-label">Tool</div></div>
+  </div>
+</div>
+
+<ul>
+<li><strong>3 Technologies</strong> &mdash; AI/tech developments relevant to coaches</li>
+<li><strong>2 Ideas</strong> &mdash; Strategic or mindset insights</li>
+<li><strong>1 Tool</strong> &mdash; Specific tool or resource recommendation</li>
+</ul>
+<p>Word count: <strong>380-450 words</strong>. No fluff. No filler.</p>
+</section>
+
+<section>
+<div class="section-eyebrow">Schedule</div>
+<h2>Weekly Timeline</h2>
+<table>
+<thead><tr><th>Day</th><th>Task</th><th>Owner</th></tr></thead>
+<tbody>
+<tr><td><strong>Sunday 8am</strong></td><td>Signal Weekly Intel task runs &mdash; pulls from past 7 days of blog posts + external research</td><td>Atlas (automated)</td></tr>
+<tr><td><strong>Sunday noon</strong></td><td>Loki drafts newsletter HTML using reference design template</td><td>Loki</td></tr>
+<tr><td><strong>Monday 8am</strong></td><td>Draft pushed to Beehiiv via API as draft (NOT auto-sent)</td><td>Automated</td></tr>
+<tr><td><strong>Monday 9am</strong></td><td>Sunny reviews draft in Beehiiv, edits if needed</td><td>Sunny</td></tr>
+<tr><td><strong>Monday 10am</strong></td><td>Sunny presses Send</td><td>Sunny (manual)</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<div class="section-eyebrow">Generation</div>
+<h2>Draft Generation Process</h2>
+
+<h3>Source Material</h3>
+<ol>
+<li>Past 7 days of blog posts from <code>/blog/</code></li>
+<li>Intel reports from <code>/intel/</code></li>
+<li>External AI/coaching industry news</li>
+<li>Any notable platform updates or features shipped</li>
+</ol>
+
+<h3>Hard Rules</h3>
+<div class="callout callout-warning">
+<ul style="margin-bottom:0">
+<li>No em-dashes</li>
+<li>No invented statistics &mdash; every number must have a source</li>
+<li>Word target: 380-450</li>
+<li>If fewer than 4 blog posts exist from the past 7 days, flag it and either:
+  <ul>
+    <li>Pull from past 14 days, or</li>
+    <li>Propose skipping this week (rare &mdash; avoid)</li>
+  </ul>
+</li>
+</ul>
+</div>
+
+<h3>Template &amp; Reference Files</h3>
+<ul>
+<li><strong>Locked reference design:</strong> <code>scheduled-tasks/weekly-signal/reference-design.html</code></li>
+<li><strong>Visualization patterns:</strong> <code>scheduled-tasks/weekly-signal/visualization-patterns.md</code></li>
+<li><strong>Full generation procedure:</strong> <code>scheduled-tasks/weekly-signal/generator-prompt.md</code></li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Quality</div>
+<h2>Quality Checklist (Sunny reviews before sending)</h2>
+<ul class="checklist">
+<li>3-2-1 structure followed (3 tech, 2 ideas, 1 tool)</li>
+<li>Within 380-450 words</li>
+<li>No em-dashes</li>
+<li>No made-up statistics</li>
+<li>Links work (spot-check 2-3)</li>
+<li>CTA present (usually: reply to this email, or link to quiz/platform)</li>
+<li>Subject line is specific, not generic ("3 AI tools that replace your VA" not "This week's Signal")</li>
+<li>Preview text is different from subject line</li>
+<li>Sent from correct sender (The Signal / ElevateAI)</li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Growth</div>
+<h2>Subscriber Growth</h2>
+
+<h3>Current signup points:</h3>
+<ul>
+<li>Blog footer (Signal signup component)</li>
+<li>Quiz funnel post-completion</li>
+<li>Website homepage</li>
+</ul>
+
+<h3>Planned:</h3>
+<ul>
+<li>Post-carousel CTA ("Comment SIGNAL for the newsletter")</li>
+<li>Lead magnet &rarr; email gate &rarr; auto-subscribe</li>
+<li>Cohort alumni auto-added (with permission)</li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Performance</div>
+<h2>Metrics</h2>
+<table>
+<thead><tr><th>Metric</th><th>Target</th><th>Check</th></tr></thead>
+<tbody>
+<tr><td>Open rate</td><td><span class="badge badge-target">&gt; 40%</span></td><td>Weekly</td></tr>
+<tr><td>Click rate</td><td><span class="badge badge-target">&gt; 5%</span></td><td>Weekly</td></tr>
+<tr><td>Unsubscribe rate</td><td><span class="badge badge-target">&lt; 0.5% per send</span></td><td>Weekly</td></tr>
+<tr><td>Subscriber growth</td><td><span class="badge badge-target">+20/week</span></td><td>Weekly</td></tr>
+<tr><td>Consistent sends</td><td><span class="badge badge-target">4/4 per month</span></td><td>Monthly</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<div class="section-eyebrow">Fallback</div>
+<h2>If Sunny Can't Review Monday Morning</h2>
+<div class="callout">
+<p style="margin-bottom:0">Fallback: Loki sends the draft to Sunny via DM on Sunday night with "Review by 9am or I send as-is." If no response by 10am, <strong>hold until Tuesday</strong>. Never auto-send without human review.</p>
+</div>
+</section>
+
+</div>
+</body>
+</html>

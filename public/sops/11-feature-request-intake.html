@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOP: Feature Request Intake</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#FAFAF8;color:#0A0F1C;line-height:1.7}
+.hero{background:#0A0F1C;color:#fff;padding:3.5rem 2rem 2.5rem;text-align:center}
+.hero h1{font-family:'Playfair Display',serif;font-weight:900;font-size:2.4rem;margin-bottom:.75rem;line-height:1.2}
+.hero h1 .accent{color:#00FF41}
+.hero .meta{font-size:.95rem;opacity:.7;font-weight:500}
+.hero .meta span{display:inline-block;margin:0 .5rem}
+.container{max-width:900px;margin:0 auto;padding:2rem}
+.section-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#00FF41;margin-bottom:.35rem}
+h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.5rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid #e8e8e4}
+h3{font-weight:700;font-size:1.15rem;margin:1.5rem 0 .75rem;color:#0A0F1C}
+section{margin-bottom:2.5rem}
+p{margin-bottom:1rem}
+ul,ol{margin:0 0 1rem 1.5rem}
+li{margin-bottom:.5rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0 1.5rem;font-size:.92rem}
+thead th{background:#0A0F1C;color:#fff;padding:.65rem .75rem;text-align:left;font-weight:600;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
+tbody td{padding:.6rem .75rem;border-bottom:1px solid #e8e8e4}
+tbody tr:hover{background:#f0ede6}
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:4px;font-size:.78rem;font-weight:600}
+.badge-target{background:#d4ffd4;color:#0b6e23}
+code{font-family:'Fira Code','Source Code Pro',monospace;font-size:.88em;background:#f0ede6;padding:.15rem .4rem;border-radius:3px}
+pre{background:#0A0F1C;color:#00FF41;padding:1.25rem 1.5rem;border-radius:8px;overflow-x:auto;margin:1rem 0 1.5rem;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0;color:inherit}
+.email-card{background:#f8f8f5;border-left:4px solid #00FF41;padding:1.25rem 1.5rem;border-radius:0 8px 8px 0;margin:1rem 0 1.5rem}
+.email-card .email-subject{font-weight:700;font-size:.95rem;margin-bottom:.5rem;color:#0A0F1C}
+.email-card pre{background:#0A0F1C;margin:.75rem 0 0}
+.callout{background:#f8f8f5;border-left:4px solid #00FF41;padding:1.25rem 1.5rem;border-radius:0 8px 8px 0;margin:1rem 0 1.5rem}
+.callout-warning{border-left-color:#ff6b35}
+hr{border:none;border-top:1px solid #e8e8e4;margin:2rem 0}
+strong{font-weight:700}
+.status-flow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:1rem 0 1.5rem}
+.status-pill{padding:.35rem .75rem;border-radius:20px;font-size:.8rem;font-weight:600;background:#f0ede6;color:#0A0F1C}
+.status-arrow{color:#ccc;font-size:1.2rem}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Feature Request <span class="accent">Intake</span></h1>
+  <div class="meta">
+    <span>Owner: Sunny (decisions), Atlas (tracking)</span>
+  </div>
+  <div class="meta">
+    <span>Trigger: Coach suggests a feature or asks "can it do X?"</span>
+  </div>
+  <div class="meta" style="margin-top:.4rem;opacity:.5">Goal: Every request captured, prioritized, and communicated back</div>
+</div>
+
+<div class="container">
+
+<section>
+<div class="section-eyebrow">Intake</div>
+<h2>How Requests Come In</h2>
+<table>
+<thead><tr><th>Channel</th><th>Response Time</th><th>Who Captures</th></tr></thead>
+<tbody>
+<tr><td>Slack (Founding 10)</td><td>&lt; 24 hours</td><td>Sunny</td></tr>
+<tr><td>Email</td><td>&lt; 24 hours</td><td>Sunny</td></tr>
+<tr><td>During kickoff/call</td><td>Real-time</td><td>Sunny (notes after)</td></tr>
+<tr><td>In-app feedback (future)</td><td>&lt; 48 hours</td><td>Atlas</td></tr>
+<tr><td>Inferred from usage data</td><td>Weekly review</td><td>Atlas</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<div class="section-eyebrow">Step 1</div>
+<h2>Capture</h2>
+<p>Every feature request gets logged in Notion (Feature Requests board) with:</p>
+<table>
+<thead><tr><th>Field</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td><strong>Title</strong></td><td>Short description of the request</td></tr>
+<tr><td><strong>Requester</strong></td><td>Coach name + email</td></tr>
+<tr><td><strong>Channel</strong></td><td>Where they asked (Slack, email, call)</td></tr>
+<tr><td><strong>Verbatim quote</strong></td><td>Their exact words (not your interpretation)</td></tr>
+<tr><td><strong>Problem</strong></td><td>What problem are they trying to solve?</td></tr>
+<tr><td><strong>Frequency</strong></td><td>First time hearing this, or repeated?</td></tr>
+<tr><td><strong>Priority</strong></td><td>P1 (blocking) / P2 (painful) / P3 (nice-to-have)</td></tr>
+<tr><td><strong>Status</strong></td><td>
+  <div class="status-flow">
+    <span class="status-pill">Captured</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill">Under review</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill">Planned</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill">Building</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:#d4ffd4;color:#0b6e23">Shipped</span>
+    <span class="status-arrow">&rarr;</span>
+    <span class="status-pill" style="background:#ffe0e0;color:#c00">Won't do</span>
+  </div>
+</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<div class="section-eyebrow">Step 2</div>
+<h2>Acknowledge</h2>
+<p>Reply within 24 hours. Never leave a request without a response.</p>
+
+<h3>Template &mdash; request received:</h3>
+<div class="email-card">
+<pre><code>Love this idea. Writing it down now. Can I ask -- what's the
+specific situation where you'd use this? Helps me prioritize.</code></pre>
+</div>
+
+<h3>Template &mdash; already planned:</h3>
+<div class="email-card">
+<pre><code>Great minds -- this is already on the roadmap for [timeframe].
+I'll ping you when it's live so you can try it first.</code></pre>
+</div>
+
+<h3>Template &mdash; won't do (be honest):</h3>
+<div class="email-card">
+<pre><code>I hear you on this. Thought about it and here's my honest take:
+[reason it doesn't fit -- too niche, conflicts with simplicity,
+better solved another way]. What if instead we [alternative]?</code></pre>
+</div>
+</section>
+
+<section>
+<div class="section-eyebrow">Step 3</div>
+<h2>Prioritize</h2>
+
+<h3>Weekly review (Sunny, 30 min, Fridays)</h3>
+<p>Pull all new requests from the week and score:</p>
+
+<table>
+<thead><tr><th>Factor</th><th>Weight</th><th>Question</th></tr></thead>
+<tbody>
+<tr><td><strong>Frequency</strong></td><td>3x</td><td>How many coaches asked for this?</td></tr>
+<tr><td><strong>Pain</strong></td><td>3x</td><td>Is this blocking revenue or causing churn?</td></tr>
+<tr><td><strong>Effort</strong></td><td>2x</td><td>How long to build? (hours, days, weeks)</td></tr>
+<tr><td><strong>Alignment</strong></td><td>2x</td><td>Does this fit the product vision?</td></tr>
+</tbody>
+</table>
+
+<h3>Scoring:</h3>
+<ul>
+<li><strong>3+ coaches asked + blocking pain + &lt; 1 day effort</strong> &rarr; Build this week</li>
+<li><strong>2+ coaches asked + painful + &lt; 1 week effort</strong> &rarr; Plan for next sprint</li>
+<li><strong>1 coach asked + nice-to-have</strong> &rarr; Backlog (revisit if more requests come in)</li>
+<li><strong>Conflicts with product vision</strong> &rarr; Won't do (communicate why)</li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Step 4</div>
+<h2>Communicate</h2>
+
+<h3>When you start building it:</h3>
+<div class="email-card">
+<pre><code>Hey [name] -- remember when you asked about [feature]? Building
+it this week. I'll let you know when it's live.</code></pre>
+</div>
+
+<h3>When you ship it:</h3>
+<p>DM the requester + mention in Founder's Friday:</p>
+<div class="email-card">
+<pre><code>[Name] -- [feature] is live. You asked for it, we built it.
+Try it out and let me know how it feels.</code></pre>
+</div>
+
+<h3>Founder's Friday roadmap section:</h3>
+<p>Every Friday email includes:</p>
+<ul>
+<li>1 thing shipped this week</li>
+<li>1 thing being built next week</li>
+</ul>
+<p>This keeps coaches feeling like the product is alive and responsive.</p>
+</section>
+
+<section>
+<div class="section-eyebrow">Anti-Patterns</div>
+<h2>What NOT to Do</h2>
+<div class="callout callout-warning">
+<ul style="margin-bottom:0">
+<li><strong>Don't promise timelines</strong> you can't keep. "Soon" is better than "next week" if you're not sure.</li>
+<li><strong>Don't build for one coach</strong> unless the feature benefits everyone. One person's edge case is not a priority.</li>
+<li><strong>Don't say "great idea!" to everything.</strong> Be honest about what fits and what doesn't.</li>
+<li><strong>Don't go dark on requests.</strong> Even "this is in the backlog" is better than silence.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<div class="section-eyebrow">Performance</div>
+<h2>Metrics</h2>
+<table>
+<thead><tr><th>Metric</th><th>Target</th><th>Frequency</th></tr></thead>
+<tbody>
+<tr><td>Requests captured per week</td><td>Track (no target)</td><td>Weekly</td></tr>
+<tr><td>Response time to requests</td><td><span class="badge badge-target">&lt; 24 hours</span></td><td>Weekly</td></tr>
+<tr><td>Requests shipped per month</td><td><span class="badge badge-target">2-4</span></td><td>Monthly</td></tr>
+<tr><td>Requester notified when shipped</td><td><span class="badge badge-target">100%</span></td><td>Per ship</td></tr>
+</tbody>
+</table>
+</section>
+
+</div>
+</body>
+</html>

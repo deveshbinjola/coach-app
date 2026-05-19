@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOP: Cohort Launch Playbook — ElevateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #0A0F1C; --green: #00FF41; --green-dim: #00CC34;
+    --surface: #FAFAF8; --surface-deep: #F2F2EE; --border: #E5E5DD;
+    --text: #0A0F1C; --text-muted: #5A5A6E; --text-faint: #9CA3AF;
+    --danger: #DC2626; --warning: #D97706; --info: #2A4A7F;
+  }
+  body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(--surface); color: var(--text); line-height: 1.5; }
+
+  .hero {
+    background: var(--navy); color: #fff; padding: 4rem 2rem 3.5rem; text-align: center; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; bottom: -30%; right: -10%; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(0,255,65,0.1) 0%, transparent 70%); pointer-events: none;
+  }
+  .hero-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green); margin-bottom: 1rem; }
+  .hero h1 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1rem; }
+  .hero h1 em { font-style: normal; color: var(--green); }
+  .hero-sub { font-size: 1rem; color: rgba(255,255,255,0.55); max-width: 560px; margin: 0 auto; }
+
+  .container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ── Revenue Bar ── */
+  .rev-bar {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    margin: -2rem auto 3rem; max-width: 1000px; position: relative; z-index: 2; padding: 0 1.5rem;
+  }
+  .rev-card {
+    flex: 1; min-width: 140px; background: #fff; border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem; text-align: center;
+  }
+  .rev-val { font-size: 1.5rem; font-weight: 800; color: var(--navy); letter-spacing: -0.03em; }
+  .rev-val.green { color: var(--green-dim); }
+  .rev-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); margin-top: 0.25rem; }
+
+  /* ── Sections ── */
+  .section { margin-bottom: 3.5rem; }
+  .section-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-dim); margin-bottom: 0.5rem; }
+  .section-title { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
+
+  /* ── Gantt Timeline ── */
+  .gantt {
+    display: grid;
+    grid-template-columns: 100px repeat(6, 1fr);
+    gap: 2px;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .gantt-header {
+    background: var(--navy); color: #fff; font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; padding: 0.75rem 0.5rem;
+    text-align: center;
+  }
+  .gantt-label {
+    background: var(--surface-deep); font-size: 0.75rem; font-weight: 600;
+    padding: 1rem 0.75rem; display: flex; align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .gantt-cell {
+    background: #fff; padding: 0.75rem 0.5rem; text-align: center;
+    font-size: 0.7rem; color: var(--text-muted); border-bottom: 1px solid var(--surface-deep);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .gantt-fill {
+    background: rgba(0,204,52,0.12); position: relative;
+  }
+  .gantt-fill-dark {
+    background: rgba(10,15,28,0.06);
+  }
+  .gantt-fill-hot {
+    background: rgba(220,38,38,0.08);
+  }
+  .gantt-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--green-dim);
+  }
+  .gantt-dot.navy { background: var(--navy); }
+  .gantt-dot.red { background: var(--danger); }
+  .gantt-dot.warn { background: var(--warning); }
+  .gantt-bar {
+    height: 6px; border-radius: 3px; width: 80%;
+  }
+  .gantt-bar.green { background: var(--green-dim); }
+  .gantt-bar.navy { background: var(--navy); }
+
+  /* ── Phase Cards ── */
+  .phase-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .phase-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.5rem; position: relative; overflow: hidden;
+  }
+  .phase-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  }
+  .phase-card.seed::before { background: var(--info); }
+  .phase-card.warm::before { background: var(--warning); }
+  .phase-card.announce::before { background: var(--green-dim); }
+  .phase-card.open::before { background: var(--danger); }
+  .phase-card.close::before { background: var(--navy); }
+  .phase-card.kickoff::before { background: var(--green); }
+
+  .phase-week {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-faint); margin-bottom: 0.5rem;
+  }
+  .phase-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem; }
+  .phase-tasks { list-style: none; padding: 0; }
+  .phase-tasks li {
+    font-size: 0.8rem; color: var(--text-muted); padding: 0.35rem 0;
+    padding-left: 1.4rem; position: relative; border-bottom: 1px solid var(--surface-deep);
+  }
+  .phase-tasks li:last-child { border-bottom: none; }
+  .phase-tasks li::before {
+    content: '→'; position: absolute; left: 0; color: var(--green-dim); font-weight: 700;
+  }
+
+  /* ── Email Sequence ── */
+  .email-seq {
+    display: flex; flex-direction: column; gap: 0.75rem;
+  }
+  .email-card {
+    display: flex; align-items: stretch; border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border); background: #fff;
+  }
+  .email-day {
+    width: 70px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 700; color: #fff; background: var(--navy);
+  }
+  .email-card.urgent .email-day { background: var(--danger); }
+  .email-body { flex: 1; padding: 1rem 1.25rem; }
+  .email-subject { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.2rem; }
+  .email-desc { font-size: 0.78rem; color: var(--text-muted); }
+  .email-cta {
+    font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; margin-top: 0.4rem; color: var(--green-dim);
+  }
+
+  /* ── Checklist ── */
+  .checklist {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;
+  }
+  .checklist h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1rem; }
+  .check-item {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    padding: 0.5rem 0; border-bottom: 1px solid var(--surface-deep); font-size: 0.82rem;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-box {
+    width: 18px; height: 18px; border: 2px solid var(--border);
+    border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+  }
+
+  .footer {
+    text-align: center; padding: 3rem 1.5rem; color: var(--text-faint);
+    font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 3rem 1.5rem 2.5rem; }
+    .rev-bar { flex-direction: column; margin: -1.5rem 1rem 2rem; }
+    .gantt { display: none; }
+    .phase-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">Standard Operating Procedure</div>
+  <h1>Cohort Launch <em>Playbook</em></h1>
+  <p class="hero-sub">Fill 10 seats at $2,000 each within 14 days. Repeat 3-4x per year.</p>
+</div>
+
+<div class="rev-bar">
+  <div class="rev-card">
+    <div class="rev-val">10</div>
+    <div class="rev-label">Seats per cohort</div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-val">$2,000</div>
+    <div class="rev-label">Per seat</div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-val green">$20K</div>
+    <div class="rev-label">Revenue per cohort</div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-val">3–4x</div>
+    <div class="rev-label">Per year</div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-val green">$60–80K</div>
+    <div class="rev-label">Annual target</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Gantt Chart -->
+  <div class="section">
+    <div class="section-label">Master Timeline</div>
+    <div class="section-title">6-Week Launch Cycle</div>
+    <div class="gantt">
+      <div class="gantt-header">Activity</div>
+      <div class="gantt-header">Wk -4</div>
+      <div class="gantt-header">Wk -2</div>
+      <div class="gantt-header">Wk -1</div>
+      <div class="gantt-header">Wk 0</div>
+      <div class="gantt-header">Wk +1</div>
+      <div class="gantt-header">Wk +2</div>
+
+      <div class="gantt-label">Content seed</div>
+      <div class="gantt-cell gantt-fill"><div class="gantt-bar navy"></div></div>
+      <div class="gantt-cell gantt-fill"><div class="gantt-bar navy"></div></div>
+      <div class="gantt-cell gantt-fill-dark"><div class="gantt-dot navy" style="opacity:0.3"></div></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+
+      <div class="gantt-label">Waitlist build</div>
+      <div class="gantt-cell gantt-fill"><div class="gantt-bar green"></div></div>
+      <div class="gantt-cell gantt-fill"><div class="gantt-bar green"></div></div>
+      <div class="gantt-cell gantt-fill"><div class="gantt-bar green"></div></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+
+      <div class="gantt-label">DM teasers</div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell gantt-fill"><div class="gantt-dot warn"></div></div>
+      <div class="gantt-cell gantt-fill"><div class="gantt-dot warn"></div></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+
+      <div class="gantt-label">Public announce</div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell gantt-fill"><div class="gantt-dot green"></div></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+
+      <div class="gantt-label">Cart open</div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell gantt-fill-hot"><div class="gantt-bar" style="background:var(--danger)"></div></div>
+      <div class="gantt-cell gantt-fill-hot"><div class="gantt-dot red"></div></div>
+      <div class="gantt-cell"></div>
+
+      <div class="gantt-label">Email sequence</div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell gantt-fill"><div class="gantt-bar green"></div></div>
+      <div class="gantt-cell gantt-fill"><div class="gantt-dot green"></div></div>
+      <div class="gantt-cell"></div>
+
+      <div class="gantt-label">Onboarding</div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell"></div>
+      <div class="gantt-cell gantt-fill"><div class="gantt-dot green"></div></div>
+      <div class="gantt-cell gantt-fill"><div class="gantt-bar green"></div></div>
+    </div>
+    <p style="font-size: 0.72rem; color: var(--text-faint); text-align: center; margin-top: 0.5rem;">Each row shows when that activity is active during the 6-week launch cycle</p>
+  </div>
+
+  <!-- Phase Cards -->
+  <div class="section">
+    <div class="section-label">Phases</div>
+    <div class="section-title">What Happens Each Week</div>
+    <div class="phase-grid">
+      <div class="phase-card seed">
+        <div class="phase-week">Week -4 to -2</div>
+        <h3>Seed</h3>
+        <ul class="phase-tasks">
+          <li>Post 2-3 content pieces/week seeding the cohort topic</li>
+          <li>Add CTA: "DM me WAITLIST for first access"</li>
+          <li>Target: 30+ people on waitlist before announcement</li>
+          <li>Sales page staged (not published)</li>
+          <li>Stripe product + price created</li>
+        </ul>
+      </div>
+      <div class="phase-card warm">
+        <div class="phase-week">Week -2</div>
+        <h3>Warm</h3>
+        <ul class="phase-tasks">
+          <li>DM past cohort grads for referrals</li>
+          <li>DM waitlist: "You're on my short list. Want details?"</li>
+          <li>DM warm IG/LinkedIn contacts who fit ICP</li>
+          <li>Goal: 5-6 soft yeses before public announcement</li>
+        </ul>
+      </div>
+      <div class="phase-card announce">
+        <div class="phase-week">Week -1</div>
+        <h3>Announce</h3>
+        <ul class="phase-tasks">
+          <li>IG carousel + LinkedIn post + email to full list</li>
+          <li>"10 spots. 8 weeks. $2,000. Here's what you get."</li>
+          <li>Include who it's for AND who it's NOT for</li>
+          <li>Cal.com discovery call link for fence-sitters</li>
+        </ul>
+      </div>
+      <div class="phase-card open">
+        <div class="phase-week">Week 0</div>
+        <h3>Cart Open (7 days)</h3>
+        <ul class="phase-tasks">
+          <li>5-email sequence fires (see below)</li>
+          <li>Discovery calls for fence-sitters</li>
+          <li>DM nudges on Day 0 + Day 6</li>
+          <li>Update seat count in every email (honest numbers)</li>
+        </ul>
+      </div>
+      <div class="phase-card close">
+        <div class="phase-week">Week +1</div>
+        <h3>Close & Welcome</h3>
+        <ul class="phase-tasks">
+          <li>"Sold out" post (even if 7 of 10 — "cohort is full")</li>
+          <li>Welcome email + Slack invite + intake form</li>
+          <li>Add members to offerings + Cal.com group event</li>
+          <li>Notify waitlist who didn't join about next cohort</li>
+        </ul>
+      </div>
+      <div class="phase-card kickoff">
+        <div class="phase-week">Week +2</div>
+        <h3>Kickoff</h3>
+        <ul class="phase-tasks">
+          <li>Cohort Week 1: intros + Brand OS overview</li>
+          <li>Homework: 5-min voice memo about ideal client</li>
+          <li>Weekly calls begin on set day/time for 8 weeks</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Sequence -->
+  <div class="section">
+    <div class="section-label">Cart Open Week</div>
+    <div class="section-title">5-Email Sales Sequence</div>
+    <div class="email-seq">
+      <div class="email-card">
+        <div class="email-day">Day 0</div>
+        <div class="email-body">
+          <div class="email-subject">"Doors are open — 10 spots"</div>
+          <div class="email-desc">Full announcement email. What you get, who it's for, founding pricing, payment link.</div>
+          <div class="email-cta">→ Payment link</div>
+        </div>
+      </div>
+      <div class="email-card">
+        <div class="email-day">Day 2</div>
+        <div class="email-body">
+          <div class="email-subject">"[X] spots claimed — here's what [grad name] said"</div>
+          <div class="email-desc">Social proof. Testimonial from past cohort grad. Updated seat count.</div>
+          <div class="email-cta">→ Payment link</div>
+        </div>
+      </div>
+      <div class="email-card">
+        <div class="email-day">Day 4</div>
+        <div class="email-body">
+          <div class="email-subject">"Is the Augmented Coach Cohort right for you?"</div>
+          <div class="email-desc">Objection buster. Answers the 3 most common questions: niche fit, technical ability, price.</div>
+          <div class="email-cta">→ Cal.com call link</div>
+        </div>
+      </div>
+      <div class="email-card urgent">
+        <div class="email-day">Day 6</div>
+        <div class="email-body">
+          <div class="email-subject">"[X] spots left — closing tomorrow at midnight"</div>
+          <div class="email-desc">Urgency. Seat count. Cart closes tomorrow. "Reply now — I'll answer tonight."</div>
+          <div class="email-cta">→ Payment link</div>
+        </div>
+      </div>
+      <div class="email-card urgent">
+        <div class="email-day">Day 7</div>
+        <div class="email-body">
+          <div class="email-subject">"Closing in 6 hours" (send at 6 PM PT)</div>
+          <div class="email-desc">Final call. Short. Direct. Payment link. "See you inside."</div>
+          <div class="email-cta">→ Payment link (last chance)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pre-launch Checklist -->
+  <div class="section">
+    <div class="section-label">Prep</div>
+    <div class="section-title">Pre-Launch Checklist</div>
+    <div class="checklist">
+      <h3>Complete before Week -1</h3>
+      <div class="check-item"><div class="check-box"></div><span>Sales page written and staged (not published)</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Stripe product and price created ($2,000 one-time or payment plan)</span></div>
+      <div class="check-item"><div class="check-box"></div><span>5-email sequence written and loaded in Resend/Beehiiv</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Cal.com cohort discovery call slot configured</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Cohort Slack channel created (private, invite-only)</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Intake form ready (Notion/Typeform)</span></div>
+      <div class="check-item"><div class="check-box"></div><span>DM templates prepped for warm outreach</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Past cohort grads contacted for referral + testimonial</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Waitlist has 30+ names</span></div>
+    </div>
+  </div>
+
+  <!-- Post-Cohort -->
+  <div class="section">
+    <div class="section-label">After</div>
+    <div class="section-title">Post-Cohort (Week 9+)</div>
+    <div class="phase-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+      <div class="phase-card" style="border-top: 3px solid var(--green-dim);">
+        <h3>Graduation</h3>
+        <ul class="phase-tasks">
+          <li>Send graduation email + certificate</li>
+          <li>Ask for testimonial (see Testimonial SOP)</li>
+          <li>Offer platform founding/standard pricing</li>
+        </ul>
+      </div>
+      <div class="phase-card" style="border-top: 3px solid var(--info);">
+        <h3>Alumni Network</h3>
+        <ul class="phase-tasks">
+          <li>Add to alumni Slack channel</li>
+          <li>Invite to quarterly alumni calls</li>
+          <li>First to hear about new features + next cohort</li>
+        </ul>
+      </div>
+      <div class="phase-card" style="border-top: 3px solid var(--warning);">
+        <h3>Referral Engine</h3>
+        <ul class="phase-tasks">
+          <li>Ask for 2-3 referrals for next cohort</li>
+          <li>Offer incentive (1 month free platform, etc.)</li>
+          <li>Tag referrers in cp_leads</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  ElevateAI Systems &middot; Internal SOP &middot; Cohort Launch Playbook &middot; v1.0
+</div>
+
+</body>
+</html>

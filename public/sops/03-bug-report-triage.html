@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOP: Bug Report Triage</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#FAFAF8;color:#0A0F1C;line-height:1.7}
+.hero{background:#0A0F1C;color:#fff;padding:3.5rem 2rem 2.5rem;text-align:center}
+.hero h1{font-family:'Playfair Display',serif;font-weight:900;font-size:2.4rem;margin-bottom:.75rem;line-height:1.2}
+.hero h1 .accent{color:#00FF41}
+.hero .meta{font-size:.95rem;opacity:.7;font-weight:500}
+.hero .meta span{display:inline-block;margin:0 .5rem}
+.container{max-width:900px;margin:0 auto;padding:2rem}
+.section-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#00FF41;margin-bottom:.35rem}
+h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.5rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid #e8e8e4}
+h3{font-weight:700;font-size:1.15rem;margin:1.5rem 0 .75rem;color:#0A0F1C}
+section{margin-bottom:2.5rem}
+p{margin-bottom:1rem}
+ul,ol{margin:0 0 1rem 1.5rem}
+li{margin-bottom:.5rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0 1.5rem;font-size:.92rem}
+thead th{background:#0A0F1C;color:#fff;padding:.65rem .75rem;text-align:left;font-weight:600;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
+tbody td{padding:.6rem .75rem;border-bottom:1px solid #e8e8e4}
+tbody tr:hover{background:#f0ede6}
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:4px;font-size:.78rem;font-weight:600}
+.badge-p0{background:#ffd0d0;color:#900}
+.badge-p1{background:#ffe0e0;color:#c00}
+.badge-p2{background:#fff3d0;color:#8a6d00}
+.badge-p3{background:#e0e0e0;color:#555}
+.badge-target{background:#d4ffd4;color:#0b6e23}
+code{font-family:'Fira Code','Source Code Pro',monospace;font-size:.88em;background:#f0ede6;padding:.15rem .4rem;border-radius:3px}
+pre{background:#0A0F1C;color:#00FF41;padding:1.25rem 1.5rem;border-radius:8px;overflow-x:auto;margin:1rem 0 1.5rem;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0;color:inherit}
+.callout{background:#f8f8f5;border-left:4px solid #00FF41;padding:1.25rem 1.5rem;border-radius:0 8px 8px 0;margin:1rem 0 1.5rem}
+.callout-warning{border-left-color:#ff6b35}
+hr{border:none;border-top:1px solid #e8e8e4;margin:2rem 0}
+strong{font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Bug Report <span class="accent">Triage</span></h1>
+  <div class="meta">
+    <span>Owner: Atlas (triage + QA), Sunny (critical escalation)</span>
+  </div>
+  <div class="meta">
+    <span>Trigger: Coach reports something broken</span>
+  </div>
+  <div class="meta" style="margin-top:.4rem;opacity:.5">Goal: Acknowledge within 4 hours, resolve within 48 hours (critical: 4 hours)</div>
+</div>
+
+<div class="container">
+
+<section>
+<div class="section-eyebrow">Intake</div>
+<h2>How Bugs Come In</h2>
+<table>
+<thead><tr><th>Channel</th><th>Who Monitors</th><th>Response Time</th></tr></thead>
+<tbody>
+<tr><td>Slack (Founding 10 channel)</td><td>Sunny</td><td>&lt; 4 hours</td></tr>
+<tr><td>Email (sunny.binjola@gmail.com)</td><td>Sunny</td><td>&lt; 4 hours</td></tr>
+<tr><td>In-app feedback (future)</td><td>Atlas</td><td>&lt; 8 hours</td></tr>
+<tr><td>Sunny finds it himself</td><td>&mdash;</td><td>Immediate</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<div class="section-eyebrow">Severity</div>
+<h2>Severity Levels</h2>
+<table>
+<thead><tr><th>Level</th><th>Definition</th><th>Response</th><th>Resolution</th></tr></thead>
+<tbody>
+<tr><td><span class="badge badge-p0">P0 &mdash; Down</span></td><td>App won't load, auth broken, data loss</td><td>Acknowledge in 1 hour</td><td>Fix within 4 hours</td></tr>
+<tr><td><span class="badge badge-p1">P1 &mdash; Broken</span></td><td>Core feature broken (AI drafting, lead import, payments)</td><td>Acknowledge in 4 hours</td><td>Fix within 24 hours</td></tr>
+<tr><td><span class="badge badge-p2">P2 &mdash; Degraded</span></td><td>Feature works but wrong (bad formatting, slow, UI glitch)</td><td>Acknowledge in 8 hours</td><td>Fix within 48 hours</td></tr>
+<tr><td><span class="badge badge-p3">P3 &mdash; Minor</span></td><td>Cosmetic, typo, nice-to-have</td><td>Acknowledge in 24 hours</td><td>Next sprint</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<div class="section-eyebrow">Step 1</div>
+<h2>Acknowledge</h2>
+<p>Reply to the coach immediately with:</p>
+<pre><code>Got it -- looking into this now. I'll update you within [timeframe based on severity].</code></pre>
+
+<div class="callout callout-warning">
+<strong>Never say:</strong>
+<ul style="margin-top:.5rem;margin-bottom:0">
+<li>"It works on my end" (useless)</li>
+<li>"Can you try again?" (without investigating first)</li>
+<li>"That's a known issue" (unless you can also say when it's fixed)</li>
+</ul>
+</div>
+</section>
+
+<section>
+<div class="section-eyebrow">Step 2</div>
+<h2>Reproduce</h2>
+
+<h3>1. Get the details:</h3>
+<ul>
+<li>What were they doing? (exact page, exact action)</li>
+<li>What did they expect to happen?</li>
+<li>What actually happened? (screenshot if possible)</li>
+<li>What browser/device?</li>
+<li>What email are they logged in with? (to check their data)</li>
+</ul>
+
+<h3>2. Check the logs:</h3>
+<ul>
+<li>Cloudflare Pages deployment logs</li>
+<li>Supabase logs (<code>get_logs</code> via MCP)</li>
+<li>Browser console errors (ask coach for screenshot if needed)</li>
+</ul>
+
+<h3>3. Reproduce locally:</h3>
+<ul>
+<li>Log in as that coach (use admin client to check their data)</li>
+<li>Follow their exact steps</li>
+<li>If can't reproduce: ask for screen recording</li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Step 3</div>
+<h2>Fix</h2>
+<ol>
+<li><strong>Create a branch:</strong> <code>fix/[short-description]</code></li>
+<li><strong>Write the fix</strong> &mdash; minimal, targeted, no scope creep</li>
+<li><strong>Test locally</strong> &mdash; reproduce the bug, verify fix, check for regressions</li>
+<li><strong>Build check:</strong> <code>npx next build</code> must pass clean</li>
+<li><strong>Create PR</strong> with:
+  <ul>
+    <li>What broke</li>
+    <li>Why it broke</li>
+    <li>What the fix does</li>
+    <li>How to verify</li>
+  </ul>
+</li>
+</ol>
+</section>
+
+<section>
+<div class="section-eyebrow">Step 4</div>
+<h2>Deploy</h2>
+<ol>
+<li><strong>Merge to main</strong> &mdash; Cloudflare Pages auto-deploys</li>
+<li><strong>Wait 2-3 minutes</strong> for deploy to propagate</li>
+<li><strong>Verify in production</strong> &mdash; hit the exact flow that was broken</li>
+<li><strong>Notify the coach:</strong></li>
+</ol>
+<pre><code>Fixed! [Brief description of what happened]. Try it now --
+should be working. Let me know if anything else feels off.</code></pre>
+</section>
+
+<section>
+<div class="section-eyebrow">Step 5</div>
+<h2>Post-mortem (P0 and P1 only)</h2>
+<p>Within 24 hours of resolution, write a short note:</p>
+<pre><code>## Incident: [Title]
+**Date:** [date]
+**Severity:** P[X]
+**Duration:** [time from report to fix deployed]
+**Impact:** [who was affected, how many coaches]
+
+**What happened:**
+[2-3 sentences]
+
+**Root cause:**
+[1-2 sentences]
+
+**Fix:**
+[What was changed]
+
+**Prevention:**
+[What we'll do so this doesn't happen again -- test, monitoring, etc.]</code></pre>
+<p>Store in: <code>/elevate-ai-project/SOPs/incidents/</code></p>
+</section>
+
+<section>
+<div class="section-eyebrow">Reference</div>
+<h2>Common Issues &amp; Quick Fixes</h2>
+<table>
+<thead><tr><th>Symptom</th><th>Likely Cause</th><th>Quick Check</th></tr></thead>
+<tbody>
+<tr><td>"Can't log in"</td><td>Cookie issue, OAuth callback broken</td><td>Check <code>/api/auth/callback</code> logs</td></tr>
+<tr><td>"AI draft is empty"</td><td>OpenAI API key expired or rate limited</td><td>Check edge function logs</td></tr>
+<tr><td>"Lead import failed"</td><td>CSV format issue or RLS policy</td><td>Check <code>cp_leads</code> insert logs</td></tr>
+<tr><td>"Page won't load"</td><td>Cloudflare cache stale</td><td>Hard refresh (Cmd+Shift+R)</td></tr>
+<tr><td>"Payment didn't go through"</td><td>Stripe webhook not firing</td><td>Check webhook logs in Stripe dashboard</td></tr>
+<tr><td>"Voice profile sounds wrong"</td><td>Training data too short or contradictory</td><td>Re-run voice setup with more samples</td></tr>
+</tbody>
+</table>
+</section>
+
+</div>
+</body>
+</html>

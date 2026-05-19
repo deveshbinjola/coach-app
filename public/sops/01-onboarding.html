@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOP: New Coach Onboarding — ElevateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy: #0A0F1C;
+    --green: #00FF41;
+    --green-dim: #00CC34;
+    --surface: #FAFAF8;
+    --surface-deep: #F2F2EE;
+    --border: #E5E5DD;
+    --text: #0A0F1C;
+    --text-muted: #5A5A6E;
+    --text-faint: #9CA3AF;
+    --danger: #DC2626;
+    --warning: #D97706;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--surface);
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--navy);
+    color: #fff;
+    padding: 4rem 2rem 3.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -20%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,255,65,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+  .hero h1 em { font-style: normal; color: var(--green); }
+  .hero-sub {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.55);
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* ── Container ── */
+  .container { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ── Goal Bar ── */
+  .goal-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--surface-deep);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin: -2rem auto 3rem;
+    max-width: 960px;
+    position: relative;
+    z-index: 2;
+  }
+  .goal-icon {
+    width: 44px; height: 44px;
+    background: var(--navy);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .goal-icon svg { width: 22px; height: 22px; }
+  .goal-text { font-size: 0.9rem; }
+  .goal-text strong { font-weight: 700; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 3.5rem; }
+  .section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--green-dim);
+    margin-bottom: 0.5rem;
+  }
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── Flow ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    padding-left: 2.5rem;
+  }
+  .flow::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 24px;
+    bottom: 24px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--green), var(--border));
+  }
+  .flow-step {
+    position: relative;
+    padding: 1.25rem 1.5rem;
+    background: var(--surface-deep);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+  }
+  .flow-step::before {
+    content: '';
+    position: absolute;
+    left: -2.5rem;
+    top: 1.5rem;
+    width: 12px; height: 12px;
+    background: var(--green);
+    border-radius: 50%;
+    border: 3px solid var(--surface);
+    z-index: 1;
+  }
+  .flow-step.automated::after {
+    content: 'AUTO';
+    position: absolute;
+    top: 0.75rem; right: 0.75rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    background: rgba(0,204,52,0.12);
+    color: var(--green-dim);
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+  }
+  .flow-step.manual::after {
+    content: 'MANUAL';
+    position: absolute;
+    top: 0.75rem; right: 0.75rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    background: rgba(10,15,28,0.08);
+    color: var(--text-muted);
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+  }
+  .flow-step h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+  }
+  .flow-step p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  /* ── Timeline ── */
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .tl-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    position: relative;
+  }
+  .tl-card.highlight {
+    border-color: var(--green-dim);
+    background: rgba(0,204,52,0.03);
+  }
+  .tl-day {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 0.5rem;
+  }
+  .tl-card.highlight .tl-day { color: var(--green-dim); }
+  .tl-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+  }
+  .tl-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .tl-owner {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text-faint);
+    background: var(--surface-deep);
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+  }
+
+  /* ── Checklist ── */
+  .checklist {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .checklist h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--surface-deep);
+    font-size: 0.82rem;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-box {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── Escalation ── */
+  .esc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .esc-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    border-left: 4px solid var(--warning);
+  }
+  .esc-card.critical { border-left-color: var(--danger); }
+  .esc-signal {
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .esc-action {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-faint);
+    font-size: 0.75rem;
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 3rem 1.5rem 2.5rem; }
+    .goal-bar { flex-direction: column; text-align: center; margin: -1.5rem 1rem 2rem; }
+    .timeline { grid-template-columns: 1fr; }
+    .esc-grid { grid-template-columns: 1fr; }
+    .flow { padding-left: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">Standard Operating Procedure</div>
+  <h1>New Coach <em>Onboarding</em></h1>
+  <p class="hero-sub">From payment to first AI-drafted message in under 24 hours</p>
+</div>
+
+<div class="container" style="padding-top: 0;">
+  <div class="goal-bar">
+    <div class="goal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#00FF41" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    <div class="goal-text">
+      <strong>Activation target:</strong> Coach sends their first AI-drafted message within 24 hours of signup
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Phase 1: Instant -->
+  <div class="section">
+    <div class="section-label">Phase 1</div>
+    <div class="section-title">Instant — Stripe Webhook Fires</div>
+    <div class="flow">
+      <div class="flow-step automated">
+        <h3>Payment recorded</h3>
+        <p>Stripe checkout.session.completed → cp_payments row created with amount, session ID, customer email</p>
+      </div>
+      <div class="flow-step automated">
+        <h3>Lead created or upgraded</h3>
+        <p>Existing lead → status set to "client". New email → lead created with source "Stripe payment"</p>
+      </div>
+      <div class="flow-step automated">
+        <h3>Client room + offering membership</h3>
+        <p>Room created with payment_status: paid. Offering membership linked with role: member, status: active</p>
+      </div>
+      <div class="flow-step automated">
+        <h3>Welcome email sent</h3>
+        <p>Resend fires: "You're in. Here's your next 24 hours." Contains Cal.com kickoff link, login link, Slack invite</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 2: Kickoff -->
+  <div class="section">
+    <div class="section-label">Phase 2 — First 24 Hours</div>
+    <div class="section-title">White-Glove Kickoff Call</div>
+
+    <div class="checklist" style="margin-bottom: 1.5rem;">
+      <h3>Pre-call prep (15 min)</h3>
+      <div class="check-item"><div class="check-box"></div><span>Check cp_coaches — do they have a voice profile?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Check cp_leads — did they import anything?</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Pull up their Brand OS output (if quiz funnel)</span></div>
+      <div class="check-item"><div class="check-box"></div><span>Have their email open in the platform for screenshare</span></div>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-card">
+        <div class="tl-day">0–5 min</div>
+        <div class="tl-title">Rapport</div>
+        <div class="tl-desc">How's business going? What's the biggest bottleneck right now?</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-day">5–20 min</div>
+        <div class="tl-title">Voice Profile Setup</div>
+        <div class="tl-desc">Walk through the 5-question VoiceSetupFlow together. Build their voice live.</div>
+      </div>
+      <div class="tl-card highlight">
+        <div class="tl-day">20–30 min</div>
+        <div class="tl-title">Lead Import</div>
+        <div class="tl-desc">Paste in their top 10 active leads — name, email, one line of context each.</div>
+      </div>
+      <div class="tl-card highlight">
+        <div class="tl-day">30–45 min</div>
+        <div class="tl-title">First AI Draft</div>
+        <div class="tl-desc">Pick a lead, click draft, read together, adjust tone. This is the magic moment.</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-day">45–55 min</div>
+        <div class="tl-title">Platform Tour</div>
+        <div class="tl-desc">Inbox, status pipeline, follow-up reminders, content desk overview.</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-day">55–60 min</div>
+        <div class="tl-title">Set Expectations</div>
+        <div class="tl-desc">"By Friday, send 10 AI-drafted messages. Reply to my check-in."</div>
+      </div>
+    </div>
+
+    <div class="flow" style="margin-top: 1.5rem;">
+      <div class="flow-step manual">
+        <h3>Post-call DM (within 1 hour)</h3>
+        <p>"Great call. Your voice profile is live. Try drafting a message to [lead name] — the AI already knows your voice."</p>
+      </div>
+      <div class="flow-step manual">
+        <h3>Tag in cp_leads</h3>
+        <p>Add tags: founding-10, kickoff-complete. Note any feature requests in Notion Action Board.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 3-5: First Week -->
+  <div class="section">
+    <div class="section-label">Phases 3–5</div>
+    <div class="section-title">The First Week</div>
+
+    <div class="timeline">
+      <div class="tl-card">
+        <div class="tl-day">Day +1</div>
+        <div class="tl-title">"Your First Week" Guide</div>
+        <div class="tl-desc">Auto-email: 5 numbered steps — add leads, try draft, set follow-ups, send 10 messages, reply to Friday check-in.</div>
+        <div class="tl-owner">Automated</div>
+      </div>
+      <div class="tl-card highlight">
+        <div class="tl-day">Day +3</div>
+        <div class="tl-title">Personal Check-in</div>
+        <div class="tl-desc">Sunny personally messages in Slack: "How's it going? What's the friction so far?" Never automate this for founders.</div>
+        <div class="tl-owner">Sunny — manual</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-day">Day +7</div>
+        <div class="tl-title">Founder's Friday</div>
+        <div class="tl-desc">Weekly email: 1 win to celebrate, 1 thing shipped, 1 thing building, 1 ask from the group.</div>
+        <div class="tl-owner">Sunny — weekly</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activation Criteria -->
+  <div class="section">
+    <div class="section-label">Activation</div>
+    <div class="section-title">Coach Is "Activated" When</div>
+    <div class="checklist">
+      <h3>All four must be true</h3>
+      <div class="check-item"><div class="check-box"></div><span><strong>Voice profile created</strong> — cp_voice_profiles.active = true</span></div>
+      <div class="check-item"><div class="check-box"></div><span><strong>At least 1 lead imported</strong> — cp_leads count > 0</span></div>
+      <div class="check-item"><div class="check-box"></div><span><strong>Audience questions answered</strong> — audience_self + audience_serves set</span></div>
+      <div class="check-item"><div class="check-box"></div><span><strong>At least 1 AI draft sent</strong> — tracked in cp_lead_messages</span></div>
+    </div>
+  </div>
+
+  <!-- Escalation -->
+  <div class="section">
+    <div class="section-label">Escalation</div>
+    <div class="section-title">When Things Go Wrong</div>
+    <div class="esc-grid">
+      <div class="esc-card">
+        <div class="esc-signal">No login within 48 hours</div>
+        <div class="esc-action">Sunny sends personal DM + offers a call</div>
+      </div>
+      <div class="esc-card critical">
+        <div class="esc-signal">No AI draft sent within 7 days</div>
+        <div class="esc-action">Sunny calls directly — something is wrong</div>
+      </div>
+      <div class="esc-card">
+        <div class="esc-signal">Coach says "this isn't working"</div>
+        <div class="esc-action">30-min troubleshoot call within 24 hours</div>
+      </div>
+      <div class="esc-card">
+        <div class="esc-signal">Coach asks for refund (within 30 days)</div>
+        <div class="esc-action">Honor it, no questions. Ask for 2 min of feedback.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  ElevateAI Systems &middot; Internal SOP &middot; New Coach Onboarding &middot; v1.0
+</div>
+
+</body>
+</html>

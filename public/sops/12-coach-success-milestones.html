@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOP: Coach Success Milestones</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#FAFAF8;color:#0A0F1C;line-height:1.7}
+.hero{background:#0A0F1C;color:#fff;padding:3.5rem 2rem 2.5rem;text-align:center}
+.hero h1{font-family:'Playfair Display',serif;font-weight:900;font-size:2.4rem;margin-bottom:.75rem;line-height:1.2}
+.hero h1 .accent{color:#00FF41}
+.hero .meta{font-size:.95rem;opacity:.7;font-weight:500}
+.hero .meta span{display:inline-block;margin:0 .5rem}
+.container{max-width:900px;margin:0 auto;padding:2rem}
+.section-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#00FF41;margin-bottom:.35rem}
+h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.5rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid #e8e8e4}
+h3{font-weight:700;font-size:1.15rem;margin:1.5rem 0 .75rem;color:#0A0F1C}
+section{margin-bottom:2.5rem}
+p{margin-bottom:1rem}
+ul,ol{margin:0 0 1rem 1.5rem}
+li{margin-bottom:.5rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0 1.5rem;font-size:.92rem}
+thead th{background:#0A0F1C;color:#fff;padding:.65rem .75rem;text-align:left;font-weight:600;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
+tbody td{padding:.6rem .75rem;border-bottom:1px solid #e8e8e4}
+tbody tr:hover{background:#f0ede6}
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:4px;font-size:.78rem;font-weight:600}
+.badge-target{background:#d4ffd4;color:#0b6e23}
+.badge-tier1{background:#e0f0ff;color:#1a5276}
+.badge-tier2{background:#fff3d0;color:#8a6d00}
+.badge-tier3{background:#ffe0e0;color:#c00}
+code{font-family:'Fira Code','Source Code Pro',monospace;font-size:.88em;background:#f0ede6;padding:.15rem .4rem;border-radius:3px}
+pre{background:#0A0F1C;color:#00FF41;padding:1.25rem 1.5rem;border-radius:8px;overflow-x:auto;margin:1rem 0 1.5rem;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0;color:inherit}
+.email-card{background:#f8f8f5;border-left:4px solid #00FF41;padding:1.25rem 1.5rem;border-radius:0 8px 8px 0;margin:1rem 0 1.5rem}
+.email-card .email-subject{font-weight:700;font-size:.95rem;margin-bottom:.5rem;color:#0A0F1C}
+.email-card pre{background:#0A0F1C;margin:.75rem 0 0}
+.callout{background:#f8f8f5;border-left:4px solid #00FF41;padding:1.25rem 1.5rem;border-radius:0 8px 8px 0;margin:1rem 0 1.5rem}
+.callout-warning{border-left-color:#ff6b35}
+hr{border:none;border-top:1px solid #e8e8e4;margin:2rem 0}
+strong{font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Coach Success <span class="accent">Milestones</span></h1>
+  <div class="meta">
+    <span>Owner: Atlas (detect), Sunny (celebrate)</span>
+  </div>
+  <div class="meta">
+    <span>Trigger: Coach hits a usage or outcome milestone</span>
+  </div>
+  <div class="meta" style="margin-top:.4rem;opacity:.5">Goal: Reinforce activation, reduce churn, generate testimonial moments</div>
+</div>
+
+<div class="container">
+
+<section>
+<div class="section-eyebrow">Definitions</div>
+<h2>Milestone Definitions</h2>
+<table>
+<thead><tr><th>Milestone</th><th>Trigger</th><th>Detection</th></tr></thead>
+<tbody>
+<tr><td><strong>First draft</strong></td><td>Coach clicks AI draft for the first time</td><td><code>cp_lead_messages</code> count = 1 for coach</td></tr>
+<tr><td><strong>First 10 drafts</strong></td><td>10 AI-drafted messages sent</td><td><code>cp_lead_messages</code> count = 10</td></tr>
+<tr><td><strong>First client from platform</strong></td><td>Lead status changes to <code>client</code></td><td><code>cp_leads.status</code> update</td></tr>
+<tr><td><strong>30-day active</strong></td><td>Logged in on 15+ of last 30 days</td><td>Login tracking</td></tr>
+<tr><td><strong>Voice profile refined</strong></td><td>Coach updates voice profile after initial setup</td><td><code>cp_voice_profiles.version</code> &gt; 1</td></tr>
+<tr><td><strong>50 leads milestone</strong></td><td>50+ leads in their system</td><td><code>cp_leads</code> count = 50</td></tr>
+<tr><td><strong>100 drafts milestone</strong></td><td>100 AI-drafted messages</td><td><code>cp_lead_messages</code> count = 100</td></tr>
+<tr><td><strong>Cohort graduation</strong></td><td>Completes 8-week cohort</td><td>Manual flag</td></tr>
+<tr><td><strong>90-day retention</strong></td><td>3 months subscribed and active</td><td>Subscription age + login activity</td></tr>
+<tr><td><strong>Referral</strong></td><td>Another coach signs up mentioning their name</td><td>Manual tracking</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<div class="section-eyebrow">Celebrations</div>
+<h2>Celebration Actions</h2>
+
+<h3><span class="badge badge-tier1">Tier 1</span> Quick Win (automated message)</h3>
+<p><strong>Milestones:</strong> First draft, first 10 drafts, voice profile refined</p>
+<div class="email-card">
+<div class="email-subject">Subject: Milestone unlocked</div>
+<pre><code>[First name] -- you just [sent your 10th AI-drafted message /
+refined your voice profile / etc.].
+
+That puts you ahead of most coaches on the platform. The ones
+who hit this milestone in week 1 tend to book 2-3x more
+discovery calls by month 3.
+
+Keep going.
+
+Sunny</code></pre>
+</div>
+
+<h3><span class="badge badge-tier2">Tier 2</span> Personal Recognition (Sunny DM)</h3>
+<p><strong>Milestones:</strong> First client from platform, 30-day active, 50 leads</p>
+<div class="email-card">
+<pre><code>[Name] -- just saw you [converted your first lead to a client /
+hit 30 days active / crossed 50 leads]. That's real.
+
+Quick question: what's working best for you so far? I want to
+double down on whatever's actually helping.</code></pre>
+</div>
+
+<p><strong>Secondary ask (only if the response is positive):</strong></p>
+<div class="email-card">
+<pre><code>Love hearing that. Would you be open to sharing a quick
+testimonial? 2-3 sentences is plenty. Your words help other
+coaches see what's possible.</code></pre>
+</div>
+
+<h3><span class="badge badge-tier3">Tier 3</span> Major Celebration (public + private)</h3>
+<p><strong>Milestones:</strong> 100 drafts, 90-day retention, cohort graduation, referral</p>
+
+<p><strong>Private DM:</strong></p>
+<div class="email-card">
+<pre><code>[Name] -- 100 AI-drafted messages. You're one of the most active
+coaches on the platform. Seriously impressed.
+
+I'd love to feature you in this week's Founder's Friday. Cool
+if I mention your win (first name only unless you want full)?</code></pre>
+</div>
+
+<p><strong>Founder's Friday mention:</strong></p>
+<div class="email-card">
+<pre><code>WIN OF THE WEEK: [First name] just hit 100 AI-drafted messages.
+That's [X] hours of writing the platform handled. [First name],
+if you're reading this -- the founding 10 is better because
+you're in it.</code></pre>
+</div>
+
+<p><strong>If they referred someone:</strong></p>
+<div class="email-card">
+<pre><code>[Name] -- [referral name] just joined the platform and mentioned
+you. That means a lot. As a thank you: [incentive -- 1 month
+free / exclusive feature access / cohort discount].</code></pre>
+</div>
+</section>
+
+<section>
+<div class="section-eyebrow">Automation</div>
+<h2>Detection &amp; Automation</h2>
+
+<h3>Currently manual (Atlas checks weekly):</h3>
+<pre><code>-- Coaches who hit 10 drafts this week
+select c.full_name, c.email, count(m.id) as drafts
+from cp_coaches c
+join cp_lead_messages m on m.coach_id = c.id
+where m.created_at > now() - interval '7 days'
+group by c.id, c.full_name, c.email
+having count(m.id) >= 10;
+
+-- Coaches with 30+ days since signup who logged in 15+ times
+-- (requires login tracking -- not built yet)
+
+-- Leads that moved to 'client' status this week
+select l.full_name, l.email, l.coach_id, l.updated_at
+from cp_leads l
+where l.status = 'client'
+and l.updated_at > now() - interval '7 days';</code></pre>
+
+<h3>Future (automated):</h3>
+<ul>
+<li>Edge function runs daily at midnight</li>
+<li>Checks each coach against milestone thresholds</li>
+<li>Stores milestones in <code>cp_coach_milestones</code> table (coach_id, milestone_key, achieved_at)</li>
+<li>Triggers appropriate celebration (email, in-app, or flags for Sunny DM)</li>
+<li>Never fires the same milestone twice</li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Guardrails</div>
+<h2>Anti-Patterns</h2>
+<div class="callout callout-warning">
+<ul style="margin-bottom:0">
+<li><strong>Don't celebrate too often.</strong> If someone gets a notification every day, they'll tune out. Max 1 celebration per coach per week.</li>
+<li><strong>Don't celebrate vanity metrics.</strong> "You logged in 5 days in a row!" feels hollow. Celebrate outcomes (drafts sent, clients converted).</li>
+<li><strong>Don't make it feel automated</strong> even when it is. Personal touch matters. Use their name, reference something specific.</li>
+<li><strong>Don't ask for testimonial on EVERY milestone.</strong> Ask once after a Tier 2+ milestone. If they say no, wait 60 days before asking again.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<div class="section-eyebrow">Performance</div>
+<h2>Metrics</h2>
+<table>
+<thead><tr><th>Metric</th><th>Target</th><th>Frequency</th></tr></thead>
+<tbody>
+<tr><td>Coaches hitting "first 10 drafts" within 7 days</td><td><span class="badge badge-target">&gt; 60%</span></td><td>Monthly</td></tr>
+<tr><td>Coaches hitting "30-day active"</td><td><span class="badge badge-target">&gt; 50%</span></td><td>Monthly</td></tr>
+<tr><td>Coaches converting a lead to client on platform</td><td><span class="badge badge-target">&gt; 30% in first 60 days</span></td><td>Monthly</td></tr>
+<tr><td>Testimonials generated from milestone moments</td><td><span class="badge badge-target">2/month</span></td><td>Monthly</td></tr>
+<tr><td>90-day retention rate</td><td><span class="badge badge-target">&gt; 80%</span></td><td>Quarterly</td></tr>
+</tbody>
+</table>
+</section>
+
+</div>
+</body>
+</html>

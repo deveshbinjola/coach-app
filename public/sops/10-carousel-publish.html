@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOP: Instagram Carousel Publish</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#FAFAF8;color:#0A0F1C;line-height:1.7}
+.hero{background:#0A0F1C;color:#fff;padding:3.5rem 2rem 2.5rem;text-align:center}
+.hero h1{font-family:'Playfair Display',serif;font-weight:900;font-size:2.4rem;margin-bottom:.75rem;line-height:1.2}
+.hero h1 .accent{color:#00FF41}
+.hero .meta{font-size:.95rem;opacity:.7;font-weight:500}
+.hero .meta span{display:inline-block;margin:0 .5rem}
+.container{max-width:900px;margin:0 auto;padding:2rem}
+.section-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#00FF41;margin-bottom:.35rem}
+h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.5rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid #e8e8e4}
+h3{font-weight:700;font-size:1.15rem;margin:1.5rem 0 .75rem;color:#0A0F1C}
+section{margin-bottom:2.5rem}
+p{margin-bottom:1rem}
+ul,ol{margin:0 0 1rem 1.5rem}
+li{margin-bottom:.5rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0 1.5rem;font-size:.92rem}
+thead th{background:#0A0F1C;color:#fff;padding:.65rem .75rem;text-align:left;font-weight:600;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
+tbody td{padding:.6rem .75rem;border-bottom:1px solid #e8e8e4}
+tbody tr:hover{background:#f0ede6}
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:4px;font-size:.78rem;font-weight:600}
+.badge-target{background:#d4ffd4;color:#0b6e23}
+.badge-dark{background:#0A0F1C;color:#fff}
+.badge-light{background:#F0EDE6;color:#0A0F1C}
+code{font-family:'Fira Code','Source Code Pro',monospace;font-size:.88em;background:#f0ede6;padding:.15rem .4rem;border-radius:3px}
+pre{background:#0A0F1C;color:#00FF41;padding:1.25rem 1.5rem;border-radius:8px;overflow-x:auto;margin:1rem 0 1.5rem;font-size:.88rem;line-height:1.6}
+pre code{background:none;padding:0;color:inherit}
+.callout{background:#f8f8f5;border-left:4px solid #00FF41;padding:1.25rem 1.5rem;border-radius:0 8px 8px 0;margin:1rem 0 1.5rem}
+.callout-warning{border-left-color:#ff6b35}
+.checklist{list-style:none;margin-left:0;padding-left:0}
+.checklist li{padding:.4rem 0 .4rem 2rem;position:relative}
+.checklist li::before{content:'';position:absolute;left:0;top:.55rem;width:18px;height:18px;border:2px solid #ccc;border-radius:3px}
+hr{border:none;border-top:1px solid #e8e8e4;margin:2rem 0}
+strong{font-weight:700}
+.color-swatch{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;margin-right:.3rem;border:1px solid rgba(0,0,0,.1)}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Carousel <span class="accent">Publish</span></h1>
+  <div class="meta">
+    <span>Owner: Loki (create), Cassie (review), Sunny (approve + post)</span>
+  </div>
+  <div class="meta">
+    <span>Cadence: 2-3 per week</span>
+  </div>
+  <div class="meta" style="margin-top:.4rem;opacity:.5">Goal: Consistent, on-brand carousels that drive engagement and lead capture</div>
+</div>
+
+<div class="container">
+
+<section>
+<div class="section-eyebrow">Process</div>
+<h2>Workflow</h2>
+<table>
+<thead><tr><th>Step</th><th>Task</th><th>Owner</th><th>Time</th></tr></thead>
+<tbody>
+<tr><td><strong>1</strong></td><td>Brief created (framework + core insight + CTA keyword)</td><td>Sunny or Loki</td><td>5 min</td></tr>
+<tr><td><strong>2</strong></td><td>Hook written (3-4 options proposed)</td><td>Loki</td><td>15 min</td></tr>
+<tr><td><strong>3</strong></td><td>Hook selected</td><td>Sunny</td><td>2 min</td></tr>
+<tr><td><strong>4</strong></td><td>Full 10-slide narrative written</td><td>Loki</td><td>20 min</td></tr>
+<tr><td><strong>5</strong></td><td>HTML built using brand design system</td><td>Loki</td><td>30 min</td></tr>
+<tr><td><strong>6</strong></td><td>Exported to 10 PNGs at 2160x2160</td><td>Loki (automated)</td><td>2 min</td></tr>
+<tr><td><strong>7</strong></td><td>Visual review</td><td>Cassie</td><td>10 min</td></tr>
+<tr><td><strong>8</strong></td><td>Final approval</td><td>Sunny</td><td>5 min</td></tr>
+<tr><td><strong>9</strong></td><td>Published to Instagram</td><td>Sunny (manual)</td><td>5 min</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<div class="section-eyebrow">Brief</div>
+<h2>Brief Requirements</h2>
+<p>Every carousel needs:</p>
+<ol>
+<li><strong>Framework name</strong> &mdash; the teaching concept (e.g., T.A.S.T.E., 4-Worker Stack)</li>
+<li><strong>Core insight</strong> &mdash; the one thing the reader walks away knowing</li>
+<li><strong>CTA keyword</strong> &mdash; what they comment to get the lead magnet (e.g., "TASTE", "STACK")</li>
+<li><strong>Visual for slide 5</strong> &mdash; does the framework have a visual? (chart, grid, meter, etc.)</li>
+</ol>
+</section>
+
+<section>
+<div class="section-eyebrow">Structure</div>
+<h2>10-Slide Structure</h2>
+<table>
+<thead><tr><th>Slide</th><th>Role</th><th>Background</th></tr></thead>
+<tbody>
+<tr><td><strong>1</strong></td><td>Hook &mdash; ALL CAPS bold, identity-level</td><td><span class="badge badge-dark">Dark</span></td></tr>
+<tr><td><strong>2</strong></td><td>Pattern interrupt &mdash; conversational, deepen the loop</td><td><span class="badge badge-light">Light</span></td></tr>
+<tr><td><strong>3</strong></td><td>Vulnerable confession &mdash; real failure, specific numbers</td><td><span class="badge badge-dark">Dark</span></td></tr>
+<tr><td><strong>4</strong></td><td>The real problem &mdash; reframe what's broken</td><td><span class="badge badge-light">Light</span></td></tr>
+<tr><td><strong>5</strong></td><td>The framework (visual) &mdash; teach with data viz</td><td><span class="badge badge-dark">Dark</span></td></tr>
+<tr><td><strong>6</strong></td><td>The diagnosis &mdash; name their current state</td><td><span class="badge badge-dark">Dark</span></td></tr>
+<tr><td><strong>7</strong></td><td>The shift &mdash; "I did X instead"</td><td><span class="badge badge-dark">Dark</span></td></tr>
+<tr><td><strong>8</strong></td><td>What changed &mdash; transformation</td><td><span class="badge badge-light">Light</span></td></tr>
+<tr><td><strong>9</strong></td><td>The offer/CTA &mdash; "Comment KEYWORD"</td><td><span class="badge badge-dark">Dark</span></td></tr>
+<tr><td><strong>10</strong></td><td>Emotional close &mdash; identity, sign-off "&mdash; Sunny"</td><td><span class="badge badge-dark">Dark</span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<div class="section-eyebrow">Quality Gate</div>
+<h2>Hook Quality Gate</h2>
+<p>Before building the carousel, the hook must pass:</p>
+<ul class="checklist">
+<li>Max ~30 words, 4-6 lines at 135px</li>
+<li>Identity-level &mdash; names WHO the reader IS</li>
+<li>Felt before understood &mdash; reader feels something first</li>
+<li>Last word(s) carry the contradiction (green accent)</li>
+<li>No framework names or jargon on slide 1</li>
+<li>Slide 2 deepens the loop, doesn't just continue</li>
+</ul>
+
+<div class="callout callout-warning">
+<strong>Cliche diagnostic:</strong>
+<ul style="margin-top:.5rem;margin-bottom:0">
+<li>Abstract noun + grandiose verb? Kill it.</li>
+<li>Could any LinkedIn coach have written this? Rewrite.</li>
+<li>Longer than 6 lines? Too long.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<div class="section-eyebrow">Design</div>
+<h2>Brand Design System</h2>
+<ul>
+<li><strong>Dark bg:</strong> <span class="color-swatch" style="background:#0A0F1C"></span><code>#0A0F1C</code> / <strong>Light bg:</strong> <span class="color-swatch" style="background:#F0EDE6"></span><code>#F0EDE6</code></li>
+<li><strong>Accent (dark):</strong> <span class="color-swatch" style="background:#00FF41"></span><code>#00FF41</code> / <strong>Accent (light):</strong> <span class="color-swatch" style="background:#0B6E23"></span><code>#0B6E23</code></li>
+<li><strong>Error/pain:</strong> <code>rgba(255,60,60,0.7)</code></li>
+<li><strong>Hook font:</strong> Plus Jakarta Sans 800, 135px, ALL CAPS</li>
+<li><strong>Headlines:</strong> Playfair Display 900, 64-96px</li>
+<li><strong>Body:</strong> Plus Jakarta Sans 400-600, 28-36px</li>
+<li><strong>Signature:</strong> Caveat 700, 36px, "by Sunny"</li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Export</div>
+<h2>Export Process</h2>
+<pre><code>cd /private/tmp/carousel-export && node export-one.js carousel-{slug}.html {slug}</code></pre>
+<p>Outputs to: <code>lead-magnets/exports/{slug}/slide-01.png</code> through <code>slide-10.png</code></p>
+</section>
+
+<section>
+<div class="section-eyebrow">Review</div>
+<h2>Cassie Review Checklist</h2>
+<p>Cassie checks for brand alignment before Sunny approves:</p>
+<ul class="checklist">
+<li>Colors match brand system (no off-brand tones)</li>
+<li>Typography hierarchy correct (hook &rarr; headline &rarr; body)</li>
+<li>Slide 5 visual is clear and readable</li>
+<li>Green accents used on key words, not overused</li>
+<li>"by Sunny" signature on slide 1</li>
+<li>Counter + "ELEVATE AI" watermark on slides 2-10</li>
+<li>No orphaned words or awkward line breaks</li>
+<li>CTA slide is clear: "Comment [KEYWORD]"</li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Publishing</div>
+<h2>Publishing Checklist</h2>
+<ul class="checklist">
+<li>All 10 slides exported and verified</li>
+<li>Caption written (Loki drafts, Sunny edits)</li>
+<li>Hashtags selected (5-10, mix of niche + broad)</li>
+<li>CTA keyword set up in DM automation (if using ManyChat or similar)</li>
+<li>Posted at optimal time (check IG insights for best time)</li>
+<li>First comment posted immediately (hook continuation or CTA repeat)</li>
+</ul>
+</section>
+
+<section>
+<div class="section-eyebrow">Reference</div>
+<h2>Hook Library</h2>
+<p>All hooks (active + alternates) stored in: <code>lead-magnets/hook-library.md</code></p>
+<p>Update after every carousel with the chosen hook + unused alternates for future rotation.</p>
+</section>
+
+<section>
+<div class="section-eyebrow">Performance</div>
+<h2>Metrics</h2>
+<table>
+<thead><tr><th>Metric</th><th>Target</th><th>Frequency</th></tr></thead>
+<tbody>
+<tr><td>Carousels per week</td><td><span class="badge badge-target">2-3</span></td><td>Weekly</td></tr>
+<tr><td>Average saves per carousel</td><td><span class="badge badge-target">&gt; 50</span></td><td>Weekly</td></tr>
+<tr><td>Average shares per carousel</td><td><span class="badge badge-target">&gt; 20</span></td><td>Weekly</td></tr>
+<tr><td>CTA keyword comments per carousel</td><td><span class="badge badge-target">&gt; 10</span></td><td>Per post</td></tr>
+<tr><td>Follower growth from carousels</td><td><span class="badge badge-target">+50/week</span></td><td>Weekly</td></tr>
+</tbody>
+</table>
+</section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOP: Inbound Lead → Close — ElevateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #0A0F1C; --green: #00FF41; --green-dim: #00CC34;
+    --surface: #FAFAF8; --surface-deep: #F2F2EE; --border: #E5E5DD;
+    --text: #0A0F1C; --text-muted: #5A5A6E; --text-faint: #9CA3AF;
+    --danger: #DC2626; --warning: #D97706; --info: #2A4A7F;
+  }
+  body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(--surface); color: var(--text); line-height: 1.5; }
+
+  .hero {
+    background: var(--navy); color: #fff; padding: 4rem 2rem 3.5rem; text-align: center; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -40%; left: -20%; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,255,65,0.08) 0%, transparent 70%); pointer-events: none;
+  }
+  .hero-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green); margin-bottom: 1rem; }
+  .hero h1 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1rem; }
+  .hero h1 em { font-style: normal; color: var(--green); }
+  .hero-sub { font-size: 1rem; color: rgba(255,255,255,0.55); max-width: 520px; margin: 0 auto; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ── Funnel ── */
+  .funnel { margin: 3rem 0; }
+  .funnel-stage {
+    display: flex; align-items: stretch; gap: 0; margin-bottom: 2px;
+  }
+  .funnel-bar {
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);
+    padding: 1rem 0.6rem; min-height: 100px;
+  }
+  .funnel-content {
+    flex: 1; padding: 1.5rem; background: #fff; border: 1px solid var(--border); border-left: none;
+  }
+  .funnel-content h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .funnel-content p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
+
+  .stage-1 .funnel-bar { background: var(--navy); width: 100%; max-width: 52px; border-radius: 12px 0 0 0; }
+  .stage-2 .funnel-bar { background: #1a2a4a; width: 100%; max-width: 48px; }
+  .stage-3 .funnel-bar { background: #0b4a20; width: 100%; max-width: 44px; }
+  .stage-4 .funnel-bar { background: var(--green-dim); width: 100%; max-width: 40px; border-radius: 0 0 0 12px; }
+  .stage-1 .funnel-content { border-radius: 0 12px 0 0; }
+  .stage-4 .funnel-content { border-radius: 0 0 12px 0; }
+
+  .metric-row {
+    display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap;
+  }
+  .metric-pill {
+    font-size: 0.68rem; font-weight: 600; padding: 0.2rem 0.6rem;
+    border-radius: 20px; letter-spacing: 0.03em;
+  }
+  .metric-pill.time { background: rgba(42,74,127,0.1); color: var(--info); }
+  .metric-pill.target { background: rgba(0,204,52,0.1); color: var(--green-dim); }
+
+  /* ── Source Table ── */
+  .source-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem; margin-bottom: 2rem;
+  }
+  .source-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem; position: relative; border-top: 3px solid var(--border);
+  }
+  .source-card.hot { border-top-color: var(--danger); }
+  .source-card.warm { border-top-color: var(--warning); }
+  .source-card.cool { border-top-color: var(--info); }
+  .source-temp {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .source-card.hot .source-temp { color: var(--danger); }
+  .source-card.warm .source-temp { color: var(--warning); }
+  .source-card.cool .source-temp { color: var(--info); }
+  .source-name { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .source-speed { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ── Sections ── */
+  .section { margin-bottom: 3.5rem; }
+  .section-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-dim); margin-bottom: 0.5rem; }
+  .section-title { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
+
+  /* ── Qualification ── */
+  .qual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .qual-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem;
+  }
+  .qual-card.yes { border-left: 4px solid var(--green-dim); }
+  .qual-card.no { border-left: 4px solid var(--danger); }
+  .qual-card h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .qual-card ul { list-style: none; padding: 0; }
+  .qual-card li {
+    font-size: 0.8rem; color: var(--text-muted); padding: 0.3rem 0;
+    padding-left: 1.2rem; position: relative;
+  }
+  .qual-card.yes li::before { content: '✓'; position: absolute; left: 0; color: var(--green-dim); font-weight: 700; }
+  .qual-card.no li::before { content: '✕'; position: absolute; left: 0; color: var(--danger); font-weight: 700; }
+
+  /* ── Call Structure ── */
+  .call-timeline {
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .call-block {
+    display: flex; align-items: stretch; gap: 0; border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border); background: #fff;
+  }
+  .call-time {
+    width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700; color: #fff; background: var(--navy);
+    letter-spacing: 0.04em;
+  }
+  .call-block.highlight .call-time { background: var(--green-dim); }
+  .call-body { flex: 1; padding: 0.75rem 1rem; }
+  .call-body h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.15rem; }
+  .call-body p { font-size: 0.78rem; color: var(--text-muted); }
+
+  /* ── Objections ── */
+  .obj-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .obj-item {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+  }
+  .obj-q { font-size: 0.85rem; font-weight: 600; font-style: italic; color: var(--text-muted); }
+  .obj-a { font-size: 0.82rem; color: var(--text); line-height: 1.55; }
+
+  /* ── Pipeline ── */
+  .pipeline {
+    display: flex; gap: 2px; flex-wrap: wrap;
+  }
+  .pipe-stage {
+    flex: 1; min-width: 100px; padding: 1rem; text-align: center;
+    color: #fff; font-size: 0.75rem; font-weight: 600;
+  }
+  .pipe-stage:first-child { border-radius: 10px 0 0 10px; }
+  .pipe-stage:last-child { border-radius: 0 10px 10px 0; }
+  .pipe-stage .pipe-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; margin-bottom: 0.25rem; }
+
+  .footer {
+    text-align: center; padding: 3rem 1.5rem; color: var(--text-faint); font-size: 0.75rem;
+    border-top: 1px solid var(--border); margin-top: 3rem;
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 3rem 1.5rem 2.5rem; }
+    .qual-grid { grid-template-columns: 1fr; }
+    .obj-item { grid-template-columns: 1fr; }
+    .pipeline { flex-direction: column; }
+    .pipe-stage { border-radius: 0 !important; }
+    .pipe-stage:first-child { border-radius: 10px 10px 0 0 !important; }
+    .pipe-stage:last-child { border-radius: 0 0 10px 10px !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">Standard Operating Procedure</div>
+  <h1>Inbound Lead → <em>Close</em></h1>
+  <p class="hero-sub">Qualified lead on a discovery call within 72 hours of first touch</p>
+</div>
+
+<div class="container" style="padding-top: 3rem;">
+
+  <!-- Lead Sources -->
+  <div class="section">
+    <div class="section-label">Entry Points</div>
+    <div class="section-title">Where Leads Come From</div>
+    <div class="source-grid">
+      <div class="source-card hot">
+        <div class="source-temp">Hot</div>
+        <div class="source-name">Brand OS $7 Trip-wire</div>
+        <div class="source-speed">Contact within 4 hours</div>
+      </div>
+      <div class="source-card hot">
+        <div class="source-temp">Hot</div>
+        <div class="source-name">Referral</div>
+        <div class="source-speed">Contact within 4 hours</div>
+      </div>
+      <div class="source-card hot">
+        <div class="source-temp">Hot</div>
+        <div class="source-name">Cal.com Direct Booking</div>
+        <div class="source-speed">Show up</div>
+      </div>
+      <div class="source-card warm">
+        <div class="source-temp">Warm</div>
+        <div class="source-name">Quiz Funnel</div>
+        <div class="source-speed">Contact within 24 hours</div>
+      </div>
+      <div class="source-card warm">
+        <div class="source-temp">Warm</div>
+        <div class="source-name">IG / LinkedIn DM</div>
+        <div class="source-speed">Contact within 12 hours</div>
+      </div>
+      <div class="source-card cool">
+        <div class="source-temp">Cool</div>
+        <div class="source-name">Blog / Newsletter</div>
+        <div class="source-speed">Nurture sequence</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Funnel Stages -->
+  <div class="section">
+    <div class="section-label">The Funnel</div>
+    <div class="section-title">Four Stages to Close</div>
+    <div class="funnel">
+      <div class="funnel-stage stage-1">
+        <div class="funnel-bar">Capture</div>
+        <div class="funnel-content">
+          <h3>Stage 1: Lead Capture</h3>
+          <p>Lead enters via quiz, trip-wire, DM, or referral. Auto-created in cp_leads with source tracking. Trip-wire buyers get immediate personal DM from Sunny.</p>
+          <div class="metric-row">
+            <span class="metric-pill time">< 4 hrs for hot leads</span>
+          </div>
+        </div>
+      </div>
+      <div class="funnel-stage stage-2">
+        <div class="funnel-bar">Qualify</div>
+        <div class="funnel-content">
+          <h3>Stage 2: Qualification</h3>
+          <p>Three-question filter: What do you coach? How do you get clients now? What would change if follow-up was automatic? Qualify on pain level + revenue.</p>
+          <div class="metric-row">
+            <span class="metric-pill target">> 40% qualify rate</span>
+          </div>
+        </div>
+      </div>
+      <div class="funnel-stage stage-3">
+        <div class="funnel-bar">Discover</div>
+        <div class="funnel-content">
+          <h3>Stage 3: Discovery Call</h3>
+          <p>30-minute call: rapport → pain → cost of inaction → live demo with THEIR data → offer → objection handling → close or next step.</p>
+          <div class="metric-row">
+            <span class="metric-pill target">> 60% call booked</span>
+            <span class="metric-pill target">> 30% close rate</span>
+          </div>
+        </div>
+      </div>
+      <div class="funnel-stage stage-4">
+        <div class="funnel-bar">Close</div>
+        <div class="funnel-content">
+          <h3>Stage 4: Close</h3>
+          <p>Send Stripe link on-call if possible. If "not now" → 3-day follow-up DM, 7-day follow-up, then nurture. After 14 days with no response, stop active pursuit.</p>
+          <div class="metric-row">
+            <span class="metric-pill time">< 14 days lead to paid</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Qualification -->
+  <div class="section">
+    <div class="section-label">The Filter</div>
+    <div class="section-title">Qualify or Disqualify</div>
+    <div class="qual-grid">
+      <div class="qual-card yes">
+        <h4>Qualify — book the call</h4>
+        <ul>
+          <li>Active coach with clients</li>
+          <li>Manual lead follow-up (spreadsheets, DMs, memory)</li>
+          <li>Frustrated with consistency or volume</li>
+          <li>Revenue $5K+/mo (can afford, will see ROI)</li>
+        </ul>
+      </div>
+      <div class="qual-card no">
+        <h4>Disqualify — nurture instead</h4>
+        <ul>
+          <li>Not a coach or creator</li>
+          <li>Revenue under $3K/mo</li>
+          <li>Locked into competing tool (annual contract)</li>
+          <li>"Just looking" energy, no specific pain</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Discovery Call -->
+  <div class="section">
+    <div class="section-label">The Call</div>
+    <div class="section-title">Discovery Call Structure (30 min)</div>
+    <div class="call-timeline">
+      <div class="call-block">
+        <div class="call-time">0–5</div>
+        <div class="call-body">
+          <h4>Rapport</h4>
+          <p>"What's your coaching business look like right now?"</p>
+        </div>
+      </div>
+      <div class="call-block">
+        <div class="call-time">5–10</div>
+        <div class="call-body">
+          <h4>Pain</h4>
+          <p>"Walk me through what happens when a new lead comes in"</p>
+        </div>
+      </div>
+      <div class="call-block">
+        <div class="call-time">10–15</div>
+        <div class="call-body">
+          <h4>Cost of Inaction</h4>
+          <p>"How many leads slipped through the cracks last month?"</p>
+        </div>
+      </div>
+      <div class="call-block highlight">
+        <div class="call-time">15–22</div>
+        <div class="call-body">
+          <h4>Live Demo</h4>
+          <p>Show THEIR data in the platform. Draft a message live in their voice. This is the moment.</p>
+        </div>
+      </div>
+      <div class="call-block">
+        <div class="call-time">22–25</div>
+        <div class="call-body">
+          <h4>The Offer</h4>
+          <p>Present the right tier. Price. What's included. Founding pricing if available.</p>
+        </div>
+      </div>
+      <div class="call-block">
+        <div class="call-time">25–30</div>
+        <div class="call-body">
+          <h4>Close or Next Step</h4>
+          <p>"Want to get started today?" or "When do you want to decide by?"</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Objection Handling -->
+  <div class="section">
+    <div class="section-label">Objections</div>
+    <div class="section-title">What They'll Say & How to Respond</div>
+    <div class="obj-list">
+      <div class="obj-item">
+        <div class="obj-q">"It's too expensive"</div>
+        <div class="obj-a">It's $100/mo. If it books you one extra client this quarter, what's that worth? Most coaches tell me one client = $2K-$10K.</div>
+      </div>
+      <div class="obj-item">
+        <div class="obj-q">"I need to think about it"</div>
+        <div class="obj-a">Totally fair. What specifically do you need to think through? I might be able to answer it now.</div>
+      </div>
+      <div class="obj-item">
+        <div class="obj-q">"I already have a CRM"</div>
+        <div class="obj-a">Does your CRM draft messages in your voice? The CRM is the container — the AI voice is the unlock.</div>
+      </div>
+      <div class="obj-item">
+        <div class="obj-q">"I don't have enough leads"</div>
+        <div class="obj-a">That's actually the best time to set this up. When leads start coming, the system is already running.</div>
+      </div>
+      <div class="obj-item">
+        <div class="obj-q">"What if the AI doesn't sound like me?"</div>
+        <div class="obj-a">Let me show you. Give me 3 sentences you'd write to a lead. I'll run it through the voice engine right now.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pipeline -->
+  <div class="section">
+    <div class="section-label">CRM Pipeline</div>
+    <div class="section-title">Lead Status Stages</div>
+    <div class="pipeline">
+      <div class="pipe-stage" style="background: var(--navy);">
+        <div class="pipe-label">New</div>
+        Just entered
+      </div>
+      <div class="pipe-stage" style="background: #1a2a4a;">
+        <div class="pipe-label">Qualified</div>
+        Passed filter
+      </div>
+      <div class="pipe-stage" style="background: #0b4a20;">
+        <div class="pipe-label">Discovery</div>
+        Call booked
+      </div>
+      <div class="pipe-stage" style="background: var(--green-dim);">
+        <div class="pipe-label">Proposal</div>
+        Sent pricing
+      </div>
+      <div class="pipe-stage" style="background: var(--green); color: var(--navy);">
+        <div class="pipe-label" style="color: rgba(10,15,28,0.5);">Client</div>
+        Paid
+      </div>
+    </div>
+    <div style="display: flex; gap: 2px; margin-top: 2px;">
+      <div class="pipe-stage" style="background: var(--surface-deep); color: var(--text-muted); flex: 1; border-radius: 10px 0 0 10px; border: 1px solid var(--border);">
+        <div class="pipe-label" style="color: var(--text-faint);">Nurture</div>
+        Not ready yet
+      </div>
+      <div class="pipe-stage" style="background: var(--surface-deep); color: var(--text-faint); flex: 1; border-radius: 0 10px 10px 0; border: 1px solid var(--border);">
+        <div class="pipe-label" style="color: var(--text-faint);">Lost</div>
+        Said no / silent 30d
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  ElevateAI Systems &middot; Internal SOP &middot; Inbound Lead → Close &middot; v1.0
+</div>
+
+</body>
+</html>
