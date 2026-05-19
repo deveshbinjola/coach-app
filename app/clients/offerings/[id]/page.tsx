@@ -149,6 +149,11 @@ export default async function OfferingDetailPage({
                 {roster.filter((r) => r.status === "active").length} / {offering.capacity} active
               </Badge>
             )}
+            {offering.price_cents != null && (
+              <Badge tone="muted" size="xs" uppercase>
+                {(offering.price_cents / 100).toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 })} / seat
+              </Badge>
+            )}
           </div>
           <h1 className="font-display text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] leading-tight">
             {offering.name}
@@ -158,6 +163,27 @@ export default async function OfferingDetailPage({
               {offering.description}
             </p>
           )}
+          {offering.price_cents != null && (() => {
+            const activeCount = roster.filter((r) => r.status === "active").length;
+            const price = offering.price_cents / 100;
+            const enrolled = activeCount * price;
+            const projected = offering.capacity != null ? offering.capacity * price : null;
+            const fmtUSD = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            return (
+              <div className="flex items-baseline gap-6 pt-1">
+                <div>
+                  <span className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">Enrolled revenue </span>
+                  <span className="font-mono text-[length:var(--t-h3)] font-extrabold text-[color:var(--brand-strong)]">{fmtUSD(enrolled)}</span>
+                </div>
+                {projected != null && projected > enrolled && (
+                  <div>
+                    <span className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">At capacity </span>
+                    <span className="font-mono text-[length:var(--t-h3)] font-extrabold text-[color:var(--text-muted)]">{fmtUSD(projected)}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
           {(offering.starts_at || offering.ends_at) && (
             <p className="text-[length:var(--t-caption)] text-[color:var(--text-faint)]">
               {offering.starts_at ?? "—"} → {offering.ends_at ?? "—"}

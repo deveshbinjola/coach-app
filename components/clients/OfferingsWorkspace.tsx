@@ -29,9 +29,44 @@ export default function OfferingsWorkspace({ offerings }: { offerings: OfferingC
     );
   }
 
+  const totalRevenue = active.reduce((sum, o) => {
+    if (o.price_cents == null) return sum;
+    return sum + (o.member_count * o.price_cents) / 100;
+  }, 0);
+  const totalProjected = active.reduce((sum, o) => {
+    if (o.price_cents == null) return sum;
+    const seats = o.capacity ?? o.member_count;
+    return sum + (seats * o.price_cents) / 100;
+  }, 0);
+  const hasRevenue = totalRevenue > 0 || totalProjected > 0;
+
   return (
     <div className="space-y-8">
       <AddOfferingForm />
+
+      {hasRevenue && (
+        <div className="rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] p-5 flex flex-wrap items-baseline gap-x-8 gap-y-2">
+          <div>
+            <span className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
+              Enrolled revenue
+            </span>
+            <p className="font-mono text-[length:var(--t-h2)] font-extrabold text-[color:var(--brand-strong)]">
+              {fmtUSD(totalRevenue)}
+            </p>
+          </div>
+          {totalProjected > totalRevenue && (
+            <div>
+              <span className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
+                At capacity
+              </span>
+              <p className="font-mono text-[length:var(--t-h2)] font-extrabold text-[color:var(--text-muted)]">
+                {fmtUSD(totalProjected)}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       {active.length > 0 ? (
         <section className="space-y-3">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -62,6 +97,10 @@ function OfferingTile({ offering: o }: { offering: OfferingCard }) {
   const dateRange = formatRange(o.starts_at, o.ends_at);
   const cap = o.capacity != null ? `${o.member_count} / ${o.capacity}` : `${o.member_count}`;
   const capPct = o.capacity ? Math.min(100, Math.round((o.member_count / o.capacity) * 100)) : 0;
+  const price = o.price_cents != null ? o.price_cents / 100 : null;
+  const enrolled = o.member_count;
+  const revenue = price != null ? enrolled * price : null;
+  const projectedRevenue = price != null && o.capacity != null ? o.capacity * price : null;
 
   return (
     <Link
@@ -84,10 +123,16 @@ function OfferingTile({ offering: o }: { offering: OfferingCard }) {
           </p>
         )}
 
+        {price != null && (
+          <p className="font-mono text-[length:var(--t-body)] font-extrabold text-[color:var(--text)]">
+            {fmtUSD(price)}<span className="text-[color:var(--text-faint)] font-normal text-[length:var(--t-caption)]"> / seat</span>
+          </p>
+        )}
+
         <div className="pt-2 border-t border-[var(--border)] space-y-2">
           <div className="flex items-baseline justify-between">
             <span className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
-              Members
+              Enrolled
             </span>
             <span className="font-mono text-[length:var(--t-h3)] font-extrabold text-[color:var(--text)]">{cap}</span>
           </div>
@@ -96,6 +141,23 @@ function OfferingTile({ offering: o }: { offering: OfferingCard }) {
               <div className="h-full bg-[var(--brand-strong)]" style={{ width: `${capPct}%` }} />
             </div>
           )}
+
+          {revenue != null && (
+            <div className="flex items-baseline justify-between">
+              <span className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
+                Revenue
+              </span>
+              <span className="font-mono text-[length:var(--t-body)] font-extrabold text-[color:var(--brand-strong)]">
+                {fmtUSD(revenue)}
+                {projectedRevenue != null && projectedRevenue > revenue && (
+                  <span className="text-[color:var(--text-faint)] font-normal text-[length:var(--t-caption)]">
+                    {" "}/ {fmtUSD(projectedRevenue)}
+                  </span>
+                )}
+              </span>
+            </div>
+          )}
+
           {dateRange && (
             <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">{dateRange}</p>
           )}
@@ -126,6 +188,10 @@ function EmptyState() {
       </a>
     </div>
   );
+}
+
+function fmtUSD(amount: number): string {
+  return amount.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 function formatRange(start: string | null, end: string | null): string | null {

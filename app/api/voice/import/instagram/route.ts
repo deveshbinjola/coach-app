@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { rateLimitByUser } from "@/lib/rate-limit";
 import type { VoiceProfile, VoiceTrainingSource } from "@/lib/types";
+import {
+  SYSTEM_RULE_HEADER,
+  SYSTEM_RULE_FOOTER,
+  safeParseJson,
+  detectGenericPhrases,
+} from "@/lib/voice/extract-rules";
 
 export const runtime = 'edge';
 
@@ -283,12 +289,12 @@ async function extractInstagramRules(
   if (!apiKey) return fallbackInstagramRules(transcript);
 
   const system = [
-    "You extract Instagram voice rules for a coach AI assistant.",
-    "Use only the provided captions and active voice profile.",
-    "Rules must help future Instagram drafts sound like the coach.",
-    "Return JSON only with this shape: {\"rules\":[{\"text\":\"...\",\"confidence\":\"preliminary\"|\"real\",\"category\":\"hook\"|\"story\"|\"cta\"|\"belief\"|\"offer\"|\"avoid\"|\"rhythm\"}]}",
-    "No em dash characters.",
-  ].join(" ");
+    SYSTEM_RULE_HEADER,
+    "The source is Instagram captions written by this coach.",
+    "Rules must help future Instagram drafts sound like THIS coach, not like a generic IG content creator.",
+    "Use only the provided captions and the active voice profile.",
+    SYSTEM_RULE_FOOTER,
+  ].join("\n");
 
   const prompt = [
     "ACTIVE VOICE PROFILE:",
@@ -316,12 +322,27 @@ async function extractInstagramRules(
       }),
     });
 
-    if (!response.ok) return fallbackInstagramRules(transcript);
+    if (!response.ok) {
+      console.warn("[voice/instagram] Anthropic HTTP", response.status, "— using fallback");
+      return fallbackInstagramRules(transcript);
+    }
     const data = await response.json();
-    const text = String(data?.content?.[0]?.text ?? "").trim();
-    const parsed = JSON.parse(text) as { rules?: Array<{ text?: unknown; confidence?: unknown }> };
+    const raw = String(data?.content?.[0]?.text ?? "");
+    const parsed = safeParseJson<{ rules?: Array<{ text?: unknown; confidence?: unknown; category?: unknown; evidence?: unknown }> }>(raw);
+    if (!parsed?.rules) {
+      console.warn("[voice/instagram] Could not parse rules JSON — using fallback. Raw head:", raw.slice(0, 200));
+      return fallbackInstagramRules(transcript);
+    }
+    // Telemetry — log when the model produces generic coach-content advice.
+    for (const r of parsed.rules) {
+      const hits = detectGenericPhrases(String(r?.text ?? ""));
+      if (hits.length > 0) {
+        console.warn("[voice/instagram] generic rule produced:", { text: r.text, hits });
+      }
+    }
     return normalizeRules(parsed.rules);
-  } catch {
+  } catch (err) {
+    console.warn("[voice/instagram] extract threw — using fallback:", err);
     return fallbackInstagramRules(transcript);
   }
 }

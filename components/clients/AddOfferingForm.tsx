@@ -20,6 +20,7 @@ import {
 type Draft = {
   name: string;
   kind: OfferingKind;
+  price: string;
   capacity: string;
   starts_at: string;
   ends_at: string;
@@ -29,6 +30,7 @@ type Draft = {
 const EMPTY: Draft = {
   name: "",
   kind: "one_on_one",
+  price: "",
   capacity: "",
   starts_at: "",
   ends_at: "",
@@ -52,10 +54,15 @@ export default function AddOfferingForm({ open: openInitial = false }: { open?: 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not signed in.");
       const capacity = draft.capacity ? parseInt(draft.capacity, 10) : null;
+      const priceDollars = draft.price ? parseFloat(draft.price) : null;
+      const priceCents = priceDollars != null && Number.isFinite(priceDollars) && priceDollars > 0
+        ? Math.round(priceDollars * 100)
+        : null;
       const { error } = await supabase.from("cp_offerings").insert({
         coach_id: user.id,
         name,
         kind: draft.kind,
+        price_cents: priceCents,
         capacity: Number.isFinite(capacity) && capacity != null && capacity > 0 ? capacity : null,
         starts_at: draft.starts_at || null,
         ends_at: draft.ends_at || null,
@@ -140,7 +147,18 @@ export default function AddOfferingForm({ open: openInitial = false }: { open?: 
         />
       </Field>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Field label="Price ($)">
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            value={draft.price}
+            onChange={(e) => setDraft({ ...draft, price: e.target.value })}
+            placeholder="e.g. 2000"
+            className="w-full h-10 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] focus:border-[var(--brand-strong)] focus:outline-none"
+          />
+        </Field>
         <Field label="Capacity">
           <input
             type="number"

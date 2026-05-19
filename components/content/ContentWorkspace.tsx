@@ -46,7 +46,7 @@ type DraftKind = "instagram_caption" | "linkedin_post" | "newsletter" | "carouse
 type CarouselOutcome = "saves" | "conversations" | "authority";
 type CarouselFramework = "listicle" | "mistake_fix" | "framework";
 type CarouselStyle = "onyx_gold" | "forest_sand" | "editorial_gold" | "hard_facts" | "imported" | "brand_kit";
-type CarouselHook = "curiosity_gap" | "contrarian" | "identity_callout" | "number_outcome" | "pain_question";
+type CarouselHook = "curiosity_gap" | "contrarian" | "identity_callout" | "number_outcome" | "pain_question" | "framework_reveal";
 
 type CarouselCustomStyle = {
   name: string;
@@ -205,6 +205,12 @@ const CAROUSEL_HOOKS: Array<{
     label: "Pain question",
     description: "Open with the question their lead is already carrying.",
     bestFor: "lead objection",
+  },
+  {
+    id: "framework_reveal",
+    label: "Framework reveal",
+    description: "Tease a named system. The acronym drops on Slide 2.",
+    bestFor: "framework carousels",
   },
 ];
 
