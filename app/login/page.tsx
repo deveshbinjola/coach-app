@@ -237,7 +237,7 @@ export default function LoginPage() {
         <div className="lp-left">
           <div className="lp-left-inner">
             <div className="lp-logo" style={{ opacity: 0, animation: 'lp-rise 0.9s 0.1s cubic-bezier(.16,1,.3,1) both' }}>
-              <svg viewBox="0 0 32 32" fill="none"><path d="M16 2C12 8 6 14 6 20a10 10 0 0 0 20 0c0-6-6-12-10-18z" fill="#00FF41"/><path d="M16 12v14M16 26c-2-3-4-5-4-8s2-5 4-8c2 3 4 5 4 8s-2 5-4 8z" stroke="#0A0F1C" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              <svg viewBox="0 0 100 100" style={{ width: 28, height: 28 }}><rect width="100" height="100" rx="24" fill="#00FF41"/><path d="M50 20 C35 20 25 35 25 55 C25 75 40 80 50 80 C60 80 75 75 75 55 C75 35 65 20 50 20 Z" fill="#020802"/><path d="M50 80 L50 85" stroke="#020802" strokeWidth="4" strokeLinecap="round"/></svg>
               <span className="lp-logo-text">Elevate AI <span>Coach</span></span>
             </div>
 
@@ -320,7 +320,7 @@ export default function LoginPage() {
         <div className="lp-right">
           <div className="lp-auth-card">
             <div className="lp-mobile-logo">
-              <svg viewBox="0 0 32 32" fill="none" style={{ width: 24, height: 24 }}><path d="M16 2C12 8 6 14 6 20a10 10 0 0 0 20 0c0-6-6-12-10-18z" fill="#00FF41"/><path d="M16 12v14M16 26c-2-3-4-5-4-8s2-5 4-8c2 3 4 5 4 8s-2 5-4 8z" stroke="#0A0F1C" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              <svg viewBox="0 0 100 100" style={{ width: 24, height: 24 }}><rect width="100" height="100" rx="24" fill="#00FF41"/><path d="M50 20 C35 20 25 35 25 55 C25 75 40 80 50 80 C60 80 75 75 75 55 C75 35 65 20 50 20 Z" fill="#020802"/><path d="M50 80 L50 85" stroke="#020802" strokeWidth="4" strokeLinecap="round"/></svg>
               Elevate AI Coach
             </div>
 
