@@ -147,6 +147,9 @@ export type Lead = {
   source: LeadSource;
   /** Free-text attribution — which specific post/reel/newsletter brought them. */
   source_detail: string | null;
+  /** URL of the page that referred this lead (blog post, landing page, etc).
+   *  Used for automatic pain-signal inference. */
+  source_url: string | null;
   /** Self-FK — the lead who referred this one. NULL if not a referral. */
   referred_by_lead_id: string | null;
   status: LeadStatus;

@@ -15,6 +15,7 @@ import {
   LeadTemperatureSchema,
   PainSignalSchema,
 } from "@/lib/api-validation";
+import { inferPainFromUrl } from "@/lib/pain-from-source";
 
 export const runtime = 'edge';
 
@@ -28,6 +29,7 @@ const CreateLeadSchema = z.object({
   phone: TrimmedStringOrNull.optional().nullable().default(null),
   source: LeadSourceSchema.optional().default("other"),
   source_detail: TrimmedStringOrNull.optional().nullable().default(null),
+  source_url: TrimmedStringOrNull.optional().nullable().default(null),
   temperature: LeadTemperatureSchema.optional().default("warm"),
   notes: TrimmedStringOrNull.optional().nullable().default(null),
   pain_signal: z.array(PainSignalSchema).max(10).optional().default([]),
@@ -81,6 +83,12 @@ export async function POST(request: NextRequest) {
   // Whitelist: schema enforces shape; we still strip server-controlled
   // fields (coach_id, id, created_at) by only spreading the validated
   // fields plus the auth-derived coach_id and status default.
+  const bodyPain: string[] = body.pain_signal ?? [];
+  const pain_signal: string[] =
+    bodyPain.length === 0 && body.source_url
+      ? inferPainFromUrl(body.source_url)
+      : bodyPain;
+
   const row = {
     coach_id: auth.coachId,
     full_name: body.full_name,
@@ -88,9 +96,10 @@ export async function POST(request: NextRequest) {
     phone: body.phone,
     source: body.source,
     source_detail: body.source_detail,
+    source_url: body.source_url,
     temperature: body.temperature,
     notes: body.notes,
-    pain_signal: body.pain_signal,
+    pain_signal,
     next_honest_action: body.next_honest_action,
     status: "new" as const,
     auto_draft_eligible: body.auto_draft_eligible,

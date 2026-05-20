@@ -34,6 +34,7 @@ import {
   sortByScore,
 } from "@/lib/lead-score";
 import { assessSla } from "@/lib/lead-sla";
+import { titleFromUrl } from "@/lib/pain-from-source";
 import { Badge, Button, Card, Modal } from "@/components/ui";
 import SlaBadge from "./SlaBadge";
 
@@ -653,6 +654,7 @@ function leadMatchesSearch(lead: Lead, query: string): boolean {
     lead.phone,
     lead.source,
     lead.source_detail,
+    lead.source_url,
     lead.status,
     warmth,
     nextAction,
@@ -1165,6 +1167,11 @@ function ListTable({
                   )}
                   <div className="text-[length:var(--t-label)] text-[color:var(--text-faint)] mt-1 normal-case tracking-normal font-normal">
                     {lead.source} · {lead.status}
+                    {lead.source_url && (
+                      <span className="block mt-0.5 text-[color:var(--text-muted)] italic truncate max-w-[260px]" title={lead.source_url}>
+                        via {titleFromUrl(lead.source_url) ?? lead.source_detail ?? "article"}
+                      </span>
+                    )}
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     <Badge tone={WARMTH_TONE[lead.temperature]} size="xs">
@@ -1320,7 +1327,9 @@ function MobileLeadCard({
 
         {/* Footer hint: source + follow-up */}
         <div className="mt-2 text-[length:var(--t-caption)] text-[color:var(--text-faint)] font-bold flex items-center justify-between gap-2 flex-wrap">
-          <span className="truncate">{lead.source}</span>
+          <span className="truncate" title={lead.source_url ?? undefined}>
+            {lead.source_url ? titleFromUrl(lead.source_url) ?? lead.source : lead.source}
+          </span>
           {lead.next_followup_at && (
             <span className="tabular-nums normal-case tracking-normal">
               Follow-up: {new Date(lead.next_followup_at).toLocaleDateString()}
