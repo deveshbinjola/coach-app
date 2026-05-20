@@ -305,7 +305,25 @@ async function extractRules(
     "IMPORTED WRITING:",
     transcript.slice(0, 14_000),
     "",
-    "Extract 6 specific voice rules. Focus on openings, story rhythm, CTA style, sentence length, beliefs, offer language, and what the coach avoids.",
+    ...(sourceType === "newsletter" ? [
+      "Extract 6 specific voice rules for NEWSLETTER writing. Newsletter-specific patterns to look for:",
+      "- SUBJECT LINE ENERGY: How do they hook in the opening line? Curiosity gap? Direct claim? Personal story entry?",
+      "- TEACHING STYLE: Do they use frameworks, numbered lists, analogies, case studies? How do they structure the lesson?",
+      "- PERSONAL VOICE: Do they share behind-the-scenes, personal stories, vulnerable moments? How much 'I' vs 'you'?",
+      "- PARAGRAPH LENGTH: Long flowing sections or short punchy paragraphs? How do they pace the email?",
+      "- CTA PATTERN: 'Reply to this email', 'click here', soft pitch, PS line? Where does the ask live?",
+      "- SIGN-OFF: How do they close? Signature phrase, name only, PS section, teaser for next issue?",
+      "Each rule must be specific to how THIS coach writes newsletters, not generic email advice.",
+    ] : [
+      "Extract 6 specific voice rules for LINKEDIN writing. LinkedIn-specific patterns to look for:",
+      "- HOOK LINE: First line pattern — bold claim, contrarian take, personal confession, question?",
+      "- POST STRUCTURE: Short lines with line breaks (LinkedIn style)? Or longer paragraphs? Numbered lists?",
+      "- PROFESSIONAL TONE: How formal vs casual? Do they use 'I' stories? Industry jargon level?",
+      "- ENGAGEMENT BAIT: Do they ask questions at the end? Use 'agree or disagree?' patterns? Poll-style?",
+      "- CTA PATTERN: 'Follow for more', 'repost if', 'comment your take', 'link in comments'?",
+      "- CONTENT MIX: Hot takes, lessons learned, client wins, personal stories, frameworks?",
+      "Each rule must be specific to how THIS coach writes on LinkedIn, not generic content advice.",
+    ]),
   ].join("\n");
 
   try {
