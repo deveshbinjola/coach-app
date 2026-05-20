@@ -341,22 +341,20 @@ function Workbench({
         )}
       </div>
 
-      {/* Training history — grows downward from the action */}
+      {/* Training history — collapsible */}
       <div className="px-5 py-4 sm:px-6 sm:py-5 border-t border-[var(--border-faint)] bg-[var(--surface-elevated)]">
-        <div className="flex items-center gap-2 mb-3">
-          <h3 className="text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)]">
-            Training history
-          </h3>
-          <span className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-            {sources.length === 0 ? "Nothing yet — add the first source above." : `Newest first · ${sources.length} saved`}
-          </span>
-        </div>
-        <TrainingHistoryPanel
-          profile={profile}
-          sources={sources}
-          onProfileChange={onProfileChange}
-          onSourcesChange={onSourcesChange}
-        />
+        <DisclosureSection
+          title="Training history"
+          description={sources.length === 0 ? "Nothing yet — add the first source above." : `Newest first · ${sources.length} saved`}
+          defaultOpen={false}
+        >
+          <TrainingHistoryPanel
+            profile={profile}
+            sources={sources}
+            onProfileChange={onProfileChange}
+            onSourcesChange={onSourcesChange}
+          />
+        </DisclosureSection>
       </div>
     </Card>
   );

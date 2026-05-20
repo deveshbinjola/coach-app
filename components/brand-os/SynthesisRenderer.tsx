@@ -341,14 +341,22 @@ function HooksCard({ s }: { s: BrandOsSynthesis }) {
       <SectionHeader label="Ship This Week" title="5 content angles, ready to draft." />
       <div className="space-y-3">
         {(s.resonance_hooks ?? []).map((h, i) => (
-          <div key={i} className="rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-4 space-y-1">
+          <div key={i} className="rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-4 space-y-2">
             <div className="flex items-start justify-between gap-2 flex-wrap">
               <h4 className="font-display font-extrabold text-[color:var(--text)] text-[length:var(--t-body)] leading-snug">
                 {i + 1}. {h.headline}
               </h4>
-              <Badge tone="muted" size="xs" uppercase>{h.pillar}</Badge>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                {h.format && <Badge tone="brand" size="xs" uppercase>{h.format}</Badge>}
+                <Badge tone="muted" size="xs" uppercase>{h.pillar}</Badge>
+              </div>
             </div>
             <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed">{h.angle}</p>
+            {h.cta && (
+              <p className="text-[length:var(--t-caption)] font-bold text-[color:var(--brand-strong)]">
+                CTA: {h.cta}
+              </p>
+            )}
           </div>
         ))}
       </div>
