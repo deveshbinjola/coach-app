@@ -434,6 +434,11 @@ export default function LeadDetail({
             {lead.source_detail && (
               <p className="text-xs text-gray-600 italic mt-0.5">{lead.source_detail}</p>
             )}
+            {lead.source_url && (
+              <a href={lead.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-green-700 hover:underline mt-0.5 block truncate max-w-[280px]" title={lead.source_url}>
+                {lead.source_url}
+              </a>
+            )}
           </div>
 
           {/* Referral chain — upstream: who sent them. */}

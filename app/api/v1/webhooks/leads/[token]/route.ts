@@ -19,6 +19,7 @@
 
 import { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { inferPainFromUrl } from "@/lib/pain-from-source";
 
 export const runtime = 'edge';
 
@@ -101,6 +102,13 @@ export async function POST(
     endpoint.default_source_detail ||
     null;
 
+  const source_url = asString(payload.source_url) ?? asString(payload.referrer_url) ?? asString(payload.landing_url) ?? null;
+
+  let pain_signal = lead.pain_signal ?? [];
+  if (pain_signal.length === 0 && source_url) {
+    pain_signal = inferPainFromUrl(source_url);
+  }
+
   const { data: inserted, error: insErr } = await admin
     .from("cp_leads")
     .insert({
@@ -110,13 +118,14 @@ export async function POST(
       phone: lead.phone,
       source,
       source_detail,
+      source_url,
       temperature: lead.temperature ?? "warm",
-      pain_signal: lead.pain_signal ?? [],
+      pain_signal,
       notes: lead.notes,
       status: "new" as const,
       auto_draft_eligible: true,
     })
-    .select("id, full_name, email, source, status, created_at")
+    .select("id, full_name, email, source, source_url, pain_signal, status, created_at")
     .single();
 
   if (insErr) {

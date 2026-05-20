@@ -99,6 +99,7 @@ export default function EditLeadForm({
     phone: lead.phone ?? "",
     source: lead.source,
     source_detail: lead.source_detail ?? "",
+    source_url: lead.source_url ?? "",
     referred_by_lead_id: lead.referred_by_lead_id ?? "",
     status: lead.status,
     temperature: lead.temperature,
@@ -139,6 +140,7 @@ export default function EditLeadForm({
       phone: form.phone.trim() || null,
       source: form.source,
       source_detail: form.source_detail.trim() || null,
+      source_url: form.source_url.trim() || null,
       referred_by_lead_id: form.referred_by_lead_id || null,
       status: form.status,
       temperature: form.temperature,
@@ -270,6 +272,22 @@ export default function EditLeadForm({
           />
           <p className="text-xs text-gray-500 mt-1">
             Know which content is bringing you leads. Keep it short and searchable.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold uppercase mb-1">
+            Source URL <span className="text-gray-400 font-normal normal-case">(page they came from)</span>
+          </label>
+          <input
+            type="url"
+            value={form.source_url}
+            onChange={(e) => setForm({ ...form, source_url: e.target.value })}
+            placeholder="e.g. https://elevateaisystem.com/blog/healing-after-heartbreak"
+            className="w-full p-2 border border-gray-300 rounded-lg"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Blog post or landing page URL. Pain signals are auto-inferred from the article topic.
           </p>
         </div>
 

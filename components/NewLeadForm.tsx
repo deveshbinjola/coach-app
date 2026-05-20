@@ -22,6 +22,7 @@ import {
   type LeadTemperature,
   type PainSignal,
 } from "@/lib/types";
+import { inferPainFromUrl } from "@/lib/pain-from-source";
 
 const SOURCES: LeadSource[] = ["ig", "linkedin", "referral", "quiz", "in_person", "podcast", "newsletter", "other"];
 
@@ -57,6 +58,7 @@ export default function NewLeadForm() {
     phone: "",
     source: "ig" as LeadSource,
     source_detail: "",
+    source_url: "",
     referred_by_lead_id: "",
     temperature: "warm" as LeadTemperature,
     notes: "",
@@ -112,6 +114,12 @@ export default function NewLeadForm() {
     // Insert + grab the new lead's ID so we can fire the auto-draft engine.
     // auto_draft_eligible defaults to true at the DB level - manual single-add
     // is a "live" source, exactly what the engine is designed for.
+    const sourceUrl = form.source_url.trim() || null;
+    let painSignal = form.pain_signal;
+    if (painSignal.length === 0 && sourceUrl) {
+      painSignal = inferPainFromUrl(sourceUrl);
+    }
+
     const { data: inserted, error } = await supabase
       .from("cp_leads")
       .insert({
@@ -120,6 +128,7 @@ export default function NewLeadForm() {
         phone: form.phone.trim() || null,
         source: form.source,
         source_detail: form.source_detail.trim() || null,
+        source_url: sourceUrl,
         // Only persist referrer link when source is 'referral' - prevents
         // accidental orphan links if the coach switches source afterwards.
         referred_by_lead_id:
@@ -129,7 +138,7 @@ export default function NewLeadForm() {
         temperature: form.temperature,
         notes: form.notes.trim() || null,
         next_honest_action: form.next_honest_action || null,
-        pain_signal: form.pain_signal,
+        pain_signal: painSignal,
         discovery_call_completed: form.discovery_call_completed,
         income_band: form.income_band || null,
         readiness_signal: form.readiness_signal || null,
@@ -209,6 +218,27 @@ export default function NewLeadForm() {
           />
           <p className="text-[11px] text-gray-500 mt-1">
             The specific post, reel, newsletter, or conversation that brought them in.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold uppercase mb-1">
+            Source URL <span className="text-gray-400 font-normal normal-case">(optional — auto-detects pain)</span>
+          </label>
+          <input
+            type="url"
+            value={form.source_url}
+            onChange={(e) => setForm({ ...form, source_url: e.target.value })}
+            placeholder="e.g. https://elevateaisystem.com/blog/healing-after-heartbreak"
+            className="w-full p-2 border border-gray-300 rounded-lg"
+          />
+          {form.source_url && inferPainFromUrl(form.source_url).length > 0 && (
+            <p className="text-[11px] text-green-600 mt-1 font-semibold">
+              Auto-detected pain: {inferPainFromUrl(form.source_url).map((p) => PAIN_SIGNAL_LABEL[p]).join(", ")}
+            </p>
+          )}
+          <p className="text-[11px] text-gray-500 mt-1">
+            Paste the blog post or landing page URL they came from. Pain signals are inferred automatically from the article topic.
           </p>
         </div>
 
