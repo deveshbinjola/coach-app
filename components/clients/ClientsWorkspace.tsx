@@ -10,6 +10,7 @@ import {
   ExternalLink,
   FileText,
   Plus,
+  Search,
   Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
@@ -63,6 +64,8 @@ export default function ClientsWorkspace({
   const [eventStartsAt, setEventStartsAt] = useState("");
   const [eventUrl, setEventUrl] = useState("");
   const [copiedFollowUpId, setCopiedFollowUpId] = useState<string | null>(null);
+  const [sessionSuccess, setSessionSuccess] = useState(false);
+  const [clientSearch, setClientSearch] = useState("");
 
   const roomByLeadId = useMemo(
     () => new Map(rooms.map((room) => [room.lead_id, room])),
@@ -166,6 +169,8 @@ export default function ClientsWorkspace({
     }
     setSessionNote("");
     setSessionTitle("Session note");
+    setSessionSuccess(true);
+    window.setTimeout(() => setSessionSuccess(false), 3500);
   }
 
   async function addTask() {
@@ -311,16 +316,32 @@ export default function ClientsWorkspace({
 
       <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
         <Card padding="none" className="overflow-hidden">
-          <div className="border-b border-[var(--border-faint)] px-4 py-4">
-            <h2 className="text-[length:var(--t-h2)] font-extrabold text-[color:var(--text)]">
-              Clients
-            </h2>
-            <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-              People who crossed from lead to client.
-            </p>
+          <div className="border-b border-[var(--border-faint)] px-4 py-4 space-y-3">
+            <div>
+              <h2 className="text-[length:var(--t-h2)] font-extrabold text-[color:var(--text)]">
+                Clients
+              </h2>
+              <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+                People who crossed from lead to client.
+              </p>
+            </div>
+            {leads.length > 4 && (
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--text-faint)]" aria-hidden />
+                <input
+                  type="text"
+                  value={clientSearch}
+                  onChange={(e) => setClientSearch(e.target.value)}
+                  placeholder="Search clients…"
+                  className="w-full rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] py-2 pl-9 pr-3 text-[length:var(--t-caption)] text-[color:var(--text)] outline-none placeholder:text-[color:var(--text-faint)] focus:border-[var(--brand-strong)]"
+                />
+              </div>
+            )}
           </div>
           <div className="divide-y divide-[var(--border-faint)]">
-            {leads.map((lead) => {
+            {leads.filter((lead) =>
+              !clientSearch.trim() || lead.full_name.toLowerCase().includes(clientSearch.trim().toLowerCase())
+            ).map((lead) => {
               const room = roomByLeadId.get(lead.id);
               const active = selectedLead?.id === lead.id;
               const openTaskCount = room
@@ -436,10 +457,16 @@ export default function ClientsWorkspace({
                     <Button
                       onClick={addSession}
                       disabled={!sessionNote.trim() || saving === "session"}
-                      leadingIcon={<Plus size={15} />}
+                      leadingIcon={saving === "session" ? <Sparkles size={15} className="animate-pulse" /> : <Plus size={15} />}
                     >
-                      {saving === "session" ? "Extracting..." : "Add session memory"}
+                      {saving === "session" ? "AI is extracting insights…" : "Add session memory"}
                     </Button>
+                    {sessionSuccess && (
+                      <div className="flex items-center gap-2 rounded-[var(--r-md)] border border-[color-mix(in_srgb,var(--brand)_40%,var(--border))] bg-[var(--brand-soft)] px-3 py-2 text-[length:var(--t-caption)] font-bold text-[color:var(--brand-strong)] animate-in fade-in slide-in-from-bottom-1">
+                        <Check size={14} aria-hidden />
+                        Session saved — wins, blockers, and homework extracted.
+                      </div>
+                    )}
                   </Card>
 
                   <Card padding="none" className="overflow-hidden">

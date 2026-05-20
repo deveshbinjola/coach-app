@@ -825,9 +825,14 @@ export default function ContentWorkspace({
                   The draft is not starting from a blank prompt.
                 </p>
               </div>
-              <Badge tone={profile ? "brand" : "warning"} size="xs" uppercase>
-                {profile ? "Voice active" : "Voice needed"}
-              </Badge>
+              {profile ? (
+                <Badge tone="brand" size="xs" uppercase>Voice active</Badge>
+              ) : (
+                <a href="/voice" className="inline-flex items-center gap-1.5 rounded-full bg-[var(--warning-soft)] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--warning)] transition hover:bg-[color-mix(in_srgb,var(--warning)_18%,transparent)]">
+                  Voice needed — set up
+                  <ArrowRight size={11} aria-hidden />
+                </a>
+              )}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -1083,8 +1088,30 @@ export default function ContentWorkspace({
           </div>
         </div>
         {libraryItems.length === 0 ? (
-          <div className="px-5 py-10 text-center text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-            {contentView === "archived" ? "No archived drafts yet." : "Your strongest drafts will collect here."}
+          <div className="px-5 py-12 text-center">
+            {contentView === "archived" ? (
+              <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">No archived drafts yet.</p>
+            ) : (
+              <div className="mx-auto max-w-sm space-y-3">
+                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[var(--brand-soft)]">
+                  <FileText size={18} className="text-[color:var(--brand-strong)]" aria-hidden />
+                </div>
+                <p className="text-[length:var(--t-body)] font-extrabold text-[color:var(--text)]">
+                  No drafts yet
+                </p>
+                <p className="text-[length:var(--t-caption)] leading-[var(--leading-relaxed)] text-[color:var(--text-muted)]">
+                  Head to The Desk above, pick a format, and generate your first draft. It lands here automatically.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("draft-room")?.scrollIntoView({ behavior: "smooth" })}
+                  className="inline-flex items-center gap-1.5 rounded-[var(--r-md)] bg-[var(--brand)] px-4 py-2 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[var(--brand-strong)]"
+                >
+                  <ArrowRight size={14} className="rotate-[-90deg]" aria-hidden />
+                  Go to The Desk
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <ul className="divide-y divide-[var(--border-faint)]">
