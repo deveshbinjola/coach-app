@@ -17,6 +17,8 @@ export default function VoiceMicInput({ onTranscript, disabled = false, classNam
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  const onTranscriptRef = useRef(onTranscript);
+  onTranscriptRef.current = onTranscript;
 
   useEffect(() => {
     return () => {
@@ -85,7 +87,7 @@ export default function VoiceMicInput({ onTranscript, disabled = false, classNam
         return;
       }
 
-      onTranscript(data.transcript);
+      onTranscriptRef.current(data.transcript);
       setState("idle");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Network error");
