@@ -178,10 +178,11 @@ async function handleExtract(
     .from("cp_brand_os_runs")
     .insert({
       coach_id: coachId,
-      status: "completed",
+      state: "in_progress",
       source: "voice_discovery",
-      current_module: "broadcast",
-      answers_json: extracted,
+      variant: "mvp",
+      audience: body.audience === "M" ? "M" : body.audience === "W" ? "W" : "X",
+      current_module: "preflight",
     })
     .select("id")
     .single();
@@ -190,7 +191,7 @@ async function handleExtract(
     return NextResponse.json({ error: "Failed to create run" }, { status: 500 });
   }
 
-  const answerRows = flattenToAnswers(extracted, run.id, coachId);
+  const answerRows = flattenToAnswers(extracted, run.id);
   if (answerRows.length > 0) {
     await dbClient.from("cp_brand_os_answers").insert(answerRows);
   }
@@ -201,7 +202,6 @@ async function handleExtract(
 function flattenToAnswers(
   extracted: Record<string, unknown>,
   runId: string,
-  coachId: string,
 ): Array<Record<string, unknown>> {
   const rows: Array<Record<string, unknown>> = [];
   const modules: Record<string, string> = {
@@ -217,10 +217,9 @@ function flattenToAnswers(
     if (value == null) continue;
     rows.push({
       run_id: runId,
-      coach_id: coachId,
       module: modules[key] ?? "preflight",
-      question_key: key,
-      answer: typeof value === "string" ? value : JSON.stringify(value),
+      question_id: key,
+      raw_text: typeof value === "string" ? value : JSON.stringify(value),
     });
   }
 

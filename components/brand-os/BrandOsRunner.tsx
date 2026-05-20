@@ -21,6 +21,7 @@ import {
   type Question,
 } from "@/lib/brand-os/questions";
 import { detectPushBack, triggerForQuestion } from "@/lib/brand-os/pushback";
+import VoiceMicInput from "@/components/VoiceMicInput";
 
 // Mirror of /api/trial/[token]/persist op union. Kept inline to avoid an
 // import cycle through the route file.
@@ -836,13 +837,19 @@ function QuestionInput({
 
   if (question.kind === "text") {
     return (
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full h-12 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none"
-      />
+      <div className="relative">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full h-12 px-3 pr-10 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none"
+        />
+        <VoiceMicInput
+          onTranscript={(t) => onChange(value ? `${value} ${t}` : t)}
+          className="absolute right-2 top-1/2 -translate-y-1/2"
+        />
+      </div>
     );
   }
 
@@ -866,13 +873,19 @@ function QuestionInput({
 
   if (question.kind === "longtext") {
     return (
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        rows={8}
-        className="w-full px-3 py-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none leading-[var(--leading-relaxed)]"
-      />
+      <div className="relative">
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          rows={8}
+          className="w-full px-3 py-3 pr-10 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none leading-[var(--leading-relaxed)]"
+        />
+        <VoiceMicInput
+          onTranscript={(t) => onChange(value ? `${value}\n\n${t}` : t)}
+          className="absolute right-2 top-3"
+        />
+      </div>
     );
   }
 
@@ -892,13 +905,19 @@ function QuestionInput({
     const target = question.listTarget ?? 5;
     return (
       <div className="space-y-2">
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder ?? `One per line. Aim for ${target}.`}
-          rows={Math.max(4, target)}
-          className="w-full px-3 py-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none leading-[var(--leading-relaxed)]"
-        />
+        <div className="relative">
+          <textarea
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder ?? `One per line. Aim for ${target}.`}
+            rows={Math.max(4, target)}
+            className="w-full px-3 py-3 pr-10 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] text-[color:var(--text)] focus:border-[var(--brand-strong)] focus:outline-none leading-[var(--leading-relaxed)]"
+          />
+          <VoiceMicInput
+            onTranscript={(t) => onChange(value ? `${value}\n${t}` : t)}
+            className="absolute right-2 top-3"
+          />
+        </div>
         <p className="text-[length:var(--t-caption)] text-[color:var(--text-faint)]">
           {value.split("\n").filter((l) => l.trim().length > 0).length} / {target}
         </p>

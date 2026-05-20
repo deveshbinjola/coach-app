@@ -163,7 +163,7 @@ export async function enforceOnboardingGate(
   // brand-os-only on this page load (lazy expiration).
   const { data: planRow } = await supabase
     .from("cp_coaches")
-    .select("plan, trial_ends_at")
+    .select("plan, trial_ends_at, onboarding_completed_at")
     .eq("id", coachId)
     .maybeSingle();
   const trialExpired =
@@ -178,9 +178,10 @@ export async function enforceOnboardingGate(
       .update({ plan: "trial", updated_at: new Date().toISOString() })
       .eq("id", coachId);
   }
-  if (planRow?.plan === "trial" || trialExpired) {
-    // Trial users go to Brand OS run state, not the regular onboarding
-    // (no /onboarding reality questions for the $7 path).
+  if ((planRow?.plan === "trial" || trialExpired) && !planRow?.onboarding_completed_at) {
+    // Trial-only gate: $7 trip-wire buyers who haven't completed full
+    // onboarding are scoped to Brand OS surfaces only. Coaches who
+    // finished onboarding (e.g. founder, upgraded users) get full access.
     const { resolveBrandOsRunState } = await import("@/lib/brand-os/run-state");
     const rs = await resolveBrandOsRunState(supabase, coachId);
     if (rs.kind === "complete")              return `/brand-os/run/${rs.runId}/output`;
