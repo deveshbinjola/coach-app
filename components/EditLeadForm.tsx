@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
+import VoiceMicInput from "@/components/VoiceMicInput";
 import {
   INCOME_BAND_LABEL,
   LEAD_INCOME_BANDS,
@@ -514,13 +515,19 @@ export default function EditLeadForm({
             <label className="block text-xs font-semibold uppercase mb-1">
               Fit Notes <span className="text-gray-400 font-normal">(qualitative read)</span>
             </label>
-            <textarea
-              value={form.fit_notes}
-              onChange={(e) => setForm({ ...form, fit_notes: e.target.value })}
-              rows={2}
-              placeholder="Your read, not the data, the feel. 'Nervous about cost', 'wife on board', etc."
-              className="w-full p-2 border border-gray-300 rounded-lg text-sm"
-            />
+            <div className="relative">
+              <textarea
+                value={form.fit_notes}
+                onChange={(e) => setForm({ ...form, fit_notes: e.target.value })}
+                rows={2}
+                placeholder="Your read, not the data, the feel. 'Nervous about cost', 'wife on board', etc."
+                className="w-full p-2 pr-10 border border-gray-300 rounded-lg text-sm"
+              />
+              <VoiceMicInput
+                onTranscript={(t) => setForm((f) => ({ ...f, fit_notes: f.fit_notes ? f.fit_notes + " " + t : t }))}
+                className="absolute top-1.5 right-1.5"
+              />
+            </div>
           </div>
           <div className="mt-3">
             <label className="block text-xs font-semibold uppercase mb-1">
@@ -551,7 +558,12 @@ export default function EditLeadForm({
             for back-compat; no UI surface. */}
 
         <div>
-          <label className="block text-xs font-semibold uppercase mb-1">Notes</label>
+          <label className="flex items-center gap-2 text-xs font-semibold uppercase mb-1">
+            Notes
+            <VoiceMicInput
+              onTranscript={(t) => setForm((f) => ({ ...f, notes: f.notes ? f.notes + " " + t : t }))}
+            />
+          </label>
           <textarea
             value={form.notes}
             onChange={(e) => setForm({ ...form, notes: e.target.value })}

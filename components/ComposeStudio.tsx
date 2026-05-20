@@ -23,6 +23,7 @@ import { computeLeadScore, sortByScore, scoreTier, SCORE_TIER_CLASS } from "@/li
 import { computeWasEdited, scoreVoiceFit } from "@/lib/voice-trust";
 import VoiceFitPanel from "@/components/VoiceFitPanel";
 import { Badge, Button, useError, useConfirm } from "@/components/ui";
+import VoiceCompose from "@/components/VoiceCompose";
 
 const STATUSES: LeadStatus[] = ["new", "contacted", "qualified", "booked", "client", "closed_lost"];
 const STATUS_LABEL: Record<LeadStatus, string> = {
@@ -507,9 +508,20 @@ export default function ComposeStudio({
                 : "Write once. Personalize per lead."}
             </p>
           </div>
-          <Button onClick={generateDraft} disabled={matched.length === 0 || drafting}>
-            {drafting ? "Drafting..." : matched.length === 0 ? "No leads matched" : "AI draft"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={generateDraft} disabled={matched.length === 0 || drafting}>
+              {drafting ? "Drafting..." : matched.length === 0 ? "No leads matched" : "AI draft"}
+            </Button>
+            <VoiceCompose
+              purpose="dm"
+              leadName={matched[0]?.full_name ?? ""}
+              onDraft={(draft, _transcript) => {
+                setTemplate(draft);
+                setOriginalAiTemplate(draft);
+              }}
+              disabled={matched.length === 0}
+            />
+          </div>
         </div>
 
         {segmentIntent && (

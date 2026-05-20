@@ -38,6 +38,7 @@ import { brandKitFromSettings, fontFamilyStack, googleFontsHref, readableTextOn,
 import BrandOsPillarStrip, { type ResonanceHook, type StripPillar } from "@/components/content/BrandOsPillarStrip";
 import BuyerMirrorBanner, { type BuyerMirror } from "@/components/content/BuyerMirrorBanner";
 import VoiceRetuneBanner from "@/components/content/VoiceRetuneBanner";
+import VoiceCompose from "@/components/VoiceCompose";
 import EditorialMasthead from "@/components/content/EditorialMasthead";
 import EditorialSectionHeader from "@/components/content/EditorialSectionHeader";
 import SacredZonesInline from "@/components/content/SacredZonesInline";
@@ -801,6 +802,16 @@ export default function ContentWorkspace({
                 ? "Drafting"
                 : `Draft ${selected.title}`}
           </Button>
+          <VoiceCompose
+            purpose={selectedKind === "instagram_caption" ? "caption" : selectedKind === "carousel" ? "carousel" : selectedKind === "newsletter" ? "newsletter" : "content"}
+            context={angle}
+            onDraft={(draft, transcript) => {
+              setAngle(transcript);
+              void generateDraft();
+            }}
+            label="Talk it"
+            disabled={drafting}
+          />
         </Card>
 
         <div className="space-y-4">
