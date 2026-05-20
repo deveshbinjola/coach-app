@@ -58,7 +58,9 @@ export type BrandOsSynthesis = {
     headline: string;
     angle: string;
     pillar: string;                  // which pillar it belongs to
-  }>; // 5 ship-this-week content angles
+    format: string;                  // "carousel" | "reel" | "caption" | "newsletter" | "story"
+    cta: string;                     // specific call-to-action for this format
+  }>; // 5 ship-this-week content angles — each a DIFFERENT format
 
   // ── Strengths / Gaps ───────────────────────────────────
   strengths: string[];               // 3–5 things already strong
@@ -257,7 +259,7 @@ QUALITY BAR
 - "Voice DNA" comes from reading their signal.q1 writing samples. signature_moves are things THIS coach does that a generic AI mimicker wouldn't. vocab_yes / vocab_no are observed, not aspirational.
 - "Pillars" come from their stance.q3 JSON if present (look for {scores:[{candidate, depth, pull, anchor}]} — keep the 3 with highest totals). Each pillar gets an enemy (what it pushes against) and proof (their evidence).
 - "Keywords" are SEO + content-engine keywords a coach in their lane should be claiming. 12–18 of them. Mix head terms and long-tail.
-- "Resonance hooks" are 5 specific content angles they could ship in the next 7 days. Use their pillar names. Use their vocab. Headline + 1-line angle + pillar tag.
+- "Resonance hooks" are 5 specific content angles they could ship in the next 7 days. CRITICAL: Each hook MUST be a DIFFERENT format — one carousel, one reel, one caption, one newsletter, one story. The angle, headline, and CTA must be tailored to that specific format (e.g. a carousel hook should be structured as slides, a reel should be a hook-to-punchline arc, a newsletter should be a teaching angle, a story should be a quick poll or behind-the-scenes moment). Each hook needs: headline + angle + pillar + format + cta (a specific call-to-action appropriate for that format — "Save this for later" for carousel, "Link in bio" for caption, "Reply and tell me" for newsletter, etc.).
 - "Strengths" / "Gaps" are honest. Don't sycophant. If their positioning is generic, say so in "gaps" and in "what_not".
 - "Next steps" are 3 actions: action + why + when. Specific.
 
@@ -285,7 +287,7 @@ STRICT OUTPUT: Return ONLY a single JSON object matching this exact shape:
   ],
   "keywords": ["string", ...],
   "resonance_hooks": [
-    { "headline": "string", "angle": "string", "pillar": "string" }
+    { "headline": "string", "angle": "string", "pillar": "string", "format": "carousel|reel|caption|newsletter|story", "cta": "string" }
   ],
   "strengths": ["string", ...],
   "gaps": ["string", ...],
