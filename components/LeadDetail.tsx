@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
+import VoiceMicInput from "@/components/VoiceMicInput";
 import {
   NEXT_ACTION_LABEL,
   PAIN_SIGNAL_LABEL,
@@ -674,13 +675,19 @@ export default function LeadDetail({
               {drafting ? "Drafting…" : "AI Draft (in your voice)"}
             </Button>
           </div>
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows={6}
-            className="w-full p-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] text-[color:var(--text)] leading-[var(--leading-base)] focus:outline-none focus:border-[var(--brand-strong)]"
-            placeholder="Click 'AI Draft' to generate, or write from scratch..."
-          />
+          <div className="relative">
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              rows={6}
+              className="w-full p-3 pr-10 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] text-[color:var(--text)] leading-[var(--leading-base)] focus:outline-none focus:border-[var(--brand-strong)]"
+              placeholder="Click 'AI Draft' to generate, or write from scratch..."
+            />
+            <VoiceMicInput
+              onTranscript={(t) => setDraft((prev) => prev ? prev + " " + t : t)}
+              className="absolute top-2 right-2"
+            />
+          </div>
           <VoiceFitPanel
             fit={voiceFit}
             onImprove={improveDraftVoice}
@@ -1008,12 +1015,18 @@ function FirstResponseDraftPanel({
           )}
         </div>
 
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          rows={Math.max(5, Math.min(12, text.split("\n").length + 2))}
-          className="w-full p-3 rounded-[var(--r-md)] border border-[color-mix(in_srgb,var(--brand)_40%,transparent)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] text-[color:var(--text)] leading-[var(--leading-relaxed)] focus:outline-none focus:border-[var(--brand-strong)]"
-        />
+        <div className="relative">
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            rows={Math.max(5, Math.min(12, text.split("\n").length + 2))}
+            className="w-full p-3 pr-10 rounded-[var(--r-md)] border border-[color-mix(in_srgb,var(--brand)_40%,transparent)] bg-[var(--surface-elevated)] text-[length:var(--t-body)] text-[color:var(--text)] leading-[var(--leading-relaxed)] focus:outline-none focus:border-[var(--brand-strong)]"
+          />
+          <VoiceMicInput
+            onTranscript={(t) => setText((prev) => prev ? prev + " " + t : t)}
+            className="absolute top-2 right-2"
+          />
+        </div>
 
         <div className="flex items-center gap-2 mt-3 flex-wrap">
           <Button

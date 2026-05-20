@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
+import VoiceMicInput from "@/components/VoiceMicInput";
 import {
   INCOME_BAND_LABEL,
   LEAD_INCOME_BANDS,
@@ -341,7 +342,12 @@ export default function NewLeadForm() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase mb-1">Notes</label>
+          <label className="flex items-center gap-2 text-xs font-semibold uppercase mb-1">
+            Notes
+            <VoiceMicInput
+              onTranscript={(t) => setForm((f) => ({ ...f, notes: f.notes ? f.notes + " " + t : t }))}
+            />
+          </label>
           <textarea
             value={form.notes}
             onChange={(e) => setForm({ ...form, notes: e.target.value })}

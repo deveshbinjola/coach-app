@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase-server";
 import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import { Badge, Button, Card } from "@/components/ui";
+import { Mic } from "lucide-react";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -98,10 +99,35 @@ export default async function BrandOsLanding() {
           </section>
         )}
 
+        {/* Start with Voice */}
+        <section className="mb-8">
+          <Link
+            href="/brand-os/voice-discovery"
+            className="block rounded-[var(--r-lg)] border-2 border-[var(--brand)] bg-[var(--surface-elevated)] px-5 py-4 hover:bg-[color-mix(in_srgb,var(--brand)_8%,var(--surface-elevated))] transition"
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[var(--brand)] flex items-center justify-center">
+                <Mic className="w-5 h-5 text-[color:var(--surface)]" />
+              </div>
+              <div>
+                <h3 className="font-bold text-[length:var(--t-h2)] text-[color:var(--text)] leading-[var(--leading-tight)]">
+                  Start with Voice
+                </h3>
+                <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-relaxed)]">
+                  Have a conversation instead of filling out forms. Talk about your brand and the AI builds your Brand OS from what you say.
+                </p>
+              </div>
+              <span className="text-[color:var(--brand-strong)] text-[length:var(--t-caption)] font-bold ml-auto flex-shrink-0">
+                Start →
+              </span>
+            </div>
+          </Link>
+        </section>
+
         {/* Start new */}
         <section className="mb-8 space-y-3">
           <h2 className="text-[length:var(--t-label)] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
-            Start a new run
+            Or start a written run
           </h2>
           <div className="grid sm:grid-cols-2 gap-3">
             <form action="/brand-os/start" method="POST" id="start-full" className="scroll-mt-8">

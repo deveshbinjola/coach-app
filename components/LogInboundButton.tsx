@@ -12,6 +12,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
+import VoiceMicInput from "@/components/VoiceMicInput";
 import type { Lead, LeadMessage, MessageChannel } from "@/lib/types";
 
 type Props = {
@@ -141,14 +142,21 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
         </div>
       </div>
 
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        rows={3}
-        disabled={saving}
-        placeholder="What did they say? (optional — leave blank to just log that a reply came in)"
-        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
-      />
+      <div className="relative">
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          rows={3}
+          disabled={saving}
+          placeholder="What did they say? (optional — leave blank to just log that a reply came in)"
+          className="w-full p-2.5 pr-10 border border-gray-300 rounded-lg text-sm"
+        />
+        <VoiceMicInput
+          onTranscript={(t) => setContent((prev) => prev ? prev + " " + t : t)}
+          disabled={saving}
+          className="absolute top-2 right-2"
+        />
+      </div>
 
       <div className="flex justify-end mt-3 gap-2">
         <button
