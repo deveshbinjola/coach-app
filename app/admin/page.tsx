@@ -150,6 +150,20 @@ function ago(iso: string) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+/* ─── SVG donut chart ─── */
+
+function DonutChart({ pct, size = 120, stroke = 10, color = "#00FF41" }: { pct: number; size?: number; stroke?: number; color?: string }) {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const offset = c - (pct / 100) * c;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(-90deg)" }}>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round" style={{ transition: "stroke-dashoffset 0.6s ease" }} />
+    </svg>
+  );
+}
+
 /* ─── SOP viewer ─── */
 
 function SopViewer({ sop, onBack }: { sop: SopItem; onBack: () => void }) {
@@ -182,20 +196,17 @@ function SopViewer({ sop, onBack }: { sop: SopItem; onBack: () => void }) {
 
 function SopGrid({ onSelect }: { onSelect: (sop: SopItem) => void }) {
   return (
-    <div className="adm-sop-grid">
+    <div className="adm-content">
       <div className="adm-sop-intro">
-        <h2 className="adm-section-title">Standard Operating Procedures</h2>
-        <p className="adm-sop-subtitle">
-          12 playbooks covering platform operations, sales, content, and support.
-          Share this admin page with new team members for instant access.
-        </p>
+        <h2 className="adm-h2">Standard Operating Procedures</h2>
+        <p className="adm-subtitle">12 playbooks covering platform operations, sales, content, and support.</p>
       </div>
       {SOP_CATEGORIES.map((cat) => (
         <div key={cat.label} className="adm-sop-category">
           <div className="adm-sop-category-header">
             <div className="adm-sop-category-dot" style={{ background: cat.color }} />
             <h3 className="adm-sop-category-label">{cat.label}</h3>
-            <span className="adm-sop-category-count">{cat.items.length}</span>
+            <span className="adm-count-pill">{cat.items.length}</span>
           </div>
           <div className="adm-sop-cards">
             {cat.items.map((sop) => (
@@ -222,31 +233,24 @@ function SopGrid({ onSelect }: { onSelect: (sop: SopItem) => void }) {
 
 function SquadTab() {
   return (
-    <div className="adm-squad">
+    <div className="adm-content">
       <div className="adm-sop-intro">
-        <h2 className="adm-section-title">Agent Squad</h2>
-        <p className="adm-sop-subtitle">
-          5 AI agents running operations, content, research, customer intel, and QA.
-        </p>
+        <h2 className="adm-h2">Agent Squad</h2>
+        <p className="adm-subtitle">5 AI agents running operations, content, research, customer intel, and QA.</p>
       </div>
       <div className="adm-squad-grid">
         {AGENTS.map((a) => (
-          <div key={a.name} className="adm-agent-card">
+          <div key={a.name} className="adm-agent-card" style={{ borderTopColor: a.color }}>
             <div className="adm-agent-header">
-              <div className="adm-agent-avatar" style={{ background: a.color }}>
-                {a.icon}
-              </div>
-              <div className="adm-agent-meta">
+              <div className="adm-agent-avatar" style={{ background: a.color }}>{a.icon}</div>
+              <div>
                 <div className="adm-agent-name">{a.name}</div>
                 <span className={`adm-badge ${a.status === "live" ? "adm-badge-success" : "adm-badge-neutral"}`}>{a.status}</span>
               </div>
             </div>
             <p className="adm-agent-role">{a.role}</p>
             <div className="adm-agent-cadence">
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.2"/>
-                <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-              </svg>
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.2"/><path d="M8 4.5V8l2.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
               {a.cadence}
             </div>
           </div>
@@ -256,21 +260,7 @@ function SquadTab() {
   );
 }
 
-/* ─── Bento overview ─── */
-
-function BentoIcon({ type }: { type: string }) {
-  const icons: Record<string, JSX.Element> = {
-    coaches: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-    leads: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
-    revenue: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
-    brandos: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>,
-    payments: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
-    onboarded: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
-    offerings: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>,
-    stripe: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>,
-  };
-  return icons[type] ?? null;
-}
+/* ─── Overview tab ─── */
 
 function OverviewTab({
   data,
@@ -300,79 +290,170 @@ function OverviewTab({
   const coachesNoRun = data.coaches.filter((c) => !coachesWithRuns.has(c.id));
 
   const stripeActive = data.stripeAccounts.filter((s) => s.charges_enabled).length;
-  const totalOfferings = data.offerings.length;
 
   const bosRate = data.coaches.length > 0
     ? Math.round((bosComplete.length / data.coaches.length) * 100)
     : 0;
 
   return (
-    <>
-      {/* ── Bento metrics grid ── */}
-      <div className="adm-bento">
-        <div className="adm-bento-card adm-bento-wide">
-          <div className="adm-bento-icon"><BentoIcon type="coaches" /></div>
-          <div className="adm-bento-num">{data.coaches.length}</div>
-          <div className="adm-bento-label">Total Coaches</div>
-          <div className="adm-bento-sub">{activeThisWeek} onboarded this week</div>
+    <div className="adm-content">
+      {/* ── Hero ── */}
+      <div className="adm-hero">
+        <div className="adm-hero-text">
+          <div className="adm-hero-eyebrow">PLATFORM OVERVIEW</div>
+          <h1 className="adm-hero-title">
+            Your <span className="adm-green">ElevateAI</span><br/>at a glance.
+          </h1>
+          <p className="adm-hero-desc">Every coach tracked, every Brand OS run monitored, every dollar accounted for.</p>
         </div>
-        <div className="adm-bento-card">
-          <div className="adm-bento-icon"><BentoIcon type="leads" /></div>
-          <div className="adm-bento-num">{data.totalLeads.toLocaleString()}</div>
-          <div className="adm-bento-label">Total Leads</div>
-        </div>
-        <div className="adm-bento-card">
-          <div className="adm-bento-icon" style={{ color: "#0B6E23" }}><BentoIcon type="revenue" /></div>
-          <div className="adm-bento-num" style={{ color: "var(--success)" }}>{fmt(data.totalRevenue)}</div>
-          <div className="adm-bento-label">Total Revenue</div>
-        </div>
-        <div className="adm-bento-card adm-bento-wide">
-          <div className="adm-bento-icon" style={{ color: "#7C3AED" }}><BentoIcon type="brandos" /></div>
-          <div className="adm-bento-num">{data.brandOsRuns.length}</div>
-          <div className="adm-bento-label">Brand OS Runs</div>
-          <div className="adm-bento-sub">{bosRate}% completion rate</div>
-          <div className="adm-bento-pills">
-            <span className="adm-pill adm-pill-warning">{bosInProgress.length} in progress</span>
-            <span className="adm-pill adm-pill-brand">{bosMvp.length} MVP</span>
-            <span className="adm-pill adm-pill-success">{bosFull.length} full</span>
-            {bosAbandoned.length > 0 && <span className="adm-pill adm-pill-danger">{bosAbandoned.length} abandoned</span>}
-            {coachesNoRun.length > 0 && <span className="adm-pill adm-pill-neutral">{coachesNoRun.length} never started</span>}
+        <div className="adm-hero-focus">
+          <div className="adm-hero-focus-eyebrow">BRAND OS COMPLETION</div>
+          <div className="adm-hero-focus-row">
+            <DonutChart pct={bosRate} size={80} stroke={8} />
+            <div className="adm-hero-focus-detail">
+              <div className="adm-hero-focus-pct">{bosRate}%</div>
+              <div className="adm-hero-focus-sub">{bosComplete.length} of {data.coaches.length} coaches</div>
+            </div>
           </div>
-        </div>
-        <div className="adm-bento-card">
-          <div className="adm-bento-icon"><BentoIcon type="payments" /></div>
-          <div className="adm-bento-num">{data.payments.length}</div>
-          <div className="adm-bento-label">Recent Payments</div>
-        </div>
-        <div className="adm-bento-card">
-          <div className="adm-bento-icon"><BentoIcon type="offerings" /></div>
-          <div className="adm-bento-num">{totalOfferings}</div>
-          <div className="adm-bento-label">Offerings</div>
-        </div>
-        <div className="adm-bento-card">
-          <div className="adm-bento-icon"><BentoIcon type="stripe" /></div>
-          <div className="adm-bento-num">{stripeActive}</div>
-          <div className="adm-bento-label">Stripe Active</div>
-          <div className="adm-bento-sub">{data.stripeAccounts.length} connected</div>
+          <div className="adm-hero-focus-bar">
+            <div className="adm-hero-focus-fill" style={{ width: `${bosRate}%` }} />
+          </div>
         </div>
       </div>
 
-      {/* ── Brand OS runs table ── */}
+      {/* ── Metric strip ── */}
+      <div className="adm-metric-strip">
+        <div className="adm-kpi adm-kpi-primary">
+          <div className="adm-kpi-label">Total Coaches</div>
+          <div className="adm-kpi-num">{data.coaches.length}</div>
+          <div className="adm-kpi-trend adm-kpi-trend-up">+{activeThisWeek} this week</div>
+        </div>
+        <div className="adm-kpi" style={{ borderTopColor: "#0EA5E9" }}>
+          <div className="adm-kpi-label">Total Leads</div>
+          <div className="adm-kpi-num" style={{ color: "#0EA5E9" }}>{data.totalLeads.toLocaleString()}</div>
+        </div>
+        <div className="adm-kpi" style={{ borderTopColor: "#00FF41" }}>
+          <div className="adm-kpi-label">Revenue</div>
+          <div className="adm-kpi-num" style={{ color: "#00FF41" }}>{fmt(data.totalRevenue)}</div>
+        </div>
+        <div className="adm-kpi" style={{ borderTopColor: "#7C3AED" }}>
+          <div className="adm-kpi-label">Brand OS Runs</div>
+          <div className="adm-kpi-num" style={{ color: "#7C3AED" }}>{data.brandOsRuns.length}</div>
+        </div>
+        <div className="adm-kpi" style={{ borderTopColor: "#F59E0B" }}>
+          <div className="adm-kpi-label">Payments</div>
+          <div className="adm-kpi-num" style={{ color: "#F59E0B" }}>{data.payments.length}</div>
+        </div>
+        <div className="adm-kpi" style={{ borderTopColor: "#EF4444" }}>
+          <div className="adm-kpi-label">Stripe Active</div>
+          <div className="adm-kpi-num" style={{ color: "#EF4444" }}>{stripeActive}</div>
+        </div>
+      </div>
+
+      {/* ── Active stack ── */}
+      <div className="adm-stack-row">
+        <span className="adm-stack-label">ACTIVE STACK</span>
+        {AGENTS.map((a) => (
+          <span key={a.name} className="adm-stack-pill" style={{ borderColor: a.color }}>
+            <span className="adm-stack-dot" style={{ background: a.color }} />
+            {a.name}
+            <span className="adm-stack-role">{a.role.split("—")[0].trim().toLowerCase()}</span>
+          </span>
+        ))}
+      </div>
+
+      {/* ── Dashboard grid: Brand OS + Coaches + Payments ── */}
+      <div className="adm-dash-grid">
+        {/* Brand OS breakdown */}
+        <div className="adm-card adm-card-brandos">
+          <div className="adm-card-header">
+            <h3 className="adm-card-title">Brand OS Progress</h3>
+            <span className="adm-count-pill">{data.brandOsRuns.length} runs</span>
+          </div>
+          <div className="adm-brandos-chart">
+            <div className="adm-brandos-donut">
+              <DonutChart pct={bosRate} size={140} stroke={14} />
+              <div className="adm-brandos-center">
+                <div className="adm-brandos-center-pct">{bosRate}%</div>
+                <div className="adm-brandos-center-label">Complete</div>
+              </div>
+            </div>
+            <div className="adm-brandos-legend">
+              <div className="adm-legend-item"><span className="adm-legend-dot" style={{ background: "#00FF41" }} /><span>Complete</span><strong>{bosComplete.length}</strong></div>
+              <div className="adm-legend-item"><span className="adm-legend-dot" style={{ background: "#F59E0B" }} /><span>In Progress</span><strong>{bosInProgress.length}</strong></div>
+              <div className="adm-legend-item"><span className="adm-legend-dot" style={{ background: "#7C3AED" }} /><span>MVP</span><strong>{bosMvp.length}</strong></div>
+              <div className="adm-legend-item"><span className="adm-legend-dot" style={{ background: "#EF4444" }} /><span>Abandoned</span><strong>{bosAbandoned.length}</strong></div>
+              <div className="adm-legend-item"><span className="adm-legend-dot" style={{ background: "#64748B" }} /><span>Never Started</span><strong>{coachesNoRun.length}</strong></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent coaches */}
+        <div className="adm-card">
+          <div className="adm-card-header">
+            <h3 className="adm-card-title">Coaches</h3>
+            <span className="adm-count-pill">{data.coaches.length}</span>
+          </div>
+          <div className="adm-card-list">
+            {data.coaches.slice(0, 6).map((c) => {
+              const stripe = stripeMap[c.id];
+              return (
+                <div key={c.id} className="adm-list-row">
+                  <div className="adm-list-avatar">{(c.full_name ?? c.email)[0].toUpperCase()}</div>
+                  <div className="adm-list-info">
+                    <div className="adm-list-name">{c.full_name ?? "—"}</div>
+                    <div className="adm-list-sub">{c.business_name ?? c.email}</div>
+                  </div>
+                  <div className="adm-list-right">
+                    <span className={`adm-badge ${stripe?.charges_enabled ? "adm-badge-success" : c.plan === "founding" ? "adm-badge-brand" : "adm-badge-neutral"}`}>
+                      {c.plan}
+                    </span>
+                    <span className="adm-list-date">{ago(c.created_at)}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Payments */}
+        <div className="adm-card">
+          <div className="adm-card-header">
+            <h3 className="adm-card-title">Recent Payments</h3>
+            <span className="adm-count-pill">{fmt(data.totalRevenue)}</span>
+          </div>
+          {data.payments.length === 0 ? (
+            <p className="adm-empty">No payments yet.</p>
+          ) : (
+            <div className="adm-card-list">
+              {data.payments.slice(0, 6).map((p) => (
+                <div key={p.id} className="adm-list-row">
+                  <div className="adm-list-avatar" style={{ background: p.status === "completed" ? "#0B6E23" : "#B45309" }}>$</div>
+                  <div className="adm-list-info">
+                    <div className="adm-list-name">{p.customer_email ?? "—"}</div>
+                    <div className="adm-list-sub">{ago(p.created_at)}</div>
+                  </div>
+                  <div className="adm-list-right">
+                    <span className={`adm-badge ${p.status === "completed" ? "adm-badge-success" : "adm-badge-warning"}`}>{p.status}</span>
+                    <span className="adm-list-amount">{fmt(p.amount_cents)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Full tables (collapsible) ── */}
       {data.brandOsRuns.length > 0 && (
-        <section className="adm-section">
-          <h2 className="adm-section-title">Brand OS Runs</h2>
+        <div className="adm-card adm-card-full">
+          <div className="adm-card-header">
+            <h3 className="adm-card-title">All Brand OS Runs</h3>
+          </div>
           <div className="adm-table-wrap">
             <table className="adm-table">
               <thead>
-                <tr>
-                  <th>Coach</th>
-                  <th>Email</th>
-                  <th>Variant</th>
-                  <th>Status</th>
-                  <th>Current Module</th>
-                  <th>Started</th>
-                  <th>Completed</th>
-                </tr>
+                <tr><th>Coach</th><th>Email</th><th>Variant</th><th>Status</th><th>Module</th><th>Started</th><th>Completed</th></tr>
               </thead>
               <tbody>
                 {data.brandOsRuns.map((r) => {
@@ -381,23 +462,9 @@ function OverviewTab({
                     <tr key={r.id}>
                       <td className="adm-td-name">{coach?.full_name ?? r.label ?? "—"}</td>
                       <td className="adm-td-email">{coach?.email ?? "—"}</td>
-                      <td>
-                        <span className={`adm-badge ${r.variant === "full" ? "adm-badge-brand" : "adm-badge-neutral"}`}>
-                          {r.variant}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`adm-badge ${
-                          r.state === "complete" ? "adm-badge-success" :
-                          r.state === "in_progress" ? "adm-badge-warning" :
-                          "adm-badge-danger"
-                        }`}>
-                          {r.state === "in_progress" ? "in progress" : r.state}
-                        </span>
-                      </td>
-                      <td style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.75rem" }}>
-                        {r.state === "complete" ? "—" : r.current_module}
-                      </td>
+                      <td><span className={`adm-badge ${r.variant === "full" ? "adm-badge-brand" : "adm-badge-neutral"}`}>{r.variant}</span></td>
+                      <td><span className={`adm-badge ${r.state === "complete" ? "adm-badge-success" : r.state === "in_progress" ? "adm-badge-warning" : "adm-badge-danger"}`}>{r.state === "in_progress" ? "in progress" : r.state}</span></td>
+                      <td style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.72rem" }}>{r.state === "complete" ? "—" : r.current_module}</td>
                       <td>{ago(r.started_at)}</td>
                       <td>{r.completed_at ? ago(r.completed_at) : "—"}</td>
                     </tr>
@@ -406,46 +473,17 @@ function OverviewTab({
               </tbody>
             </table>
           </div>
-
-          {coachesNoRun.length > 0 && (
-            <div style={{ marginTop: "var(--s4)" }}>
-              <h3 className="adm-section-subtitle">Never Started Brand OS</h3>
-              <div className="adm-table-wrap">
-                <table className="adm-table">
-                  <thead>
-                    <tr><th>Name</th><th>Email</th><th>Signed up</th></tr>
-                  </thead>
-                  <tbody>
-                    {coachesNoRun.map((c) => (
-                      <tr key={c.id}>
-                        <td className="adm-td-name">{c.full_name ?? "—"}</td>
-                        <td className="adm-td-email">{c.email}</td>
-                        <td>{ago(c.created_at)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </section>
+        </div>
       )}
 
-      {/* ── Coaches table ── */}
-      <section className="adm-section">
-        <h2 className="adm-section-title">Coaches</h2>
+      <div className="adm-card adm-card-full">
+        <div className="adm-card-header">
+          <h3 className="adm-card-title">All Coaches</h3>
+        </div>
         <div className="adm-table-wrap">
           <table className="adm-table">
             <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Business</th>
-                <th>Plan</th>
-                <th>Stripe</th>
-                <th>Offerings</th>
-                <th>Signed up</th>
-              </tr>
+              <tr><th>Name</th><th>Email</th><th>Business</th><th>Plan</th><th>Stripe</th><th>Offerings</th><th>Signed up</th></tr>
             </thead>
             <tbody>
               {data.coaches.map((c) => {
@@ -457,26 +495,13 @@ function OverviewTab({
                     <td className="adm-td-email">{c.email}</td>
                     <td>{c.business_name ?? "—"}</td>
                     <td>
-                      <select
-                        className="adm-select"
-                        value={c.plan}
-                        disabled={updatingTier === c.id}
-                        onChange={(e) => updatePlan(c.id, e.target.value)}
-                      >
+                      <select className="adm-select" value={c.plan} disabled={updatingTier === c.id} onChange={(e) => updatePlan(c.id, e.target.value)}>
                         <option value="founding">founding</option>
                         <option value="standard">standard</option>
                         <option value="premium">premium</option>
                       </select>
                     </td>
-                    <td>
-                      {stripe ? (
-                        <span className={`adm-badge ${stripe.charges_enabled ? "adm-badge-success" : "adm-badge-warning"}`}>
-                          {stripe.charges_enabled ? "active" : "pending"}
-                        </span>
-                      ) : (
-                        <span className="adm-badge adm-badge-neutral">none</span>
-                      )}
-                    </td>
+                    <td>{stripe ? <span className={`adm-badge ${stripe.charges_enabled ? "adm-badge-success" : "adm-badge-warning"}`}>{stripe.charges_enabled ? "active" : "pending"}</span> : <span className="adm-badge adm-badge-neutral">none</span>}</td>
                     <td>{offerings.length}</td>
                     <td>{ago(c.created_at)}</td>
                   </tr>
@@ -485,38 +510,8 @@ function OverviewTab({
             </tbody>
           </table>
         </div>
-      </section>
-
-      {/* ── Recent payments ── */}
-      <section className="adm-section">
-        <h2 className="adm-section-title">Recent Payments</h2>
-        {data.payments.length === 0 ? (
-          <p className="adm-empty">No payments yet.</p>
-        ) : (
-          <div className="adm-table-wrap">
-            <table className="adm-table">
-              <thead>
-                <tr><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr>
-              </thead>
-              <tbody>
-                {data.payments.map((p) => (
-                  <tr key={p.id}>
-                    <td className="adm-td-email">{p.customer_email ?? "—"}</td>
-                    <td>{fmt(p.amount_cents)}</td>
-                    <td>
-                      <span className={`adm-badge ${p.status === "completed" ? "adm-badge-success" : "adm-badge-warning"}`}>
-                        {p.status}
-                      </span>
-                    </td>
-                    <td>{ago(p.created_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-    </>
+      </div>
+    </div>
   );
 }
 
@@ -561,8 +556,8 @@ export default function AdminPage() {
     }
   }
 
-  if (loading) return <div className="adm-loading">Loading...</div>;
-  if (error) return <div className="adm-loading">{error}</div>;
+  if (loading) return <div className="adm-loading"><div className="adm-loading-spinner" /><span>Loading admin data...</span></div>;
+  if (error) return <div className="adm-loading"><span>{error}</span></div>;
   if (!data) return null;
 
   return (
@@ -573,18 +568,14 @@ export default function AdminPage() {
           <div className="adm-header-inner">
             <div className="adm-header-left">
               <svg width="24" height="24" viewBox="0 0 100 120" fill="none">
-                <path d="M50 0C50 0 20 30 20 65c0 22 13.5 40 30 48c16.5-8 30-26 30-48C80 30 50 0 50 0z" fill="var(--brand)" />
-                <path d="M50 20c0 0-15 20-15 40c0 12 7 22 15 26c8-4 15-14 15-26C65 40 50 20 50 20z" fill="var(--navy)" opacity="0.3" />
+                <path d="M50 0C50 0 20 30 20 65c0 22 13.5 40 30 48c16.5-8 30-26 30-48C80 30 50 0 50 0z" fill="#00FF41" />
+                <path d="M50 20c0 0-15 20-15 40c0 12 7 22 15 26c8-4 15-14 15-26C65 40 50 20 50 20z" fill="#0A0F1C" opacity="0.3" />
               </svg>
-              <span className="adm-header-title">Admin Console</span>
+              <span className="adm-header-title">ElevateAI Admin</span>
             </div>
             <div className="adm-tabs">
               {(["overview", "squad", "sops"] as Tab[]).map((t) => (
-                <button
-                  key={t}
-                  className={`adm-tab ${tab === t ? "adm-tab-active" : ""}`}
-                  onClick={() => { setTab(t); setActiveSop(null); }}
-                >
+                <button key={t} className={`adm-tab ${tab === t ? "adm-tab-active" : ""}`} onClick={() => { setTab(t); setActiveSop(null); }}>
                   {t === "overview" ? "Overview" : t === "squad" ? "Squad" : "SOPs"}
                   {t === "sops" && <span className="adm-tab-count">12</span>}
                   {t === "squad" && <span className="adm-tab-count">{AGENTS.length}</span>}
@@ -604,498 +595,613 @@ export default function AdminPage() {
 }
 
 const adminStyles = `
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  .adm-page {
+    min-height: 100vh;
+    background: #0A0F1C;
+    color: #E2E8F0;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
   .adm-loading {
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: var(--surface);
-    color: var(--text);
+    background: #0A0F1C;
+    color: #94A3B8;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    font-size: var(--t-body);
+    gap: 1rem;
   }
-  .adm-page {
-    min-height: 100vh;
-    background: var(--surface);
-    color: var(--text);
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  .adm-loading-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid rgba(0,255,65,0.15);
+    border-top-color: #00FF41;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
   }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ── Header ── */
   .adm-header {
-    border-bottom: 1px solid var(--border);
-    padding: var(--s3) var(--s5);
-    background: var(--surface-elevated);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 0.75rem 2rem;
+    background: rgba(10,15,28,0.95);
+    backdrop-filter: blur(12px);
     position: sticky;
     top: 0;
     z-index: 50;
   }
   .adm-header-inner {
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1.5rem;
   }
-  .adm-header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  .adm-header-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--text);
-  }
-  .adm-back-link {
-    font-size: var(--t-caption);
-    color: var(--text-muted);
-    text-decoration: none;
-  }
-  .adm-back-link:hover { color: var(--text); }
+  .adm-header-left { display: flex; align-items: center; gap: 0.75rem; }
+  .adm-header-title { font-size: 1rem; font-weight: 700; color: #F1F5F9; letter-spacing: -0.02em; }
+  .adm-back-link { font-size: 0.78rem; color: #64748B; text-decoration: none; transition: color 0.15s; }
+  .adm-back-link:hover { color: #CBD5E1; }
 
   /* ── Tabs ── */
   .adm-tabs {
     display: flex;
-    gap: 0.25rem;
-    background: var(--surface-deep);
-    border-radius: 8px;
+    gap: 2px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
     padding: 3px;
   }
   .adm-tab {
-    padding: 0.4rem 1rem;
+    padding: 0.45rem 1.1rem;
     border: none;
     background: transparent;
-    border-radius: 6px;
+    border-radius: 8px;
     font-family: inherit;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    color: var(--text-muted);
+    color: #64748B;
     cursor: pointer;
     transition: all 0.15s;
     display: flex;
     align-items: center;
     gap: 0.4rem;
   }
-  .adm-tab:hover { color: var(--text); }
+  .adm-tab:hover { color: #CBD5E1; }
   .adm-tab-active {
-    background: var(--surface-elevated);
-    color: var(--text);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    background: rgba(255,255,255,0.08);
+    color: #F1F5F9;
   }
   .adm-tab-count {
-    background: var(--surface-deep);
+    background: rgba(255,255,255,0.06);
     padding: 0.1rem 0.45rem;
     border-radius: 10px;
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     font-weight: 700;
-    color: var(--text-faint);
+    color: #64748B;
   }
   .adm-tab-active .adm-tab-count {
-    background: var(--success-soft);
-    color: var(--success);
+    background: rgba(0,255,65,0.15);
+    color: #00FF41;
   }
 
-  /* ── Bento grid ── */
-  .adm-bento {
-    max-width: 1200px;
-    margin: var(--s5) auto;
-    padding: 0 var(--s5);
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--s3);
+  /* ── Content area ── */
+  .adm-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
   }
-  .adm-bento-card {
-    background: var(--surface-elevated);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.25rem 1.5rem;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.15s, box-shadow 0.15s;
+
+  /* ── Hero ── */
+  .adm-hero {
+    background: linear-gradient(135deg, rgba(0,255,65,0.04) 0%, rgba(10,15,28,0) 60%);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
   }
-  .adm-bento-card:hover {
-    border-color: var(--border);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-  }
-  .adm-bento-wide {
-    grid-column: span 2;
-  }
-  .adm-bento-icon {
-    color: var(--text-faint);
+  .adm-hero-eyebrow {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #00FF41;
     margin-bottom: 0.75rem;
-    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
-  .adm-bento-num {
+  .adm-hero-eyebrow::before {
+    content: '';
+    width: 20px;
+    height: 2px;
+    background: #00FF41;
+  }
+  .adm-hero-title {
     font-size: 2rem;
     font-weight: 800;
-    color: var(--navy);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: #F1F5F9;
+    margin: 0 0 0.75rem;
+  }
+  .adm-green { color: #00FF41; }
+  .adm-hero-desc {
+    font-size: 0.85rem;
+    color: #64748B;
+    max-width: 380px;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .adm-hero-focus {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    min-width: 280px;
+  }
+  .adm-hero-focus-eyebrow {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #00FF41;
+    margin-bottom: 0.75rem;
+  }
+  .adm-hero-focus-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .adm-hero-focus-pct {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #F1F5F9;
+    letter-spacing: -0.03em;
+  }
+  .adm-hero-focus-sub {
+    font-size: 0.75rem;
+    color: #64748B;
+  }
+  .adm-hero-focus-detail { display: flex; flex-direction: column; }
+  .adm-hero-focus-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .adm-hero-focus-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00FF41, #0B6E23);
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+
+  /* ── Metric strip (Memory OS style) ── */
+  .adm-metric-strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .adm-kpi {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-top: 3px solid #64748B;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .adm-kpi:hover {
+    background: rgba(255,255,255,0.05);
+  }
+  .adm-kpi-primary {
+    background: linear-gradient(135deg, #0B6E23 0%, #064E16 100%);
+    border-top-color: #00FF41 !important;
+    border-color: rgba(0,255,65,0.2);
+  }
+  .adm-kpi-primary .adm-kpi-num { color: #00FF41; }
+  .adm-kpi-primary .adm-kpi-label { color: rgba(255,255,255,0.8); }
+  .adm-kpi-label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #64748B;
+    margin-bottom: 0.35rem;
+  }
+  .adm-kpi-num {
+    font-size: 1.65rem;
+    font-weight: 800;
     letter-spacing: -0.04em;
+    color: #F1F5F9;
     line-height: 1;
   }
-  .adm-bento-label {
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    margin-top: 0.35rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-weight: 600;
-  }
-  .adm-bento-sub {
-    font-size: 0.78rem;
-    color: var(--text-faint);
-    margin-top: 0.25rem;
-  }
-  .adm-bento-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-top: 0.75rem;
-  }
-  .adm-pill {
-    display: inline-block;
-    padding: 0.2rem 0.55rem;
-    border-radius: 20px;
+  .adm-kpi-trend {
     font-size: 0.68rem;
     font-weight: 600;
+    margin-top: 0.35rem;
   }
-  .adm-pill-warning { background: #FFF3D6; color: #B45309; }
-  .adm-pill-brand { background: rgba(0,255,65,0.1); color: var(--brand); }
-  .adm-pill-success { background: var(--success-soft); color: var(--success); }
-  .adm-pill-danger { background: #FEE2E2; color: #DC2626; }
-  .adm-pill-neutral { background: var(--surface-deep); color: var(--text-faint); }
+  .adm-kpi-trend-up { color: #00FF41; }
+  .adm-kpi-trend-up::before { content: '\\25B2 '; font-size: 0.55rem; }
 
-  /* ── Sections & tables ── */
-  .adm-section {
-    max-width: 1200px;
-    margin: var(--s5) auto;
-    padding: 0 var(--s5);
+  /* ── Active stack strip ── */
+  .adm-stack-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
   }
-  .adm-section-title {
-    font-size: var(--t-h2);
+  .adm-stack-label {
+    font-size: 0.62rem;
     font-weight: 700;
-    margin-bottom: var(--s3);
-    letter-spacing: -0.01em;
-    color: var(--text);
+    letter-spacing: 0.08em;
+    color: #64748B;
+    margin-right: 0.25rem;
   }
-  .adm-section-subtitle {
-    font-size: var(--t-body);
+  .adm-stack-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
     font-weight: 600;
-    margin-bottom: var(--s2);
-    color: var(--text-muted);
+    color: #CBD5E1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: background 0.15s;
+  }
+  .adm-stack-pill:hover { background: rgba(255,255,255,0.08); }
+  .adm-stack-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .adm-stack-role { color: #475569; font-weight: 500; font-size: 0.65rem; }
+
+  /* ── Dashboard grid ── */
+  .adm-dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
   }
 
+  /* ── Cards ── */
+  .adm-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: border-color 0.15s;
+  }
+  .adm-card:hover { border-color: rgba(255,255,255,0.12); }
+  .adm-card-full { margin-bottom: 1.25rem; }
+  .adm-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+  .adm-card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #F1F5F9;
+    letter-spacing: -0.01em;
+  }
+  .adm-count-pill {
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: #64748B;
+    background: rgba(255,255,255,0.06);
+    padding: 0.2rem 0.6rem;
+    border-radius: 10px;
+  }
+
+  /* ── Brand OS donut card ── */
+  .adm-brandos-chart {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .adm-brandos-donut {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .adm-brandos-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(0deg);
+  }
+  .adm-brandos-center-pct {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #F1F5F9;
+    letter-spacing: -0.03em;
+  }
+  .adm-brandos-center-label {
+    font-size: 0.62rem;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  .adm-brandos-legend { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+  .adm-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: #94A3B8;
+  }
+  .adm-legend-item strong {
+    margin-left: auto;
+    color: #F1F5F9;
+    font-size: 0.85rem;
+  }
+  .adm-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* ── List rows (coaches, payments) ── */
+  .adm-card-list { display: flex; flex-direction: column; gap: 0.1rem; }
+  .adm-list-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .adm-list-row:last-child { border-bottom: none; }
+  .adm-list-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(0,255,65,0.12);
+    color: #00FF41;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+  .adm-list-info { flex: 1; min-width: 0; }
+  .adm-list-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #F1F5F9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .adm-list-sub {
+    font-size: 0.7rem;
+    color: #475569;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .adm-list-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+  }
+  .adm-list-date { font-size: 0.66rem; color: #475569; }
+  .adm-list-amount { font-size: 0.82rem; font-weight: 700; color: #00FF41; }
+
+  /* ── Tables ── */
   .adm-table-wrap {
     overflow-x: auto;
     border-radius: 12px;
-    border: 1px solid var(--border);
-    background: var(--surface-elevated);
+    border: 1px solid rgba(255,255,255,0.06);
   }
   .adm-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: var(--t-caption);
+    font-size: 0.78rem;
   }
   .adm-table thead th {
     text-align: left;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--border);
-    color: var(--text-muted);
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: #475569;
     font-weight: 600;
-    font-size: 0.72rem;
+    font-size: 0.66rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     white-space: nowrap;
   }
   .adm-table tbody td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--border-faint);
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
     white-space: nowrap;
-    color: var(--text);
+    color: #CBD5E1;
   }
-  .adm-table tbody tr:hover { background: var(--surface-deep); }
-  .adm-td-name { font-weight: 600; }
-  .adm-td-email { font-size: 0.8rem; color: var(--text-muted); }
+  .adm-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+  .adm-td-name { font-weight: 600; color: #F1F5F9; }
+  .adm-td-email { font-size: 0.75rem; color: #64748B; }
 
   .adm-select {
-    background: var(--surface-deep);
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 6px;
-    color: var(--text);
+    color: #CBD5E1;
     padding: 0.3rem 0.5rem;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     cursor: pointer;
     font-family: inherit;
   }
-  .adm-select:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+  .adm-select:focus { outline: 2px solid #00FF41; outline-offset: 1px; }
 
+  /* ── Badges ── */
   .adm-badge {
     display: inline-block;
-    padding: 0.2rem 0.6rem;
+    padding: 0.2rem 0.55rem;
     border-radius: 20px;
-    font-size: 0.7rem;
+    font-size: 0.66rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
-  .adm-badge-success { background: var(--success-soft); color: var(--success); }
-  .adm-badge-warning { background: #FFF3D6; color: #B45309; }
-  .adm-badge-neutral { background: var(--surface-deep); color: var(--text-faint); }
-  .adm-badge-brand { background: rgba(0,255,65,0.1); color: var(--brand); }
-  .adm-badge-danger { background: #FEE2E2; color: #DC2626; }
+  .adm-badge-success { background: rgba(0,255,65,0.12); color: #00FF41; }
+  .adm-badge-warning { background: rgba(245,158,11,0.15); color: #F59E0B; }
+  .adm-badge-neutral { background: rgba(255,255,255,0.06); color: #64748B; }
+  .adm-badge-brand { background: rgba(0,255,65,0.08); color: #00FF41; }
+  .adm-badge-danger { background: rgba(239,68,68,0.15); color: #EF4444; }
 
-  .adm-empty {
-    color: var(--text-muted);
-    font-size: var(--t-body);
-    padding: var(--s5) 0;
+  .adm-empty { color: #475569; font-size: 0.82rem; padding: 2rem 0; text-align: center; }
+
+  /* ── Shared ── */
+  .adm-h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #F1F5F9;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.35rem;
   }
+  .adm-subtitle {
+    color: #64748B;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 500px;
+  }
+  .adm-sop-intro { margin-bottom: 2rem; }
 
   /* ── Squad ── */
-  .adm-squad {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: var(--s5);
-  }
   .adm-squad-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--s3);
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
   }
   .adm-agent-card {
-    background: var(--surface-elevated);
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-top: 3px solid #64748B;
     border-radius: 14px;
     padding: 1.5rem;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: border-color 0.15s, background 0.15s;
   }
-  .adm-agent-card:hover {
-    border-color: var(--border);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-  }
-  .adm-agent-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-  }
+  .adm-agent-card:hover { background: rgba(255,255,255,0.05); }
+  .adm-agent-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
   .adm-agent-avatar {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #0A0F1C;
     flex-shrink: 0;
   }
-  .adm-agent-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .adm-agent-name {
-    font-size: 1.05rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: var(--text);
-  }
-  .adm-agent-role {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    line-height: 1.45;
-    margin: 0;
-  }
+  .adm-agent-name { font-size: 1rem; font-weight: 700; color: #F1F5F9; letter-spacing: -0.01em; }
+  .adm-agent-role { font-size: 0.78rem; color: #94A3B8; line-height: 1.4; margin: 0; }
   .adm-agent-cadence {
     display: flex;
     align-items: center;
     gap: 0.35rem;
-    font-size: 0.72rem;
-    color: var(--text-faint);
+    font-size: 0.68rem;
+    color: #475569;
     margin-top: 0.75rem;
     font-weight: 600;
   }
 
   /* ── SOP Grid ── */
-  .adm-sop-grid {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: var(--s5);
-  }
-  .adm-sop-intro { margin-bottom: var(--s5); }
-  .adm-sop-subtitle {
-    color: var(--text-muted);
-    font-size: var(--t-body);
-    margin-top: 0.25rem;
-    max-width: 600px;
-    line-height: 1.5;
-  }
-  .adm-sop-category { margin-bottom: var(--s5); }
-  .adm-sop-category-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: var(--s3);
-  }
-  .adm-sop-category-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-  }
-  .adm-sop-category-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-muted);
-  }
-  .adm-sop-category-count {
-    font-size: 0.68rem;
-    font-weight: 600;
-    color: var(--text-faint);
-    background: var(--surface-deep);
-    padding: 0.1rem 0.5rem;
-    border-radius: 10px;
-  }
-  .adm-sop-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: var(--s3);
-  }
+  .adm-sop-category { margin-bottom: 2rem; }
+  .adm-sop-category-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+  .adm-sop-category-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .adm-sop-category-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #64748B; }
+  .adm-sop-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.75rem; }
   .adm-sop-card {
-    background: var(--surface-elevated);
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
     border-radius: 12px;
     padding: 1.25rem;
     cursor: pointer;
     text-align: left;
     font-family: inherit;
+    color: inherit;
     transition: all 0.15s;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
   }
-  .adm-sop-card:hover {
-    border-color: var(--brand);
-    box-shadow: 0 2px 12px rgba(0,255,65,0.08);
-    transform: translateY(-1px);
-  }
-  .adm-sop-card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .adm-sop-card-num {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--text-faint);
-    letter-spacing: 0.02em;
-  }
-  .adm-sop-card-title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: -0.01em;
-    line-height: 1.3;
-  }
-  .adm-sop-card-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    margin-top: auto;
-  }
-  .adm-sop-card-owner {
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    font-weight: 600;
-  }
-  .adm-sop-card-trigger {
-    font-size: 0.72rem;
-    color: var(--text-faint);
-  }
+  .adm-sop-card:hover { border-color: rgba(0,255,65,0.3); background: rgba(0,255,65,0.03); transform: translateY(-1px); }
+  .adm-sop-card-top { display: flex; align-items: center; justify-content: space-between; }
+  .adm-sop-card-num { font-size: 0.68rem; font-weight: 700; color: #475569; }
+  .adm-sop-card-title { font-size: 0.9rem; font-weight: 700; color: #F1F5F9; line-height: 1.3; }
+  .adm-sop-card-meta { display: flex; flex-direction: column; gap: 0.15rem; margin-top: auto; }
+  .adm-sop-card-owner { font-size: 0.68rem; color: #94A3B8; font-weight: 600; }
+  .adm-sop-card-trigger { font-size: 0.68rem; color: #475569; }
 
   /* ── SOP Viewer ── */
   .adm-sop-viewer {
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
-    padding: var(--s4) var(--s5);
+    padding: 1.5rem 2rem;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 56px);
   }
   .adm-sop-back {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
     font-family: inherit;
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 600;
-    color: var(--text-muted);
+    color: #64748B;
     background: none;
     border: none;
     cursor: pointer;
     padding: 0;
-    margin-bottom: var(--s3);
+    margin-bottom: 0.75rem;
     transition: color 0.15s;
   }
-  .adm-sop-back:hover { color: var(--text); }
-  .adm-sop-viewer-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: var(--s3);
-  }
-  .adm-sop-viewer-title {
-    font-size: 1.35rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-  }
-  .adm-sop-viewer-num {
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--text-faint);
-  }
-  .adm-sop-viewer-meta {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-top: 0.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    flex-wrap: wrap;
-  }
-  .adm-sop-viewer-sep { color: var(--text-faint); }
-  .adm-sop-iframe {
-    flex: 1;
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: white;
-    min-height: 0;
-  }
+  .adm-sop-back:hover { color: #CBD5E1; }
+  .adm-sop-viewer-header { margin-bottom: 0.75rem; }
+  .adm-sop-viewer-title { font-size: 1.25rem; font-weight: 800; color: #F1F5F9; display: flex; align-items: baseline; gap: 0.5rem; }
+  .adm-sop-viewer-num { font-size: 0.78rem; font-weight: 700; color: #475569; }
+  .adm-sop-viewer-meta { font-size: 0.75rem; color: #64748B; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; }
+  .adm-sop-viewer-sep { color: #334155; }
+  .adm-sop-iframe { flex: 1; width: 100%; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; background: white; min-height: 0; }
 
   /* ── Responsive ── */
-  @media (max-width: 900px) {
-    .adm-bento { grid-template-columns: repeat(2, 1fr); }
-    .adm-bento-wide { grid-column: span 2; }
+  @media (max-width: 1100px) {
+    .adm-dash-grid { grid-template-columns: 1fr 1fr; }
+    .adm-card-brandos { grid-column: span 2; }
+    .adm-metric-strip { grid-template-columns: repeat(3, 1fr); }
   }
   @media (max-width: 768px) {
-    .adm-bento { padding: 0 var(--s3); grid-template-columns: 1fr; gap: 0.5rem; }
-    .adm-bento-wide { grid-column: span 1; }
-    .adm-section { padding: 0 var(--s3); }
-    .adm-header { padding: var(--s3); }
+    .adm-content { padding: 1rem; }
+    .adm-hero { flex-direction: column; padding: 1.5rem; }
+    .adm-hero-focus { min-width: 0; width: 100%; }
+    .adm-hero-title { font-size: 1.5rem; }
+    .adm-metric-strip { grid-template-columns: repeat(2, 1fr); }
+    .adm-dash-grid { grid-template-columns: 1fr; }
+    .adm-card-brandos { grid-column: span 1; }
+    .adm-brandos-chart { flex-direction: column; }
+    .adm-header { padding: 0.75rem 1rem; }
     .adm-header-inner { flex-wrap: wrap; gap: 0.75rem; }
-    .adm-sop-grid { padding: var(--s3); }
-    .adm-sop-cards { grid-template-columns: 1fr; }
-    .adm-sop-viewer { padding: var(--s3); }
-    .adm-squad { padding: var(--s3); }
+    .adm-sop-viewer { padding: 1rem; }
     .adm-squad-grid { grid-template-columns: 1fr; }
+    .adm-sop-cards { grid-template-columns: 1fr; }
+    .adm-stack-row { display: none; }
   }
 `;
