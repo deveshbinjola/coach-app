@@ -63,6 +63,7 @@ interface AdminData {
 }
 
 type Tab = "overview" | "squad" | "sops";
+type Theme = "dark" | "light";
 
 interface SopItem {
   id: string;
@@ -152,13 +153,13 @@ function ago(iso: string) {
 
 /* ─── SVG donut chart ─── */
 
-function DonutChart({ pct, size = 120, stroke = 10, color = "#00FF41" }: { pct: number; size?: number; stroke?: number; color?: string }) {
+function DonutChart({ pct, size = 120, stroke = 10, color = "#00FF41", trackColor }: { pct: number; size?: number; stroke?: number; color?: string; trackColor?: string }) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const offset = c - (pct / 100) * c;
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(-90deg)" }}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={trackColor ?? "rgba(255,255,255,0.06)"} strokeWidth={stroke} />
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round" style={{ transition: "stroke-dashoffset 0.6s ease" }} />
     </svg>
   );
@@ -266,10 +267,12 @@ function OverviewTab({
   data,
   updatingTier,
   updatePlan,
+  theme,
 }: {
   data: AdminData;
   updatingTier: string | null;
   updatePlan: (id: string, plan: string) => void;
+  theme: Theme;
 }) {
   const stripeMap = Object.fromEntries(data.stripeAccounts.map((s) => [s.coach_id, s]));
   const offeringsByCoach: Record<string, Offering[]> = {};
@@ -295,6 +298,10 @@ function OverviewTab({
     ? Math.round((bosComplete.length / data.coaches.length) * 100)
     : 0;
 
+  const isLight = theme === "light";
+  const donutTrack = isLight ? "#E2E8F0" : undefined;
+  const donutColor = isLight ? "#0B6E23" : "#00FF41";
+
   return (
     <div className="adm-content">
       {/* ── Hero ── */}
@@ -309,7 +316,7 @@ function OverviewTab({
         <div className="adm-hero-focus">
           <div className="adm-hero-focus-eyebrow">BRAND OS COMPLETION</div>
           <div className="adm-hero-focus-row">
-            <DonutChart pct={bosRate} size={80} stroke={8} />
+            <DonutChart pct={bosRate} size={80} stroke={8} color={donutColor} trackColor={donutTrack} />
             <div className="adm-hero-focus-detail">
               <div className="adm-hero-focus-pct">{bosRate}%</div>
               <div className="adm-hero-focus-sub">{bosComplete.length} of {data.coaches.length} coaches</div>
@@ -372,7 +379,7 @@ function OverviewTab({
           </div>
           <div className="adm-brandos-chart">
             <div className="adm-brandos-donut">
-              <DonutChart pct={bosRate} size={140} stroke={14} />
+              <DonutChart pct={bosRate} size={140} stroke={14} color={donutColor} trackColor={donutTrack} />
               <div className="adm-brandos-center">
                 <div className="adm-brandos-center-pct">{bosRate}%</div>
                 <div className="adm-brandos-center-label">Complete</div>
@@ -524,6 +531,20 @@ export default function AdminPage() {
   const [updatingTier, setUpdatingTier] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("overview");
   const [activeSop, setActiveSop] = useState<SopItem | null>(null);
+  const [theme, setTheme] = useState<Theme>("dark");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("adm-theme") as Theme | null;
+    if (saved === "light" || saved === "dark") setTheme(saved);
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const next = prev === "dark" ? "light" : "dark";
+      localStorage.setItem("adm-theme", next);
+      return next;
+    });
+  }, []);
 
   const loadData = useCallback(async () => {
     try {
@@ -563,13 +584,13 @@ export default function AdminPage() {
   return (
     <>
       <style>{adminStyles}</style>
-      <div className="adm-page">
+      <div className={`adm-page ${theme === "light" ? "adm-light" : ""}`}>
         <header className="adm-header">
           <div className="adm-header-inner">
             <div className="adm-header-left">
               <svg width="24" height="24" viewBox="0 0 100 120" fill="none">
-                <path d="M50 0C50 0 20 30 20 65c0 22 13.5 40 30 48c16.5-8 30-26 30-48C80 30 50 0 50 0z" fill="#00FF41" />
-                <path d="M50 20c0 0-15 20-15 40c0 12 7 22 15 26c8-4 15-14 15-26C65 40 50 20 50 20z" fill="#0A0F1C" opacity="0.3" />
+                <path d="M50 0C50 0 20 30 20 65c0 22 13.5 40 30 48c16.5-8 30-26 30-48C80 30 50 0 50 0z" fill={theme === "light" ? "#0B6E23" : "#00FF41"} />
+                <path d="M50 20c0 0-15 20-15 40c0 12 7 22 15 26c8-4 15-14 15-26C65 40 50 20 50 20z" fill={theme === "light" ? "#F5F3EF" : "#0A0F1C"} opacity="0.3" />
               </svg>
               <span className="adm-header-title">ElevateAI Admin</span>
             </div>
@@ -582,11 +603,20 @@ export default function AdminPage() {
                 </button>
               ))}
             </div>
-            <a href="/command-center" className="adm-back-link">Back to app</a>
+            <div className="adm-header-right">
+              <button className="adm-theme-toggle" onClick={toggleTheme} title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}>
+                {theme === "dark" ? (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1.06 1.06M11.54 11.54l1.06 1.06M3.4 12.6l1.06-1.06M11.54 4.46l1.06-1.06" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.36 10.06a5.5 5.5 0 01-7.42-7.42A5.5 5.5 0 108 14a5.48 5.48 0 005.36-3.94z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                )}
+              </button>
+              <a href="/command-center" className="adm-back-link">Back to app</a>
+            </div>
           </div>
         </header>
 
-        {tab === "overview" && <OverviewTab data={data} updatingTier={updatingTier} updatePlan={updatePlan} />}
+        {tab === "overview" && <OverviewTab data={data} updatingTier={updatingTier} updatePlan={updatePlan} theme={theme} />}
         {tab === "squad" && <SquadTab />}
         {tab === "sops" && (activeSop ? <SopViewer sop={activeSop} onBack={() => setActiveSop(null)} /> : <SopGrid onSelect={setActiveSop} />)}
       </div>
@@ -644,8 +674,23 @@ const adminStyles = `
   }
   .adm-header-left { display: flex; align-items: center; gap: 0.75rem; }
   .adm-header-title { font-size: 1rem; font-weight: 700; color: #F1F5F9; letter-spacing: -0.02em; }
+  .adm-header-right { display: flex; align-items: center; gap: 0.75rem; }
   .adm-back-link { font-size: 0.78rem; color: #64748B; text-decoration: none; transition: color 0.15s; }
   .adm-back-link:hover { color: #CBD5E1; }
+  .adm-theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: #94A3B8;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .adm-theme-toggle:hover { background: rgba(255,255,255,0.08); color: #F1F5F9; }
 
   /* ── Tabs ── */
   .adm-tabs {
@@ -1204,4 +1249,163 @@ const adminStyles = `
     .adm-sop-cards { grid-template-columns: 1fr; }
     .adm-stack-row { display: none; }
   }
+
+  /* ═══════════════════════════════════════════
+     LIGHT THEME OVERRIDES
+     ═══════════════════════════════════════════ */
+
+  .adm-light { background: #F5F3EF; color: #1E293B; }
+  .adm-light .adm-loading { background: #F5F3EF; color: #64748B; }
+  .adm-light .adm-loading-spinner { border-color: rgba(11,110,35,0.15); border-top-color: #0B6E23; }
+
+  .adm-light .adm-header {
+    background: rgba(245,243,239,0.95);
+    border-bottom-color: #E2E8F0;
+  }
+  .adm-light .adm-header-title { color: #0F172A; }
+  .adm-light .adm-back-link { color: #94A3B8; }
+  .adm-light .adm-back-link:hover { color: #475569; }
+
+  .adm-light .adm-theme-toggle {
+    border-color: #E2E8F0;
+    background: #fff;
+    color: #64748B;
+  }
+  .adm-light .adm-theme-toggle:hover { background: #F1F5F9; color: #0F172A; }
+
+  .adm-light .adm-tabs { background: rgba(0,0,0,0.04); }
+  .adm-light .adm-tab { color: #94A3B8; }
+  .adm-light .adm-tab:hover { color: #475569; }
+  .adm-light .adm-tab-active { background: #fff; color: #0F172A; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .adm-light .adm-tab-count { background: rgba(0,0,0,0.05); color: #94A3B8; }
+  .adm-light .adm-tab-active .adm-tab-count { background: rgba(11,110,35,0.1); color: #0B6E23; }
+
+  .adm-light .adm-hero {
+    background: linear-gradient(135deg, rgba(11,110,35,0.04) 0%, rgba(245,243,239,0) 60%);
+    border-color: #E2E8F0;
+  }
+  .adm-light .adm-hero-eyebrow { color: #0B6E23; }
+  .adm-light .adm-hero-eyebrow::before { background: #0B6E23; }
+  .adm-light .adm-hero-title { color: #0F172A; }
+  .adm-light .adm-green { color: #0B6E23; }
+  .adm-light .adm-hero-desc { color: #64748B; }
+  .adm-light .adm-hero-focus {
+    background: #fff;
+    border-color: #E2E8F0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .adm-light .adm-hero-focus-eyebrow { color: #0B6E23; }
+  .adm-light .adm-hero-focus-pct { color: #0F172A; }
+  .adm-light .adm-hero-focus-sub { color: #64748B; }
+  .adm-light .adm-hero-focus-bar { background: #E2E8F0; }
+  .adm-light .adm-hero-focus-fill { background: linear-gradient(90deg, #0B6E23, #15803d); }
+
+  .adm-light .adm-kpi {
+    background: #fff;
+    border-color: #E2E8F0;
+    border-top: 3px solid #CBD5E1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .adm-light .adm-kpi:hover { background: #FAFAF8; }
+  .adm-light .adm-kpi-primary {
+    background: linear-gradient(135deg, #0B6E23 0%, #064E16 100%);
+    border-color: rgba(11,110,35,0.2);
+    border-top-color: #00FF41 !important;
+  }
+  .adm-light .adm-kpi-primary .adm-kpi-num { color: #fff; }
+  .adm-light .adm-kpi-primary .adm-kpi-label { color: rgba(255,255,255,0.8); }
+  .adm-light .adm-kpi-primary .adm-kpi-trend { color: rgba(255,255,255,0.9); }
+  .adm-light .adm-kpi-label { color: #64748B; }
+  .adm-light .adm-kpi-num { color: #0F172A; }
+  .adm-light .adm-kpi-trend-up { color: #0B6E23; }
+
+  .adm-light .adm-stack-label { color: #94A3B8; }
+  .adm-light .adm-stack-pill {
+    background: #fff;
+    border-color: #E2E8F0;
+    color: #334155;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .adm-light .adm-stack-pill:hover { background: #F1F5F9; }
+  .adm-light .adm-stack-role { color: #94A3B8; }
+
+  .adm-light .adm-card {
+    background: #fff;
+    border-color: #E2E8F0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .adm-light .adm-card:hover { border-color: #CBD5E1; }
+  .adm-light .adm-card-title { color: #0F172A; }
+  .adm-light .adm-count-pill { background: #F1F5F9; color: #64748B; }
+
+  .adm-light .adm-brandos-center-pct { color: #0F172A; }
+  .adm-light .adm-brandos-center-label { color: #94A3B8; }
+  .adm-light .adm-legend-item { color: #64748B; }
+  .adm-light .adm-legend-item strong { color: #0F172A; }
+
+  .adm-light .adm-list-row { border-bottom-color: #F1F5F9; }
+  .adm-light .adm-list-avatar { background: rgba(11,110,35,0.08); color: #0B6E23; }
+  .adm-light .adm-list-name { color: #0F172A; }
+  .adm-light .adm-list-sub { color: #94A3B8; }
+  .adm-light .adm-list-date { color: #94A3B8; }
+  .adm-light .adm-list-amount { color: #0B6E23; }
+
+  .adm-light .adm-table-wrap { border-color: #E2E8F0; }
+  .adm-light .adm-table thead th {
+    border-bottom-color: #E2E8F0;
+    color: #94A3B8;
+    background: #FAFAF8;
+  }
+  .adm-light .adm-table tbody td { border-bottom-color: #F1F5F9; color: #334155; }
+  .adm-light .adm-table tbody tr:hover { background: #FAFAF8; }
+  .adm-light .adm-td-name { color: #0F172A; }
+  .adm-light .adm-td-email { color: #94A3B8; }
+
+  .adm-light .adm-select {
+    background: #F1F5F9;
+    border-color: #E2E8F0;
+    color: #334155;
+  }
+  .adm-light .adm-select:focus { outline-color: #0B6E23; }
+
+  .adm-light .adm-badge-success { background: rgba(11,110,35,0.08); color: #0B6E23; }
+  .adm-light .adm-badge-warning { background: rgba(245,158,11,0.1); color: #B45309; }
+  .adm-light .adm-badge-neutral { background: #F1F5F9; color: #94A3B8; }
+  .adm-light .adm-badge-brand { background: rgba(11,110,35,0.06); color: #0B6E23; }
+  .adm-light .adm-badge-danger { background: rgba(239,68,68,0.08); color: #DC2626; }
+
+  .adm-light .adm-empty { color: #94A3B8; }
+  .adm-light .adm-h2 { color: #0F172A; }
+  .adm-light .adm-subtitle { color: #64748B; }
+
+  .adm-light .adm-agent-card {
+    background: #fff;
+    border-color: #E2E8F0;
+    border-top: 3px solid #CBD5E1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .adm-light .adm-agent-card:hover { background: #FAFAF8; }
+  .adm-light .adm-agent-name { color: #0F172A; }
+  .adm-light .adm-agent-role { color: #64748B; }
+  .adm-light .adm-agent-cadence { color: #94A3B8; }
+
+  .adm-light .adm-sop-card {
+    background: #fff;
+    border-color: #E2E8F0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .adm-light .adm-sop-card:hover { border-color: rgba(11,110,35,0.3); background: rgba(11,110,35,0.02); }
+  .adm-light .adm-sop-card-num { color: #94A3B8; }
+  .adm-light .adm-sop-card-title { color: #0F172A; }
+  .adm-light .adm-sop-card-owner { color: #64748B; }
+  .adm-light .adm-sop-card-trigger { color: #94A3B8; }
+  .adm-light .adm-sop-category-label { color: #94A3B8; }
+
+  .adm-light .adm-sop-back { color: #94A3B8; }
+  .adm-light .adm-sop-back:hover { color: #475569; }
+  .adm-light .adm-sop-viewer-title { color: #0F172A; }
+  .adm-light .adm-sop-viewer-num { color: #94A3B8; }
+  .adm-light .adm-sop-viewer-meta { color: #94A3B8; }
+  .adm-light .adm-sop-viewer-sep { color: #CBD5E1; }
+  .adm-light .adm-sop-iframe { border-color: #E2E8F0; }
 `;
