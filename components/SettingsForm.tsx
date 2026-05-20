@@ -53,6 +53,11 @@ export default function SettingsForm({
   } | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
+  type SettingsTab = "general" | "integrations" | "developer";
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
+    if (gmailFlash) return "integrations";
+    return "general";
+  });
   const supabase = createClient();
 
   async function startCheckout() {
@@ -163,6 +168,12 @@ export default function SettingsForm({
     }
   }
 
+  const TABS: Array<{ id: SettingsTab; label: string }> = [
+    { id: "general", label: "General" },
+    { id: "integrations", label: "Integrations" },
+    { id: "developer", label: "Developer" },
+  ];
+
   return (
     <div className="space-y-5">
       {ConfirmDialog}
@@ -200,224 +211,229 @@ export default function SettingsForm({
         </section>
       )}
 
-      {/* Gmail OAuth callback banner — only renders when the coach was just
-          bounced back from /api/integrations/gmail/callback. Auto-fades in
-          UX terms is handled by the next page navigation removing the
-          query params; we don't auto-dismiss here so the message sticks. */}
-      {gmailFlash?.state === "connected" && (
-        <div className="rounded-[var(--r-lg)] border-2 border-[var(--brand)] bg-[var(--brand-soft)] p-4">
-          <p className="text-[length:var(--t-caption)] font-bold text-[color:var(--text)]">
-            ✓ Gmail connected
-          </p>
-          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1">
-            Coach Platform will start syncing your inbox shortly. New emails
-            from leads will appear in their conversation history automatically.
-          </p>
-        </div>
-      )}
-      {gmailFlash?.state === "error" && (
-        <div className="rounded-[var(--r-lg)] border border-[var(--danger)] bg-[var(--danger-soft)] p-4">
-          <p className="text-[length:var(--t-caption)] font-bold text-[#B42318]">
-            Gmail didn't connect
-          </p>
-          <p className="text-[length:var(--t-caption)] text-[#B42318] mt-1">
-            Reason: <code className="font-mono">{gmailFlash.reason ?? "unknown"}</code>. Try again,
-            or check the Edge Function logs if this keeps happening.
-          </p>
-        </div>
-      )}
+      {/* ── Tab bar ── */}
+      <nav className="flex gap-1 rounded-[var(--r-lg)] border border-[var(--border-faint)] bg-[var(--surface-elevated)] p-1">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 rounded-[var(--r-md)] px-4 py-2 text-[length:var(--t-caption)] font-extrabold transition ${
+              activeTab === tab.id
+                ? "bg-[var(--surface)] text-[color:var(--text)] shadow-[var(--shadow-xs)]"
+                : "text-[color:var(--text-muted)] hover:text-[color:var(--text)] hover:bg-[var(--surface-deep)]"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </nav>
 
-      <section className="card p-6">
-        <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Auto response</h2>
-        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mb-5 leading-[var(--leading-base)]">
-          Draft a first reply when a new lead arrives. You still review before
-          anything is sent.
-        </p>
-
-        <Toggle
-          label="Draft a first response when a new lead arrives"
-            hint="Requires an active voice profile."
-          value={settings.auto_draft_on_new_lead}
-          onChange={(v) => patch("auto_draft_on_new_lead", v)}
-          saving={savingKey === "auto_draft_on_new_lead"}
-        />
-
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <Toggle
-            label="Email me when a draft is ready"
-            hint="Off keeps things quiet. Drafts still appear in Home."
-            value={settings.auto_draft_email_notification}
-            onChange={(v) => patch("auto_draft_email_notification", v)}
-            saving={savingKey === "auto_draft_email_notification"}
-            disabled={!settings.auto_draft_on_new_lead}
-          />
-          {!settings.auto_draft_on_new_lead && (
-            <p className="text-[11px] text-gray-500 italic mt-1 ml-1">
-              Auto response is off, so notifications will stay quiet.
+      {/* ── General tab ── */}
+      {activeTab === "general" && (
+        <>
+          <section className="card p-6">
+            <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Auto response</h2>
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mb-5 leading-[var(--leading-base)]">
+              Draft a first reply when a new lead arrives. You still review before
+              anything is sent.
             </p>
-          )}
-        </div>
-      </section>
 
-      <section className="card p-6">
-        <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Weekly reach</h2>
-        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mb-5 leading-[var(--leading-base)]">
-          The number of people you want to personally reach each week. Home
-          uses this to show whether the board is moving.
-        </p>
+            <Toggle
+              label="Draft a first response when a new lead arrives"
+              hint="Requires an active voice profile."
+              value={settings.auto_draft_on_new_lead}
+              onChange={(v) => patch("auto_draft_on_new_lead", v)}
+              saving={savingKey === "auto_draft_on_new_lead"}
+            />
 
-        <NumberField
-          label="Target"
-          value={settings.reach_target_per_week}
-          onSave={(v) => patch("reach_target_per_week", v)}
-          saving={savingKey === "reach_target_per_week"}
-          min={1}
-          max={500}
-          suffix="people / week"
-        />
-      </section>
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <Toggle
+                label="Email me when a draft is ready"
+                hint="Off keeps things quiet. Drafts still appear in Home."
+                value={settings.auto_draft_email_notification}
+                onChange={(v) => patch("auto_draft_email_notification", v)}
+                saving={savingKey === "auto_draft_email_notification"}
+                disabled={!settings.auto_draft_on_new_lead}
+              />
+              {!settings.auto_draft_on_new_lead && (
+                <p className="text-[11px] text-gray-500 italic mt-1 ml-1">
+                  Auto response is off, so notifications will stay quiet.
+                </p>
+              )}
+            </div>
+          </section>
 
-      <section className="card p-6">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="min-w-0 flex-1">
-            <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Gmail</h2>
-            <p className="text-sm text-gray-600 mb-1">
-              Log lead emails automatically. Outbound counts toward reach,
-              inbound resets the reply clock. The app does not send email for
-              you from here.
+          <section className="card p-6">
+            <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Weekly reach</h2>
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mb-5 leading-[var(--leading-base)]">
+              The number of people you want to personally reach each week. Home
+              uses this to show whether the board is moving.
             </p>
-          </div>
-          {gmail && gmail.status === "active" && (
-            <span className="inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider bg-brand text-navy px-2 py-0.5 rounded">
-              ✓ Connected
-            </span>
-          )}
-        </div>
 
-        {gmail ? (
-          <div className="mt-4 p-4 rounded-lg bg-surface border border-gray-200">
+            <NumberField
+              label="Target"
+              value={settings.reach_target_per_week}
+              onSave={(v) => patch("reach_target_per_week", v)}
+              saving={savingKey === "reach_target_per_week"}
+              min={1}
+              max={500}
+              suffix="people / week"
+            />
+          </section>
+        </>
+      )}
+
+      {/* ── Integrations tab ── */}
+      {activeTab === "integrations" && (
+        <>
+          {gmailFlash?.state === "connected" && (
+            <div className="rounded-[var(--r-lg)] border-2 border-[var(--brand)] bg-[var(--brand-soft)] p-4">
+              <p className="text-[length:var(--t-caption)] font-bold text-[color:var(--text)]">
+                ✓ Gmail connected
+              </p>
+              <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1">
+                Coach Platform will start syncing your inbox shortly. New emails
+                from leads will appear in their conversation history automatically.
+              </p>
+            </div>
+          )}
+          {gmailFlash?.state === "error" && (
+            <div className="rounded-[var(--r-lg)] border border-[var(--danger)] bg-[var(--danger-soft)] p-4">
+              <p className="text-[length:var(--t-caption)] font-bold text-[#B42318]">
+                Gmail didn&apos;t connect
+              </p>
+              <p className="text-[length:var(--t-caption)] text-[#B42318] mt-1">
+                Reason: <code className="font-mono">{gmailFlash.reason ?? "unknown"}</code>. Try again,
+                or check the Edge Function logs if this keeps happening.
+              </p>
+            </div>
+          )}
+
+          <section className="card p-6">
             <div className="flex items-start justify-between gap-4 flex-wrap">
-              <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
-                  Connected as
-                </div>
-                <div className="text-sm font-bold text-navy mt-0.5 truncate">
-                  {gmail.account_email ?? "Gmail account"}
-                </div>
-                <div className="text-[11px] text-gray-500 mt-1">
-                  Connected{" "}
-                  {new Date(gmail.connected_at).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                  {gmail.last_synced_at ? (
-                    <>
-                      {" · last sync "}
-                      {timeAgo(gmail.last_synced_at)}
-                    </>
-                  ) : (
-                    " · awaiting first sync"
-                  )}
-                </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Gmail</h2>
+                <p className="text-sm text-gray-600 mb-1">
+                  Log lead emails automatically. Outbound counts toward reach,
+                  inbound resets the reply clock. The app does not send email for
+                  you from here.
+                </p>
               </div>
-              <div className="flex gap-3 shrink-0 items-center flex-wrap">
-                <button
-                  type="button"
-                  onClick={syncGmail}
-                  disabled={syncing || disconnecting}
-                  className="inline-flex items-center gap-1.5 text-xs font-extrabold bg-brand text-navy px-3 py-1.5 rounded hover:bg-[#00E03A] transition disabled:opacity-50"
-                >
-                  {syncing ? (
-                    <>
-                      <SpinnerDot /> Syncing…
-                    </>
-                  ) : (
-                    <>↻ Sync now</>
-                  )}
-                </button>
-                <a
-                  href="/api/integrations/gmail/connect"
-                  className="text-xs font-semibold text-gray-700 hover:text-navy underline decoration-dotted underline-offset-4"
-                >
-                  Reconnect
-                </a>
-                <button
-                  type="button"
-                  onClick={disconnectGmail}
-                  disabled={disconnecting || syncing}
-                  className="text-xs font-semibold text-red-700 hover:text-red-900 disabled:opacity-50"
-                >
-                  {disconnecting ? "Disconnecting…" : "Disconnect"}
-                </button>
-              </div>
+              {gmail && gmail.status === "active" && (
+                <span className="inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider bg-brand text-navy px-2 py-0.5 rounded">
+                  ✓ Connected
+                </span>
+              )}
             </div>
 
-            {/* Sync result toast — fades out via the next sync clearing it. */}
-            {syncResult && (
-              <div
-                className={`mt-3 p-3 rounded-md text-xs ${
-                  syncResult.kind === "success"
-                    ? "bg-brand-soft text-green-900 border border-[color-mix(in_srgb,var(--brand)_40%,transparent)]"
-                    : syncResult.kind === "info"
-                      ? "bg-gray-100 text-gray-700 border border-gray-200"
-                      : "bg-red-50 text-red-800 border border-red-200"
-                }`}
-              >
-                {syncResult.message}
+            {gmail ? (
+              <div className="mt-4 p-4 rounded-lg bg-surface border border-gray-200">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="min-w-0">
+                    <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
+                      Connected as
+                    </div>
+                    <div className="text-sm font-bold text-navy mt-0.5 truncate">
+                      {gmail.account_email ?? "Gmail account"}
+                    </div>
+                    <div className="text-[11px] text-gray-500 mt-1">
+                      Connected{" "}
+                      {new Date(gmail.connected_at).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                      {gmail.last_synced_at ? (
+                        <>
+                          {" · last sync "}
+                          {timeAgo(gmail.last_synced_at)}
+                        </>
+                      ) : (
+                        " · awaiting first sync"
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-3 shrink-0 items-center flex-wrap">
+                    <button
+                      type="button"
+                      onClick={syncGmail}
+                      disabled={syncing || disconnecting}
+                      className="inline-flex items-center gap-1.5 text-xs font-extrabold bg-brand text-navy px-3 py-1.5 rounded hover:bg-[#00E03A] transition disabled:opacity-50"
+                    >
+                      {syncing ? (
+                        <>
+                          <SpinnerDot /> Syncing…
+                        </>
+                      ) : (
+                        <>↻ Sync now</>
+                      )}
+                    </button>
+                    <a
+                      href="/api/integrations/gmail/connect"
+                      className="text-xs font-semibold text-gray-700 hover:text-navy underline decoration-dotted underline-offset-4"
+                    >
+                      Reconnect
+                    </a>
+                    <button
+                      type="button"
+                      onClick={disconnectGmail}
+                      disabled={disconnecting || syncing}
+                      className="text-xs font-semibold text-red-700 hover:text-red-900 disabled:opacity-50"
+                    >
+                      {disconnecting ? "Disconnecting…" : "Disconnect"}
+                    </button>
+                  </div>
+                </div>
+
+                {syncResult && (
+                  <div
+                    className={`mt-3 p-3 rounded-md text-xs ${
+                      syncResult.kind === "success"
+                        ? "bg-brand-soft text-green-900 border border-[color-mix(in_srgb,var(--brand)_40%,transparent)]"
+                        : syncResult.kind === "info"
+                          ? "bg-gray-100 text-gray-700 border border-gray-200"
+                          : "bg-red-50 text-red-800 border border-red-200"
+                    }`}
+                  >
+                    {syncResult.message}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="mt-4">
+                <a
+                  href="/api/integrations/gmail/connect"
+                  className="inline-flex items-center gap-3 p-3 rounded-lg border-2 border-gray-300 bg-white text-gray-800 font-semibold hover:bg-gray-50 hover:border-gray-400 transition"
+                >
+                  <GoogleIcon />
+                  <span>Connect Gmail</span>
+                </a>
+                <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
+                  You&apos;ll be redirected to Google to grant read-only access. We
+                  never see your password and you can disconnect any time.
+                </p>
               </div>
             )}
-          </div>
-        ) : (
-          <div className="mt-4">
-            <a
-              href="/api/integrations/gmail/connect"
-              className="inline-flex items-center gap-3 p-3 rounded-lg border-2 border-gray-300 bg-white text-gray-800 font-semibold hover:bg-gray-50 hover:border-gray-400 transition"
-            >
-              <GoogleIcon />
-              <span>Connect Gmail</span>
-            </a>
-            <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
-              You'll be redirected to Google to grant read-only access. We
-              never see your password and you can disconnect any time.
+          </section>
+
+          <section className="card p-6">
+            <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Connections</h2>
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-base)] mb-4">
+              Link your Brand OS agent and session capture tools.
             </p>
-          </div>
-        )}
-      </section>
+            <div className="space-y-4">
+              <BrandOsIntegrationPanel />
+              <SessionIntegrationsPanel />
+            </div>
+          </section>
+        </>
+      )}
 
-      <section className="card p-6">
-        <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Connections</h2>
-        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-base)] mb-4">
-          Link your Brand OS agent and session capture tools.
-        </p>
-        <div className="space-y-4">
-          <BrandOsIntegrationPanel />
-          <SessionIntegrationsPanel />
-        </div>
-      </section>
-
-      <section className="card p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h2 className="text-[length:var(--t-h2)] font-extrabold text-[color:var(--text)] leading-[var(--leading-tight)]">
-              Advanced settings
-            </h2>
-            <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-base)]">
-              API access, webhooks, and technical controls for power users.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setAdvancedOpen((open) => !open)}
-            className="inline-flex h-9 shrink-0 items-center justify-center rounded-[var(--r-md)] border border-[var(--border)] px-3 text-[length:var(--t-caption)] font-bold text-[color:var(--text)] hover:border-[var(--border-strong)] transition"
-            aria-expanded={advancedOpen}
-          >
-            {advancedOpen ? "Hide" : "Open"}
-          </button>
-        </div>
-
-        {advancedOpen && (
-          <div className="mt-5 space-y-4 border-t border-[var(--border-faint)] pt-5">
+      {/* ── Developer tab ── */}
+      {activeTab === "developer" && (
+        <>
+          <section className="card p-6">
             <div className="rounded-[var(--r-md)] bg-[var(--surface-deep)] p-4">
               <div className="text-[length:var(--t-caption)] font-extrabold text-[color:var(--text)]">
                 API reference
@@ -434,12 +450,12 @@ export default function SettingsForm({
                 Open API docs
               </a>
             </div>
+          </section>
 
-            <ApiKeysPanel />
-            <WebhooksPanel />
-          </div>
-        )}
-      </section>
+          <ApiKeysPanel />
+          <WebhooksPanel />
+        </>
+      )}
 
     </div>
   );
