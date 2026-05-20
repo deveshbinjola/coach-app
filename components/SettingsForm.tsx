@@ -386,13 +386,24 @@ export default function SettingsForm({
       </section>
 
       <section className="card p-6">
+        <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Connections</h2>
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-base)] mb-4">
+          Link your Brand OS agent and session capture tools.
+        </p>
+        <div className="space-y-4">
+          <BrandOsIntegrationPanel />
+          <SessionIntegrationsPanel />
+        </div>
+      </section>
+
+      <section className="card p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <h2 className="text-[length:var(--t-h2)] font-extrabold text-[color:var(--text)] leading-[var(--leading-tight)]">
               Advanced settings
             </h2>
             <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-base)]">
-              Capture links, agent access, and technical controls for power users.
+              API access, webhooks, and technical controls for power users.
             </p>
           </div>
           <button
@@ -424,8 +435,6 @@ export default function SettingsForm({
               </a>
             </div>
 
-            <BrandOsIntegrationPanel />
-            <SessionIntegrationsPanel />
             <ApiKeysPanel />
             <WebhooksPanel />
           </div>
