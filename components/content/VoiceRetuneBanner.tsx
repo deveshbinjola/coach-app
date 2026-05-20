@@ -20,11 +20,26 @@ type Result = {
   samples_used: number;
 };
 
+const DISMISS_KEY = "voice-retune-dismissed";
+
+function wasDismissedRecently(): boolean {
+  try {
+    const ts = localStorage.getItem(DISMISS_KEY);
+    if (!ts) return false;
+    return Date.now() - Number(ts) < 24 * 60 * 60 * 1000;
+  } catch { return false; }
+}
+
 export default function VoiceRetuneBanner({ newSources, newChars }: Props) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(() => !wasDismissedRecently());
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [err, setErr] = useState<string | null>(null);
+
+  function dismiss() {
+    setOpen(false);
+    try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch {}
+  }
 
   if (!open) return null;
 
@@ -36,6 +51,7 @@ export default function VoiceRetuneBanner({ newSources, newChars }: Props) {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message ?? data?.error ?? `HTTP ${res.status}`);
       setResult(data.diff as Result);
+      try { localStorage.removeItem(DISMISS_KEY); } catch {}
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Could not re-tune.");
     } finally {
@@ -50,7 +66,7 @@ export default function VoiceRetuneBanner({ newSources, newChars }: Props) {
       <Card className="p-4 sm:p-5 space-y-3 border-[var(--brand-strong)]">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <Badge tone="brand" size="xs" uppercase>Voice re-tuned</Badge>
-          <button onClick={() => setOpen(false)} className="text-[color:var(--text-faint)] hover:text-[color:var(--text)] text-lg leading-none">×</button>
+          <button onClick={dismiss} className="text-[color:var(--text-faint)] hover:text-[color:var(--text)] text-lg leading-none">×</button>
         </div>
         {nothingNew ? (
           <p className="text-[color:var(--text)]">
@@ -109,7 +125,7 @@ export default function VoiceRetuneBanner({ newSources, newChars }: Props) {
             {busy ? "Re-tuning… ~15s" : "Re-tune voice →"}
           </Button>
           <button
-            onClick={() => setOpen(false)}
+            onClick={dismiss}
             className="text-[color:var(--text-faint)] hover:text-[color:var(--text)] text-lg leading-none px-2"
             aria-label="Dismiss"
           >
