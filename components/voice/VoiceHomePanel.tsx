@@ -150,17 +150,37 @@ export default function VoiceHomePanel({
         pendingRules={pendingRules}
       />
 
-      {/* ── THE WORKBENCH: compose + history, adjacent ──────── */}
-      <Workbench
-        profile={activeProfile!}
-        onProfileChange={setActiveProfile}
-        sources={sources}
-        onSourcesChange={setSources}
-        pendingRules={pendingRules}
-      />
-
-      {/* ── REFERENCE: collapsed by default ─────────────────── */}
+      {/* ── COLLAPSIBLE SECTIONS: all same style ──────────── */}
       <div className="space-y-3">
+        <DisclosureSection
+          id="voice-workbench"
+          title="Voice workbench"
+          description={`Import writing or add transcripts to train your voice. ${sources.length} ${sources.length === 1 ? "source" : "sources"} saved.`}
+          defaultOpen={true}
+        >
+          <WorkbenchContent
+            profile={activeProfile!}
+            onProfileChange={setActiveProfile}
+            sources={sources}
+            onSourcesChange={setSources}
+            pendingRules={pendingRules}
+          />
+        </DisclosureSection>
+
+        <DisclosureSection
+          id="voice-training-history"
+          title="Training history"
+          description={sources.length === 0 ? "Nothing yet — add the first source above." : `Newest first · ${sources.length} saved`}
+          defaultOpen={false}
+        >
+          <TrainingHistoryPanel
+            profile={activeProfile!}
+            sources={sources}
+            onProfileChange={setActiveProfile}
+            onSourcesChange={setSources}
+          />
+        </DisclosureSection>
+
         <DisclosureSection
           id="voice-map"
           title="Voice DNA"
@@ -247,7 +267,7 @@ export default function VoiceHomePanel({
 
 type WorkbenchTab = "import" | "transcript";
 
-function Workbench({
+function WorkbenchContent({
   profile,
   onProfileChange,
   sources,
@@ -267,96 +287,61 @@ function Workbench({
   };
 
   return (
-    <Card variant="elevated" padding="none" className="overflow-hidden">
-      {/* Header */}
-      <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-[var(--border-faint)]">
-        <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)] leading-tight">
-                Voice workbench
-              </h2>
-              <Badge tone="brand" size="xs" uppercase>
-                {sources.length} {sources.length === 1 ? "source" : "sources"}
-              </Badge>
-              {pendingRules > 0 && (
-                <Badge tone="warning" size="xs" uppercase>
-                  {pendingRules} pending
-                </Badge>
-              )}
-            </div>
-            <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-relaxed max-w-2xl">
-              Add a source above, see it land below. Public writing and
-              recorded conversations both feed the same voice asset.
-            </p>
-          </div>
+    <div>
+      {pendingRules > 0 && (
+        <div className="mb-3">
+          <Badge tone="warning" size="xs" uppercase>
+            {pendingRules} pending rules
+          </Badge>
         </div>
+      )}
 
-        {/* Tab strip */}
-        <div className="mt-4 flex items-center gap-1 border-b border-[var(--border)] -mb-px">
-          {[
-            { id: "import" as const, label: "Import URL", hint: "IG · LinkedIn · Newsletter" },
-            { id: "transcript" as const, label: "Add transcript", hint: "Call · voice note · workshop" },
-          ].map((t) => {
-            const on = tab === t.id;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setTab(t.id)}
-                aria-selected={on}
-                role="tab"
-                className={`px-4 py-2.5 -mb-px text-left border-b-2 transition ${
-                  on
-                    ? "border-[var(--brand-strong)] text-[color:var(--text)]"
-                    : "border-transparent text-[color:var(--text-muted)] hover:text-[color:var(--text)]"
-                }`}
-              >
-                <span className="block text-[length:var(--t-body)] font-bold leading-tight">
-                  {t.label}
-                </span>
-                <span className="block text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)] mt-0.5">
-                  {t.hint}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+      {/* Tab strip */}
+      <div className="flex items-center gap-1 border-b border-[var(--border)] mb-4">
+        {[
+          { id: "import" as const, label: "Import URL", hint: "IG · LinkedIn · Newsletter" },
+          { id: "transcript" as const, label: "Add transcript", hint: "Call · voice note · workshop" },
+        ].map((t) => {
+          const on = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              aria-selected={on}
+              role="tab"
+              className={`px-4 py-2.5 -mb-px text-left border-b-2 transition ${
+                on
+                  ? "border-[var(--brand-strong)] text-[color:var(--text)]"
+                  : "border-transparent text-[color:var(--text-muted)] hover:text-[color:var(--text)]"
+              }`}
+            >
+              <span className="block text-[length:var(--t-body)] font-bold leading-tight">
+                {t.label}
+              </span>
+              <span className="block text-[length:var(--t-label)] uppercase tracking-wider font-bold text-[color:var(--text-faint)] mt-0.5">
+                {t.hint}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Compose surface */}
-      <div className="p-5 sm:p-6 bg-[var(--surface)]">
-        {tab === "import" ? (
-          <VoiceImportPanel
-            profile={profile}
-            onProfileChange={onProfileChange}
-            onSourceAdded={onSourceAdded}
-          />
-        ) : (
-          <TranscriptSignalPanel
-            profile={profile}
-            onProfileChange={onProfileChange}
-            onSourceAdded={onSourceAdded}
-          />
-        )}
-      </div>
-
-      {/* Training history — collapsible */}
-      <div className="px-5 py-4 sm:px-6 sm:py-5 border-t border-[var(--border-faint)] bg-[var(--surface-elevated)]">
-        <DisclosureSection
-          title="Training history"
-          description={sources.length === 0 ? "Nothing yet — add the first source above." : `Newest first · ${sources.length} saved`}
-          defaultOpen={false}
-        >
-          <TrainingHistoryPanel
-            profile={profile}
-            sources={sources}
-            onProfileChange={onProfileChange}
-            onSourcesChange={onSourcesChange}
-          />
-        </DisclosureSection>
-      </div>
-    </Card>
+      {tab === "import" ? (
+        <VoiceImportPanel
+          profile={profile}
+          onProfileChange={onProfileChange}
+          onSourceAdded={onSourceAdded}
+        />
+      ) : (
+        <TranscriptSignalPanel
+          profile={profile}
+          onProfileChange={onProfileChange}
+          onSourceAdded={onSourceAdded}
+        />
+      )}
+    </div>
   );
 }
 

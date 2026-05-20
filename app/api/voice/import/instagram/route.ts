@@ -303,7 +303,14 @@ async function extractInstagramRules(
     "INSTAGRAM CAPTION CORPUS:",
     transcript.slice(0, 14_000),
     "",
-    "Extract 6 specific voice rules. Include categories across hook, story, cta, belief, offer, avoid, and rhythm when evidence exists.",
+    "Extract 6 specific voice rules for INSTAGRAM content. Instagram-specific patterns to look for:",
+    "- HOOKS: How do they open captions? First-line pattern (question, bold claim, one-liner, story entry)?",
+    "- RHYTHM: Short punchy lines with line breaks? Long flowing paragraphs? Mixed?",
+    "- CTAs: Do they say 'DM me', 'save this', 'comment below', 'link in bio'? What's their specific CTA pattern?",
+    "- VISUAL LANGUAGE: Do they reference the image/carousel? Use emojis? Hashtag strategy?",
+    "- STORY ARC: Do they open with personal stories, client wins, hot takes, or teaching?",
+    "- CLOSERS: How do they end? Question? CTA? One-liner? Signature phrase?",
+    "Each rule must be specific to how THIS coach writes on Instagram, not generic writing advice.",
   ].join("\n");
 
   try {
