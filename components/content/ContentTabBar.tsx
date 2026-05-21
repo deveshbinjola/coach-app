@@ -17,10 +17,14 @@ export type { ContentTab };
 
 export default function ContentTabBar({ activeTab, onTabChange, draftCount }: Props) {
   return (
-    <div className="flex items-center gap-2">
+    <div role="tablist" className="flex items-center gap-2">
       {TABS.map((tab) => (
         <button
           key={tab.id}
+          id={`content-tab-${tab.id}`}
+          role="tab"
+          aria-selected={activeTab === tab.id}
+          aria-controls={`content-panel-${tab.id}`}
           type="button"
           onClick={() => onTabChange(tab.id)}
           className={`min-h-9 rounded-[var(--r-md)] border px-4 text-[length:var(--t-caption)] font-extrabold transition ${
