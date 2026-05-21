@@ -30,6 +30,9 @@ export default function NavigationSettingsPanel({ showAll: initialShowAll, hasLe
         .update({ nav_show_all: next })
         .eq("id", user.id);
     }
+    if (next) {
+      document.cookie = "nav-unlocks=" + encodeURIComponent(JSON.stringify({ voice: true, content: true })) + "; path=/; max-age=86400; samesite=lax";
+    }
     setSaving(false);
   }
 

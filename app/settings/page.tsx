@@ -94,8 +94,8 @@ export default async function SettingsPage({
     try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
   }
 
-  const hasLead = navUnlocks.voice || navUnlocks.content;
-  const hasVoice = navUnlocks.content;
+  const hasLead = navUnlocks._milestones?.hasLead ?? false;
+  const hasVoice = navUnlocks._milestones?.hasVoice ?? false;
   const showAllNav = (coachRow as { nav_show_all?: boolean } | null)?.nav_show_all === true;
 
   const audienceSelf = (coachRow as { audience_self?: string } | null)?.audience_self as AudienceSelf | null ?? null;
