@@ -23,7 +23,7 @@ export default function OfferingsWorkspace({ offerings }: { offerings: OfferingC
   if (active.length === 0 && archived.length === 0) {
     return (
       <div className="space-y-6">
-        <AddOfferingForm open />
+        <AddOfferingForm />
         <EmptyState />
       </div>
     );
