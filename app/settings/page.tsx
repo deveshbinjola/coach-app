@@ -24,6 +24,8 @@ import EditorialSettingsSection from "@/components/settings/EditorialSettingsSec
 import type { CoachSettings, CoachIntegration } from "@/lib/types";
 import type { AudienceSelf, AudienceServes, VoiceProfileSlug } from "@/lib/voice-profiles";
 import { DEFAULT_BRAND_KIT } from "@/lib/brand-kit";
+import { loadNavUnlocks } from "@/lib/nav-unlocks";
+import { cookies } from "next/headers";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -83,6 +85,13 @@ export default async function SettingsPage({
           .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
+
+  const navUnlocks = user?.id
+    ? await loadNavUnlocks(supabase, user.id)
+    : { voice: false, content: false };
+  if (user?.id) {
+    cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 });
+  }
 
   const audienceSelf = (coachRow as { audience_self?: string } | null)?.audience_self as AudienceSelf | null ?? null;
   const audienceServes = (coachRow as { audience_serves?: string } | null)?.audience_serves as AudienceServes | null ?? null;
@@ -219,6 +228,7 @@ export default async function SettingsPage({
         email={user?.email ?? ""}
         name={userDisplayName(user?.user_metadata)}
         avatarUrl={userAvatarUrl(user?.user_metadata)}
+        navUnlocks={navUnlocks}
       />
       <main className="max-w-2xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
 

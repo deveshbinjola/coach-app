@@ -15,9 +15,12 @@
 // path is inlined as an expandable section so coaches see all paths in one
 // place: 5 questions, or paste captions.
 
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
+import { loadNavUnlocks } from "@/lib/nav-unlocks";
+import { cookies } from "next/headers";
 import VoiceHomePanel from "@/components/VoiceHomePanel";
 import type {
   Content,
@@ -39,6 +42,10 @@ export default async function VoicePage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const navUnlocks = await loadNavUnlocks(supabase, user.id);
+  cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 });
+  if (!navUnlocks.voice) redirect("/command-center");
 
   // One active profile per coach. `maybeSingle()` returns null cleanly when
   // the coach hasn't set up their voice yet. No error, no throw.
@@ -102,9 +109,10 @@ export default async function VoicePage() {
   return (
     <div className="min-h-screen">
       <Header
-        email={user?.email ?? ""}
-        name={userDisplayName(user?.user_metadata)}
-        avatarUrl={userAvatarUrl(user?.user_metadata)}
+        email={user.email ?? ""}
+        name={userDisplayName(user.user_metadata)}
+        avatarUrl={userAvatarUrl(user.user_metadata)}
+        navUnlocks={navUnlocks}
       />
       <main className="max-w-5xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
         <div className="mb-4 flex items-baseline gap-3">
