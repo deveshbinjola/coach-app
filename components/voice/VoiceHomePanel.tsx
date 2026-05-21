@@ -156,7 +156,7 @@ export default function VoiceHomePanel({
           id="voice-workbench"
           title="Voice workbench"
           description={`Import writing or add transcripts to train your voice. ${sources.length} ${sources.length === 1 ? "source" : "sources"} saved.`}
-          defaultOpen={true}
+          defaultOpen={false}
         >
           <WorkbenchContent
             profile={activeProfile!}
