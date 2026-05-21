@@ -42,6 +42,8 @@ import VoiceCompose from "@/components/VoiceCompose";
 import EditorialMasthead from "@/components/content/EditorialMasthead";
 import EditorialSectionHeader from "@/components/content/EditorialSectionHeader";
 import SacredZonesInline from "@/components/content/SacredZonesInline";
+import ContentTabBar from "@/components/content/ContentTabBar";
+import type { ContentTab } from "@/components/content/ContentTabBar";
 
 type DraftKind = "instagram_caption" | "linkedin_post" | "newsletter" | "carousel";
 type CarouselOutcome = "saves" | "conversations" | "authority";
@@ -343,8 +345,17 @@ export default function ContentWorkspace({
   const [items, setItems] = useState<Content[]>(content);
   const [latestDraft, setLatestDraft] = useState<Content | null>(content[0] ?? null);
   const [contentView, setContentView] = useState<ContentLibraryView>("best");
+  const [contentTab, setContentTab] = useState<ContentTab>(() => {
+    if (typeof window === "undefined") return "library";
+    return (localStorage.getItem("content-tab") as ContentTab) ?? "library";
+  });
   const [deleteTarget, setDeleteTarget] = useState<Content | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  function handleTabChange(tab: ContentTab) {
+    setContentTab(tab);
+    localStorage.setItem("content-tab", tab);
+  }
 
   const voiceStats = useMemo(
     () => getVoiceAssetStats({ profile, content: items, leads }),
@@ -693,6 +704,14 @@ export default function ContentWorkspace({
         ]}
       />
 
+      <ContentTabBar
+        activeTab={contentTab}
+        onTabChange={handleTabChange}
+        draftCount={items.filter((item) => !isContentArchived(item)).length}
+      />
+
+      {contentTab === "create" && (
+      <>
       <EditorialSectionHeader
         number={1}
         kicker="The Desk"
@@ -1050,7 +1069,11 @@ export default function ContentWorkspace({
       {/* Sacred zones — toggles for the AI's "I won't write this from scratch"
           rule. Belongs here, adjacent to drafting, not buried in Settings. */}
       <SacredZonesInline />
+      </>
+      )}
 
+      {contentTab === "library" && (
+      <>
       <EditorialSectionHeader
         number={2}
         kicker="The Library"
@@ -1104,11 +1127,11 @@ export default function ContentWorkspace({
                 </p>
                 <button
                   type="button"
-                  onClick={() => document.getElementById("draft-room")?.scrollIntoView({ behavior: "smooth" })}
+                  onClick={() => handleTabChange("create")}
                   className="inline-flex items-center gap-1.5 rounded-[var(--r-md)] bg-[var(--brand)] px-4 py-2 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[var(--brand-strong)]"
                 >
                   <ArrowRight size={14} className="rotate-[-90deg]" aria-hidden />
-                  Go to The Desk
+                  Go to Create
                 </button>
               </div>
             )}
@@ -1219,6 +1242,8 @@ export default function ContentWorkspace({
           </ul>
         )}
       </Card>
+      </>
+      )}
 
       {voiceLearnedToast && (
         <VoiceLearnedToast toast={voiceLearnedToast} onDismiss={() => setVoiceLearnedToast(null)} />
