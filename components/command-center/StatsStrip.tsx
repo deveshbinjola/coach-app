@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui";
 import type { OfferingRevenueSummary } from "./RevenueCard";
@@ -85,9 +86,7 @@ export default function StatsStrip({
               </p>
             ) : (
               <div className="space-y-1.5">
-                {priced.map((o) => {
-                  const rev = (o.enrolled * o.price_cents!) / 100;
-                  return (
+                {priced.map((o) => (
                     <div key={o.name} className="flex items-baseline justify-between gap-2">
                       <span className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] truncate">
                         {o.name}
@@ -96,16 +95,15 @@ export default function StatsStrip({
                         {o.enrolled} × ${Math.round(o.price_cents! / 100).toLocaleString()}
                       </span>
                     </div>
-                  );
-                })}
+                ))}
               </div>
             )}
-            <a
+            <Link
               href="/clients?tab=offerings"
               className="block mt-3 text-[length:var(--t-caption)] text-[color:var(--brand-strong)] font-bold hover:underline"
             >
               Manage offerings →
-            </a>
+            </Link>
           </Card>
 
           <Card padding="md">

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Search } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
@@ -38,12 +39,12 @@ export default function ClientSidebar({
               People who crossed from lead to client.
             </p>
           </div>
-          <a
+          <Link
             href="/inbox"
             className="shrink-0 inline-flex items-center h-8 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] text-[length:var(--t-caption)] font-bold hover:border-[var(--brand)] transition"
           >
             + Add client
-          </a>
+          </Link>
         </div>
         {leads.length > 4 && (
           <div className="relative">

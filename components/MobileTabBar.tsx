@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Inbox, Users, Mic, PenTool } from "lucide-react";
 
@@ -31,7 +32,7 @@ export default function MobileTabBar() {
           const active = isActive(item.href);
           const Icon = item.icon;
           return (
-            <a
+            <Link
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center justify-center gap-0.5 transition ${
@@ -45,7 +46,7 @@ export default function MobileTabBar() {
               <span className={`text-[10px] ${active ? "font-extrabold" : "font-bold"}`}>
                 {item.label}
               </span>
-            </a>
+            </Link>
           );
         })}
       </div>
