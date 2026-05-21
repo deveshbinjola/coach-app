@@ -717,26 +717,57 @@ export default function CommandCenterView({
 }
 
 function InsightQueue({ items }: { items: InsightItem[] }) {
+  const [expanded, setExpanded] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("cc-insights-expanded") === "true";
+  });
+
+  function toggle() {
+    setExpanded((prev) => {
+      const next = !prev;
+      localStorage.setItem("cc-insights-expanded", String(next));
+      return next;
+    });
+  }
+
+  const actionableCount = items.filter(
+    (item) => item.lane !== "ignore" && item.confidence !== "New"
+  ).length;
+
   return (
-    <section aria-label="Insight queue" className="space-y-3">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="text-[length:var(--t-caption)] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+    <section aria-label="Insight queue">
+      <button
+        type="button"
+        onClick={toggle}
+        className="w-full flex items-center justify-between gap-3 rounded-[var(--r-lg)] border border-[var(--border-faint)] bg-[var(--surface-elevated)] px-4 py-3 hover:border-[var(--border)] transition text-left"
+      >
+        <div className="flex items-center gap-3">
+          <div className="text-[length:var(--t-caption)] font-extrabold text-[color:var(--text)]">
             Insight queue
           </div>
-          <h2 className="mt-1 text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)]">
+          {actionableCount > 0 && (
+            <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-[var(--brand)] text-[color:var(--navy)] text-[10px] font-extrabold">
+              {actionableCount}
+            </span>
+          )}
+          <span className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
             What to do, what to skip.
-          </h2>
+          </span>
         </div>
-        <p className="max-w-xl text-[length:var(--t-caption)] leading-[var(--leading-relaxed)] text-[color:var(--text-muted)]">
-          Four decisions from the live board. Each one turns a signal into a next move.
-        </p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-        {items.map((item) => (
-          <InsightQueueCard key={item.lane} item={item} />
-        ))}
-      </div>
+        <span
+          className={`text-[color:var(--text-faint)] transition-transform ${expanded ? "rotate-180" : ""}`}
+        >
+          ▾
+        </span>
+      </button>
+
+      {expanded && (
+        <div className="mt-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+          {items.map((item) => (
+            <InsightQueueCard key={item.lane} item={item} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
