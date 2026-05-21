@@ -585,7 +585,7 @@ export default function CommandCenterView({
 }: Props) {
   const [contentItems, setContentItems] = useState<Content[]>(content ?? []);
   const [fixingContentId, setFixingContentId] = useState<string | null>(null);
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+
   const [mode, setMode] = useState<Mode>(() => {
     if (typeof window === "undefined") return "coach";
     return (localStorage.getItem("command-center-mode") as Mode) ?? "coach";
@@ -712,44 +712,6 @@ export default function CommandCenterView({
           {justLanded.length > 0 && (
             <JustLandedBand items={justLanded} now={now} />
           )}
-
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 opacity-[0.85] hover:opacity-100 transition-opacity duration-300">
-            <div className="space-y-5 min-w-0">
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-                <ContentPipeline
-                  items={sortedContent}
-                  fixingId={fixingContentId}
-                  onFix={fixContent}
-                />
-                <VoiceTrustCard messages={trustMessages} size="card" now={now} />
-              </div>
-            </div>
-
-            <div className="space-y-5">
-              <StatsStrip
-                offerings={offeringRevenue}
-                reachCount={reachCount}
-                reachTarget={reachTarget}
-                clientCount={summary.clientCount}
-                pipelineValueCents={summary.pipelineValueCents}
-              />
-
-              {sidebarExpanded ? (
-                <>
-                  <HonestQuestion question={honestQuestion} />
-                  <BillboardCard now={now} />
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setSidebarExpanded(true)}
-                  className="w-full rounded-[var(--r-md)] border border-[var(--border-faint)] bg-[var(--surface-elevated)] px-3 py-2 text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)] hover:border-[var(--border)] hover:text-[color:var(--text)] transition"
-                >
-                  More details →
-                </button>
-              )}
-            </div>
-          </div>
         </>
       )}
 
@@ -762,6 +724,16 @@ export default function CommandCenterView({
             clientCount={summary.clientCount}
             pipelineValueCents={summary.pipelineValueCents}
           />
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+            <ContentPipeline
+              items={sortedContent}
+              fixingId={fixingContentId}
+              onFix={fixContent}
+            />
+            <VoiceTrustCard messages={trustMessages} size="card" now={now} />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <HonestQuestion question={honestQuestion} />
             <BillboardCard now={now} />
