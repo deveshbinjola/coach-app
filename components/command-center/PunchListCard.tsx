@@ -61,7 +61,7 @@ export default function PunchListCard({ items, totalGenerated }: Props) {
 
   const fillPct =
     totalGenerated > 0
-      ? Math.round((doneCount / totalGenerated) * 100)
+      ? Math.min(100, Math.round((doneCount / totalGenerated) * 100))
       : 0;
 
   function dismiss(e: React.MouseEvent, id: string) {
@@ -123,7 +123,7 @@ export default function PunchListCard({ items, totalGenerated }: Props) {
               </button>
 
               {/* Chevron */}
-              <span className="shrink-0 text-[color:var(--text-faint)] text-sm leading-none select-none">
+              <span className="shrink-0 text-[color:var(--text-faint)] text-sm leading-none select-none" aria-hidden="true">
                 ›
               </span>
             </li>
