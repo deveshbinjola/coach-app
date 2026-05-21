@@ -878,129 +878,82 @@ function LeadRescueCard({ items }: { items: RescueItem[] }) {
 
   return (
     <section aria-label="Lead rescue">
-      <Card
-        variant="elevated"
-        padding="none"
-        className="overflow-hidden border border-[color-mix(in_srgb,var(--brand)_28%,transparent)]"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1.35fr]">
-          <div className="bg-[var(--navy)] text-[color:var(--text-inverse)] p-6 sm:p-7 flex flex-col justify-between gap-8">
-            <div>
-              <p className="text-[length:var(--t-caption)] font-bold text-[color:var(--brand)]">
-                Lead Rescue
-              </p>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-[var(--leading-tight)] mt-2">
-                No money leaks today.
-              </h2>
-              <p className="text-[length:var(--t-caption)] text-white/70 leading-[var(--leading-relaxed)] mt-3 max-w-sm">
-                The app found the conversations most likely to die without a clean next move.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <div className="text-3xl font-bold tabular-nums leading-none">
-                  {items.length}
-                </div>
-                <div className="text-[length:var(--t-caption)] text-white/60 mt-1">
-                  needs action
-                </div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold tabular-nums leading-none">
-                  {totalValue > 0 ? formatMoney(totalValue) : "Live"}
-                </div>
-                <div className="text-[length:var(--t-caption)] text-white/60 mt-1">
-                  {totalValue > 0 ? "pipeline at risk" : "pipeline watch"}
-                </div>
-              </div>
-            </div>
+      <Card variant="elevated" padding="none">
+        {items.length === 0 ? (
+          <div className="flex items-center justify-between gap-3 px-5 py-4">
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+              Nothing slipping — all leads are on pace.
+            </p>
+            <a
+              href="/inbox?compose=open"
+              className="inline-flex items-center justify-center h-9 px-3.5 rounded-[var(--r-md)] border border-[var(--border)] text-[color:var(--text)] text-[length:var(--t-caption)] font-bold hover:border-[var(--border-strong)] transition shrink-0"
+            >
+              Send reach
+            </a>
           </div>
-
-          <div className="bg-[var(--surface-elevated)]">
-            {items.length === 0 ? (
-              <div className="h-full min-h-[260px] flex flex-col items-center justify-center text-center p-8">
-                <h3 className="text-[length:var(--t-h2)] font-bold text-[color:var(--text)]">
-                  Nothing is slipping.
-                </h3>
-                <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-base)] mt-2 max-w-sm">
-                  Active leads are on pace. Capture new conversations or send reach while the board is clean.
+        ) : (
+          <>
+            <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-[var(--border-faint)]">
+              <div className="flex items-center gap-2">
+                <p className="text-[length:var(--t-caption)] font-extrabold text-[color:var(--text)]">
+                  Lead rescue
                 </p>
-                <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
-                  <a
-                    href="/leads/capture"
-                    className="inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
-                  >
-                    Capture leads
-                  </a>
-                  <a
-                    href="/inbox?compose=open"
-                    className="inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] text-[length:var(--t-caption)] font-bold hover:border-[var(--border-strong)] transition"
-                  >
-                    Send reach
-                  </a>
-                </div>
+                <span className="inline-flex items-center justify-center h-5 min-w-[20px] rounded-full bg-[var(--brand)] px-1.5 text-[10px] font-extrabold text-[color:var(--navy)]">
+                  {items.length}
+                </span>
               </div>
-            ) : (
-              <>
-                <ul>
-                  {items.map(({ lead, sla, reason, action }, i) => {
-                    const isLast = i === items.length - 1;
-                    const pain = firstPainLabel(lead);
-                    return (
-                      <li
-                        key={lead.id}
-                        className={isLast ? "" : "border-b border-[var(--border-faint)]"}
-                      >
-                        <a
-                          href={`/leads/${lead.id}`}
-                          className="group grid grid-cols-[auto_1fr_auto] gap-3 px-5 py-4 hover:bg-[var(--brand-soft)] transition"
-                        >
-                          <LeadAvatar name={lead.full_name} size="md" />
+              <a
+                href={composeHref}
+                className="inline-flex items-center justify-center h-9 px-3.5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition shrink-0"
+              >
+                Draft this set
+              </a>
+            </div>
 
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <p className="font-bold text-[length:var(--t-body)] text-[color:var(--text)] truncate">
-                                {lead.full_name}
-                              </p>
-                              <SlaBadge lead={lead} compact />
-                            </div>
-                            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1 truncate">
-                              {reason}
-                              {pain ? ` · ${pain}` : ""}
-                              {lead.deal_value ? ` · ${formatMoney(lead.deal_value)}` : ""}
-                            </p>
-                          </div>
-
-                          <div className="self-center text-right">
-                            <div className="text-[length:var(--t-caption)] font-bold text-[color:var(--text)] whitespace-nowrap">
-                              {action}
-                            </div>
-                            <div className="text-[11px] text-[color:var(--text-faint)] mt-0.5 whitespace-nowrap">
-                              {sla.label}
-                            </div>
-                          </div>
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
-
-                <div className="px-5 py-4 border-t border-[var(--border-faint)] flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-                    Start here. Draft what they actually need, then move on.
-                  </p>
-                  <a
-                    href={composeHref}
-                    className="inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
+            <ul>
+              {items.map(({ lead, sla, reason, action }, i) => {
+                const isLast = i === items.length - 1;
+                const pain = firstPainLabel(lead);
+                return (
+                  <li
+                    key={lead.id}
+                    className={isLast ? "" : "border-b border-[var(--border-faint)]"}
                   >
-                    Rescue these leads
-                  </a>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+                    <a
+                      href={`/leads/${lead.id}`}
+                      className="group grid grid-cols-[auto_1fr_auto] gap-3 px-5 py-3 hover:bg-[var(--brand-soft)] transition"
+                    >
+                      <LeadAvatar name={lead.full_name} size="md" />
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-bold text-[length:var(--t-caption)] text-[color:var(--text)] truncate">
+                            {lead.full_name}
+                          </p>
+                          <SlaBadge lead={lead} compact />
+                        </div>
+                        <p className="text-[length:var(--t-micro)] text-[color:var(--text-muted)] mt-0.5 truncate">
+                          {reason}
+                          {pain ? ` · ${pain}` : ""}
+                          {lead.deal_value ? ` · ${formatMoney(lead.deal_value)}` : ""}
+                        </p>
+                      </div>
+
+                      <div className="self-center text-right">
+                        <div className="text-[length:var(--t-caption)] font-bold text-[color:var(--text)] whitespace-nowrap">
+                          {action}
+                        </div>
+                        <div className="text-[10px] text-[color:var(--text-faint)] mt-0.5 whitespace-nowrap">
+                          {sla.label}
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
       </Card>
     </section>
   );
