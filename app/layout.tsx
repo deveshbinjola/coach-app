@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import MobileTabBar from "@/components/MobileTabBar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,7 +13,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <div className="pb-16 md:pb-0">
+          {children}
+        </div>
+        <MobileTabBar />
+      </body>
     </html>
   );
 }

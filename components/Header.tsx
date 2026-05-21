@@ -16,7 +16,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDown, LogOut, Menu, Settings, X } from "lucide-react";
+import { ChevronDown, LogOut, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
 import BrandLogo from "@/components/BrandLogo";
 
@@ -76,7 +76,6 @@ export default function Header({ email, name, avatarUrl, emphasis }: Props) {
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [avatarFailed, setAvatarFailed] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -98,11 +97,6 @@ export default function Header({ email, name, avatarUrl, emphasis }: Props) {
       document.removeEventListener("keydown", onKey);
     };
   }, [menuOpen]);
-
-  // Close mobile nav when route changes (so tapping a link feels resolved).
-  useEffect(() => {
-    setMobileNavOpen(false);
-  }, [pathname]);
 
   useEffect(() => {
     setAvatarFailed(false);
@@ -162,19 +156,8 @@ export default function Header({ email, name, avatarUrl, emphasis }: Props) {
           ))}
         </nav>
 
-        {/* Right side: mobile menu toggle + account dropdown */}
+        {/* Right side: account dropdown */}
         <div className="flex items-center gap-2 shrink-0">
-          {/* Mobile nav toggle (hamburger): 44px tap target */}
-          <button
-            type="button"
-            onClick={() => setMobileNavOpen((v) => !v)}
-            className="md:hidden inline-flex items-center justify-center w-11 h-11 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-deep)] transition"
-            aria-label="Toggle navigation"
-            aria-expanded={mobileNavOpen}
-          >
-            {mobileNavOpen ? <X size={17} aria-hidden /> : <Menu size={17} aria-hidden />}
-          </button>
-
           {/* Account dropdown: 44px tap target on mobile (avatar alone) */}
           <div className="relative" ref={menuRef}>
             <button
@@ -293,31 +276,6 @@ export default function Header({ email, name, avatarUrl, emphasis }: Props) {
         </div>
       </div>
 
-      {/* Mobile nav drawer: opens below the header bar.
-          Each link is 44px tall for proper tap targets. */}
-      {mobileNavOpen && (
-        <nav
-          className="md:hidden border-t border-[var(--border-faint)] bg-[color-mix(in_srgb,var(--surface-elevated)_96%,transparent)] px-3 py-2 space-y-1"
-          aria-label="Primary navigation"
-        >
-          {NAV_ITEMS.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className={`flex items-center justify-between px-3 h-11 rounded-[var(--r-md)] text-[length:var(--t-caption)] font-bold transition ${
-                isActive(item.href)
-                  ? "bg-[var(--brand-soft)] text-[color:var(--text)] ring-1 ring-[color-mix(in_srgb,var(--brand)_30%,transparent)]"
-                  : "text-[color:var(--text-muted)] hover:bg-[var(--surface-deep)] hover:text-[color:var(--text)]"
-              }`}
-            >
-              <span>{item.label}</span>
-              {isActive(item.href) ? (
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand-strong)]" aria-hidden />
-              ) : null}
-            </a>
-          ))}
-        </nav>
-      )}
     </header>
   );
 }
