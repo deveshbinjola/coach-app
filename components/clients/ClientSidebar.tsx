@@ -31,11 +31,19 @@ export default function ClientSidebar({
   return (
     <Card padding="none" className="overflow-hidden">
       <div className="border-b border-[var(--border-faint)] px-4 py-4 space-y-3">
-        <div>
-          <h2 className="text-[length:var(--t-h2)] font-extrabold text-[color:var(--text)]">Clients</h2>
-          <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-            People who crossed from lead to client.
-          </p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-[length:var(--t-h2)] font-extrabold text-[color:var(--text)]">Clients</h2>
+            <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+              People who crossed from lead to client.
+            </p>
+          </div>
+          <a
+            href="/inbox"
+            className="shrink-0 inline-flex items-center h-8 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] text-[length:var(--t-caption)] font-bold hover:border-[var(--brand)] transition"
+          >
+            + Add client
+          </a>
         </div>
         {leads.length > 4 && (
           <div className="relative">

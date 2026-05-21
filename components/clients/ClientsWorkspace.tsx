@@ -181,7 +181,7 @@ export default function ClientsWorkspace({
         {selectedLead ? (
           selectedRoom ? (
             <section className="min-w-0 space-y-5">
-              <Card className="space-y-4">
+              <Card className="space-y-3">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -190,8 +190,8 @@ export default function ClientsWorkspace({
                     <h2 className="mt-3 break-words text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)]">
                       {selectedLead.full_name}
                     </h2>
-                    <p className="mt-2 max-w-2xl text-[length:var(--t-body)] leading-[var(--leading-relaxed)] text-[color:var(--text-muted)]">
-                      {selectedRoom.current_focus || "Set the current focus before the next session."}
+                    <p className="mt-2 max-w-2xl text-[length:var(--t-caption)] leading-[var(--leading-relaxed)] text-[color:var(--text-muted)]">
+                      {selectedLead.email || "No email on file"}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:min-w-[360px]">
@@ -226,7 +226,7 @@ export default function ClientsWorkspace({
                 </div>
               </Card>
 
-              <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
+              <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
                 <div className="space-y-5">
                   <SessionMemoryCard
                     room={selectedRoom}
