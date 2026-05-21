@@ -4,6 +4,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export type NavUnlocks = {
   voice: boolean;
   content: boolean;
+  /** Raw milestone state — used by Settings page. */
+  _milestones?: { hasLead: boolean; hasVoice: boolean };
 };
 
 export async function loadNavUnlocks(
@@ -15,6 +17,7 @@ export async function loadNavUnlocks(
       supabase
         .from("cp_leads")
         .select("id", { count: "exact", head: true })
+        .eq("coach_id", coachId)
         .limit(1),
       supabase
         .from("cp_voice_profiles")
@@ -32,15 +35,16 @@ export async function loadNavUnlocks(
 
   const showAll = (coachRow as { nav_show_all?: boolean } | null)?.nav_show_all === true;
 
-  if (showAll) {
-    return { voice: true, content: true };
-  }
-
   const hasLead = (leadCount ?? 0) > 0;
   const hasVoice = voiceProfile !== null;
+
+  if (showAll) {
+    return { voice: true, content: true, _milestones: { hasLead, hasVoice } };
+  }
 
   return {
     voice: hasLead,
     content: hasLead && hasVoice,
+    _milestones: { hasLead, hasVoice },
   };
 }

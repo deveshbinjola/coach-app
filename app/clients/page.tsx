@@ -7,6 +7,8 @@ import ClientsWorkspace from "@/components/clients/ClientsWorkspace";
 import OfferingsWorkspace, { type OfferingCard } from "@/components/clients/OfferingsWorkspace";
 import { enforceOnboardingGate } from "@/lib/onboarding";
 import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
+import { loadNavUnlocks } from "@/lib/nav-unlocks";
+import { cookies } from "next/headers";
 import type {
   ClientEvent,
   ClientResource,
@@ -34,7 +36,11 @@ export default async function ClientsPage({
 
   const gateRedirect = await enforceOnboardingGate(supabase, user.id);
   if (gateRedirect) redirect(gateRedirect);
-  const headerEmphasis = await loadHeaderEmphasis(supabase, user.id);
+  const [headerEmphasis, navUnlocks] = await Promise.all([
+    loadHeaderEmphasis(supabase, user.id),
+    loadNavUnlocks(supabase, user.id),
+  ]);
+  try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
 
   const tab = searchParams?.tab === "offerings" ? "offerings" : "clients";
 
@@ -45,6 +51,7 @@ export default async function ClientsPage({
         name={userDisplayName(user.user_metadata)}
         avatarUrl={userAvatarUrl(user.user_metadata)}
         emphasis={headerEmphasis}
+        navUnlocks={navUnlocks}
       />
       <main className="max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
         <TabBar active={tab} />

@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Inbox, Users, Mic, PenTool } from "lucide-react";
+import type { NavUnlocks } from "@/lib/nav-unlocks";
 
 const TAB_ITEMS = [
   { href: "/command-center", label: "Home",    icon: Home },
@@ -12,8 +14,33 @@ const TAB_ITEMS = [
   { href: "/content",        label: "Content", icon: PenTool },
 ] as const;
 
+const GRID_CLASS: Record<number, string> = {
+  3: "grid-cols-3",
+  4: "grid-cols-4",
+  5: "grid-cols-5",
+};
+
+function readNavUnlocksCookie(): NavUnlocks | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie.match(/nav-unlocks=([^;]+)/);
+  if (!match) return undefined;
+  try {
+    return JSON.parse(decodeURIComponent(match[1])) as NavUnlocks;
+  } catch {
+    return undefined;
+  }
+}
+
 export default function MobileTabBar() {
   const pathname = usePathname() ?? "";
+  const [navUnlocks] = useState<NavUnlocks | undefined>(readNavUnlocksCookie);
+
+  const visibleTabs = TAB_ITEMS.filter((item) => {
+    if (!navUnlocks) return true;
+    if (item.href === "/voice") return navUnlocks.voice;
+    if (item.href === "/content") return navUnlocks.content;
+    return true;
+  });
 
   function isActive(href: string): boolean {
     if (pathname === href) return true;
@@ -27,8 +54,8 @@ export default function MobileTabBar() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label="Mobile navigation"
     >
-      <div className="grid grid-cols-5 h-14">
-        {TAB_ITEMS.map((item) => {
+      <div className={`grid ${GRID_CLASS[visibleTabs.length] ?? "grid-cols-5"} h-14`}>
+        {visibleTabs.map((item) => {
           const active = isActive(item.href);
           const Icon = item.icon;
           return (

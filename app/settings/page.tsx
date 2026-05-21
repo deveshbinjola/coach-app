@@ -18,12 +18,15 @@ import SettingsForm from "@/components/SettingsForm";
 import AudienceSettingsPanel from "@/components/settings/AudienceSettingsPanel";
 import BrandKitPanel from "@/components/settings/BrandKitPanel";
 import EmailSendingPanel from "@/components/settings/EmailSendingPanel";
+import NavigationSettingsPanel from "@/components/settings/NavigationSettingsPanel";
 import OnboardingResetPanel from "@/components/settings/OnboardingResetPanel";
 import CollapsibleCard, { type SettingsStatus } from "@/components/settings/CollapsibleCard";
 import EditorialSettingsSection from "@/components/settings/EditorialSettingsSection";
 import type { CoachSettings, CoachIntegration } from "@/lib/types";
 import type { AudienceSelf, AudienceServes, VoiceProfileSlug } from "@/lib/voice-profiles";
 import { DEFAULT_BRAND_KIT } from "@/lib/brand-kit";
+import { loadNavUnlocks } from "@/lib/nav-unlocks";
+import { cookies } from "next/headers";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -71,7 +74,7 @@ export default async function SettingsPage({
     user?.id
       ? supabase
           .from("cp_coaches")
-          .select("audience_self, audience_serves, voice_profile_slug")
+          .select("audience_self, audience_serves, voice_profile_slug, nav_show_all")
           .eq("id", user.id)
           .maybeSingle()
       : Promise.resolve({ data: null }),
@@ -83,6 +86,17 @@ export default async function SettingsPage({
           .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
+
+  const navUnlocks = user?.id
+    ? await loadNavUnlocks(supabase, user.id)
+    : { voice: false, content: false };
+  if (user?.id) {
+    try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
+  }
+
+  const hasLead = navUnlocks._milestones?.hasLead ?? false;
+  const hasVoice = navUnlocks._milestones?.hasVoice ?? false;
+  const showAllNav = (coachRow as { nav_show_all?: boolean } | null)?.nav_show_all === true;
 
   const audienceSelf = (coachRow as { audience_self?: string } | null)?.audience_self as AudienceSelf | null ?? null;
   const audienceServes = (coachRow as { audience_serves?: string } | null)?.audience_serves as AudienceServes | null ?? null;
@@ -194,6 +208,21 @@ export default async function SettingsPage({
       ),
     },
     {
+      key: "navigation",
+      title: "Navigation",
+      status: (hasLead && hasVoice ? "done" : "set_up") as SettingsStatus,
+      summary: hasLead && hasVoice
+        ? "All tabs unlocked"
+        : `${[hasLead && "Lead added", hasVoice && "Voice set up"].filter(Boolean).join(" · ") || "Getting started"} — ${showAllNav ? "showing all tabs" : "progressive unlock active"}`,
+      panel: (
+        <NavigationSettingsPanel
+          showAll={showAllNav}
+          hasLead={hasLead}
+          hasVoice={hasVoice}
+        />
+      ),
+    },
+    {
       key: "onboarding_reset",
       title: "Reset onboarding",
       status: "neutral",
@@ -219,6 +248,7 @@ export default async function SettingsPage({
         email={user?.email ?? ""}
         name={userDisplayName(user?.user_metadata)}
         avatarUrl={userAvatarUrl(user?.user_metadata)}
+        navUnlocks={navUnlocks}
       />
       <main className="max-w-2xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
 

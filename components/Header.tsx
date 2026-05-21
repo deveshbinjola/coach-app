@@ -19,6 +19,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, LogOut, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
 import BrandLogo from "@/components/BrandLogo";
+import type { NavUnlocks } from "@/lib/nav-unlocks";
 
 // Turn an email into a friendly display name when we don't have a real one
 // from user_metadata.
@@ -61,9 +62,11 @@ type Props = {
   /** Surface emphasis from onboarding answers. Items that match a "quieter"
    *  surface get dimmer styling without being hidden. */
   emphasis?: { content?: boolean; leads?: boolean; clients?: boolean };
+  /** Controls which optional nav items are visible. When undefined, all items show. */
+  navUnlocks?: NavUnlocks;
 };
 
-export default function Header({ email, name, avatarUrl, emphasis }: Props) {
+export default function Header({ email, name, avatarUrl, emphasis, navUnlocks }: Props) {
   // Map nav href → emphasis flag. Unmapped items (Home, Voice) always
   // stay emphasized — they're foundational, not user-toggleable.
   const isQuiet = (href: string): boolean => {
@@ -78,6 +81,24 @@ export default function Header({ email, name, avatarUrl, emphasis }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [avatarFailed, setAvatarFailed] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      return new Set(JSON.parse(localStorage.getItem("visited-tabs") ?? "[]"));
+    } catch {
+      return new Set();
+    }
+  });
+
+  function markTabVisited(href: string) {
+    setVisitedTabs((prev) => {
+      const next = new Set(prev);
+      next.add(href);
+      localStorage.setItem("visited-tabs", JSON.stringify([...next]));
+      return next;
+    });
+  }
 
   // Close dropdown on outside click or Escape.
   useEffect(() => {
@@ -118,6 +139,13 @@ export default function Header({ email, name, avatarUrl, emphasis }: Props) {
     .join("");
   const showAvatar = !!avatarUrl && !avatarFailed;
 
+  const visibleNavItems = NAV_ITEMS.filter((item) => {
+    if (!navUnlocks) return true;
+    if (item.href === "/voice") return navUnlocks.voice;
+    if (item.href === "/content") return navUnlocks.content;
+    return true;
+  });
+
   /** Active = exact path match, OR current path is a sub-route of the
    *  nav item (so /leads/123 doesn't activate /inbox unless we want it
    *  to. It currently doesn't, since /leads is its own tree). */
@@ -145,13 +173,15 @@ export default function Header({ email, name, avatarUrl, emphasis }: Props) {
           className="hidden md:flex items-center gap-1 rounded-[var(--r-pill)] border border-[var(--border-faint)] bg-[var(--surface-deep)] p-1 text-[length:var(--t-caption)]"
           aria-label="Primary navigation"
         >
-          {NAV_ITEMS.map((item) => (
+          {visibleNavItems.map((item) => (
             <NavLink
               key={item.href}
               href={item.href}
               label={item.label}
               active={isActive(item.href)}
               quiet={isQuiet(item.href)}
+              isNew={navUnlocks !== undefined && !visitedTabs.has(item.href) && (item.href === "/voice" || item.href === "/content")}
+              onNavigate={() => markTabVisited(item.href)}
             />
           ))}
         </nav>
@@ -287,6 +317,8 @@ function NavLink({
   label,
   active,
   quiet = false,
+  isNew = false,
+  onNavigate,
 }: {
   href: string;
   label: string;
@@ -294,11 +326,14 @@ function NavLink({
   /** When true, render at reduced opacity — the coach said no to this
    *  surface in onboarding. Never hide, just de-emphasize. */
   quiet?: boolean;
+  isNew?: boolean;
+  onNavigate?: () => void;
 }) {
   return (
     <a
       href={href}
-      className={`flex h-10 items-center px-4 rounded-[var(--r-pill)] text-[length:var(--t-caption)] font-bold transition ${
+      onClick={onNavigate}
+      className={`flex h-10 items-center gap-1.5 px-4 rounded-[var(--r-pill)] text-[length:var(--t-caption)] font-bold transition ${
         active
           ? "bg-[var(--surface-elevated)] text-[color:var(--text)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border)]"
           : "text-[color:var(--text-muted)] hover:bg-[color-mix(in_srgb,var(--surface-elevated)_70%,transparent)] hover:text-[color:var(--text)]"
@@ -307,6 +342,11 @@ function NavLink({
       title={quiet ? "You marked this quieter in onboarding — change in Settings" : undefined}
     >
       {label}
+      {isNew && (
+        <span className="inline-flex items-center rounded-full bg-[var(--brand)] px-1.5 py-0.5 text-[length:var(--t-micro)] font-extrabold text-[var(--brand-strong)]">
+          NEW
+        </span>
+      )}
     </a>
   );
 }

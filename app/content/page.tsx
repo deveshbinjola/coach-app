@@ -10,6 +10,8 @@ import type { BrandOsSynthesis } from "@/app/api/brand-os/synthesize/route";
 import { detectCorpusDelta, type BrandVoiceOverlay, type VoiceCorpusSnapshot } from "@/lib/brand-os/voice-overlay";
 import { enforceOnboardingGate } from "@/lib/onboarding";
 import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
+import { loadNavUnlocks } from "@/lib/nav-unlocks";
+import { cookies } from "next/headers";
 
 export const runtime = 'edge';
 
@@ -31,7 +33,12 @@ export default async function ContentPage({
   // or the reality questions back to the right step.
   const gateRedirect = await enforceOnboardingGate(supabase, user.id);
   if (gateRedirect) redirect(gateRedirect);
-  const headerEmphasis = await loadHeaderEmphasis(supabase, user.id);
+  const [headerEmphasis, navUnlocks] = await Promise.all([
+    loadHeaderEmphasis(supabase, user.id),
+    loadNavUnlocks(supabase, user.id),
+  ]);
+  try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
+  if (!navUnlocks.content) redirect("/command-center");
 
   // Load workspace data + Brand OS overlay + latest synthesis (for hooks)
   // in one round trip.
@@ -136,6 +143,7 @@ export default async function ContentPage({
         name={userDisplayName(user.user_metadata)}
         avatarUrl={userAvatarUrl(user.user_metadata)}
         emphasis={headerEmphasis}
+        navUnlocks={navUnlocks}
       />
       <main className="max-w-6xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
         <ContentWorkspace

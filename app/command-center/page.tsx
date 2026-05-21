@@ -6,6 +6,8 @@ import CommandCenterView from "@/components/CommandCenterView";
 import type { Lead, Content, LeadMessage, VoiceProfile, Offering, OfferingMember } from "@/lib/types";
 import { enforceOnboardingGate } from "@/lib/onboarding";
 import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
+import { loadNavUnlocks } from "@/lib/nav-unlocks";
+import { cookies } from "next/headers";
 
 export const runtime = 'edge';
 
@@ -56,7 +58,11 @@ export default async function CommandCenterPage() {
 
   const gateRedirect = await enforceOnboardingGate(supabase, user.id);
   if (gateRedirect) redirect(gateRedirect);
-  const headerEmphasis = await loadHeaderEmphasis(supabase, user.id);
+  const [headerEmphasis, navUnlocks] = await Promise.all([
+    loadHeaderEmphasis(supabase, user.id),
+    loadNavUnlocks(supabase, user.id),
+  ]);
+  try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
 
   const now         = Date.now();
   const windowStart = new Date(now - REACH_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
@@ -207,6 +213,7 @@ export default async function CommandCenterPage() {
         name={userDisplayName(user.user_metadata)}
         avatarUrl={userAvatarUrl(user.user_metadata)}
         emphasis={headerEmphasis}
+        navUnlocks={navUnlocks}
       />
       <main className="max-w-6xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
         <CommandCenterView

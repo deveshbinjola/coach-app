@@ -44,6 +44,7 @@ import VoiceTrustCard from "@/components/VoiceTrustCard";
 import CommandHero from "@/components/command-center/CommandHero";
 import RevenueCard, { type OfferingRevenueSummary } from "@/components/command-center/RevenueCard";
 import StatsStrip from "@/components/command-center/StatsStrip";
+import ModeToggle, { type Mode } from "@/components/command-center/ModeToggle";
 import FirstRunCommandCenter from "@/components/command-center/FirstRunCommandCenter";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -585,6 +586,16 @@ export default function CommandCenterView({
   const [contentItems, setContentItems] = useState<Content[]>(content ?? []);
   const [fixingContentId, setFixingContentId] = useState<string | null>(null);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [mode, setMode] = useState<Mode>(() => {
+    if (typeof window === "undefined") return "coach";
+    return (localStorage.getItem("command-center-mode") as Mode) ?? "coach";
+  });
+
+  function handleModeChange(m: Mode) {
+    setMode(m);
+    localStorage.setItem("command-center-mode", m);
+  }
+
   const sortedContent = useMemo(() => sortContent(contentItems), [contentItems]);
   const summary = useMemo(() => summarize(leads), [leads]);
   const rescueItems = useMemo(() => buildRescueItems(leads, now), [leads, now]);
@@ -665,49 +676,85 @@ export default function CommandCenterView({
 
   return (
     <div className="space-y-7">
-      <header>
-        <h1
-          className="font-display text-[length:var(--t-h1)] font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]"
-        >
-          Hey, {coachFirstName}.
-        </h1>
-        <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">
-          Take a breath before you start. &nbsp;In through the nose&hellip; slow exhale.
-        </p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h1
+            className="font-display text-[length:var(--t-h1)] font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]"
+          >
+            Hey, {coachFirstName}.
+          </h1>
+          <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">
+            {mode === "admin"
+              ? "Time to check the numbers."
+              : <>Take a breath before you start. &nbsp;In through the nose&hellip; slow exhale.</>}
+          </p>
+        </div>
+        <ModeToggle mode={mode} onModeChange={handleModeChange} />
       </header>
 
-      <CommandHero
-        summary={summary}
-        rescueCount={rescueItems.length}
-        draftCount={justLanded.length}
-        reachCount={reachCount}
-        reachTarget={reachTarget}
-        voiceTrustPct={trust.asIsPct28}
-        now={now}
-        bookedCount={summary.bookedCount}
-      />
+      <InsightQueue items={insightItems} defaultExpanded={mode === "admin"} />
 
-      <InsightQueue items={insightItems} />
+      {mode === "coach" && (
+        <>
+          <CommandHero
+            summary={summary}
+            rescueCount={rescueItems.length}
+            draftCount={justLanded.length}
+            reachCount={reachCount}
+            reachTarget={reachTarget}
+            voiceTrustPct={trust.asIsPct28}
+            now={now}
+            bookedCount={summary.bookedCount}
+          />
 
-      <LeadRescueCard items={rescueItems} />
+          <LeadRescueCard items={rescueItems} />
 
-      {justLanded.length > 0 && (
-        <JustLandedBand items={justLanded} now={now} />
+          {justLanded.length > 0 && (
+            <JustLandedBand items={justLanded} now={now} />
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 opacity-[0.85] hover:opacity-100 transition-opacity duration-300">
+            <div className="space-y-5 min-w-0">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                <ContentPipeline
+                  items={sortedContent}
+                  fixingId={fixingContentId}
+                  onFix={fixContent}
+                />
+                <VoiceTrustCard messages={trustMessages} size="card" now={now} />
+              </div>
+            </div>
+
+            <div className="space-y-5">
+              <StatsStrip
+                offerings={offeringRevenue}
+                reachCount={reachCount}
+                reachTarget={reachTarget}
+                clientCount={summary.clientCount}
+                pipelineValueCents={summary.pipelineValueCents}
+              />
+
+              {sidebarExpanded ? (
+                <>
+                  <HonestQuestion question={honestQuestion} />
+                  <BillboardCard now={now} />
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setSidebarExpanded(true)}
+                  className="w-full rounded-[var(--r-md)] border border-[var(--border-faint)] bg-[var(--surface-elevated)] px-3 py-2 text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)] hover:border-[var(--border)] hover:text-[color:var(--text)] transition"
+                >
+                  More details →
+                </button>
+              )}
+            </div>
+          </div>
+        </>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 opacity-[0.85] hover:opacity-100 transition-opacity duration-300">
-        <div className="space-y-5 min-w-0">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-            <ContentPipeline
-              items={sortedContent}
-              fixingId={fixingContentId}
-              onFix={fixContent}
-            />
-            <VoiceTrustCard messages={trustMessages} size="card" now={now} />
-          </div>
-        </div>
-
-        <div className="space-y-5">
+      {mode === "admin" && (
+        <>
           <StatsStrip
             offerings={offeringRevenue}
             reachCount={reachCount}
@@ -715,29 +762,19 @@ export default function CommandCenterView({
             clientCount={summary.clientCount}
             pipelineValueCents={summary.pipelineValueCents}
           />
-
-          {sidebarExpanded ? (
-            <>
-              <HonestQuestion question={honestQuestion} />
-              <BillboardCard now={now} />
-            </>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setSidebarExpanded(true)}
-              className="w-full rounded-[var(--r-md)] border border-[var(--border-faint)] bg-[var(--surface-elevated)] px-3 py-2 text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)] hover:border-[var(--border)] hover:text-[color:var(--text)] transition"
-            >
-              More details →
-            </button>
-          )}
-        </div>
-      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <HonestQuestion question={honestQuestion} />
+            <BillboardCard now={now} />
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
-function InsightQueue({ items }: { items: InsightItem[] }) {
+function InsightQueue({ items, defaultExpanded }: { items: InsightItem[]; defaultExpanded?: boolean }) {
   const [expanded, setExpanded] = useState(() => {
+    if (defaultExpanded) return true;
     if (typeof window === "undefined") return false;
     return localStorage.getItem("cc-insights-expanded") === "true";
   });
