@@ -18,6 +18,7 @@ import SettingsForm from "@/components/SettingsForm";
 import AudienceSettingsPanel from "@/components/settings/AudienceSettingsPanel";
 import BrandKitPanel from "@/components/settings/BrandKitPanel";
 import EmailSendingPanel from "@/components/settings/EmailSendingPanel";
+import NavigationSettingsPanel from "@/components/settings/NavigationSettingsPanel";
 import OnboardingResetPanel from "@/components/settings/OnboardingResetPanel";
 import CollapsibleCard, { type SettingsStatus } from "@/components/settings/CollapsibleCard";
 import EditorialSettingsSection from "@/components/settings/EditorialSettingsSection";
@@ -73,7 +74,7 @@ export default async function SettingsPage({
     user?.id
       ? supabase
           .from("cp_coaches")
-          .select("audience_self, audience_serves, voice_profile_slug")
+          .select("audience_self, audience_serves, voice_profile_slug, nav_show_all")
           .eq("id", user.id)
           .maybeSingle()
       : Promise.resolve({ data: null }),
@@ -92,6 +93,10 @@ export default async function SettingsPage({
   if (user?.id) {
     try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
   }
+
+  const hasLead = navUnlocks.voice || navUnlocks.content;
+  const hasVoice = navUnlocks.content;
+  const showAllNav = (coachRow as { nav_show_all?: boolean } | null)?.nav_show_all === true;
 
   const audienceSelf = (coachRow as { audience_self?: string } | null)?.audience_self as AudienceSelf | null ?? null;
   const audienceServes = (coachRow as { audience_serves?: string } | null)?.audience_serves as AudienceServes | null ?? null;
@@ -199,6 +204,21 @@ export default async function SettingsPage({
               : null
           }
           upgradeIntent={searchParams.upgrade ?? null}
+        />
+      ),
+    },
+    {
+      key: "navigation",
+      title: "Navigation",
+      status: (hasLead && hasVoice ? "done" : "set_up") as SettingsStatus,
+      summary: hasLead && hasVoice
+        ? "All tabs unlocked"
+        : `${[hasLead && "Lead added", hasVoice && "Voice set up"].filter(Boolean).join(" · ") || "Getting started"} — ${showAllNav ? "showing all tabs" : "progressive unlock active"}`,
+      panel: (
+        <NavigationSettingsPanel
+          showAll={showAllNav}
+          hasLead={hasLead}
+          hasVoice={hasVoice}
         />
       ),
     },
