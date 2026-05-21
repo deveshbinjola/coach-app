@@ -584,6 +584,7 @@ export default function CommandCenterView({
 }: Props) {
   const [contentItems, setContentItems] = useState<Content[]>(content ?? []);
   const [fixingContentId, setFixingContentId] = useState<string | null>(null);
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const sortedContent = useMemo(() => sortContent(contentItems), [contentItems]);
   const summary = useMemo(() => summarize(leads), [leads]);
   const rescueItems = useMemo(() => buildRescueItems(leads, now), [leads, now]);
@@ -714,8 +715,21 @@ export default function CommandCenterView({
             clientCount={summary.clientCount}
             pipelineValueCents={summary.pipelineValueCents}
           />
-          <HonestQuestion question={honestQuestion} />
-          <BillboardCard now={now} />
+
+          {sidebarExpanded ? (
+            <>
+              <HonestQuestion question={honestQuestion} />
+              <BillboardCard now={now} />
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setSidebarExpanded(true)}
+              className="w-full rounded-[var(--r-md)] border border-[var(--border-faint)] bg-[var(--surface-elevated)] px-3 py-2 text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)] hover:border-[var(--border)] hover:text-[color:var(--text)] transition"
+            >
+              More details →
+            </button>
+          )}
         </div>
       </div>
     </div>
