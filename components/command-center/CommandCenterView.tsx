@@ -41,7 +41,8 @@ import { summarizeTrust, voiceMemoryRules } from "@/lib/voice-trust";
 import { Badge, Card, LeadAvatar } from "@/components/ui";
 import SlaBadge from "@/components/SlaBadge";
 import VoiceTrustCard from "@/components/VoiceTrustCard";
-import CommandHero from "@/components/command-center/CommandHero";
+import PunchListCard from "@/components/command-center/PunchListCard";
+import type { PunchListItem } from "@/lib/build-punch-list";
 import RevenueCard, { type OfferingRevenueSummary } from "@/components/command-center/RevenueCard";
 import StatsStrip from "@/components/command-center/StatsStrip";
 import ModeToggle, { type Mode } from "@/components/command-center/ModeToggle";
@@ -78,6 +79,8 @@ type Props = {
    *  ("Hey, Sunny."). */
   coachFirstName: string;
   offeringRevenue: OfferingRevenueSummary[];
+  punchListItems: PunchListItem[];
+  totalPunchListGenerated: number;
 };
 
 // Tiny derived summary that drives the top-of-page strip.
@@ -582,6 +585,8 @@ export default function CommandCenterView({
   voiceProfile,
   coachFirstName,
   offeringRevenue,
+  punchListItems,
+  totalPunchListGenerated,
 }: Props) {
   const [contentItems, setContentItems] = useState<Content[]>(content ?? []);
   const [fixingContentId, setFixingContentId] = useState<string | null>(null);
@@ -696,15 +701,9 @@ export default function CommandCenterView({
 
       {mode === "coach" && (
         <>
-          <CommandHero
-            summary={summary}
-            rescueCount={rescueItems.length}
-            draftCount={justLanded.length}
-            reachCount={reachCount}
-            reachTarget={reachTarget}
-            voiceTrustPct={trust.asIsPct28}
-            now={now}
-            bookedCount={summary.bookedCount}
+          <PunchListCard
+            items={punchListItems}
+            totalGenerated={totalPunchListGenerated}
           />
 
           <LeadRescueCard items={rescueItems} />
