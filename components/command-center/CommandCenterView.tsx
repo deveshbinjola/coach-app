@@ -694,7 +694,7 @@ export default function CommandCenterView({
         <JustLandedBand items={justLanded} now={now} />
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 opacity-[0.85] hover:opacity-100 transition-opacity duration-300">
         <div className="space-y-5 min-w-0">
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
             <ContentPipeline
