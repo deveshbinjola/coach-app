@@ -19,7 +19,7 @@ export default async function InboxPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   const navUnlocks = await loadNavUnlocks(supabase, user.id);
-  cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 });
+  try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
   // Fetch all leads; client sorts by score by default. Fallback server order
   // is created_at desc so the initial render is deterministic.
   const { data: leads } = await supabase

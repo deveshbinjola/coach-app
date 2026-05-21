@@ -44,7 +44,7 @@ export default async function VoicePage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   const navUnlocks = await loadNavUnlocks(supabase, user.id);
-  cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 });
+  try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
   if (!navUnlocks.voice) redirect("/command-center");
 
   // One active profile per coach. `maybeSingle()` returns null cleanly when

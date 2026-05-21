@@ -33,9 +33,11 @@ export default async function ContentPage({
   // or the reality questions back to the right step.
   const gateRedirect = await enforceOnboardingGate(supabase, user.id);
   if (gateRedirect) redirect(gateRedirect);
-  const headerEmphasis = await loadHeaderEmphasis(supabase, user.id);
-  const navUnlocks = await loadNavUnlocks(supabase, user.id);
-  cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 });
+  const [headerEmphasis, navUnlocks] = await Promise.all([
+    loadHeaderEmphasis(supabase, user.id),
+    loadNavUnlocks(supabase, user.id),
+  ]);
+  try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
   if (!navUnlocks.content) redirect("/command-center");
 
   // Load workspace data + Brand OS overlay + latest synthesis (for hooks)

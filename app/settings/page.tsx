@@ -90,7 +90,7 @@ export default async function SettingsPage({
     ? await loadNavUnlocks(supabase, user.id)
     : { voice: false, content: false };
   if (user?.id) {
-    cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 });
+    try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
   }
 
   const audienceSelf = (coachRow as { audience_self?: string } | null)?.audience_self as AudienceSelf | null ?? null;

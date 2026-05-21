@@ -58,9 +58,11 @@ export default async function CommandCenterPage() {
 
   const gateRedirect = await enforceOnboardingGate(supabase, user.id);
   if (gateRedirect) redirect(gateRedirect);
-  const headerEmphasis = await loadHeaderEmphasis(supabase, user.id);
-  const navUnlocks = await loadNavUnlocks(supabase, user.id);
-  cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 });
+  const [headerEmphasis, navUnlocks] = await Promise.all([
+    loadHeaderEmphasis(supabase, user.id),
+    loadNavUnlocks(supabase, user.id),
+  ]);
+  try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
 
   const now         = Date.now();
   const windowStart = new Date(now - REACH_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
