@@ -15,9 +15,10 @@
 //
 // Closing the drawer strips the compose param so refresh ≠ reopen.
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import LeadList from "@/components/LeadList";
+import LeadSearchBar from "@/components/inbox/LeadSearchBar";
 import ComposeStudio from "@/components/ComposeStudio";
 import Modal from "@/components/ui/Modal";
 import type { Lead } from "@/lib/types";
@@ -60,6 +61,11 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
     .map((s) => s.trim())
     .filter(Boolean);
   const seedSource = searchParams?.get("source") ?? "";
+  const [filteredLeads, setFilteredLeads] = useState<Lead[]>(leads);
+  const handleFiltered = useCallback((filtered: Lead[]) => {
+    setFilteredLeads(filtered);
+  }, []);
+
   const activeLeads = leads.filter(
     (lead) => lead.status !== "client" && lead.status !== "closed_lost"
   );
@@ -169,7 +175,11 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
         )}
       </section>
 
-      <LeadList leads={leads} now={now} />
+      <div className="mb-5">
+        <LeadSearchBar leads={leads} onFiltered={handleFiltered} />
+      </div>
+
+      <LeadList leads={filteredLeads} now={now} />
 
       {/* Compose drawer, near-fullscreen on desktop, full-screen sheet on
           mobile. ComposeStudio is unchanged; we just gave it a new home. */}
