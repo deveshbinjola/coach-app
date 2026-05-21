@@ -43,6 +43,7 @@ import SlaBadge from "@/components/SlaBadge";
 import VoiceTrustCard from "@/components/VoiceTrustCard";
 import CommandHero from "@/components/command-center/CommandHero";
 import RevenueCard, { type OfferingRevenueSummary } from "@/components/command-center/RevenueCard";
+import StatsStrip from "@/components/command-center/StatsStrip";
 import FirstRunCommandCenter from "@/components/command-center/FirstRunCommandCenter";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -706,8 +707,13 @@ export default function CommandCenterView({
         </div>
 
         <div className="space-y-5">
-          <RevenueCard offerings={offeringRevenue} />
-          <ReachCard count={reachCount} target={reachTarget} dailyReach={dailyReach} now={now} />
+          <StatsStrip
+            offerings={offeringRevenue}
+            reachCount={reachCount}
+            reachTarget={reachTarget}
+            clientCount={summary.clientCount}
+            pipelineValueCents={summary.pipelineValueCents}
+          />
           <HonestQuestion question={honestQuestion} />
           <BillboardCard now={now} />
         </div>
