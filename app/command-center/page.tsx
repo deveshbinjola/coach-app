@@ -8,6 +8,9 @@ import { enforceOnboardingGate } from "@/lib/onboarding";
 import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
 import { loadNavUnlocks } from "@/lib/nav-unlocks";
 import { cookies } from "next/headers";
+import { buildPunchList } from "@/lib/build-punch-list";
+import { computeLeadScore } from "@/lib/lead-score";
+import { assessSla } from "@/lib/lead-sla";
 
 export const runtime = 'edge';
 
@@ -206,6 +209,42 @@ export default async function CommandCenterPage() {
       ? reachTargetRaw
       : DEFAULT_REACH_TARGET;
 
+  // Build rescue items server-side for punch list
+  const rescueItems = leads
+    .filter((l) => l.status !== "client" && l.status !== "closed_lost")
+    .map((lead) => {
+      const sla = assessSla(lead, now);
+      const followupAt = lead.next_followup_at
+        ? new Date(lead.next_followup_at).getTime()
+        : null;
+      const promisedFollowup = followupAt !== null && followupAt <= now;
+      const needsRescue =
+        sla.state === "overdue" ||
+        sla.state === "warning" ||
+        promisedFollowup ||
+        lead.next_honest_action === "invite_to_call";
+      if (!needsRescue) return null;
+      const reason =
+        promisedFollowup ? "Follow-up was promised"
+        : lead.status === "new" && sla.state === "overdue" ? "No first touch yet"
+        : sla.state === "overdue" ? "Conversation is going cold"
+        : sla.state === "warning" ? "Needs a reply today"
+        : lead.next_honest_action === "invite_to_call" ? "Ready for a call invite"
+        : "Worth your next message";
+      return { lead, score: computeLeadScore(lead, now), sla, reason, action: "" };
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+
+  const { items: punchListItems, total: totalPunchListGenerated } = buildPunchList(
+    rescueItems,
+    justLanded,
+    content,
+    reachCount,
+    reachTarget,
+  );
+
   return (
     <div className="min-h-screen">
       <Header
@@ -229,6 +268,8 @@ export default async function CommandCenterPage() {
           voiceProfile={(voiceRes.data as VoiceProfile | null) ?? null}
           coachFirstName={userFirstName(user.email, user.user_metadata)}
           offeringRevenue={offeringRevenue}
+          punchListItems={punchListItems}
+          totalPunchListGenerated={totalPunchListGenerated}
         />
       </main>
     </div>
