@@ -1308,7 +1308,7 @@ function ReachCard({
         <p className="text-[length:var(--t-caption)] font-bold text-[color:var(--text-faint)]">
           Weekly reach
         </p>
-        <span className="text-[length:var(--t-body)] font-bold text-[color:var(--text)] tabular-nums">
+        <span className={`text-[length:var(--t-body)] font-bold tabular-nums ${hit ? "text-[color:var(--brand)]" : "text-[color:var(--text)]"}`}>
           {count}
           <span className="text-[color:var(--text-faint)] font-normal text-[length:var(--t-caption)]">
             {" "}
@@ -1320,39 +1320,54 @@ function ReachCard({
       {/* Pill bar grid. h-24 leaves headroom for tall days; pills fill from
           the bottom so empty days collapse to the floor instead of floating
           mid-frame. */}
-      <div className="grid grid-cols-7 gap-1.5 h-24">
-        {dailyReach.map((value, i) => {
-          const isToday = i === 6;
-          // Cap visual at 1.4x pace so a single great day doesn't squash
-          // the rest. Anything above pace still reads as "above target."
-          const fillFrac = Math.min(1.4, value / dailyPace) / 1.4;
-          return (
-            <div key={i} className="flex flex-col items-center gap-1.5">
-              <div
-                className={`relative w-full flex-1 rounded-full overflow-hidden fill-pending ${
-                  isToday
-                    ? "ring-2 ring-[color-mix(in_srgb,var(--brand)_55%,transparent)] ring-offset-2 ring-offset-[var(--surface-elevated)]"
-                    : ""
-                }`}
-                aria-label={`${value} lead${value === 1 ? "" : "s"} contacted${isToday ? " today" : ""}`}
-              >
-                {value > 0 && (
-                  <div
-                    className="absolute inset-x-0 bottom-0 rounded-full bg-[var(--brand)] transition-[height] duration-[var(--t-slow)]"
-                    style={{ height: `${Math.max(8, fillFrac * 100)}%` }}
-                  />
-                )}
+      <div className="relative">
+        {/* Goal line at daily pace height */}
+        <div
+          className="absolute inset-x-0 border-t border-dashed border-[var(--text-faint)] pointer-events-none z-10"
+          style={{ bottom: `${(1 / 1.4) * 100}%` }}
+          aria-hidden="true"
+        >
+          <span className="absolute -top-3 right-0 text-[9px] font-bold text-[color:var(--text-faint)]">
+            pace
+          </span>
+        </div>
+        <div className="grid grid-cols-7 gap-1.5 h-24">
+          {dailyReach.map((value, i) => {
+            const isToday = i === 6;
+            // Cap visual at 1.4x pace so a single great day doesn't squash
+            // the rest. Anything above pace still reads as "above target."
+            const fillFrac = Math.min(1.4, value / dailyPace) / 1.4;
+            const atPace = value >= dailyPace;
+            return (
+              <div key={i} className="flex flex-col items-center gap-1.5">
+                <div
+                  className={`relative w-full flex-1 rounded-full overflow-hidden fill-pending ${
+                    isToday
+                      ? "ring-2 ring-[color-mix(in_srgb,var(--brand)_55%,transparent)] ring-offset-2 ring-offset-[var(--surface-elevated)]"
+                      : ""
+                  }`}
+                  aria-label={`${value} lead${value === 1 ? "" : "s"} contacted${isToday ? " today" : ""}`}
+                >
+                  {value > 0 && (
+                    <div
+                      className={`absolute inset-x-0 bottom-0 rounded-full transition-[height] duration-[var(--t-slow)] ${
+                        atPace ? "bg-[var(--brand)]" : "bg-[var(--warning)]"
+                      }`}
+                      style={{ height: `${Math.max(8, fillFrac * 100)}%` }}
+                    />
+                  )}
+                </div>
+                <span
+                  className={`text-[10px] font-bold tabular-nums ${
+                    isToday ? "text-[color:var(--text)]" : "text-[color:var(--text-faint)]"
+                  }`}
+                >
+                  {labels[i]}
+                </span>
               </div>
-              <span
-                className={`text-[10px] font-bold tabular-nums ${
-                  isToday ? "text-[color:var(--text)]" : "text-[color:var(--text-faint)]"
-                }`}
-              >
-                {labels[i]}
-              </span>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-3 text-right">
