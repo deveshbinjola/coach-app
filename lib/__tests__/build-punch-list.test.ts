@@ -99,21 +99,24 @@ describe("buildPunchList", () => {
     expect(types).toEqual(["rescue", "new-lead", "content", "reach"]);
   });
 
-  it("caps at 5, reports total", () => {
+  it("caps rescue at 3 so other sources get slots", () => {
     const rescues = [
       makeRescue({ id: "r1" }),
       makeRescue({ id: "r2" }),
       makeRescue({ id: "r3" }),
       makeRescue({ id: "r4" }),
+      makeRescue({ id: "r5" }),
     ];
     const jl = [
       makeJustLanded({ lead_id: "jl1", draft_id: "d1" }),
       makeJustLanded({ lead_id: "jl2", draft_id: "d2" }),
     ];
-    // 4 rescues + 2 just-landed = 6 total, should cap at 5
-    const result = buildPunchList(rescues, jl, [], 5, 5);
+    const result = buildPunchList(rescues, jl, [], 0, 10);
+    // 3 rescue (capped) + 2 just-landed + 1 reach = 6 total, capped at 5
     expect(result.items).toHaveLength(5);
     expect(result.total).toBe(6);
+    expect(result.items.filter((i) => i.type === "rescue")).toHaveLength(3);
+    expect(result.items.filter((i) => i.type === "new-lead")).toHaveLength(2);
   });
 
   it("only includes draft content (skips published/scheduled)", () => {

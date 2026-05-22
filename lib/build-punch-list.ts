@@ -14,6 +14,7 @@ type RescueItem = {
 };
 
 const MAX_ITEMS = 5;
+const MAX_RESCUE = 3;
 
 export function buildPunchList(
   rescueItems: RescueItem[],
@@ -24,7 +25,7 @@ export function buildPunchList(
 ): { items: PunchListItem[]; total: number } {
   const all: PunchListItem[] = [];
 
-  for (const r of rescueItems) {
+  for (const r of rescueItems.slice(0, MAX_RESCUE)) {
     all.push({
       id:    `rescue:${r.lead.id}`,
       type:  "rescue",
