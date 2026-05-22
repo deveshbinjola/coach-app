@@ -714,6 +714,30 @@ export default function CommandCenterView({
         </>
       )}
 
+      {mode === "coach" && punchListItems.length === 0 && rescueItems.length === 0 && justLanded.length === 0 && (
+        <Card variant="elevated" padding="md">
+          <div className="text-center py-6">
+            <p className="text-[length:var(--t-h2)] font-bold text-[color:var(--text)]">
+              Clean slate today
+            </p>
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-2 max-w-md mx-auto">
+              No urgent items. Use this space to send reach, refine your voice, or create content.
+            </p>
+            <div className="flex items-center justify-center gap-3 mt-5 flex-wrap">
+              <a href="/inbox?compose=open" className="inline-flex items-center justify-center h-10 px-5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] font-bold text-[length:var(--t-caption)] hover:bg-[var(--brand-strong)] transition">
+                Send reach
+              </a>
+              <a href="/voice" className="inline-flex items-center justify-center h-10 px-5 rounded-[var(--r-md)] border border-[var(--border)] text-[color:var(--text)] font-bold text-[length:var(--t-caption)] hover:border-[var(--border-strong)] transition">
+                Refine voice
+              </a>
+              <a href="/content" className="inline-flex items-center justify-center h-10 px-5 rounded-[var(--r-md)] border border-[var(--border)] text-[color:var(--text)] font-bold text-[length:var(--t-caption)] hover:border-[var(--border-strong)] transition">
+                Create content
+              </a>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {mode === "admin" && (
         <>
           <StatsStrip
@@ -1255,6 +1279,30 @@ function ReachCard({
     d.setDate(d.getDate() - (6 - i));
     return DAY_LETTERS[d.getDay()];
   });
+
+  if (count === 0 && dailyReach.every(d => d === 0)) {
+    return (
+      <Card padding="md">
+        <p className="text-[length:var(--t-caption)] font-bold text-[color:var(--text-faint)] mb-3">
+          Weekly reach
+        </p>
+        <div className="text-center py-4">
+          <p className="text-[length:var(--t-h3)] font-bold text-[color:var(--text)]">
+            No outreach yet this week
+          </p>
+          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-2 max-w-xs mx-auto">
+            Send your first message to start building momentum. Even one reach counts.
+          </p>
+          <a
+            href="/inbox?compose=open"
+            className="inline-flex items-center justify-center mt-4 h-10 px-5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] font-bold text-[length:var(--t-caption)] hover:bg-[var(--brand-strong)] transition"
+          >
+            Send first reach
+          </a>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card padding="md">
