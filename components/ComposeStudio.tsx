@@ -568,8 +568,8 @@ export default function ComposeStudio({
           value={template}
           onChange={(e) => setTemplate(e.target.value)}
           placeholder={`Hey [FIRST_NAME],\n\nI've been thinking about what you shared about [PAIN]. One thing I've seen land with men in your spot...`}
-          rows={14}
-          className={`${originalAiTemplate !== null ? "" : "mt-4 "}w-full rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-4 text-[length:var(--t-body)] leading-[var(--leading-relaxed)] focus:outline-none focus:border-[var(--brand-strong)]`}
+          rows={6}
+          className={`${originalAiTemplate !== null ? "" : "mt-4 "}w-full min-h-[200px] sm:min-h-[320px] max-h-[500px] resize-y rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-4 text-[length:var(--t-body)] leading-[var(--leading-relaxed)] focus:outline-none focus:border-[var(--brand-strong)]`}
         />
         <VoiceFitPanel
           fit={voiceFit}
