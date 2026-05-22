@@ -322,7 +322,7 @@ export default function LeadDetail({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-20">
       {conversion && (
         <ConversionCelebration
           name={conversion.name}
@@ -383,6 +383,7 @@ export default function LeadDetail({
           <div>
             <label className="block text-xs uppercase font-semibold text-gray-500 mb-1">Status</label>
             <select
+              id="status-select"
               value={status}
               onChange={(e) => changeStatus(e.target.value as LeadStatus)}
               className="w-full p-2 border border-gray-300 rounded-lg"
@@ -542,7 +543,7 @@ export default function LeadDetail({
         </div>
       </aside>
 
-      <section className="md:col-span-2 space-y-6">
+      <section id="messages-section" className="md:col-span-2 space-y-6">
         {/* Phase 7: Auto-Response Engine first-touch draft, surfaced at the
             very top so it's the first thing the coach sees on a fresh lead.
             Renders only when the engine has produced a pending draft. */}
@@ -682,6 +683,7 @@ export default function LeadDetail({
           </div>
           <div className="relative">
             <textarea
+              id="note-input"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               rows={6}
@@ -710,6 +712,41 @@ export default function LeadDetail({
         </Card>
       </section>
       </div>
+
+      {/* ── Sticky CTA bar ───────────────────────────────────────────── */}
+      {lead.status !== "client" && lead.status !== "closed_lost" && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border-faint)] bg-[color-mix(in_srgb,var(--surface-elevated)_85%,transparent)] backdrop-blur-sm">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center gap-2">
+            <a
+              href={`/inbox?compose=open&ids=${lead.id}&autoDraft=true`}
+              className="inline-flex h-11 flex-1 sm:flex-none items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-5 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[color-mix(in_srgb,var(--brand)_85%,black)]"
+            >
+              Draft Message
+            </a>
+            <button
+              type="button"
+              onClick={() => {
+                const el = document.getElementById("note-input") ?? document.getElementById("messages-section");
+                el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                (document.getElementById("note-input") as HTMLTextAreaElement | null)?.focus();
+              }}
+              className="inline-flex h-9 items-center justify-center rounded-[var(--r-md)] border border-[var(--border-faint)] bg-transparent px-4 text-[length:var(--t-caption)] font-semibold text-[color:var(--text-muted)] transition hover:border-[var(--border)] hover:text-[color:var(--text)]"
+            >
+              Add Note
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                document.getElementById("status-select")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                (document.getElementById("status-select") as HTMLSelectElement | null)?.focus();
+              }}
+              className="inline-flex h-9 items-center justify-center rounded-[var(--r-md)] border border-[var(--border-faint)] bg-transparent px-4 text-[length:var(--t-caption)] font-semibold text-[color:var(--text-muted)] transition hover:border-[var(--border)] hover:text-[color:var(--text)]"
+            >
+              Change Stage
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
