@@ -54,7 +54,7 @@ export default function MobileTabBar() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label="Mobile navigation"
     >
-      <div className={`grid ${GRID_CLASS[visibleTabs.length] ?? "grid-cols-5"} h-14`}>
+      <div className={`grid ${GRID_CLASS[visibleTabs.length] ?? "grid-cols-5"} h-16`}>
         {visibleTabs.map((item) => {
           const active = isActive(item.href);
           const Icon = item.icon;
@@ -62,14 +62,21 @@ export default function MobileTabBar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center gap-0.5 transition ${
+              className={`relative flex flex-col items-center justify-center gap-0.5 transition ${
                 active
                   ? "text-[color:var(--brand-strong)]"
                   : "text-[color:var(--text-muted)] active:text-[color:var(--text)]"
               }`}
               aria-current={active ? "page" : undefined}
             >
-              <Icon size={18} strokeWidth={active ? 2.4 : 1.8} />
+              {active && (
+                <span className="absolute top-0 inset-x-3 h-0.5 rounded-full bg-[var(--brand)]" aria-hidden="true" />
+              )}
+              <span className={`flex items-center justify-center w-8 h-8 rounded-full transition ${
+                active ? "bg-[var(--brand-soft)]" : ""
+              }`}>
+                <Icon size={18} strokeWidth={active ? 2.4 : 1.8} />
+              </span>
               <span className={`text-[10px] ${active ? "font-extrabold" : "font-bold"}`}>
                 {item.label}
               </span>
