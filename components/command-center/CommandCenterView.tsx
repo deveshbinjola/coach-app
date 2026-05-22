@@ -1164,11 +1164,9 @@ function ContentPipeline({
               return (
                 <li
                   key={item.id}
-                  className={
-                    isLast ? "" : "border-b border-[var(--border-faint)]"
-                  }
+                  className={`${isLast ? "" : "border-b border-[var(--border-faint)]"} ${item.status === "draft" ? "border-l-2 border-l-[var(--brand)]" : ""}`}
                 >
-                  <div className="flex items-start gap-3 px-5 py-4">
+                  <div className={`flex items-start gap-3 px-5 py-4 ${item.status === "published" ? "opacity-70" : ""}`}>
                     {/* Platform chip */}
                     <div className="shrink-0 w-8 h-8 rounded-[var(--r-md)] bg-[var(--surface-deep)] flex items-center justify-center text-[10px] font-bold text-[color:var(--text-muted)] uppercase">
                       {platformIcon(item.platform)}
@@ -1215,7 +1213,7 @@ function ContentPipeline({
                     {/* Status badge */}
                     <div className="shrink-0">
                       <Badge tone={statusBadgeTone(item.status)} size="xs">
-                        {statusBadgeLabel(item.status)}
+                        {item.status === "draft" && <span className="inline-block w-1.5 h-1.5 rounded-full bg-current animate-pulse mr-1" aria-hidden="true" />}{statusBadgeLabel(item.status)}
                       </Badge>
                     </div>
                   </div>
