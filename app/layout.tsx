@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import MobileTabBar from "@/components/MobileTabBar";
+import CommandPalette from "@/components/CommandPalette";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </div>
         <MobileTabBar />
+        <CommandPalette />
       </body>
     </html>
   );
