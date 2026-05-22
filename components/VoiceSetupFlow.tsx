@@ -32,6 +32,8 @@ import { getVoiceProfile, DEFAULT_VOICE_PROFILE_SLUG, type VoiceProfileSlug } fr
 // "good" looks like before they start typing.
 type Question = { id: string; q: string; hint: string; placeholder: string };
 
+const STEP_LABELS = ["Core belief", "What scares you", "Signature phrases", "Anti-patterns", "Your audience"] as const;
+
 // Build the 5 voice-revealing questions from the coach's voice profile.
 // Q1-Q3 pull profile-specific cues from lib/voice-profiles.ts.
 // Q4-Q5 are profile-neutral (works for every coach).
@@ -240,16 +242,14 @@ export default function VoiceSetupFlow({
       {variant === "standalone" && (
         <div>
           <Badge tone="brand" size="xs" uppercase>
-            Voice setup · 5 questions · ~90 seconds
+            ~90 seconds
           </Badge>
           <h2 className="text-[length:var(--t-h1)] font-extrabold mt-2 text-[color:var(--text)] leading-[var(--leading-tight)]">
-            Tell me how you actually talk.
+            Teach the AI your voice
           </h2>
-          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1.5 max-w-2xl leading-[var(--leading-relaxed)]">
-            Speak or type. Use your real words. The AI will pattern-match
-            across your answers and build a voice profile every draft routes
-            through. Skip any question that doesn&apos;t land. You only need
-            three substantive answers.
+          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1.5 max-w-lg leading-[var(--leading-relaxed)]">
+            Answer a few questions in your real words. The AI builds a voice
+            profile so every draft sounds like you, not a bot.
           </p>
         </div>
       )}
@@ -271,10 +271,31 @@ export default function VoiceSetupFlow({
         ))}
       </div>
 
+      {stepIndex === 0 && variant === "standalone" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="rounded-[var(--r-md)] border border-[var(--border-faint)] bg-[var(--surface-deep)] p-4">
+            <p className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)] mb-2">
+              Without voice training
+            </p>
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic leading-[var(--leading-relaxed)]">
+              &ldquo;Hi! I hope this message finds you well. I wanted to reach out because I think my coaching program could be a great fit for you.&rdquo;
+            </p>
+          </div>
+          <div className="rounded-[var(--r-md)] border border-[var(--brand)] bg-[var(--brand-soft)] p-4">
+            <p className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand)] mb-2">
+              With voice training
+            </p>
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text)] italic leading-[var(--leading-relaxed)]">
+              &ldquo;Saw your post about hitting a wall with clients. I went through the same thing two years ago — here&apos;s what shifted everything for me.&rdquo;
+            </p>
+          </div>
+        </div>
+      )}
+
       {currentQuestion && (
         <Card padding="lg">
           <div className="text-[length:var(--t-caption)] text-[color:var(--text-faint)] font-bold uppercase tracking-wider mb-1.5">
-            Question {stepIndex + 1} of {QUESTIONS.length}
+            {STEP_LABELS[stepIndex]} · {stepIndex + 1} of {QUESTIONS.length}
           </div>
           <h3 className="text-[length:var(--t-h2)] font-bold text-[color:var(--text)] leading-[var(--leading-tight)]">
             {currentQuestion.q}
