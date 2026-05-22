@@ -6,6 +6,22 @@ import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 import { PAIN_SIGNAL_LABEL, type ClientRoom, type ClientTask, type Lead } from "@/lib/types";
 
+type HealthStatus = "healthy" | "at-risk" | "cold";
+
+function clientHealth(lead: Lead): { status: HealthStatus; daysSince: number; label: string } {
+  const anchor = lead.last_contact_at ?? lead.updated_at;
+  const days = Math.floor((Date.now() - new Date(anchor).getTime()) / 86_400_000);
+  if (days <= 7) return { status: "healthy", daysSince: days, label: days === 0 ? "Today" : days === 1 ? "Yesterday" : `${days}d ago` };
+  if (days <= 14) return { status: "at-risk", daysSince: days, label: `${days}d ago` };
+  return { status: "cold", daysSince: days, label: days >= 30 ? `${Math.floor(days / 7)}w ago` : `${days}d ago` };
+}
+
+const HEALTH_DOT: Record<HealthStatus, string> = {
+  healthy: "bg-[var(--brand)]",
+  "at-risk": "bg-[var(--warning)]",
+  cold: "bg-[var(--danger)]",
+};
+
 type Props = {
   leads: Lead[];
   rooms: Map<string, ClientRoom>;
@@ -28,6 +44,12 @@ export default function ClientSidebar({
   const filtered = leads.filter(
     (lead) => !search.trim() || lead.full_name.toLowerCase().includes(search.trim().toLowerCase())
   );
+
+  const sorted = [...filtered].sort((a, b) => {
+    const ha = clientHealth(a);
+    const hb = clientHealth(b);
+    return hb.daysSince - ha.daysSince; // coldest first
+  });
 
   return (
     <Card padding="none" className="overflow-hidden">
@@ -60,12 +82,13 @@ export default function ClientSidebar({
         )}
       </div>
       <div className="divide-y divide-[var(--border-faint)]">
-        {filtered.map((lead) => {
+        {sorted.map((lead) => {
           const room = rooms.get(lead.id);
           const active = selectedLeadId === lead.id;
           const openTaskCount = room
             ? tasks.filter((t) => t.client_room_id === room.id && t.status === "open").length
             : 0;
+          const health = clientHealth(lead);
           return (
             <button
               key={lead.id}
@@ -77,11 +100,15 @@ export default function ClientSidebar({
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-[length:var(--t-body)] font-extrabold text-[color:var(--text)]">
-                    {lead.full_name}
-                  </p>
-                  <p className="mt-1 truncate text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-                    {lead.pain_signal[0] ? PAIN_SIGNAL_LABEL[lead.pain_signal[0]] : "Client"}
+                  <div className="flex items-center gap-2">
+                    <span className={`shrink-0 h-2 w-2 rounded-full ${HEALTH_DOT[health.status]}`} aria-label={`${health.status} — contacted ${health.label}`} />
+                    <p className="truncate text-[length:var(--t-body)] font-extrabold text-[color:var(--text)]">
+                      {lead.full_name}
+                    </p>
+                  </div>
+                  <p className="mt-1 truncate text-[length:var(--t-caption)] text-[color:var(--text-muted)] pl-4">
+                    {health.label}
+                    {lead.pain_signal[0] ? ` · ${PAIN_SIGNAL_LABEL[lead.pain_signal[0]]}` : ""}
                   </p>
                 </div>
                 <Badge tone={room ? "brand" : "warning"} size="xs">
