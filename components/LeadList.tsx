@@ -28,6 +28,7 @@ import {
   type PainSignal,
   type LeadTemperature,
   type LeadNextAction,
+  type LeadStatus,
 } from "@/lib/types";
 import {
   computeLeadScore,
@@ -132,6 +133,7 @@ export default function LeadList({
   const [painFilter, setPainFilter] = useState<PainSignal[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const normalizedSearch = searchQuery.trim().toLowerCase();
+  const [stageFilter, setStageFilter] = useState<LeadStatus | "all">("all");
 
   // ── Pagination cursors ───────────────────────────────────────────────────
   const [listPage, setListPage] = useState(0);
@@ -144,6 +146,9 @@ export default function LeadList({
   useEffect(() => {
     setPainPage(0);
   }, [painFilter, normalizedSearch]);
+  useEffect(() => {
+    setListPage(0);
+  }, [stageFilter]);
 
   // ── Derived data ─────────────────────────────────────────────────────────
   const searchedLeads = useMemo(() => {
@@ -151,24 +156,29 @@ export default function LeadList({
     return leads.filter((lead) => leadMatchesSearch(lead, normalizedSearch));
   }, [leads, normalizedSearch]);
 
+  const stageFilteredLeads = useMemo(() => {
+    if (stageFilter === "all") return searchedLeads;
+    return searchedLeads.filter((lead) => lead.status === stageFilter);
+  }, [searchedLeads, stageFilter]);
+
   const sortedLeads = useMemo(() => {
     let copy: Lead[];
     switch (sortKey) {
       case "score":
-        copy = sortByScore(searchedLeads, now);
+        copy = sortByScore(stageFilteredLeads, now);
         break;
       case "name":
-        copy = [...searchedLeads].sort((a, b) =>
+        copy = [...stageFilteredLeads].sort((a, b) =>
           a.full_name.localeCompare(b.full_name)
         );
         break;
       case "warmth":
-        copy = [...searchedLeads].sort(
+        copy = [...stageFilteredLeads].sort(
           (a, b) => WARMTH_RANK[b.temperature] - WARMTH_RANK[a.temperature]
         );
         break;
       case "sla":
-        copy = [...searchedLeads].sort((a, b) => {
+        copy = [...stageFilteredLeads].sort((a, b) => {
           const aSla = assessSla(a, now);
           const bSla = assessSla(b, now);
           const rankDelta =
@@ -179,7 +189,7 @@ export default function LeadList({
         break;
       case "followup":
       default:
-        copy = [...searchedLeads].sort((a, b) => {
+        copy = [...stageFilteredLeads].sort((a, b) => {
           const fa = a.next_followup_at
             ? new Date(a.next_followup_at).getTime()
             : Infinity;
@@ -191,9 +201,9 @@ export default function LeadList({
         break;
     }
     return sortDir === "asc" ? copy.reverse() : copy;
-  }, [searchedLeads, sortKey, sortDir, now]);
+  }, [stageFilteredLeads, sortKey, sortDir, now]);
 
-  const startHere = useMemo(() => buildStartHere(searchedLeads, now), [searchedLeads, now]);
+  const startHere = useMemo(() => buildStartHere(stageFilteredLeads, now), [stageFilteredLeads, now]);
   const startHereIds = useMemo(
     () => new Set(startHere.map((item) => item.lead.id)),
     [startHere]
@@ -203,8 +213,8 @@ export default function LeadList({
     [sortedLeads, startHereIds]
   );
   const remainingLeads = useMemo(
-    () => searchedLeads.filter((lead) => !startHereIds.has(lead.id)),
-    [searchedLeads, startHereIds]
+    () => stageFilteredLeads.filter((lead) => !startHereIds.has(lead.id)),
+    [stageFilteredLeads, startHereIds]
   );
 
   const painFilteredLeads = useMemo(() => {
@@ -230,8 +240,8 @@ export default function LeadList({
     return buckets;
   }, [remainingLeads, now]);
 
-  const allIds = useMemo(() => searchedLeads.map((l) => l.id), [searchedLeads]);
-  const allSelected = searchedLeads.length > 0 && allIds.every((id) => selected.has(id));
+  const allIds = useMemo(() => stageFilteredLeads.map((l) => l.id), [stageFilteredLeads]);
+  const allSelected = stageFilteredLeads.length > 0 && allIds.every((id) => selected.has(id));
   const anySelected = selected.size > 0;
 
   // ── Selection helpers ────────────────────────────────────────────────────
@@ -362,8 +372,32 @@ export default function LeadList({
     <>
       <StartHereSection items={startHere} />
 
+      {/* ── Stage filter pills ───────────────────────────────────────── */}
+      <div className="mt-8 flex items-center gap-1.5 flex-wrap">
+        {(["all", "new", "contacted", "qualified", "booked"] as const).map((stage) => {
+          const active = stageFilter === stage;
+          const count = stage === "all"
+            ? searchedLeads.length
+            : searchedLeads.filter((l) => l.status === stage).length;
+          return (
+            <button
+              key={stage}
+              type="button"
+              onClick={() => setStageFilter(stage)}
+              className={`h-8 px-3 rounded-[var(--r-pill)] text-[length:var(--t-caption)] font-bold transition ${
+                active
+                  ? "bg-[var(--brand)] text-[color:var(--navy)]"
+                  : "bg-[var(--surface-deep)] text-[color:var(--text-muted)] hover:text-[color:var(--text)] hover:bg-[var(--surface-elevated)]"
+              }`}
+            >
+              {stage === "all" ? "All" : stage.charAt(0).toUpperCase() + stage.slice(1)} ({count})
+            </button>
+          );
+        })}
+      </div>
+
       {/* ── View switcher + sort hint ────────────────────────────────── */}
-      <div className="mt-8 mb-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,380px)_auto] lg:items-end">
+      <div className="mt-4 mb-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,380px)_auto] lg:items-end">
         <div>
           <h2 className="text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)]">
             {normalizedSearch
