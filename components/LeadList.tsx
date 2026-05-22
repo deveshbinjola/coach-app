@@ -741,73 +741,16 @@ function StartHereSection({ items }: { items: StartHereItem[] }) {
         </a>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1.25fr_1fr] gap-3">
-        <StartHereFeature item={first} />
-        {rest.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {rest.map((item, index) => (
-              <StartHereCard key={item.lead.id} item={item} rank={index + 2} />
-            ))}
-          </div>
-        )}
-      </div>
+      <ul className="divide-y divide-[var(--border-faint)]">
+        {items.map((item, index) => (
+          <StartHereRow key={item.lead.id} item={item} rank={index + 1} />
+        ))}
+      </ul>
     </section>
   );
 }
 
-function StartHereFeature({ item }: { item: StartHereItem }) {
-  const { lead, reason, action } = item;
-  const pain = lead.pain_signal?.[0];
-
-  return (
-    <a
-      href={`/leads/${lead.id}`}
-      className="group rounded-[var(--r-lg)] border border-[color-mix(in_srgb,var(--brand)_28%,var(--border))] bg-[var(--surface-elevated)] p-5 min-h-[220px] flex flex-col justify-between shadow-[var(--shadow-sm)] transition hover:-translate-y-px hover:shadow-[var(--shadow-md)]"
-    >
-      <div>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="text-[length:var(--t-caption)] font-bold text-[color:var(--success)]">
-              Do this first
-            </div>
-            <div className="mt-2 text-2xl font-extrabold leading-tight break-words text-[color:var(--text)]">
-              {lead.full_name}
-            </div>
-          </div>
-          <span className="inline-flex items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--navy)]">
-            Priority
-          </span>
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          <SlaBadge lead={lead} compact />
-          <Badge tone={WARMTH_TONE[lead.temperature]} size="xs">
-            {TEMPERATURE_LABEL[lead.temperature] ?? lead.temperature}
-          </Badge>
-          {pain && (
-            <Badge tone="muted" size="xs">
-              {PAIN_SIGNAL_LABEL[pain as PainSignal] ?? pain}
-            </Badge>
-          )}
-        </div>
-
-        <p className="mt-4 text-[length:var(--t-body)] text-[color:var(--text-muted)] leading-[var(--leading-relaxed)]">
-          {reason}
-          {lead.deal_value ? ` · ${formatMoney(lead.deal_value)}` : ""}
-        </p>
-      </div>
-
-      <div className="mt-5 pt-4 border-t border-[var(--border-faint)] flex items-center justify-between gap-3 text-[length:var(--t-caption)] font-extrabold">
-        <span className="text-[color:var(--text)]">{action}</span>
-        <span className="text-[color:var(--brand)] group-hover:translate-x-0.5 transition">
-          Open
-        </span>
-      </div>
-    </a>
-  );
-}
-
-function StartHereCard({
+function StartHereRow({
   item,
   rank,
 }: {
@@ -815,46 +758,36 @@ function StartHereCard({
   rank: number;
 }) {
   const { lead, reason, action } = item;
-  const pain = lead.pain_signal?.[0];
 
   return (
-    <a
-      href={`/leads/${lead.id}`}
-      className="group rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] p-4 min-h-[150px] flex flex-col justify-between hover:border-[var(--brand-strong)] hover:shadow-[var(--shadow-sm)] transition"
-    >
-      <div>
-        <div className="flex items-start justify-between gap-2">
-          <div className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[var(--surface-deep)] text-[color:var(--text)] text-[length:var(--t-caption)] font-extrabold tabular-nums">
-            {rank}
-          </div>
-          <span className="text-[11px] font-bold text-[color:var(--text-faint)]">
-            Priority
-          </span>
-        </div>
-
-        <div className="mt-4">
-          <div className="font-bold text-[length:var(--t-body)] text-[color:var(--text)] leading-tight break-words">
-            {lead.full_name}
-          </div>
-          <div className="mt-2 flex flex-wrap gap-1.5">
+    <li>
+      <a
+        href={`/leads/${lead.id}`}
+        className="group flex items-center gap-3 px-1 py-3 hover:bg-[var(--surface-deep)] transition-colors rounded-[var(--r-sm)]"
+      >
+        <span className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-[var(--surface-deep)] text-[color:var(--text-muted)] text-[11px] font-extrabold tabular-nums">
+          {rank}
+        </span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-[length:var(--t-caption)] text-[color:var(--text)] truncate">
+              {lead.full_name}
+            </span>
             <SlaBadge lead={lead} compact />
             <Badge tone={WARMTH_TONE[lead.temperature]} size="xs">
               {TEMPERATURE_LABEL[lead.temperature] ?? lead.temperature}
             </Badge>
           </div>
+          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] truncate mt-0.5">
+            {reason}
+          </p>
         </div>
-
-        <p className="mt-3 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-base)]">
-          {reason}
-          {pain ? ` · ${PAIN_SIGNAL_LABEL[pain as PainSignal] ?? pain}` : ""}
-          {lead.deal_value ? ` · ${formatMoney(lead.deal_value)}` : ""}
-        </p>
-      </div>
-
-      <div className="mt-4 pt-3 border-t border-[var(--border-faint)] text-[length:var(--t-caption)] font-bold text-[color:var(--text)] group-hover:text-[color:var(--brand-strong)] transition">
-        {action}
-      </div>
-    </a>
+        <span className="shrink-0 text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)] group-hover:text-[color:var(--brand)] transition">
+          {action}
+        </span>
+        <span className="shrink-0 text-[color:var(--text-faint)] text-sm" aria-hidden="true">›</span>
+      </a>
+    </li>
   );
 }
 
