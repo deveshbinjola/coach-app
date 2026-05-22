@@ -44,6 +44,7 @@ export default function ComposeStudio({
   seedTemp,
   seedIds = [],
   seedSource = "",
+  autoDraft = false,
 }: {
   leads: Lead[];
   coachId: string;
@@ -51,6 +52,7 @@ export default function ComposeStudio({
   seedTemp: string[];
   seedIds?: string[];
   seedSource?: string;
+  autoDraft?: boolean;
 }) {
   const router = useRouter();
   // Replace 4 alert() and 1 confirm() with brand-styled equivalents.
@@ -105,6 +107,18 @@ export default function ComposeStudio({
       alive = false;
     };
   }, [coachId]);
+
+  const [autoDraftFired, setAutoDraftFired] = useState(false);
+
+  useEffect(() => {
+    if (!autoDraft || autoDraftFired || seedIds.length === 0) return;
+    if (!voiceProfile) return;
+    setAutoDraftFired(true);
+    const timer = setTimeout(() => {
+      generateDraft();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [autoDraft, autoDraftFired, seedIds, voiceProfile]);
 
   const voiceFit = useMemo(
     () => scoreVoiceFit(template, voiceProfile),
@@ -535,12 +549,27 @@ export default function ComposeStudio({
           </div>
         )}
 
+        {originalAiTemplate !== null && (
+          <div className="flex items-center justify-between mb-2 mt-4">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand)]">
+              AI Draft · your voice
+            </span>
+            <button
+              type="button"
+              onClick={generateDraft}
+              disabled={drafting}
+              className="text-[length:var(--t-caption)] text-[color:var(--brand)] hover:underline disabled:opacity-50"
+            >
+              {drafting ? "Regenerating…" : "Regenerate"}
+            </button>
+          </div>
+        )}
         <textarea
           value={template}
           onChange={(e) => setTemplate(e.target.value)}
           placeholder={`Hey [FIRST_NAME],\n\nI've been thinking about what you shared about [PAIN]. One thing I've seen land with men in your spot...`}
           rows={14}
-          className="mt-4 w-full rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-4 text-[length:var(--t-body)] leading-[var(--leading-relaxed)] focus:outline-none focus:border-[var(--brand-strong)]"
+          className={`${originalAiTemplate !== null ? "" : "mt-4 "}w-full rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-4 text-[length:var(--t-body)] leading-[var(--leading-relaxed)] focus:outline-none focus:border-[var(--brand-strong)]`}
         />
         <VoiceFitPanel
           fit={voiceFit}

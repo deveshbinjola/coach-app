@@ -61,6 +61,7 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
     .map((s) => s.trim())
     .filter(Boolean);
   const seedSource = searchParams?.get("source") ?? "";
+  const seedAutoDraft = searchParams?.get("autoDraft") === "true";
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>(leads);
   const handleFiltered = useCallback((filtered: Lead[]) => {
     setFilteredLeads(filtered);
@@ -105,6 +106,7 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
     params.delete("temp");
     params.delete("ids");
     params.delete("source");
+    params.delete("autoDraft");
     const qs = params.toString();
     router.replace(qs ? `/inbox?${qs}` : "/inbox", { scroll: false });
   }
@@ -197,6 +199,7 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
           seedTemp={seedTemp}
           seedIds={seedIds}
           seedSource={seedSource}
+          autoDraft={seedAutoDraft}
         />
       </Modal>
     </>

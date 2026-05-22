@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 export default function ComposeRedirect({
   searchParams,
 }: {
-  searchParams: { pain?: string; temp?: string; ids?: string; source?: string };
+  searchParams: { pain?: string; temp?: string; ids?: string; source?: string; autoDraft?: string };
 }) {
   const params = new URLSearchParams();
   params.set("compose", "open");
@@ -28,5 +28,6 @@ export default function ComposeRedirect({
   if (searchParams.temp) params.set("temp", searchParams.temp);
   if (searchParams.ids) params.set("ids", searchParams.ids);
   if (searchParams.source) params.set("source", searchParams.source);
+  if (searchParams.autoDraft) params.set("autoDraft", searchParams.autoDraft);
   redirect(`/inbox?${params.toString()}`);
 }
