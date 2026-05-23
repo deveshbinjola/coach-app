@@ -506,6 +506,47 @@ function OnboardingPromise({
   );
 }
 
+// Poll the async Instagram import job until it finishes. The Apify scrape
+// (~55s) runs server-side; we poll the status endpoint instead of blocking
+// one long request.
+async function pollInstagramImport(
+  importId: string,
+  opts: { intervalMs?: number; maxAttempts?: number } = {},
+): Promise<
+  | { ok: true; units: number; patterns: Array<{ label: string; text: string }> }
+  | { ok: false; error: string }
+> {
+  const intervalMs = opts.intervalMs ?? 3000;
+  const maxAttempts = opts.maxAttempts ?? 30; // ~90s ceiling
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    await new Promise((r) => setTimeout(r, intervalMs));
+    let json: {
+      status?: string;
+      itemsImported?: number;
+      learnedPatterns?: Array<{ label: string; text: string }>;
+      error?: string;
+    };
+    try {
+      const res = await fetch(`/api/onboarding/import/${encodeURIComponent(importId)}/status`);
+      json = await res.json();
+    } catch {
+      continue; // transient — keep polling
+    }
+    if (json.status === "complete") {
+      return {
+        ok: true,
+        units: Number(json.itemsImported ?? 0),
+        patterns: Array.isArray(json.learnedPatterns) ? json.learnedPatterns : [],
+      };
+    }
+    if (json.status === "failed") {
+      return { ok: false, error: String(json.error ?? "Instagram import failed.") };
+    }
+    // status === "processing" → keep polling
+  }
+  return { ok: false, error: "Instagram import is taking longer than expected. Try again in a moment." };
+}
+
 function OnboardingInstagramImport({
   onImported,
   onContinue,
@@ -559,20 +600,43 @@ function OnboardingInstagramImport({
 
     setLoading(true);
     try {
+      // Instagram → async start + poll. The ~55s Apify scrape runs server-
+      // side; we never block one long request. LinkedIn/text stay sync.
+      if (sourceType === "instagram") {
+        const startRes = await fetch("/api/onboarding/import/instagram", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ handle, limit: limitValue }),
+        });
+        const startPayload = await startRes.json();
+        if (!startRes.ok || !startPayload?.importId) {
+          setUpgradeRequired(Boolean(startPayload?.upgrade_required));
+          setError(String(startPayload?.error ?? "Could not start Instagram import."));
+          return;
+        }
+        const polled = await pollInstagramImport(String(startPayload.importId));
+        if (!polled.ok) {
+          setError(polled.error);
+          return;
+        }
+        const igHandle = String(startPayload.handle ?? normalizeInstagramHandleForWelcome(handle));
+        const next = { handle: igHandle, captions: polled.units, patterns: polled.patterns };
+        setResult(next);
+        onImported({ source: "instagram", label: igHandle, units: polled.units, patterns: polled.patterns });
+        return;
+      }
+
+      // LinkedIn / text → existing synchronous routes (unchanged).
       const response = await fetch(
-        sourceType === "instagram"
-          ? "/api/voice/import/instagram"
-          : sourceType === "linkedin" && linkedinMode === "handle"
-            ? "/api/voice/import/linkedin"
+        sourceType === "linkedin" && linkedinMode === "handle"
+          ? "/api/voice/import/linkedin"
           : "/api/voice/import/text",
         {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
-          sourceType === "instagram"
+          sourceType === "linkedin" && linkedinMode === "handle"
             ? { handle, limit: limitValue }
-            : sourceType === "linkedin" && linkedinMode === "handle"
-              ? { handle, limit: limitValue }
             : {
                 source_type: sourceType,
                 title: title.trim(),
@@ -584,16 +648,14 @@ function OnboardingInstagramImport({
       const payload = await response.json();
       if (!response.ok) {
         setUpgradeRequired(Boolean(payload?.upgrade_required));
-        setError(String(payload?.error ?? "Could not import Instagram voice."));
+        setError(String(payload?.error ?? "Could not import voice."));
         return;
       }
 
       const next = {
         handle:
-          sourceType === "instagram"
-            ? String(payload.handle ?? normalizeInstagramHandleForWelcome(handle))
-            : sourceType === "linkedin" && linkedinMode === "handle"
-              ? String(payload.handle ?? normalizeLinkedInHandleForWelcome(handle))
+          sourceType === "linkedin" && linkedinMode === "handle"
+            ? String(payload.handle ?? normalizeLinkedInHandleForWelcome(handle))
             : onboardingImportLabel(sourceType),
         captions: Number(payload.captions_used ?? payload.imported_units ?? 0),
         patterns: Array.isArray(payload.learned_patterns) ? payload.learned_patterns : [],
