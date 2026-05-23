@@ -34,6 +34,7 @@ export function makeLead(overrides: Partial<Lead> = {}): Lead {
     phone:                    null,
     source:                   "ig",
     source_detail:            null,
+    source_url:               null,
     referred_by_lead_id:      null,
     status:                   "contacted",
     temperature:              "warm",
