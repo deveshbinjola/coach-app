@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase-server";
 import { userAvatarUrl, userDisplayName, userFirstName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import CommandCenterView from "@/components/CommandCenterView";
+import ClaimVoiceProfile from "@/components/ClaimVoiceProfile";
 import type { Lead, Content, LeadMessage, VoiceProfile, Offering, OfferingMember } from "@/lib/types";
 import { enforceOnboardingGate } from "@/lib/onboarding";
 import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
@@ -260,6 +261,7 @@ export default async function CommandCenterPage() {
         navUnlocks={navUnlocks}
       />
       <main className="max-w-6xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
+        <ClaimVoiceProfile />
         <CommandCenterView
           leads={leads}
           content={content}
