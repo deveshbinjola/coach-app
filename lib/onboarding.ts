@@ -174,25 +174,30 @@ export async function enforceOnboardingGate(
   // Only the trial-scoped branch needs the Brand OS run state (to choose
   // the right Brand OS URL). Standard coaches skip that query.
   let brandOsRunState: BrandOsRunState = { kind: "none" };
-  let realityQuestionsComplete = false;
   if (isTrialScoped) {
     const { resolveBrandOsRunState } = await import("@/lib/brand-os/run-state");
     brandOsRunState = await resolveBrandOsRunState(supabase, coachId);
-  } else {
-    const state = await loadOnboardingState(supabase, coachId);
-    realityQuestionsComplete = !!state?.completed_at;
   }
 
   const path = decideGatePath({
     plan,
     trialExpired,
     onboardingCompletedAt,
-    realityQuestionsComplete,
     brandOsRunState,
   });
 
   if (path === null) {
     void logFunnelEvent(coachId, "app_opened");
+    // Reality-questions replacement (Plan 5b): the welcome flow is now the
+    // only onboarding. The first time a coach is allowed to proceed, stamp
+    // onboarding_completed_at so a later trial-expiry doesn't re-scope them
+    // to Brand OS. Fire-and-forget; idempotent (guarded on null).
+    if (!onboardingCompletedAt) {
+      void supabase
+        .from("cp_coaches")
+        .update({ onboarding_completed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+        .eq("id", coachId);
+    }
   }
   return path;
 }

@@ -16,24 +16,14 @@ function input(overrides: Partial<GateDecisionInput> = {}): GateDecisionInput {
     plan: "standard",
     trialExpired: false,
     onboardingCompletedAt: null,
-    realityQuestionsComplete: false,
     brandOsRunState: NONE,
     ...overrides,
   };
 }
 
-describe("decideGatePath — standard coach (Brand OS no longer gates)", () => {
-  it("does NOT redirect to /brand-os when standard coach has no Brand OS run", () => {
-    const path = decideGatePath(input({ realityQuestionsComplete: true, brandOsRunState: NONE }));
-    expect(path).toBeNull();
-  });
-
-  it("redirects to /onboarding when reality questions not complete", () => {
-    expect(decideGatePath(input({ realityQuestionsComplete: false }))).toBe("/onboarding");
-  });
-
-  it("returns null (proceed) when reality questions complete", () => {
-    expect(decideGatePath(input({ realityQuestionsComplete: true }))).toBeNull();
+describe("decideGatePath — standard coach proceeds (no Brand OS, no reality-questions gate)", () => {
+  it("returns null for a standard coach with no Brand OS run", () => {
+    expect(decideGatePath(input({ brandOsRunState: NONE }))).toBeNull();
   });
 });
 
@@ -79,7 +69,7 @@ describe("decideGatePath — trial ($7) scoping preserved", () => {
 
   it("trial but ALREADY onboarded → treated as full coach (not scoped)", () => {
     const path = decideGatePath(
-      input({ plan: "trial", onboardingCompletedAt: "2026-05-01T00:00:00Z", realityQuestionsComplete: true })
+      input({ plan: "trial", onboardingCompletedAt: "2026-05-01T00:00:00Z" })
     );
     expect(path).toBeNull();
   });
@@ -93,7 +83,7 @@ describe("decideGatePath — trial ($7) scoping preserved", () => {
   it("expired standard trial but ALREADY onboarded → full access", () => {
     expect(
       decideGatePath(
-        input({ plan: "standard", trialExpired: true, onboardingCompletedAt: "2026-05-01T00:00:00Z", realityQuestionsComplete: true })
+        input({ plan: "standard", trialExpired: true, onboardingCompletedAt: "2026-05-01T00:00:00Z" })
       )
     ).toBeNull();
   });

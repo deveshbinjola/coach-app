@@ -3,10 +3,11 @@
 // Pure gate-decision logic for enforceOnboardingGate. No I/O — the async
 // wrapper in lib/onboarding.ts loads the data and calls this.
 //
-// Plan 2 change: Brand OS is NO LONGER a gate for standard coaches. It is
-// optional (prompted later). Trial ($7) buyers remain scoped to Brand OS
-// surfaces until they complete onboarding (or upgrade). The reality-
-// questions step is unchanged.
+// Plan 2: Brand OS is no longer a gate for standard coaches.
+// Plan 5b: the reality-questions step is no longer a gate either — the
+// welcome flow (voice + magic) is the single onboarding. Standard coaches
+// proceed straight through. Trial ($7) buyers remain scoped to Brand OS
+// surfaces until they complete onboarding (or upgrade).
 
 import type { BrandOsRunState } from "@/lib/brand-os/run-state";
 
@@ -14,7 +15,6 @@ export type GateDecisionInput = {
   plan: string | null;
   trialExpired: boolean;
   onboardingCompletedAt: string | null;
-  realityQuestionsComplete: boolean;
   /** Only consulted for trial-scoped coaches (to pick the Brand OS URL). */
   brandOsRunState: BrandOsRunState;
 };
@@ -32,8 +32,6 @@ export function decideGatePath(input: GateDecisionInput): string | null {
     return "/brand-os";
   }
 
-  // Standard / full coach. Brand OS does not gate. Only the reality-
-  // questions step remains before full access.
-  if (!input.realityQuestionsComplete) return "/onboarding";
+  // Standard / full coach. Neither Brand OS nor reality questions gate.
   return null;
 }
