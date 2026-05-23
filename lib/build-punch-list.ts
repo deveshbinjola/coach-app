@@ -3,9 +3,15 @@ import type { JustLandedItem } from "@/components/command-center/CommandCenterVi
 
 export type PunchListItem = {
   id: string;
-  type: "rescue" | "new-lead" | "content" | "reach";
+  type: "rescue" | "new-lead" | "content" | "reach" | "activation";
   label: string;
   href: string;
+};
+
+export type ActivationState = {
+  totalLeads: number;
+  hasContent: boolean;
+  hasVoiceProfile: boolean;
 };
 
 type RescueItem = {
@@ -22,8 +28,37 @@ export function buildPunchList(
   contentPipeline: Content[],
   reachCount: number,
   reachTarget: number,
+  activation?: ActivationState,
 ): { items: PunchListItem[]; total: number } {
   const all: PunchListItem[] = [];
+
+  // Empty/early coach: no leads AND no content yet. Lead with activation
+  // steps instead of the steady-state rescue/reach items.
+  const isEarly = !!activation && activation.totalLeads === 0 && !activation.hasContent;
+
+  if (isEarly) {
+    if (!activation!.hasVoiceProfile) {
+      all.push({
+        id: "activation:voice",
+        type: "activation",
+        label: "Set up your voice so drafts sound like you",
+        href: "/voice",
+      });
+    }
+    all.push({
+      id: "activation:first-content",
+      type: "activation",
+      label: "Create your first piece of content",
+      href: "/content",
+    });
+    all.push({
+      id: "activation:first-lead",
+      type: "activation",
+      label: "Add your first lead",
+      href: "/leads",
+    });
+    return { items: all.slice(0, MAX_ITEMS), total: all.length };
+  }
 
   for (const r of rescueItems.slice(0, MAX_RESCUE)) {
     all.push({

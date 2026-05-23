@@ -128,3 +128,55 @@ describe("buildPunchList", () => {
     expect(result.items[0].id).toBe("content:c-draft");
   });
 });
+
+describe("buildPunchList — empty/early coach activation", () => {
+  const NO_RESCUE: never[] = [];
+  const NO_LANDED: never[] = [];
+  const NO_CONTENT: never[] = [];
+
+  it("emits activation items for an empty coach (no leads, no content)", () => {
+    const { items } = buildPunchList(NO_RESCUE, NO_LANDED, NO_CONTENT, 0, 15, {
+      totalLeads: 0,
+      hasContent: false,
+      hasVoiceProfile: false,
+    });
+    const ids = items.map((i) => i.id);
+    expect(ids).toContain("activation:voice");
+    expect(ids).toContain("activation:first-content");
+    expect(ids).toContain("activation:first-lead");
+    expect(items.filter((i) => i.id.startsWith("activation:")).every((i) => i.type === "activation")).toBe(true);
+  });
+
+  it("does NOT emit the reach-gap item for an empty coach (nonsensical at 0 leads)", () => {
+    const { items } = buildPunchList(NO_RESCUE, NO_LANDED, NO_CONTENT, 0, 15, {
+      totalLeads: 0,
+      hasContent: false,
+      hasVoiceProfile: true,
+    });
+    expect(items.find((i) => i.type === "reach")).toBeUndefined();
+  });
+
+  it("omits the voice activation item when the coach already has a voice profile", () => {
+    const { items } = buildPunchList(NO_RESCUE, NO_LANDED, NO_CONTENT, 0, 15, {
+      totalLeads: 0,
+      hasContent: false,
+      hasVoiceProfile: true,
+    });
+    expect(items.find((i) => i.id === "activation:voice")).toBeUndefined();
+  });
+
+  it("is backward-compatible: omitting the activation arg preserves prior behavior (reach gap shows)", () => {
+    const { items } = buildPunchList(NO_RESCUE, NO_LANDED, NO_CONTENT, 0, 15);
+    expect(items.find((i) => i.type === "reach")).toBeDefined();
+    expect(items.find((i) => i.type === "activation")).toBeUndefined();
+  });
+
+  it("does NOT treat a coach with leads as early (no activation items)", () => {
+    const { items } = buildPunchList(NO_RESCUE, NO_LANDED, NO_CONTENT, 3, 15, {
+      totalLeads: 4,
+      hasContent: false,
+      hasVoiceProfile: true,
+    });
+    expect(items.find((i) => i.type === "activation")).toBeUndefined();
+  });
+});
