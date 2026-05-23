@@ -13,6 +13,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { logFunnelEvent } from "@/lib/funnel-log";
 
 export const runtime = "edge";
 
@@ -67,6 +68,7 @@ export async function POST(_request: NextRequest) {
     .update(patch)
     .eq("id", user.id);
   if (upErr) return NextResponse.json({ error: upErr.message }, { status: 500 });
+  void logFunnelEvent(user.id, "signup_completed", { path: "free_trial" });
 
   // Also stamp the tripwire purchase row for attribution analytics.
   await admin

@@ -14,6 +14,7 @@ import {
 } from "@/lib/types";
 import { loadBrandVoiceOverlay, renderOverlayPromptBlock, type BrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
 import { loadSacredZones, checkSacred } from "@/lib/brand-os/sacred-zones";
+import { logFunnelEvent } from "@/lib/funnel-log";
 
 export const runtime = 'edge';
 
@@ -262,6 +263,7 @@ export async function POST(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  void logFunnelEvent(user.id, "content_created", { contentType: inserted?.content_type ?? null });
 
   return NextResponse.json({
     content: inserted as Content,

@@ -7,6 +7,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { logFunnelEvent } from "@/lib/funnel-log";
 
 export const runtime = "edge";
 
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
   if (error || !created) {
     return NextResponse.redirect(new URL(`/brand-os?error=${encodeURIComponent(error?.message ?? "create_failed")}`, request.url));
   }
+  void logFunnelEvent(user.id, "brand_os_started", { variant });
 
   return NextResponse.redirect(new URL(`/brand-os/run/${created.id}`, request.url), { status: 303 });
 }

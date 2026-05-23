@@ -14,6 +14,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { signTrialToken } from "@/lib/brand-os/trial-token";
+import { logFunnelEvent } from "@/lib/funnel-log";
 
 export type StripeSessionForProvision = {
   id: string;
@@ -151,6 +152,7 @@ export async function provisionTripwireBuyer(
   // provision (not on idempotent retries).
   if (!existing?.user_provisioned_at) {
     void subscribeToBeehiiv(email, displayName);
+    void logFunnelEvent(coachId, "signup_completed", { path: "tripwire" });
   }
 
   // Generate magic link — used by welcome page for auto-login redirect,

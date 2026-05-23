@@ -16,6 +16,7 @@ import { getQuestion, pick, type Audience } from "@/lib/brand-os/questions";
 import { getVoiceProfile, deriveProfileSlug, type VoiceProfileSlug, type AudienceSelf, type AudienceServes } from "@/lib/voice-profiles";
 import { buildOverlayFromSynthesis, saveBrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
 import { verifyTrialToken } from "@/lib/brand-os/trial-token";
+import { logFunnelEvent } from "@/lib/funnel-log";
 
 export const runtime = "edge";
 
@@ -227,6 +228,7 @@ export async function POST(request: NextRequest) {
       synthesized_at: new Date().toISOString(),
     })
     .eq("id", runId);
+  void logFunnelEvent(coachId, "brand_os_completed", { runId });
 
   // Distill into the voice overlay and push to cp_coaches so every
   // downstream content-gen call starts using the coach's actual voice
