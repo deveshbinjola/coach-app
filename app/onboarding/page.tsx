@@ -21,13 +21,6 @@ export default async function OnboardingPage() {
 
   const gate = await resolveOnboardingGate(supabase, user.id);
 
-  // Brand OS isn't done — send them there first.
-  if (gate.phase === "brand_os_mvp") {
-    if (gate.reason === "never_started")  redirect("/brand-os");
-    if (gate.runId)                       redirect(`/brand-os/run/${gate.runId}${gate.reason === "no_synthesis" ? "/output" : ""}`);
-    redirect("/brand-os");
-  }
-
   // Already done — go home.
   if (gate.phase === "complete") {
     redirect("/content");

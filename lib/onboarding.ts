@@ -12,6 +12,8 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logFunnelEvent } from "@/lib/funnel-log";
+import { decideGatePath } from "@/lib/onboarding-gate";
+import type { BrandOsRunState } from "@/lib/brand-os/run-state";
 
 export type OnboardingAnswers = {
   has_past_content: boolean | null;
@@ -28,7 +30,6 @@ export type OnboardingState = OnboardingAnswers & {
 };
 
 export type OnboardingGate =
-  | { phase: "brand_os_mvp"; reason: "never_started" | "in_progress" | "no_synthesis"; runId?: string }
   | { phase: "reality_questions" }
   | { phase: "complete"; state: OnboardingState };
 
@@ -115,32 +116,16 @@ export async function saveOnboardingAnswers(
 }
 
 /** Single-source resolver for "where should this coach be right now?"
- *  Combines Brand OS run state with onboarding state. Called from layout
- *  guards on every authed surface. */
+ *  Brand OS no longer gates (Plan 2) — this only distinguishes the
+ *  reality-questions step from a fully onboarded coach. */
 export async function resolveOnboardingGate(
   supabase: SupabaseClient,
   coachId: string,
 ): Promise<OnboardingGate> {
-  // Defer Brand OS run state import to avoid circulars in tests.
-  const { resolveBrandOsRunState } = await import("@/lib/brand-os/run-state");
-  const runState = await resolveBrandOsRunState(supabase, coachId);
-
-  if (runState.kind === "none") {
-    return { phase: "brand_os_mvp", reason: "never_started" };
-  }
-  if (runState.kind === "in_progress") {
-    return { phase: "brand_os_mvp", reason: "in_progress", runId: runState.runId };
-  }
-  if (runState.kind === "complete_no_synthesis") {
-    return { phase: "brand_os_mvp", reason: "no_synthesis", runId: runState.runId };
-  }
-
-  // Brand OS done. Now check reality-questions onboarding.
   const state = await loadOnboardingState(supabase, coachId);
   if (!state || !state.completed_at) {
     return { phase: "reality_questions" };
   }
-
   return { phase: "complete", state };
 }
 
@@ -160,18 +145,21 @@ export async function enforceOnboardingGate(
   supabase: SupabaseClient,
   coachId: string,
 ): Promise<string | null> {
-  // Plan check first — trial buyers are scoped to Brand OS only, and
-  // any 10-day free trial that has expired gets downgraded back to
-  // brand-os-only on this page load (lazy expiration).
+  // Plan / trial state first. An expired 10-day free trial gets lazily
+  // downgraded back to trial-tier on this page load.
   const { data: planRow } = await supabase
     .from("cp_coaches")
     .select("plan, trial_ends_at, onboarding_completed_at")
     .eq("id", coachId)
     .maybeSingle();
+
+  const plan = (planRow?.plan as string | null) ?? null;
+  const onboardingCompletedAt = (planRow?.onboarding_completed_at as string | null) ?? null;
   const trialExpired =
-    planRow?.plan === "standard" &&
-    planRow.trial_ends_at &&
+    plan === "standard" &&
+    !!planRow?.trial_ends_at &&
     new Date(planRow.trial_ends_at as string).getTime() < Date.now();
+
   if (trialExpired) {
     // Fire-and-forget downgrade; we treat the coach as trial-tier for
     // this request either way.
@@ -180,27 +168,31 @@ export async function enforceOnboardingGate(
       .update({ plan: "trial", updated_at: new Date().toISOString() })
       .eq("id", coachId);
   }
-  if ((planRow?.plan === "trial" || trialExpired) && !planRow?.onboarding_completed_at) {
-    // Trial-only gate: $7 trip-wire buyers who haven't completed full
-    // onboarding are scoped to Brand OS surfaces only. Coaches who
-    // finished onboarding (e.g. founder, upgraded users) get full access.
+
+  const isTrialScoped = (plan === "trial" || trialExpired) && !onboardingCompletedAt;
+
+  // Only the trial-scoped branch needs the Brand OS run state (to choose
+  // the right Brand OS URL). Standard coaches skip that query.
+  let brandOsRunState: BrandOsRunState = { kind: "none" };
+  let realityQuestionsComplete = false;
+  if (isTrialScoped) {
     const { resolveBrandOsRunState } = await import("@/lib/brand-os/run-state");
-    const rs = await resolveBrandOsRunState(supabase, coachId);
-    if (rs.kind === "complete")              return `/brand-os/run/${rs.runId}/output`;
-    if (rs.kind === "complete_no_synthesis") return `/brand-os/run/${rs.runId}/output`;
-    if (rs.kind === "in_progress")           return `/brand-os/run/${rs.runId}`;
-    return "/brand-os";
+    brandOsRunState = await resolveBrandOsRunState(supabase, coachId);
+  } else {
+    const state = await loadOnboardingState(supabase, coachId);
+    realityQuestionsComplete = !!state?.completed_at;
   }
 
-  const gate = await resolveOnboardingGate(supabase, coachId);
-  if (gate.phase === "complete") {
+  const path = decideGatePath({
+    plan,
+    trialExpired,
+    onboardingCompletedAt,
+    realityQuestionsComplete,
+    brandOsRunState,
+  });
+
+  if (path === null) {
     void logFunnelEvent(coachId, "app_opened");
-    return null;
   }
-  if (gate.phase === "reality_questions") return "/onboarding";
-  // brand_os_mvp phase
-  if (gate.reason === "never_started") return "/brand-os";
-  if (gate.runId && gate.reason === "no_synthesis") return `/brand-os/run/${gate.runId}/output`;
-  if (gate.runId) return `/brand-os/run/${gate.runId}`;
-  return "/brand-os";
+  return path;
 }
