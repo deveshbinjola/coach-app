@@ -11,6 +11,7 @@
 // always opt in later from /settings.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { logFunnelEvent } from "@/lib/funnel-log";
 
 export type OnboardingAnswers = {
   has_past_content: boolean | null;
@@ -109,6 +110,7 @@ export async function saveOnboardingAnswers(
   // Re-load to return canonical state.
   const next = await loadOnboardingState(supabase, coachId);
   if (!next) throw new Error("Failed to reload onboarding state after save.");
+  void logFunnelEvent(coachId, "reality_questions_completed");
   return next;
 }
 
@@ -191,7 +193,10 @@ export async function enforceOnboardingGate(
   }
 
   const gate = await resolveOnboardingGate(supabase, coachId);
-  if (gate.phase === "complete") return null;
+  if (gate.phase === "complete") {
+    void logFunnelEvent(coachId, "app_opened");
+    return null;
+  }
   if (gate.phase === "reality_questions") return "/onboarding";
   // brand_os_mvp phase
   if (gate.reason === "never_started") return "/brand-os";
