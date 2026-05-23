@@ -7,6 +7,21 @@ type CookieToSet = {
   options: CookieOptions;
 };
 
+// Redirect helper that carries the (possibly refreshed/rotated) Supabase
+// auth cookies from the working `response` onto the redirect. Without this,
+// a token rotation during getUser() is lost on any middleware redirect,
+// invalidating the session on the next request — the classic "first login
+// bounces back to /login, second works" bug.
+function redirectWithCookies(
+  path: string,
+  request: NextRequest,
+  response: NextResponse,
+): NextResponse {
+  const redirect = NextResponse.redirect(new URL(path, request.url));
+  response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+  return redirect;
+}
+
 // Auth gate + first-time onboarding redirect.
 //
 // 1. Public paths (/login, /auth/callback, PWA assets) are open.
@@ -53,7 +68,7 @@ export async function middleware(request: NextRequest) {
   const ADMIN_EMAIL = "sunny.binjola@gmail.com";
   if (path.startsWith("/admin")) {
     if (!user || user.email !== ADMIN_EMAIL) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      return redirectWithCookies("/login", request, response);
     }
     return response;
   }
@@ -74,11 +89,11 @@ export async function middleware(request: NextRequest) {
   const isPublic = isApi || publicPaths.some((p) => path.startsWith(p));
 
   if (!user && !isPublic) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return redirectWithCookies("/login", request, response);
   }
 
   if (user && path === "/login") {
-    return NextResponse.redirect(new URL("/command-center", request.url));
+    return redirectWithCookies("/command-center", request, response);
   }
 
   // First-time activation gate. Only checks on root + main-app entry points
@@ -120,7 +135,7 @@ export async function middleware(request: NextRequest) {
       const hasLeads = (leadsRes.count ?? 0) > 0;
 
       if (!hasProfile && !hasLeads) {
-        return NextResponse.redirect(new URL("/welcome", request.url));
+        return redirectWithCookies("/welcome", request, response);
       }
     }
   }
