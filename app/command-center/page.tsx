@@ -243,6 +243,11 @@ export default async function CommandCenterPage() {
     content,
     reachCount,
     reachTarget,
+    {
+      totalLeads: leads.length,
+      hasContent: content.length > 0,
+      hasVoiceProfile: !!voiceRes.data,
+    },
   );
 
   return (

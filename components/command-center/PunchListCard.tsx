@@ -15,6 +15,7 @@ const TYPE_COLORS: Record<PunchListItem["type"], string> = {
   "new-lead": "#74c0fc",
   content: "#ffd43b",
   reach: "#69db7c",
+  activation: "#b197fc",
 };
 
 function todayKey(): string {
