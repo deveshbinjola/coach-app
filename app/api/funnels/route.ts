@@ -11,6 +11,70 @@ import { validateSlug } from "@/lib/funnel-slug";
 
 export const runtime = "edge";
 
+// ── Config validation ───────────────────────────────────
+
+function validateFunnelConfig(config: unknown): { valid: boolean; reason?: string } {
+  if (!config || typeof config !== "object") {
+    return { valid: false, reason: "Config must be an object." };
+  }
+
+  const c = config as Record<string, unknown>;
+
+  // Intro
+  const intro = c.intro as Record<string, unknown> | undefined;
+  if (!intro || typeof intro !== "object") {
+    return { valid: false, reason: "Config must have an intro object." };
+  }
+  if (!intro.headline || typeof intro.headline !== "string") {
+    return { valid: false, reason: "Intro must have a headline string." };
+  }
+  if (!intro.subhead || typeof intro.subhead !== "string") {
+    return { valid: false, reason: "Intro must have a subhead string." };
+  }
+
+  // Questions
+  const questions = c.questions;
+  if (!Array.isArray(questions) || questions.length < 1 || questions.length > 20) {
+    return { valid: false, reason: "Config must have 1-20 questions." };
+  }
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    if (!q || typeof q !== "object" || !q.text || !Array.isArray(q.choices)) {
+      return { valid: false, reason: `Question ${i + 1} is malformed.` };
+    }
+    if (q.choices.length < 2 || q.choices.length > 6) {
+      return { valid: false, reason: `Question ${i + 1} must have 2-6 choices.` };
+    }
+    for (const ch of q.choices) {
+      if (!ch || typeof ch !== "object" || !ch.key || !ch.text || typeof ch.scores !== "object") {
+        return { valid: false, reason: `Question ${i + 1} has a malformed choice.` };
+      }
+    }
+  }
+
+  // Results
+  const results = c.results;
+  if (!Array.isArray(results) || results.length < 2 || results.length > 10) {
+    return { valid: false, reason: "Config must have 2-10 results." };
+  }
+  for (const r of results) {
+    if (!r || typeof r !== "object" || !r.key || !r.headline || !r.body) {
+      return { valid: false, reason: "Each result must have key, headline, and body." };
+    }
+  }
+
+  // Branding
+  const branding = c.branding as Record<string, unknown> | undefined;
+  if (!branding || typeof branding !== "object") {
+    return { valid: false, reason: "Config must have a branding object." };
+  }
+  if (!branding.primary_hex || typeof branding.primary_hex !== "string") {
+    return { valid: false, reason: "Branding must have a primary_hex color." };
+  }
+
+  return { valid: true };
+}
+
 // ── GET: list funnels ────────────────────────────────────
 
 export async function GET() {
@@ -86,6 +150,10 @@ export async function PATCH(request: NextRequest) {
   }
 
   if (body.config !== undefined) {
+    const configCheck = validateFunnelConfig(body.config);
+    if (!configCheck.valid) {
+      return NextResponse.json({ error: configCheck.reason }, { status: 400 });
+    }
     updates.config = body.config;
   }
 

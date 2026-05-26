@@ -17,7 +17,6 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Modal from "@/components/ui/Modal";
 import FunnelCard, { type FunnelSummary } from "./FunnelCard";
-import FunnelEditor from "./FunnelEditor";
 import type { FunnelRow } from "@/app/funnels/page";
 
 type Props = {
@@ -30,9 +29,6 @@ export default function FunnelsWorkspace({ funnels: initialFunnels, hasBrandOs }
   const [funnels, setFunnels] = useState<FunnelSummary[]>(initialFunnels);
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState("");
-
-  // Edit modal
-  const [editTarget, setEditTarget] = useState<FunnelSummary | null>(null);
 
   // Delete confirm
   const [deleteTarget, setDeleteTarget] = useState<FunnelSummary | null>(null);
@@ -110,14 +106,6 @@ export default function FunnelsWorkspace({ funnels: initialFunnels, hasBrandOs }
     } catch {}
     setDeleting(false);
     setDeleteTarget(null);
-  }
-
-  // ── Edit saved ────────────────────────────────────────────
-
-  function handleEditSaved(updated: FunnelSummary) {
-    setFunnels((prev) =>
-      prev.map((f) => (f.id === updated.id ? updated : f))
-    );
   }
 
   // ── Render ────────────────────────────────────────────────
@@ -207,7 +195,7 @@ export default function FunnelsWorkspace({ funnels: initialFunnels, hasBrandOs }
             <FunnelCard
               key={funnel.id}
               funnel={funnel}
-              onEdit={setEditTarget}
+              onEdit={() => {}}
               onDelete={setDeleteTarget}
               onTogglePublish={handleTogglePublish}
             />
@@ -230,16 +218,6 @@ export default function FunnelsWorkspace({ funnels: initialFunnels, hasBrandOs }
             </span>
           </div>
         </div>
-      )}
-
-      {/* Edit modal */}
-      {editTarget && (
-        <FunnelEditor
-          funnel={editTarget}
-          open={!!editTarget}
-          onClose={() => setEditTarget(null)}
-          onSaved={handleEditSaved}
-        />
       )}
 
       {/* Delete confirmation */}

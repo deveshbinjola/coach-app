@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { rateLimit } from "@/lib/rate-limit";
 
 // Lightweight anon client for public reads. No auth session needed —
 // just the public anon key + RLS policy on published = true.
@@ -79,6 +80,13 @@ type SubmitBody = {
 };
 
 export async function POST(request: NextRequest) {
+  // Rate limit by IP — 20 submissions per minute per IP to prevent spam.
+  const ip = request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || "unknown";
+  const rl = rateLimit(`public/submit:${ip}`, 20, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many submissions. Please wait a moment." }, { status: 429 });
+  }
+
   let body: SubmitBody;
   try {
     body = await request.json();
@@ -197,6 +205,13 @@ export async function POST(request: NextRequest) {
 // ── PATCH: increment start count ────────────────────────
 
 export async function PATCH(request: NextRequest) {
+  // Rate limit by IP — 30 starts per minute per IP.
+  const ip = request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || "unknown";
+  const rl = rateLimit(`public/start:${ip}`, 30, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests." }, { status: 429 });
+  }
+
   let body: { funnel_id?: string };
   try {
     body = await request.json();
