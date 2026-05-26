@@ -86,6 +86,8 @@ export async function middleware(request: NextRequest) {
     "/brand-os/trial/expired",  // Bad/expired token landing
     // Public quiz pages — no auth, hosted at /q/[slug]
     "/q/",
+    // Embeddable quiz pages — no auth, for iframe embedding on coach sites
+    "/embed/",
   ];
   const isApi = path.startsWith("/api/");
   const isPublic = isApi || publicPaths.some((p) => path.startsWith(p));

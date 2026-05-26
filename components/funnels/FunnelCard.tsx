@@ -6,10 +6,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, Play, CheckCircle, Mail, ExternalLink, Pencil, Trash2, Copy } from "lucide-react";
+import { Eye, Play, CheckCircle, Mail, ExternalLink, Pencil, Trash2, Copy, Code2 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import Modal from "@/components/ui/Modal";
 
 export type FunnelSummary = {
   id: string;
@@ -45,14 +46,34 @@ function completionRate(starts: number, completes: number): string {
 export default function FunnelCard({ funnel, onEdit, onDelete, onTogglePublish }: Props) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
+  const [embedOpen, setEmbedOpen] = useState(false);
+  const [embedCopied, setEmbedCopied] = useState(false);
 
   const quizUrl = `/q/${funnel.slug}`;
   const fullUrl = `${typeof window !== "undefined" ? window.location.origin : ""}${quizUrl}`;
+  const embedUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/embed/${funnel.slug}`;
+
+  const embedCode = `<iframe
+  src="${embedUrl}"
+  width="100%"
+  height="700"
+  frameborder="0"
+  style="border: none; border-radius: 12px; max-width: 600px;"
+  allow="clipboard-write"
+  title="${funnel.title}"
+></iframe>`;
 
   function handleCopyLink() {
     navigator.clipboard.writeText(fullUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  function handleCopyEmbed() {
+    navigator.clipboard.writeText(embedCode).then(() => {
+      setEmbedCopied(true);
+      setTimeout(() => setEmbedCopied(false), 2000);
     });
   }
 
@@ -121,12 +142,48 @@ export default function FunnelCard({ funnel, onEdit, onDelete, onTogglePublish }
           >
             {copied ? "Copied!" : "Copy link"}
           </Button>
+          {funnel.published && (
+            <Button
+              size="sm"
+              variant="ghost"
+              leadingIcon={<Code2 size={14} />}
+              onClick={() => setEmbedOpen(true)}
+            >
+              Embed
+            </Button>
+          )}
           <div className="flex-1" />
           <Button size="sm" variant="danger" leadingIcon={<Trash2 size={14} />} onClick={() => onDelete(funnel)}>
             Delete
           </Button>
         </div>
       </div>
+
+      {/* Embed code modal */}
+      <Modal
+        open={embedOpen}
+        onClose={() => setEmbedOpen(false)}
+        title="Embed this quiz"
+        description="Paste this code into your website's HTML to embed the quiz. Works on any site — WordPress, Squarespace, Wix, custom HTML."
+        size="lg"
+      >
+        <div className="mt-2">
+          <pre className="p-4 rounded-[var(--r-md)] bg-[var(--surface-deep)] border border-[var(--border-faint)] text-xs font-mono text-[color:var(--text)] overflow-x-auto whitespace-pre-wrap break-all leading-relaxed">
+            {embedCode}
+          </pre>
+          <div className="flex items-center gap-3 mt-4">
+            <Button
+              onClick={handleCopyEmbed}
+              leadingIcon={<Copy size={14} />}
+            >
+              {embedCopied ? "Copied!" : "Copy embed code"}
+            </Button>
+            <span className="text-xs text-[color:var(--text-muted)]">
+              Direct link: <a href={quizUrl} target="_blank" rel="noopener noreferrer" className="underline">{fullUrl}</a>
+            </span>
+          </div>
+        </div>
+      </Modal>
     </Card>
   );
 }
