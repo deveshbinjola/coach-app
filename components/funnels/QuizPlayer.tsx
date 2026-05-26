@@ -105,18 +105,23 @@ export default function QuizPlayer({ funnelId, config }: Props) {
     }
   }, [step, questionIdx, funnelId]);
 
-  // Compute result when all questions answered
+  // Compute result when all questions answered.
+  // On ties (two pillars score equally), randomly pick one so the
+  // outcome isn't silently dictated by Object.entries() iteration order.
   const computeResult = useCallback(
     (finalScores: Record<string, number>) => {
-      let maxKey = "";
       let maxScore = -1;
+      let topKeys: string[] = [];
       for (const [key, score] of Object.entries(finalScores)) {
         if (score > maxScore) {
           maxScore = score;
-          maxKey = key;
+          topKeys = [key];
+        } else if (score === maxScore) {
+          topKeys.push(key);
         }
       }
-      setResultKey(maxKey);
+      const winner = topKeys[Math.floor(Math.random() * topKeys.length)] || "";
+      setResultKey(winner);
     },
     []
   );

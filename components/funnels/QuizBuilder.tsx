@@ -250,7 +250,13 @@ export default function QuizBuilder({ funnel: initial }: Props) {
     }
   }
 
-  // ── Preview HTML ─────────────────────────────────────────
+  // ── Preview HTML (style approximation only) ──────────────
+  //
+  // ⚠️ This generates a standalone HTML page for the sidebar style preview.
+  // It is NOT the real QuizPlayer and WILL drift if QuizPlayer changes.
+  // Its purpose is showing branding changes (colors/font) in real-time
+  // while editing. For an accurate interactive preview, use the "Preview"
+  // button which opens /funnels/[id]/preview rendering the real QuizPlayer.
 
   function buildPreviewHtml(): string {
     const bg = branding.background_hex || "#FAFAF8";
@@ -397,9 +403,18 @@ function showScreen(name) {
               size="sm"
               variant="ghost"
               leadingIcon={<Eye size={14} />}
-              onClick={() => setShowPreview(!showPreview)}
+              onClick={() => window.open(`/funnels/${initial.id}/preview`, "_blank")}
             >
-              {showPreview ? "Hide preview" : "Preview"}
+              Preview
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              leadingIcon={<Palette size={14} />}
+              onClick={() => setShowPreview(!showPreview)}
+              className="hidden lg:inline-flex"
+            >
+              {showPreview ? "Hide style" : "Style"}
             </Button>
             <Button
               size="sm"
@@ -877,8 +892,7 @@ function showScreen(name) {
                   />
                 </div>
                 <p className="text-[10px] text-[color:var(--text-muted)] text-center mt-2">
-                  Click through the preview to see intro, question, and result
-                  screens
+                  Style preview — colors &amp; fonts only. Use Preview button for full interactive quiz.
                 </p>
               </div>
             </div>

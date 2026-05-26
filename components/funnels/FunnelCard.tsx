@@ -6,7 +6,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, Play, CheckCircle, Mail, ExternalLink, Pencil, Trash2, Copy, Code2 } from "lucide-react";
+import { Eye, Play, CheckCircle, Mail, ExternalLink, Pencil, Trash2, Copy, Code2, CopyPlus, BarChart3 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
@@ -31,6 +31,7 @@ type Props = {
   onEdit: (funnel: FunnelSummary) => void;
   onDelete: (funnel: FunnelSummary) => void;
   onTogglePublish: (funnel: FunnelSummary) => void;
+  onDuplicate: (funnel: FunnelSummary) => void;
 };
 
 function statLabel(n: number): string {
@@ -43,7 +44,7 @@ function completionRate(starts: number, completes: number): string {
   return `${Math.round((completes / starts) * 100)}%`;
 }
 
-export default function FunnelCard({ funnel, onEdit, onDelete, onTogglePublish }: Props) {
+export default function FunnelCard({ funnel, onEdit, onDelete, onTogglePublish, onDuplicate }: Props) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [embedOpen, setEmbedOpen] = useState(false);
@@ -141,6 +142,22 @@ export default function FunnelCard({ funnel, onEdit, onDelete, onTogglePublish }
             onClick={handleCopyLink}
           >
             {copied ? "Copied!" : "Copy link"}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            leadingIcon={<CopyPlus size={14} />}
+            onClick={() => onDuplicate(funnel)}
+          >
+            Duplicate
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            leadingIcon={<BarChart3 size={14} />}
+            onClick={() => router.push(`/funnels/${funnel.id}/analytics`)}
+          >
+            Analytics
           </Button>
           {funnel.published && (
             <Button

@@ -72,6 +72,34 @@ export default function FunnelsWorkspace({ funnels: initialFunnels, hasBrandOs }
     }
   }, []);
 
+  // ── Duplicate ─────────────────────────────────────────────
+
+  async function handleDuplicate(funnel: FunnelSummary) {
+    try {
+      const res = await fetch("/api/funnels/duplicate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: funnel.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) return;
+      const dup: FunnelSummary = {
+        id: data.funnel.id,
+        slug: data.funnel.slug,
+        type: data.funnel.type,
+        title: data.funnel.title,
+        published: data.funnel.published ?? false,
+        view_count: 0,
+        start_count: 0,
+        complete_count: 0,
+        email_count: 0,
+        created_at: data.funnel.created_at,
+        updated_at: data.funnel.updated_at || data.funnel.created_at,
+      };
+      setFunnels((prev) => [dup, ...prev]);
+    } catch {}
+  }
+
   // ── Toggle publish ────────────────────────────────────────
 
   async function handleTogglePublish(funnel: FunnelSummary) {
@@ -198,6 +226,7 @@ export default function FunnelsWorkspace({ funnels: initialFunnels, hasBrandOs }
               onEdit={() => {}}
               onDelete={setDeleteTarget}
               onTogglePublish={handleTogglePublish}
+              onDuplicate={handleDuplicate}
             />
           ))}
         </div>
