@@ -84,6 +84,8 @@ export async function middleware(request: NextRequest) {
     "/brand-os/trial/welcome",  // Stripe success redirect handler
     "/brand-os/trial/check-email", // Fallback page when auto-login fails
     "/brand-os/trial/expired",  // Bad/expired token landing
+    // Public quiz pages — no auth, hosted at /q/[slug]
+    "/q/",
   ];
   const isApi = path.startsWith("/api/");
   const isPublic = isApi || publicPaths.some((p) => path.startsWith(p));
