@@ -3,6 +3,7 @@ import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import LeadDetail from "@/components/LeadDetail";
 import type { Lead, LeadMessage } from "@/lib/types";
+import type { CoachingSession } from "@/lib/session-intelligence";
 import { notFound } from "next/navigation";
 
 export const runtime = 'edge';
@@ -31,7 +32,7 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
   // has referred (downstream). Both are cheap single queries; we parallelize
   // them with Promise.all so the page still renders fast.
   const typedLead = lead as Lead;
-  const [referrerRes, referralsRes] = await Promise.all([
+  const [referrerRes, referralsRes, sessionsRes, paymentsRes, brandOsRes, funnelRes, subsRes, tripRes] = await Promise.all([
     typedLead.referred_by_lead_id
       ? supabase
           .from("cp_leads")
@@ -43,6 +44,44 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
       .from("cp_leads")
       .select("id, full_name, status")
       .eq("referred_by_lead_id", params.id),
+    supabase
+      .from("cp_coaching_sessions")
+      .select("*")
+      .eq("client_id", params.id)
+      .eq("coach_id", user?.id ?? "")
+      .order("session_date", { ascending: false }),
+    typedLead.email
+      ? supabase
+          .from("cp_payments")
+          .select("id, amount_cents, currency, status, customer_email, created_at")
+          .eq("customer_email", typedLead.email)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: [] }),
+    supabase
+      .from("cp_brand_os_runs")
+      .select("id, coach_id, audience, current_module, started_at, completed_at, label")
+      .eq("coach_id", user?.id ?? "")
+      .order("started_at", { ascending: false }),
+    supabase
+      .from("cp_funnel_events")
+      .select("id, coach_id, name, meta, created_at")
+      .eq("coach_id", user?.id ?? "")
+      .order("created_at", { ascending: false })
+      .limit(20),
+    typedLead.email
+      ? supabase
+          .from("cp_subscriptions")
+          .select("id, customer_email, amount, status, interval, created_at")
+          .eq("customer_email", typedLead.email)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: [] }),
+    typedLead.email
+      ? supabase
+          .from("cp_tripwire_purchases")
+          .select("id, email, amount, created_at")
+          .eq("email", typedLead.email)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: [] }),
   ]);
 
   const referrer = (referrerRes as { data: { id: string; full_name: string; status: string } | null }).data;
@@ -82,6 +121,12 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
           referrer={referrer}
           referrals={referrals}
           voiceProfileSlug={voiceProfileSlug}
+          sessions={(sessionsRes.data ?? []) as CoachingSession[]}
+          payments={(paymentsRes.data ?? []) as any[]}
+          brandOsRuns={(brandOsRes.data ?? []) as any[]}
+          funnelEvents={(funnelRes.data ?? []) as any[]}
+          subscriptions={(subsRes.data ?? []) as any[]}
+          tripwires={(tripRes.data ?? []) as any[]}
         />
       </main>
     </div>
