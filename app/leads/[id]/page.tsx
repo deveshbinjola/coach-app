@@ -3,7 +3,6 @@ import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import LeadDetail from "@/components/LeadDetail";
 import type { Lead, LeadMessage } from "@/lib/types";
-import type { CoachingSession } from "@/lib/session-intelligence";
 import { notFound } from "next/navigation";
 
 export const runtime = 'edge';
@@ -121,7 +120,7 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
           referrer={referrer}
           referrals={referrals}
           voiceProfileSlug={voiceProfileSlug}
-          sessions={(sessionsRes.data ?? []) as CoachingSession[]}
+          sessions={(sessionsRes.data ?? []) as any[]}
           payments={(paymentsRes.data ?? []) as any[]}
           brandOsRuns={(brandOsRes.data ?? []) as any[]}
           funnelEvents={(funnelRes.data ?? []) as any[]}
