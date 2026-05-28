@@ -14,6 +14,7 @@ import {
   LeadTemperatureSchema,
   PainSignalSchema,
 } from "@/lib/api-validation";
+import { checkSequenceTriggers } from "@/lib/sequence-triggers";
 
 export const runtime = 'edge';
 
@@ -102,6 +103,15 @@ export async function PATCH(
 
   if (error) return apiError(error.message, 500);
   if (!data) return apiError("Lead not found", 404);
+
+  // Fire sequence triggers when status changes.
+  if (patch.status && data.status === patch.status) {
+    void checkSequenceTriggers(auth.coachId, "status_change", {
+      id: data.id,
+      coach_id: data.coach_id,
+      email: data.email,
+    }, { to_status: patch.status });
+  }
 
   return apiOk({ lead: data });
 }
