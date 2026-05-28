@@ -640,3 +640,69 @@ export const PILLAR_LABEL: Record<ContentPillar, string> = {
   offer:      "Offer",
   engagement: "Engagement",
 };
+
+// ── Automation Sequences ─────────────────────────────────────────────────
+
+export type SequenceTriggerType = "quiz_completed" | "status_change";
+export type SequenceStepContentMode = "template" | "ai_draft";
+export type SequenceEnrollmentStatus = "active" | "completed" | "cancelled" | "failed";
+export type SequenceStepLogStatus = "sent" | "failed" | "skipped";
+
+export type Sequence = {
+  id: string;
+  coach_id: string;
+  name: string;
+  trigger_type: SequenceTriggerType;
+  trigger_config: Record<string, unknown>;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SequenceStep = {
+  id: string;
+  sequence_id: string;
+  coach_id: string;
+  position: number;
+  delay_minutes: number;
+  action_type: string;
+  content_mode: SequenceStepContentMode;
+  action_config: Record<string, unknown>;
+  ai_prompt: string | null;
+  created_at: string;
+};
+
+export type SequenceEnrollment = {
+  id: string;
+  sequence_id: string;
+  lead_id: string;
+  coach_id: string;
+  current_step_id: string | null;
+  status: SequenceEnrollmentStatus;
+  execute_at: string | null;
+  enrolled_at: string;
+  completed_at: string | null;
+  last_step_executed_at: string | null;
+  error: string | null;
+  retry_count: number;
+  created_at: string;
+};
+
+export type SequenceStepLog = {
+  id: string;
+  enrollment_id: string;
+  step_id: string | null;
+  coach_id: string;
+  lead_id: string;
+  status: SequenceStepLogStatus;
+  error: string | null;
+  resend_message_id: string | null;
+  executed_at: string;
+};
+
+/** Template merge tag action_config shape. */
+export type SequenceTemplateConfig = {
+  subject: string;
+  body_html: string;
+  reply_to?: string;
+};
