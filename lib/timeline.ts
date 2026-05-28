@@ -20,7 +20,8 @@ export type TimelineEventKind =
   | "brand_os"
   | "quiz"
   | "status_change"
-  | "lead_created";
+  | "lead_created"
+  | "automation_email";
 
 export type TimelineEvent = {
   id: string;
@@ -165,15 +166,6 @@ export function normalizeFunnelEvents(events: FunnelEventRow[]): TimelineEvent[]
 }
 
 type TripwireRow = { id: string; email: string; amount: number; created_at: string };
-type SubscriptionRow = {
-  id: string;
-  customer_email: string;
-  amount: number;
-  status: string;
-  interval: string | null;
-  created_at: string;
-};
-
 export function normalizeTripwires(rows: TripwireRow[]): TimelineEvent[] {
   return rows.map((r) => ({
     id: `trp-${r.id}`,
@@ -183,22 +175,6 @@ export function normalizeTripwires(rows: TripwireRow[]): TimelineEvent[] {
     accent: "none" as const,
     metadata: { status: "paid", amount_cents: r.amount * 100 },
   }));
-}
-
-export function normalizeSubscriptions(rows: SubscriptionRow[]): TimelineEvent[] {
-  return rows.map((r) => {
-    const failed = r.status === "canceled" || r.status === "past_due";
-    return {
-      id: `sub-${r.id}`,
-      kind: "payment" as const,
-      timestamp: r.created_at,
-      title: failed
-        ? `Subscription ${r.status} — $${r.amount}`
-        : `Subscription started — $${r.amount}/${r.interval ?? "mo"}`,
-      accent: "none" as const,
-      metadata: { status: r.status, amount_cents: r.amount * 100 },
-    };
-  });
 }
 
 export function normalizeLeadLifecycle(lead: Lead): TimelineEvent[] {
@@ -222,6 +198,55 @@ export function normalizeLeadLifecycle(lead: Lead): TimelineEvent[] {
     });
   }
   return events;
+}
+
+type AutomationLogRow = {
+  id: string;
+  enrollment_id: string;
+  step_id: string | null;
+  coach_id: string;
+  lead_id: string;
+  status: string;
+  error: string | null;
+  resend_message_id: string | null;
+  executed_at: string;
+  /** Joined from cp_sequences via enrollment. */
+  sequence_name?: string;
+  /** Joined from cp_sequence_steps. */
+  step_position?: number;
+};
+
+export function normalizeAutomationLogs(
+  logs: AutomationLogRow[]
+): TimelineEvent[] {
+  return logs.map((log) => {
+    const failed = log.status === "failed";
+    const skipped = log.status === "skipped";
+    const stepLabel = log.step_position ? `Step ${log.step_position}` : "Step";
+    const seqLabel = log.sequence_name ?? "Sequence";
+
+    let title: string;
+    if (failed) {
+      title = `${seqLabel} — ${stepLabel} failed`;
+    } else if (skipped) {
+      title = `${seqLabel} — ${stepLabel} skipped`;
+    } else {
+      title = `${seqLabel} — ${stepLabel} sent`;
+    }
+
+    return {
+      id: `auto-${log.id}`,
+      kind: "automation_email" as const,
+      timestamp: log.executed_at,
+      title,
+      subtitle: log.error ?? undefined,
+      accent: failed ? "none" : ("indigo" as const),
+      metadata: {
+        status: log.status,
+        enrollment_id: log.enrollment_id,
+      },
+    };
+  });
 }
 
 // ── Merge + Sort ──────────────────────────────────────────────────────

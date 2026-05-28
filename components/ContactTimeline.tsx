@@ -100,6 +100,7 @@ const ICONS: Record<TimelineEventKind, string> = {
   message_inbound: "↓",
   status_change: "⟳",
   lead_created: "+",
+  automation_email: "⚡",
 };
 
 const ACCENT_BORDER: Record<TimelineEvent["accent"], string> = {
