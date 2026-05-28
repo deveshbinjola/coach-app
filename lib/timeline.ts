@@ -237,7 +237,7 @@ export function groupByDay(events: TimelineEvent[]): DayGroup[] {
   for (const ev of events) {
     const date = ev.timestamp.slice(0, 10);
     if (!current || current.date !== date) {
-      let label = date;
+      let label: string = date;
       if (date === today) label = "Today";
       else if (date === yesterday) label = "Yesterday";
       else label = new Date(date + "T12:00:00").toLocaleDateString("en-US", {

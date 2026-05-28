@@ -28,6 +28,23 @@ import LogInboundButton from "./LogInboundButton";
 import FitCard from "./FitCard";
 import ObjectionDeck from "./ObjectionDeck";
 import VoiceFitPanel from "./VoiceFitPanel";
+import TabBar from "./TabBar";
+import SummaryCard from "./SummaryCard";
+import ContactTimeline from "./ContactTimeline";
+import type { CoachingSession } from "@/lib/session-intelligence";
+import {
+  mergeTimeline,
+  computeSummary,
+  normalizeMessages,
+  normalizeSessions,
+  normalizePayments,
+  normalizeBrandOs,
+  normalizeFunnelEvents,
+  normalizeSubscriptions,
+  normalizeTripwires,
+  normalizeLeadLifecycle,
+  type TimelineEvent,
+} from "@/lib/timeline";
 import { Badge, Button, Card, Modal, useError } from "@/components/ui";
 
 const STATUSES: LeadStatus[] = ["new", "contacted", "qualified", "booked", "client", "closed_lost"];
@@ -40,15 +57,24 @@ export default function LeadDetail({
   referrer,
   referrals,
   voiceProfileSlug,
+  sessions = [],
+  payments = [],
+  brandOsRuns = [],
+  funnelEvents = [],
+  subscriptions = [],
+  tripwires = [],
 }: {
   lead: Lead;
   initialMessages: LeadMessage[];
-  // Upstream: who referred this lead in. NULL if not a referral.
   referrer?: ReferralRef | null;
-  // Downstream: leads this person has referred to us.
   referrals?: ReferralRef[];
-  // Audience-aware voice profile slug. Drives ObjectionDeck variant.
   voiceProfileSlug?: import("@/lib/voice-profiles").VoiceProfileSlug;
+  sessions?: CoachingSession[];
+  payments?: any[];
+  brandOsRuns?: any[];
+  funnelEvents?: any[];
+  subscriptions?: any[];
+  tripwires?: any[];
 }) {
   const router = useRouter();
   // Error banner — replaces the 8 native alert() calls in this component
@@ -73,6 +99,32 @@ export default function LeadDetail({
   // immediately in downstream surfaces like ObjectionDeck without waiting
   // for router.refresh() to complete.
   const [currentLead, setCurrentLead] = useState<Lead>(lead);
+  const [activeTab, setActiveTab] = useState<string>("timeline");
+
+  const timelineEvents = useMemo<TimelineEvent[]>(() => {
+    return mergeTimeline(
+      normalizeMessages(messages),
+      normalizeSessions(sessions),
+      normalizePayments(payments),
+      normalizeBrandOs(brandOsRuns),
+      normalizeFunnelEvents(funnelEvents),
+      normalizeSubscriptions(subscriptions),
+      normalizeTripwires(tripwires),
+      normalizeLeadLifecycle(currentLead),
+    );
+  }, [messages, sessions, payments, brandOsRuns, funnelEvents, subscriptions, tripwires, currentLead]);
+
+  const summary = useMemo(
+    () => computeSummary(currentLead, sessions, payments, brandOsRuns),
+    [currentLead, sessions, payments, brandOsRuns],
+  );
+
+  const TABS = useMemo(() => [
+    { key: "timeline", label: "Timeline", count: timelineEvents.length },
+    { key: "messages", label: "Messages", count: messages.length },
+    { key: "sessions", label: "Sessions", count: sessions.length },
+  ], [timelineEvents.length, messages.length, sessions.length]);
+
   // Conversion celebration — fires when a lead transitions to client status.
   // Renders a fixed-position toast with confetti dots + "Your first client"
   // copy + a button to jump to their client room.
@@ -365,6 +417,7 @@ export default function LeadDetail({
             Edit
           </a>
         </div>
+        <SummaryCard summary={summary} />
         <div className="mt-2">
           <SlaBadge lead={lead} />
         </div>
@@ -544,9 +597,50 @@ export default function LeadDetail({
       </aside>
 
       <section id="messages-section" className="md:col-span-2 space-y-6">
-        {/* Phase 7: Auto-Response Engine first-touch draft, surfaced at the
-            very top so it's the first thing the coach sees on a fresh lead.
-            Renders only when the engine has produced a pending draft. */}
+        <TabBar tabs={TABS} active={activeTab} onChange={setActiveTab} />
+
+        {activeTab === "timeline" && (
+          <ContactTimeline events={timelineEvents} />
+        )}
+
+        {activeTab === "sessions" && (
+          <div className="space-y-3">
+            {sessions.length === 0 ? (
+              <div className="py-8 text-center text-[length:var(--t-caption)] text-[color:var(--text-faint)]">
+                No sessions yet.
+              </div>
+            ) : (
+              sessions.map((s) => (
+                <a
+                  key={s.id}
+                  href={`/sessions/${s.id}`}
+                  className="block p-4 rounded-[var(--r-md)] bg-[var(--surface-elevated)] border border-[var(--border-faint)] hover:border-[var(--border)] transition-colors"
+                >
+                  <div className="flex justify-between items-baseline">
+                    <span className="font-bold text-[length:var(--t-caption)] text-[color:var(--text)]">
+                      {new Date(s.session_date).toLocaleDateString("en-US", {
+                        month: "short", day: "numeric", year: "numeric",
+                      })}
+                    </span>
+                    {s.duration_minutes && (
+                      <span className="text-[11px] text-[color:var(--text-faint)]">
+                        {s.duration_minutes} min
+                      </span>
+                    )}
+                  </div>
+                  {s.ai_summary && (
+                    <div className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1 line-clamp-2">
+                      {s.ai_summary}
+                    </div>
+                  )}
+                </a>
+              ))
+            )}
+          </div>
+        )}
+
+        {activeTab === "messages" && (
+          <>
         <FirstResponseDraftPanel
           lead={currentLead}
           messages={messages}
@@ -554,44 +648,13 @@ export default function LeadDetail({
           onLeadChange={setCurrentLead}
         />
 
-        {/* P2: Re-warm suggestions — only renders when SLA is warning/overdue */}
         <RewarmDeck lead={currentLead} onUseTemplate={(body) => setDraft(body)} />
 
-        {/* P4: Rehearsed reframes for common objections. Always renders — the
-            coach benefits from seeing patterns ranked for this lead even
-            before an objection surfaces, as prep. */}
-        <ObjectionDeck lead={currentLead} onUseTemplate={(body) => setDraft(body)} voiceProfileSlug={voiceProfileSlug} />
-
-        <Card padding="md" className="border-[color-mix(in_srgb,var(--brand)_22%,var(--border))]">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div className="max-w-xl">
-              <div className="text-[length:var(--t-label)] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
-                Market signal
-              </div>
-              <h3 className="mt-1 text-[length:var(--t-h3)] font-bold text-[color:var(--text)]">
-                Turn this lead into content.
-              </h3>
-              <p className="mt-1 text-[length:var(--t-caption)] leading-[var(--leading-base)] text-[color:var(--text-muted)]">
-                Use their objection, pain signal, and notes as the seed for an Instagram post, LinkedIn post, newsletter, or carousel.
-              </p>
-            </div>
-            <a
-              href={`/content?lead=${lead.id}`}
-              className="inline-flex min-h-10 items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-4 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[var(--brand-strong)]"
-            >
-              Create content
-            </a>
-          </div>
-        </Card>
-
-        {/* P2: Quick inbound-reply logger — resets the SLA clock */}
         <div className="flex items-center justify-end">
           <LogInboundButton
             lead={lead}
             onLogged={(msg) => {
               setMessages((prev) => [...prev, msg]);
-              // Local hint — router.refresh() will re-read lead row with fresh
-              // last_contact_at and status; SLA badges recompute from new data.
               router.refresh();
             }}
           />
@@ -664,6 +727,32 @@ export default function LeadDetail({
                 <p className="whitespace-pre-wrap">{m.content}</p>
               </div>
             ))}
+          </div>
+        </Card>
+          </>
+        )}
+
+        <ObjectionDeck lead={currentLead} onUseTemplate={(body) => setDraft(body)} voiceProfileSlug={voiceProfileSlug} />
+
+        <Card padding="md" className="border-[color-mix(in_srgb,var(--brand)_22%,var(--border))]">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="max-w-xl">
+              <div className="text-[length:var(--t-label)] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+                Market signal
+              </div>
+              <h3 className="mt-1 text-[length:var(--t-h3)] font-bold text-[color:var(--text)]">
+                Turn this lead into content.
+              </h3>
+              <p className="mt-1 text-[length:var(--t-caption)] leading-[var(--leading-base)] text-[color:var(--text-muted)]">
+                Use their objection, pain signal, and notes as the seed for an Instagram post, LinkedIn post, newsletter, or carousel.
+              </p>
+            </div>
+            <a
+              href={`/content?lead=${lead.id}`}
+              className="inline-flex min-h-10 items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-4 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[var(--brand-strong)]"
+            >
+              Create content
+            </a>
           </div>
         </Card>
 
