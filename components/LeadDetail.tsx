@@ -39,9 +39,9 @@ import {
   normalizePayments,
   normalizeBrandOs,
   normalizeFunnelEvents,
-  normalizeSubscriptions,
   normalizeTripwires,
   normalizeLeadLifecycle,
+  normalizeAutomationLogs,
   type TimelineEvent,
   type TimelineSession,
 } from "@/lib/timeline";
@@ -61,8 +61,9 @@ export default function LeadDetail({
   payments = [],
   brandOsRuns = [],
   funnelEvents = [],
-  subscriptions = [],
   tripwires = [],
+  enrollments = [],
+  automationLogs = [],
 }: {
   lead: Lead;
   initialMessages: LeadMessage[];
@@ -73,8 +74,9 @@ export default function LeadDetail({
   payments?: any[];
   brandOsRuns?: any[];
   funnelEvents?: any[];
-  subscriptions?: any[];
   tripwires?: any[];
+  enrollments?: any[];
+  automationLogs?: any[];
 }) {
   const router = useRouter();
   // Error banner — replaces the 8 native alert() calls in this component
@@ -108,11 +110,11 @@ export default function LeadDetail({
       normalizePayments(payments),
       normalizeBrandOs(brandOsRuns),
       normalizeFunnelEvents(funnelEvents),
-      normalizeSubscriptions(subscriptions),
       normalizeTripwires(tripwires),
       normalizeLeadLifecycle(currentLead),
+      normalizeAutomationLogs(automationLogs),
     );
-  }, [messages, sessions, payments, brandOsRuns, funnelEvents, subscriptions, tripwires, currentLead]);
+  }, [messages, sessions, payments, brandOsRuns, funnelEvents, tripwires, currentLead, automationLogs]);
 
   const summary = useMemo(
     () => computeSummary(currentLead, sessions, payments, brandOsRuns),
@@ -418,6 +420,49 @@ export default function LeadDetail({
           </a>
         </div>
         <SummaryCard summary={summary} />
+        {/* Active Sequences */}
+        {enrollments.filter((e: any) => e.status === "active").length > 0 && (
+          <div className="mt-4">
+            <h3 className="text-[length:var(--t-micro)] font-bold text-[color:var(--text-muted)] uppercase tracking-wider mb-2">
+              Active Sequences
+            </h3>
+            <div className="space-y-2">
+              {enrollments
+                .filter((e: any) => e.status === "active")
+                .map((enrollment: any) => (
+                  <div
+                    key={enrollment.id}
+                    className="bg-[var(--surface-elevated)] rounded-[var(--r-md)] border border-[var(--border)] p-3 flex items-center justify-between"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-[length:var(--t-caption)] font-bold text-[color:var(--text)] truncate">
+                        Sequence
+                      </p>
+                      <p className="text-[length:var(--t-micro)] text-[color:var(--text-muted)]">
+                        {enrollment.execute_at
+                          ? `Next step: ${new Date(enrollment.execute_at).toLocaleDateString()}`
+                          : "Processing..."}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const supabase = (await import("@/lib/supabase-browser")).createClient();
+                        await supabase
+                          .from("cp_sequence_enrollments")
+                          .update({ status: "cancelled" })
+                          .eq("id", enrollment.id);
+                        window.location.reload();
+                      }}
+                      className="shrink-0 px-2 py-1 rounded-[var(--r-sm)] text-[length:var(--t-micro)] font-bold bg-[var(--danger-soft)] text-[color:var(--danger)] hover:bg-[color-mix(in_srgb,var(--danger)_20%,transparent)] transition"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
         <div className="mt-2">
           <SlaBadge lead={lead} />
         </div>

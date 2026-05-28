@@ -31,7 +31,7 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
   // has referred (downstream). Both are cheap single queries; we parallelize
   // them with Promise.all so the page still renders fast.
   const typedLead = lead as Lead;
-  const [referrerRes, referralsRes, sessionsRes, paymentsRes, brandOsRes, funnelRes, subsRes, tripRes] = await Promise.all([
+  const [referrerRes, referralsRes, sessionsRes, paymentsRes, brandOsRes, funnelRes, tripRes, enrollmentsRes, automationLogsRes] = await Promise.all([
     typedLead.referred_by_lead_id
       ? supabase
           .from("cp_leads")
@@ -69,18 +69,22 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
       .limit(20),
     typedLead.email
       ? supabase
-          .from("cp_subscriptions")
-          .select("id, customer_email, amount, status, interval, created_at")
-          .eq("customer_email", typedLead.email)
-          .order("created_at", { ascending: false })
-      : Promise.resolve({ data: [] }),
-    typedLead.email
-      ? supabase
           .from("cp_tripwire_purchases")
           .select("id, email, amount, created_at")
           .eq("email", typedLead.email)
           .order("created_at", { ascending: false })
       : Promise.resolve({ data: [] }),
+    supabase
+      .from("cp_sequence_enrollments")
+      .select("id, sequence_id, current_step_id, status, execute_at, enrolled_at")
+      .eq("lead_id", params.id)
+      .order("enrolled_at", { ascending: false }),
+    supabase
+      .from("cp_sequence_step_logs")
+      .select("id, enrollment_id, step_id, coach_id, lead_id, status, error, resend_message_id, executed_at")
+      .eq("lead_id", params.id)
+      .order("executed_at", { ascending: false })
+      .limit(50),
   ]);
 
   const referrer = (referrerRes as { data: { id: string; full_name: string; status: string } | null }).data;
@@ -124,8 +128,9 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
           payments={(paymentsRes.data ?? []) as any[]}
           brandOsRuns={(brandOsRes.data ?? []) as any[]}
           funnelEvents={(funnelRes.data ?? []) as any[]}
-          subscriptions={(subsRes.data ?? []) as any[]}
           tripwires={(tripRes.data ?? []) as any[]}
+          enrollments={(enrollmentsRes.data ?? []) as any[]}
+          automationLogs={(automationLogsRes.data ?? []) as any[]}
         />
       </main>
     </div>
