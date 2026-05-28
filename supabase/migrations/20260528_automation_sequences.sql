@@ -8,6 +8,15 @@
 --
 -- Apply via Supabase SQL editor or MCP apply_migration.
 
+-- Helper: reusable updated_at trigger function (idempotent).
+create or replace function public.cp_set_updated_at()
+returns trigger language plpgsql as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
 -- ---------------------------------------------------------------------------
 -- 1. cp_sequences — sequence definitions
 -- ---------------------------------------------------------------------------

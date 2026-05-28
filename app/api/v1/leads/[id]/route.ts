@@ -93,6 +93,19 @@ export async function PATCH(
   const patch = parsed.data;
 
   const admin = createAdminClient();
+
+  // Snapshot old status before update so we only fire triggers on actual change.
+  let oldStatus: string | undefined;
+  if (patch.status) {
+    const { data: before } = await admin
+      .from("cp_leads")
+      .select("status")
+      .eq("id", params.id)
+      .eq("coach_id", auth.coachId)
+      .single();
+    oldStatus = before?.status;
+  }
+
   const { data, error } = await admin
     .from("cp_leads")
     .update(patch)
@@ -104,8 +117,8 @@ export async function PATCH(
   if (error) return apiError(error.message, 500);
   if (!data) return apiError("Lead not found", 404);
 
-  // Fire sequence triggers when status changes.
-  if (patch.status && data.status === patch.status) {
+  // Fire sequence triggers only when status actually changed.
+  if (patch.status && oldStatus && oldStatus !== patch.status) {
     void checkSequenceTriggers(auth.coachId, "status_change", {
       id: data.id,
       coach_id: data.coach_id,

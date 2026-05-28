@@ -82,7 +82,7 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
       .order("enrolled_at", { ascending: false }),
     supabase
       .from("cp_sequence_step_logs")
-      .select("id, enrollment_id, step_id, coach_id, lead_id, status, error, resend_message_id, executed_at")
+      .select("id, enrollment_id, step_id, coach_id, lead_id, status, error, resend_message_id, executed_at, cp_sequence_enrollments(cp_sequences(name)), cp_sequence_steps(position)")
       .eq("lead_id", params.id)
       .eq("coach_id", user?.id ?? "")
       .order("executed_at", { ascending: false })
@@ -132,7 +132,11 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
           funnelEvents={(funnelRes.data ?? []) as any[]}
           tripwires={(tripRes.data ?? []) as any[]}
           enrollments={(enrollmentsRes.data ?? []) as any[]}
-          automationLogs={(automationLogsRes.data ?? []) as any[]}
+          automationLogs={(automationLogsRes.data ?? []).map((log: any) => ({
+            ...log,
+            sequence_name: log.cp_sequence_enrollments?.cp_sequences?.name,
+            step_position: log.cp_sequence_steps?.position,
+          })) as any[]}
         />
       </main>
     </div>
