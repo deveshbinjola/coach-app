@@ -31,7 +31,6 @@ import VoiceFitPanel from "./VoiceFitPanel";
 import TabBar from "./TabBar";
 import SummaryCard from "./SummaryCard";
 import ContactTimeline from "./ContactTimeline";
-import type { CoachingSession } from "@/lib/session-intelligence";
 import {
   mergeTimeline,
   computeSummary,
@@ -44,6 +43,7 @@ import {
   normalizeTripwires,
   normalizeLeadLifecycle,
   type TimelineEvent,
+  type TimelineSession,
 } from "@/lib/timeline";
 import { Badge, Button, Card, Modal, useError } from "@/components/ui";
 
@@ -69,7 +69,7 @@ export default function LeadDetail({
   referrer?: ReferralRef | null;
   referrals?: ReferralRef[];
   voiceProfileSlug?: import("@/lib/voice-profiles").VoiceProfileSlug;
-  sessions?: CoachingSession[];
+  sessions?: TimelineSession[];
   payments?: any[];
   brandOsRuns?: any[];
   funnelEvents?: any[];

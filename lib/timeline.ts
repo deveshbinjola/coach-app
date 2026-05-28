@@ -1,8 +1,16 @@
 // lib/timeline.ts
 import type { LeadMessage, Lead } from "@/lib/types";
-import type { CoachingSession } from "@/lib/session-intelligence";
-
 // ── Types ─────────────────────────────────────────────────────────────
+
+export type TimelineSession = {
+  id: string;
+  session_date: string;
+  duration_minutes: number | null;
+  ai_summary: string | null;
+  key_topics: string[];
+  commitments: string[];
+  somatic_observations: string[];
+};
 
 export type TimelineEventKind =
   | "message_outbound"
@@ -74,7 +82,7 @@ export function normalizePayments(payments: PaymentRow[]): TimelineEvent[] {
   });
 }
 
-export function normalizeSessions(sessions: CoachingSession[]): TimelineEvent[] {
+export function normalizeSessions(sessions: TimelineSession[]): TimelineEvent[] {
   return sessions.map((s, i, arr) => ({
     id: `ses-${s.id}`,
     kind: "session" as const,
@@ -255,7 +263,7 @@ export function groupByDay(events: TimelineEvent[]): DayGroup[] {
 
 export function computeSummary(
   lead: Lead,
-  sessions: CoachingSession[],
+  sessions: TimelineSession[],
   payments: PaymentRow[],
   brandOsRuns: BrandOsRow[],
 ): ContactSummary {
