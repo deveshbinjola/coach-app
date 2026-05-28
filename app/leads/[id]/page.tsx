@@ -76,13 +76,15 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
       : Promise.resolve({ data: [] }),
     supabase
       .from("cp_sequence_enrollments")
-      .select("id, sequence_id, current_step_id, status, execute_at, enrolled_at")
+      .select("id, sequence_id, current_step_id, status, execute_at, enrolled_at, cp_sequences(name)")
       .eq("lead_id", params.id)
+      .eq("coach_id", user?.id ?? "")
       .order("enrolled_at", { ascending: false }),
     supabase
       .from("cp_sequence_step_logs")
       .select("id, enrollment_id, step_id, coach_id, lead_id, status, error, resend_message_id, executed_at")
       .eq("lead_id", params.id)
+      .eq("coach_id", user?.id ?? "")
       .order("executed_at", { ascending: false })
       .limit(50),
   ]);

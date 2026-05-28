@@ -103,6 +103,11 @@ export default function LeadDetail({
   const [currentLead, setCurrentLead] = useState<Lead>(lead);
   const [activeTab, setActiveTab] = useState<string>("timeline");
 
+  const activeEnrollments = useMemo(
+    () => enrollments.filter((e: any) => e.status === "active"),
+    [enrollments],
+  );
+
   const timelineEvents = useMemo<TimelineEvent[]>(() => {
     return mergeTimeline(
       normalizeMessages(messages),
@@ -421,22 +426,22 @@ export default function LeadDetail({
         </div>
         <SummaryCard summary={summary} />
         {/* Active Sequences */}
-        {enrollments.filter((e: any) => e.status === "active").length > 0 && (
+        {activeEnrollments.length > 0 && (
           <div className="mt-4">
             <h3 className="text-[length:var(--t-micro)] font-bold text-[color:var(--text-muted)] uppercase tracking-wider mb-2">
               Active Sequences
             </h3>
             <div className="space-y-2">
-              {enrollments
-                .filter((e: any) => e.status === "active")
-                .map((enrollment: any) => (
+              {activeEnrollments.map((enrollment: any) => {
+                const seqName = enrollment.cp_sequences?.name ?? "Sequence";
+                return (
                   <div
                     key={enrollment.id}
                     className="bg-[var(--surface-elevated)] rounded-[var(--r-md)] border border-[var(--border)] p-3 flex items-center justify-between"
                   >
                     <div className="min-w-0">
                       <p className="text-[length:var(--t-caption)] font-bold text-[color:var(--text)] truncate">
-                        Sequence
+                        {seqName}
                       </p>
                       <p className="text-[length:var(--t-micro)] text-[color:var(--text-muted)]">
                         {enrollment.execute_at
@@ -446,20 +451,23 @@ export default function LeadDetail({
                     </div>
                     <button
                       type="button"
+                      aria-label={`Cancel ${seqName}`}
                       onClick={async () => {
                         const supabase = (await import("@/lib/supabase-browser")).createClient();
-                        await supabase
+                        const { error } = await supabase
                           .from("cp_sequence_enrollments")
                           .update({ status: "cancelled" })
                           .eq("id", enrollment.id);
-                        window.location.reload();
+                        if (error) { setError("Failed to cancel sequence: " + error.message); return; }
+                        router.refresh();
                       }}
                       className="shrink-0 px-2 py-1 rounded-[var(--r-sm)] text-[length:var(--t-micro)] font-bold bg-[var(--danger-soft)] text-[color:var(--danger)] hover:bg-[color-mix(in_srgb,var(--danger)_20%,transparent)] transition"
                     >
                       Cancel
                     </button>
                   </div>
-                ))}
+                );
+              })}
             </div>
           </div>
         )}
