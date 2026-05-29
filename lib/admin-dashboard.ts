@@ -210,3 +210,88 @@ export function computeThisWeek(
       };
     });
 }
+
+// ── Orchestrator ──────────────────────────────────────────────────────
+
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+export async function getAdminDashboard(coachId: string, now: number): Promise<AdminDashboard> {
+  const supabase = createClient();
+  const nowDate = new Date(now);
+  const monthStart = new Date(now);
+  monthStart.setUTCDate(1);
+  monthStart.setUTCHours(0, 0, 0, 0);
+  const sixMonthsAgo = new Date(now - 186 * 86_400_000).toISOString();
+  const weekEnd = new Date(now + 7 * 86_400_000).toISOString();
+
+  const [
+    eventsRes, sessionsRes, leadsRes, messagesRes, enrollmentsRes,
+    paymentsRes, membersRes, contentRes, roomsRes, offeringsRes, trustRes,
+  ] = await Promise.all([
+    supabase.from("cp_client_events").select("id, title, starts_at, meeting_url, client_room_id").eq("coach_id", coachId),
+    supabase.from("cp_coaching_sessions").select("id, client_id, session_date, key_topics").eq("coach_id", coachId).gte("session_date", monthStart.toISOString()),
+    supabase.from("cp_leads").select("id, full_name, status, created_at").eq("coach_id", coachId),
+    supabase.from("cp_lead_messages").select("id, lead_id, direction, sent_at, created_at").eq("coach_id", coachId),
+    supabase.from("cp_sequence_enrollments").select("id, lead_id, status, sequence_id").eq("coach_id", coachId).eq("status", "failed"),
+    supabase.from("cp_payments").select("offering_id, amount_cents, status, created_at").eq("coach_id", coachId).gte("created_at", sixMonthsAgo),
+    // cp_offering_members has no coach_id column — rely on RLS (matches offerings detail page pattern)
+    supabase.from("cp_offering_members").select("id, offering_id, status, joined_at"),
+    supabase.from("cp_content").select("id, title, status, published_at").eq("coach_id", coachId),
+    supabase.from("cp_client_rooms").select("id, lead_id").eq("coach_id", coachId),
+    supabase.from("cp_offerings").select("id, name, status, price_cents, capacity").eq("coach_id", coachId),
+    supabase.from("cp_lead_messages").select("id, lead_id, coach_id, channel, direction, content, ai_drafted, was_edited, original_draft, created_at").eq("coach_id", coachId),
+  ]);
+
+  const events = eventsRes.data ?? [];
+  const sessions = sessionsRes.data ?? [];
+  const leads = (leadsRes.data ?? []) as Array<{ id: string; full_name: string; status: string; created_at: string }>;
+  const messages = messagesRes.data ?? [];
+  const enrollments = enrollmentsRes.data ?? [];
+  const payments = (paymentsRes.data ?? []) as Array<{ offering_id: string | null; amount_cents: number; status: string; created_at: string }>;
+  const members = (membersRes.data ?? []) as Array<{ id: string; offering_id: string; status: string; joined_at: string | null }>;
+  const content = (contentRes.data ?? []) as Array<{ id: string; title: string; status: string; published_at: string | null }>;
+  const rooms = (roomsRes.data ?? []) as Array<{ id: string; lead_id: string }>;
+  const offerings = (offeringsRes.data ?? []) as Array<{ id: string; name: string; status: string; price_cents: number | null; capacity: number | null }>;
+
+  // Attention: reuse the shared scorer (uncapped) + new-lead items, re-sorted.
+  const rawData: RawPulseData = {
+    calendarEvents: events.map((e) => ({ id: e.id, title: e.title, starts_at: e.starts_at, meeting_url: e.meeting_url, client_room_id: e.client_room_id })),
+    capturedToday: [],
+    sessionsThisMonth: sessions.map((s) => ({ client_id: s.client_id, session_date: s.session_date })),
+    activeClients: leads.map((l) => ({ id: l.id, full_name: l.full_name, status: l.status })),
+    waitingMessages: messages.map((m) => ({ id: m.id, lead_id: m.lead_id, direction: m.direction, sent_at: m.sent_at, created_at: m.created_at })),
+    failedEnrollments: enrollments.map((e) => ({ id: e.id, lead_id: e.lead_id, status: e.status, sequence_id: e.sequence_id })),
+    paymentsWindow: payments.map((p) => ({ amount_cents: p.amount_cents, created_at: p.created_at })),
+    activeMembers: members.map((m) => ({ id: m.id, status: m.status })),
+    draftContent: content.filter((c) => c.status === "draft").map((c) => ({ id: c.id, title: c.title, status: c.status })),
+    clientRooms: rooms.map((r) => ({ id: r.id, lead_id: r.lead_id })),
+    now,
+  };
+  const scored = scoreRightNowItems(rawData, Infinity);
+  const attention = [...scored, ...computeNewLeadItems(leads, now)].sort((a, b) => a.priority - b.priority);
+
+  const trust = summarizeTrust((trustRes.data ?? []) as any, now);
+
+  const monthStartIso = monthStart.toISOString();
+  const newMembersThisMonth = members.filter((m) => m.status === "active" && m.joined_at && m.joined_at >= monthStartIso).length;
+  const activeMembers = members.filter((m) => m.status === "active").length;
+  const offeringCount = new Set(members.filter((m) => m.status === "active").map((m) => m.offering_id)).size;
+
+  return {
+    monthLabel: `${MONTHS[nowDate.getUTCMonth()]} ${nowDate.getUTCFullYear()}`,
+    vitals: {
+      revenue: computeRevenueVitals(payments, now),
+      members: { active: activeMembers, newThisMonth: newMembersThisMonth, offeringCount },
+      sessions: {
+        thisMonth: sessions.length,
+        upcomingThisWeek: events.filter((e) => e.starts_at > nowDate.toISOString() && e.starts_at <= weekEnd).length,
+      },
+      trust: { rate: trust.asIsPct28 },
+    },
+    attention,
+    content: computeContentPipeline(content, now),
+    revenueByOffering: computeRevenueByOffering(offerings, members, payments, now),
+    leadPipeline: computeLeadPipeline(leads),
+    thisWeek: computeThisWeek(events, rooms, leads, now),
+  };
+}
