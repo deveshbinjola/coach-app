@@ -34,6 +34,8 @@ export type RosterRow = {
   payment_status: ClientPaymentStatus;
   current_focus: string | null;
   referred_by: string | null;
+  session_count: number;
+  last_session_date: string | null;
 };
 
 export type EligibleRoom = {
@@ -367,6 +369,21 @@ function MemberRow({
           <p className="text-[length:var(--t-caption)] text-[color:var(--text-faint)] truncate italic">
             Focus: {row.current_focus}
           </p>
+        )}
+        {row.session_count > 0 && (
+          <span className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+            {row.session_count} session{row.session_count === 1 ? "" : "s"}
+            {row.last_session_date && (
+              <>
+                {" · "}
+                {(() => {
+                  const days = Math.round((Date.now() - new Date(row.last_session_date).getTime()) / 86_400_000);
+                  if (days > 14) return <span className="text-[color:var(--warning)]">last {days}d ago</span>;
+                  return `last ${days}d ago`;
+                })()}
+              </>
+            )}
+          </span>
         )}
       </div>
       <div className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">

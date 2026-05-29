@@ -49,7 +49,7 @@ export default async function OfferingDetailPage({
   const offering = offeringRow as Offering;
 
   // ── All this coach's rooms + leads + Stripe state ────────────────────
-  const [membersRes, roomsRes, leadsRes, { data: stripeRow }, { data: linkRow }] = await Promise.all([
+  const [membersRes, roomsRes, leadsRes, { data: stripeRow }, { data: linkRow }, sessionsRes] = await Promise.all([
     supabase
       .from("cp_offering_members")
       .select("*")
@@ -72,6 +72,11 @@ export default async function OfferingDetailPage({
       .eq("offering_id", offering.id)
       .eq("coach_id", user.id)
       .maybeSingle(),
+    supabase
+      .from("cp_coaching_sessions")
+      .select("client_id, session_date")
+      .eq("coach_id", user.id)
+      .order("session_date", { ascending: false }),
   ]);
   const members = (membersRes.data ?? []) as OfferingMember[];
   const rooms = (roomsRes.data ?? []) as ClientRoom[];
@@ -80,6 +85,18 @@ export default async function OfferingDetailPage({
   const leadById = new Map(leads.map((l) => [l.id, l]));
   const roomById = new Map(rooms.map((r) => [r.id, r]));
 
+  // Session data per client
+  const sessionsByClient = new Map<string, { count: number; lastDate: string }>();
+  for (const s of (sessionsRes.data ?? []) as Array<{ client_id: string; session_date: string }>) {
+    const existing = sessionsByClient.get(s.client_id);
+    if (!existing) {
+      sessionsByClient.set(s.client_id, { count: 1, lastDate: s.session_date });
+    } else {
+      existing.count++;
+      if (s.session_date > existing.lastDate) existing.lastDate = s.session_date;
+    }
+  }
+
   const roster: RosterRow[] = members
     .map((m) => {
       const room = roomById.get(m.client_room_id);
@@ -87,6 +104,8 @@ export default async function OfferingDetailPage({
       const referredBy = lead?.referred_by_lead_id
         ? leadById.get(lead.referred_by_lead_id)?.full_name ?? null
         : null;
+      const leadId = room ? room.lead_id : null;
+      const sessions = leadId ? sessionsByClient.get(leadId) ?? null : null;
       return {
         offering_id: m.offering_id,
         client_room_id: m.client_room_id,
@@ -101,6 +120,8 @@ export default async function OfferingDetailPage({
         payment_status: room?.payment_status ?? "unknown",
         current_focus: room?.current_focus ?? null,
         referred_by: referredBy,
+        session_count: sessions?.count ?? 0,
+        last_session_date: sessions?.lastDate ?? null,
       } satisfies RosterRow;
     })
     .sort((a, b) => (b.joined_at ?? "").localeCompare(a.joined_at ?? ""));
