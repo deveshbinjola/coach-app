@@ -109,3 +109,81 @@ export function computeContentPipeline(
   }
   return { draft, scheduled, publishedThisWeek };
 }
+
+// ── Pure helper: revenue by offering ──────────────────────────────────
+
+export function computeRevenueByOffering(
+  offerings: Array<{ id: string; name: string; status: string; price_cents: number | null; capacity: number | null }>,
+  members: Array<{ offering_id: string; status: string }>,
+  payments: Array<{ offering_id: string | null; amount_cents: number; status: string; created_at: string }>,
+  now: number,
+): AdminDashboard["revenueByOffering"] {
+  const monthStart = new Date(now);
+  monthStart.setUTCDate(1);
+  monthStart.setUTCHours(0, 0, 0, 0);
+  const monthStartMs = monthStart.getTime();
+
+  const revByOffering = new Map<string, number>();
+  for (const p of payments) {
+    if (p.status !== "completed" || !p.offering_id) continue;
+    if (new Date(p.created_at).getTime() < monthStartMs) continue;
+    revByOffering.set(p.offering_id, (revByOffering.get(p.offering_id) ?? 0) + p.amount_cents);
+  }
+
+  const activeByOffering = new Map<string, number>();
+  for (const m of members) {
+    if (m.status !== "active") continue;
+    activeByOffering.set(m.offering_id, (activeByOffering.get(m.offering_id) ?? 0) + 1);
+  }
+
+  return offerings
+    .filter((o) => o.status === "active")
+    .map((o) => {
+      const enrolled = activeByOffering.get(o.id) ?? 0;
+      const pctFull = o.capacity != null && o.capacity > 0 ? Math.round((enrolled / o.capacity) * 100) : null;
+      const projectedCents =
+        o.capacity != null && o.price_cents != null && enrolled < o.capacity
+          ? o.capacity * o.price_cents
+          : null;
+      return {
+        id: o.id,
+        name: o.name,
+        revenueCents: revByOffering.get(o.id) ?? 0,
+        enrolled,
+        capacity: o.capacity,
+        priceCents: o.price_cents,
+        pctFull,
+        projectedCents,
+      };
+    });
+}
+
+// ── Pure helper: this week ────────────────────────────────────────────
+
+export function computeThisWeek(
+  events: Array<{ id: string; title: string; starts_at: string; meeting_url: string | null; client_room_id: string | null }>,
+  rooms: Array<{ id: string; lead_id: string }>,
+  leads: Array<{ id: string; full_name: string }>,
+  now: number,
+): AdminDashboard["thisWeek"] {
+  const weekEnd = now + 7 * 86_400_000;
+  const roomToLead = new Map(rooms.map((r) => [r.id, r.lead_id]));
+  const leadName = new Map(leads.map((l) => [l.id, l.full_name]));
+
+  return events
+    .filter((e) => {
+      const t = new Date(e.starts_at).getTime();
+      return t > now && t <= weekEnd;
+    })
+    .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
+    .map((e) => {
+      const leadId = e.client_room_id ? roomToLead.get(e.client_room_id) ?? null : null;
+      return {
+        id: e.id,
+        title: e.title,
+        startsAt: e.starts_at,
+        clientName: leadId ? leadName.get(leadId) ?? null : null,
+        meetingUrl: e.meeting_url,
+      };
+    });
+}
