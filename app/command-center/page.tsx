@@ -1,59 +1,18 @@
+// app/command-center/page.tsx
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { userAvatarUrl, userDisplayName, userFirstName } from "@/lib/user-display";
 import Header from "@/components/Header";
-import CommandCenterView from "@/components/CommandCenterView";
 import ClaimVoiceProfile from "@/components/ClaimVoiceProfile";
-import type { Lead, Content, LeadMessage, VoiceProfile, Offering, OfferingMember } from "@/lib/types";
+import CommandCenterView from "@/components/command-center/CommandCenterView";
+import { getBusinessPulse } from "@/lib/ambient";
 import { enforceOnboardingGate } from "@/lib/onboarding";
 import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
 import { loadNavUnlocks } from "@/lib/nav-unlocks";
 import { cookies } from "next/headers";
-import { buildPunchList } from "@/lib/build-punch-list";
-import { computeLeadScore } from "@/lib/lead-score";
-import { assessSla } from "@/lib/lead-sla";
 
-export const runtime = 'edge';
-
-// /command-center — replaces /today.
-//
-// Shows the coach's full operation in one view:
-//   1. Content pipeline — what's drafted, scheduled, and live (Brand OS powered)
-//   2. Lead Rescue — who needs action right now
-//   3. Reach — rolling 7-day outreach vs. weekly target
-//   4. Honest question — rotating daily prompt
-//
-// Phase 10: Metricool performance data will backfill via Edge Function.
-
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
-
-const DEFAULT_REACH_TARGET = 15;
-const REACH_WINDOW_DAYS    = 7;
-const CONTENT_PIPELINE_LIMIT = 8;
-
-const HONEST_QUESTIONS = [
-  "Who's been on your list 14+ days without a real reply from you?",
-  "If you got one new coach this week, what would change in your calendar?",
-  "What's the conversation you're avoiding right now?",
-  "Which lead on your list do you already know won't buy, and why haven't you closed the loop?",
-  "When was the last time you sent a message without asking for anything back?",
-  "Who's the one person you'd work with for free if they said yes today?",
-  "What message have you been drafting in your head but not sending?",
-  "If your reach number stayed flat for a month, what would you do differently?",
-  "Which lead did you promise to follow up with, and when?",
-  "What's one assumption about your ICP you haven't actually tested with a human this week?",
-  "Who on your list is outgrowing the version of you they first met?",
-  "If you had to cut your list in half today, who goes first?",
-  "What's a lead telling you that you don't want to hear?",
-  "Where's the friction in your own pipeline, and is it yours to fix or theirs?",
-];
-
-function pickHonestQuestion(now: number): string {
-  const d = new Date(now);
-  const start = Date.UTC(d.getUTCFullYear(), 0, 0);
-  const dayOfYear = Math.floor((d.getTime() - start) / 86_400_000);
-  return HONEST_QUESTIONS[dayOfYear % HONEST_QUESTIONS.length];
-}
 
 export default async function CommandCenterPage() {
   const supabase = createClient();
@@ -68,188 +27,8 @@ export default async function CommandCenterPage() {
   ]);
   try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
 
-  const now         = Date.now();
-  const windowStart = new Date(now - REACH_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
-  const coachId     = user.id;
-
-  // Voice Trust window: 28 days back so we can compute the rolling rate
-  // shown on the strip + 4 weekly buckets the sparkline needs.
-  const trustWindowStart = new Date(
-    now - 28 * 24 * 60 * 60 * 1000
-  ).toISOString();
-
-  const [leadsRes, messagesRes, draftsRes, contentRes, trustMessagesRes, voiceRes, offeringsRes, offeringMembersRes] =
-    await Promise.all([
-      supabase
-        .from("cp_leads")
-        .select("*")
-        .order("created_at", { ascending: false }),
-
-      supabase
-        .from("cp_lead_messages")
-        .select("lead_id, created_at")
-        .eq("coach_id", coachId)
-        .eq("direction", "outbound")
-        .gte("created_at", windowStart),
-
-      supabase
-        .from("cp_lead_messages")
-        .select("id, lead_id, content, created_at")
-        .eq("coach_id", coachId)
-        .eq("purpose", "first_response")
-        .eq("direction", "draft")
-        .order("created_at", { ascending: false })
-        .limit(20),
-
-      // Content pipeline — scheduled/draft upcoming + recently published
-      supabase
-        .from("cp_content")
-        .select("*")
-        .eq("coach_id", coachId)
-        .order("scheduled_at", { ascending: true })
-        .limit(CONTENT_PIPELINE_LIMIT),
-
-      // Voice Trust: AI-drafted SENT messages over the last 28 days. We
-      // only need rows where the trust columns are populated; partial
-      // index on the table makes this fast.
-      supabase
-        .from("cp_lead_messages")
-        .select(
-          "id, lead_id, coach_id, channel, direction, content, ai_drafted, sent_at, purpose, external_id, synced_from, original_draft, was_edited, created_at"
-        )
-        .eq("coach_id", coachId)
-        .eq("ai_drafted", true)
-        .not("sent_at", "is", null)
-        .gte("sent_at", trustWindowStart),
-
-      supabase
-        .from("cp_voice_profiles")
-        .select("*")
-        .eq("coach_id", coachId)
-        .eq("active", true)
-        .order("version", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-
-      supabase
-        .from("cp_offerings")
-        .select("id, name, capacity, price_cents, status")
-        .eq("coach_id", coachId)
-        .eq("status", "active"),
-
-      supabase
-        .from("cp_offering_members")
-        .select("offering_id, status"),
-    ]);
-
-  const leads    = (leadsRes.data   ?? []) as Lead[];
-  const content  = (contentRes.data ?? []) as Content[];
-  const outboundRows = (messagesRes.data ?? []) as Array<{
-    lead_id: string;
-    created_at: string;
-  }>;
-  const reachCount = new Set(outboundRows.map((m) => m.lead_id)).size;
-
-  // Daily reach buckets for the pill chart in ReachCard. 7 entries, oldest
-  // (6 days ago) → today. Counts distinct leads contacted per UTC day so
-  // multiple touches to the same lead don't double-count.
-  const dailyReach: number[] = (() => {
-    const buckets: Set<string>[] = Array.from({ length: 7 }, () => new Set<string>());
-    const todayMidnight = new Date(now);
-    todayMidnight.setUTCHours(0, 0, 0, 0);
-    const todayMs = todayMidnight.getTime();
-    for (const row of outboundRows) {
-      const d = new Date(row.created_at);
-      d.setUTCHours(0, 0, 0, 0);
-      const daysAgo = Math.floor((todayMs - d.getTime()) / 86_400_000);
-      if (daysAgo >= 0 && daysAgo < 7) {
-        buckets[6 - daysAgo]!.add(row.lead_id);
-      }
-    }
-    return buckets.map((s) => s.size);
-  })();
-
-  // Build justLanded drafts for Command Center.
-  const draftRows = (draftsRes.data ?? []) as Array<{
-    id: string; lead_id: string; content: string; created_at: string;
-  }>;
-  const leadById = new Map(leads.map((l) => [l.id, l]));
-  const justLanded = draftRows
-    .map((d) => {
-      const lead = leadById.get(d.lead_id);
-      if (!lead) return null;
-      return {
-        draft_id:     d.id,
-        lead_id:      d.lead_id,
-        lead_name:    lead.full_name,
-        source:       lead.source,
-        source_detail: lead.source_detail,
-        preview:      d.content.slice(0, 140),
-        created_at:   d.created_at,
-      };
-    })
-    .filter((x): x is NonNullable<typeof x> => x !== null);
-
-  // ── Offerings revenue ──────────────────────────────────────────
-  const offerings = (offeringsRes.data ?? []) as Array<Pick<Offering, "id" | "name" | "capacity" | "price_cents" | "status">>;
-  const offeringMembers = (offeringMembersRes.data ?? []) as Array<{ offering_id: string; status: string }>;
-  const enrolledCounts: Record<string, number> = {};
-  for (const m of offeringMembers) {
-    if (m.status === "active") enrolledCounts[m.offering_id] = (enrolledCounts[m.offering_id] ?? 0) + 1;
-  }
-  const offeringRevenue = offerings.map((o) => ({
-    name: o.name,
-    enrolled: enrolledCounts[o.id] ?? 0,
-    capacity: o.capacity,
-    price_cents: o.price_cents,
-  }));
-
-  const reachTargetRaw = user.user_metadata?.reach_target_per_week;
-  const reachTarget =
-    typeof reachTargetRaw === "number" && reachTargetRaw > 0
-      ? reachTargetRaw
-      : DEFAULT_REACH_TARGET;
-
-  // Build rescue items server-side for punch list
-  const rescueItems = leads
-    .filter((l) => l.status !== "client" && l.status !== "closed_lost")
-    .map((lead) => {
-      const sla = assessSla(lead, now);
-      const followupAt = lead.next_followup_at
-        ? new Date(lead.next_followup_at).getTime()
-        : null;
-      const promisedFollowup = followupAt !== null && followupAt <= now;
-      const needsRescue =
-        sla.state === "overdue" ||
-        sla.state === "warning" ||
-        promisedFollowup ||
-        lead.next_honest_action === "invite_to_call";
-      if (!needsRescue) return null;
-      const reason =
-        promisedFollowup ? "Follow-up was promised"
-        : lead.status === "new" && sla.state === "overdue" ? "No first touch yet"
-        : sla.state === "overdue" ? "Conversation is going cold"
-        : sla.state === "warning" ? "Needs a reply today"
-        : lead.next_honest_action === "invite_to_call" ? "Ready for a call invite"
-        : "Worth your next message";
-      return { lead, score: computeLeadScore(lead, now), sla, reason, action: "" };
-    })
-    .filter((x): x is NonNullable<typeof x> => x !== null)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5);
-
-  const { items: punchListItems, total: totalPunchListGenerated } = buildPunchList(
-    rescueItems,
-    justLanded,
-    content,
-    reachCount,
-    reachTarget,
-    {
-      totalLeads: leads.length,
-      hasContent: content.length > 0,
-      hasVoiceProfile: !!voiceRes.data,
-    },
-  );
+  const now = Date.now();
+  const pulse = await getBusinessPulse(user.id, now);
 
   return (
     <div className="min-h-screen">
@@ -263,20 +42,8 @@ export default async function CommandCenterPage() {
       <main className="max-w-6xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
         <ClaimVoiceProfile />
         <CommandCenterView
-          leads={leads}
-          content={content}
-          reachCount={reachCount}
-          reachTarget={reachTarget}
-          dailyReach={dailyReach}
-          honestQuestion={pickHonestQuestion(now)}
-          now={now}
-          justLanded={justLanded}
-          trustMessages={(trustMessagesRes.data ?? []) as LeadMessage[]}
-          voiceProfile={(voiceRes.data as VoiceProfile | null) ?? null}
+          pulse={pulse}
           coachFirstName={userFirstName(user.email, user.user_metadata)}
-          offeringRevenue={offeringRevenue}
-          punchListItems={punchListItems}
-          totalPunchListGenerated={totalPunchListGenerated}
         />
       </main>
     </div>
