@@ -23,9 +23,10 @@ export type JustLandedItem = {
 type Props = {
   pulse: BusinessPulse;
   coachFirstName: string;
+  toggle?: React.ReactNode;
 };
 
-export default function CommandCenterView({ pulse, coachFirstName }: Props) {
+export default function CommandCenterView({ pulse, coachFirstName, toggle }: Props) {
   // First-run: a brand-new coach with no urgent items, no quiet items, and
   // no business signals at all. Rather than a dead-end "nothing here" card,
   // show the welcome hero with a concrete activation path.
@@ -40,13 +41,16 @@ export default function CommandCenterView({ pulse, coachFirstName }: Props) {
   if (isFirstRun) {
     return (
       <div className="max-w-3xl space-y-7">
-        <header>
-          <h1 className="font-display text-[length:var(--t-h1)] font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">
-            Welcome, {coachFirstName}.
-          </h1>
-          <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">
-            Take a breath. &nbsp;In through the nose&hellip; slow exhale.
-          </p>
+        <header className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="font-display text-[length:var(--t-h1)] font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">
+              Welcome, {coachFirstName}.
+            </h1>
+            <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">
+              Take a breath. &nbsp;In through the nose&hellip; slow exhale.
+            </p>
+          </div>
+          {toggle}
         </header>
 
         <FirstRunCommandCenter />
@@ -56,13 +60,16 @@ export default function CommandCenterView({ pulse, coachFirstName }: Props) {
 
   return (
     <div className="max-w-3xl space-y-7">
-      <header>
-        <h1 className="font-display text-[length:var(--t-h1)] font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">
-          Hey, {coachFirstName}.
-        </h1>
-        <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">
-          Take a breath before you start. &nbsp;In through the nose&hellip; slow exhale.
-        </p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-display text-[length:var(--t-h1)] font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">
+            Hey, {coachFirstName}.
+          </h1>
+          <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">
+            Take a breath before you start. &nbsp;In through the nose&hellip; slow exhale.
+          </p>
+        </div>
+        {toggle}
       </header>
 
       <RightNowList
