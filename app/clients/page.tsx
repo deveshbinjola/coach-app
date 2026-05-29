@@ -5,10 +5,13 @@ import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import ClientsWorkspace from "@/components/clients/ClientsWorkspace";
 import OfferingsWorkspace, { type OfferingCard } from "@/components/clients/OfferingsWorkspace";
+import SessionsListClient from "@/components/sessions/SessionsListClient";
+import InsightPanel from "@/components/sessions/InsightPanel";
 import { enforceOnboardingGate } from "@/lib/onboarding";
 import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
 import { loadNavUnlocks } from "@/lib/nav-unlocks";
 import { cookies } from "next/headers";
+import type { CoachingSession } from "@/lib/session-intelligence";
 import type {
   ClientEvent,
   ClientResource,
@@ -42,7 +45,10 @@ export default async function ClientsPage({
   ]);
   try { cookies().set("nav-unlocks", JSON.stringify(navUnlocks), { path: "/", sameSite: "lax", maxAge: 86400 }); } catch {}
 
-  const tab = searchParams?.tab === "offerings" ? "offerings" : "clients";
+  const validTabs = ["clients", "offerings", "sessions"] as const;
+  type TabId = (typeof validTabs)[number];
+  const rawTab = searchParams?.tab;
+  const tab: TabId = validTabs.includes(rawTab as TabId) ? (rawTab as TabId) : "clients";
 
   return (
     <div className="min-h-screen">
@@ -57,6 +63,8 @@ export default async function ClientsPage({
         <TabBar active={tab} />
         {tab === "offerings" ? (
           <OfferingsTab coachId={user.id} />
+        ) : tab === "sessions" ? (
+          <SessionsTab coachId={user.id} />
         ) : (
           <ClientsTab coachId={user.id} />
         )}
@@ -67,10 +75,11 @@ export default async function ClientsPage({
 
 // ───────────────────────── Tab bar ──────────────────────────────────────
 
-function TabBar({ active }: { active: "clients" | "offerings" }) {
-  const tabs: Array<{ id: "clients" | "offerings"; label: string; href: string }> = [
+function TabBar({ active }: { active: "clients" | "offerings" | "sessions" }) {
+  const tabs: Array<{ id: "clients" | "offerings" | "sessions"; label: string; href: string }> = [
     { id: "clients",   label: "Clients",   href: "/clients" },
     { id: "offerings", label: "Offerings", href: "/clients?tab=offerings" },
+    { id: "sessions",  label: "Sessions",  href: "/clients?tab=sessions" },
   ];
   return (
     <nav className="mb-5 flex items-center gap-1 border-b border-[var(--border)]" aria-label="Clients sections">
@@ -174,4 +183,54 @@ async function OfferingsTab({ coachId }: { coachId: string }) {
   }));
 
   return <OfferingsWorkspace offerings={cards} />;
+}
+
+async function SessionsTab({ coachId }: { coachId: string }) {
+  const supabase = createClient();
+  const [sessionsRes, clientsRes] = await Promise.all([
+    supabase
+      .from("cp_coaching_sessions")
+      .select("*")
+      .eq("coach_id", coachId)
+      .order("session_date", { ascending: false })
+      .limit(50),
+    supabase
+      .from("cp_leads")
+      .select("id, full_name")
+      .eq("coach_id", coachId)
+      .eq("status", "client")
+      .order("full_name", { ascending: true }),
+  ]);
+
+  const sessions = (sessionsRes.data ?? []) as CoachingSession[];
+  const clients = (clientsRes.data ?? []) as Array<Pick<Lead, "id" | "full_name">>;
+
+  const clientMap: Record<string, string> = {};
+  for (const c of clients) {
+    clientMap[c.id] = c.full_name;
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div>
+          <p className="text-[length:var(--t-body)] text-[color:var(--text-muted)]">
+            Capture, reflect, notice patterns.
+          </p>
+        </div>
+        <Link
+          href="/sessions/new"
+          className="inline-flex items-center gap-2 bg-[var(--brand)] text-[color:var(--navy)] font-bold text-sm px-5 py-2.5 rounded-[var(--r-md)] hover:bg-[var(--brand-strong)] hover:-translate-y-px transition"
+        >
+          + New session
+        </Link>
+      </div>
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <SessionsListClient sessions={sessions} clientMap={clientMap} />
+        <aside className="space-y-4">
+          <InsightPanel />
+        </aside>
+      </div>
+    </div>
+  );
 }
