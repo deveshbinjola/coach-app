@@ -16,6 +16,7 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
+import SparkButton from "@/components/spark/SparkButton";
 import { createClient } from "@/lib/supabase-browser";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
@@ -280,6 +281,7 @@ export default function ContentWorkspace({
   hasRunBrandOs = false,
   buyerMirror = null,
   voiceRetune = null,
+  untappedTopics,
 }: {
   profile: VoiceProfile | null;
   leads: Lead[];
@@ -297,6 +299,8 @@ export default function ContentWorkspace({
   buyerMirror?: BuyerMirror | null;
   /** Voice corpus delta — when new samples warrant a re-tune, this is set. */
   voiceRetune?: { newSources: number; newChars: number } | null;
+  /** Topics clients discuss in sessions that the coach hasn't written about yet. */
+  untappedTopics?: Array<{ topic: string; sessionCount: number }>;
 }) {
   const supabase = createClient();
   const seedLead = leads.find((lead) => lead.id === seedLeadId) ?? null;
@@ -695,6 +699,30 @@ export default function ContentWorkspace({
     <div className="min-w-0 space-y-4 sm:space-y-6">
       {voiceRetune && (
         <VoiceRetuneBanner newSources={voiceRetune.newSources} newChars={voiceRetune.newChars} />
+      )}
+      {untappedTopics && untappedTopics.length > 0 && (
+        <div className="mb-5 px-4 py-3 rounded-[var(--r-md)] bg-[var(--surface-deep)] text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+          {untappedTopics.length === 1 ? (
+            <>
+              Your clients keep discussing{" "}
+              <strong className="text-[color:var(--brand-strong)]">{untappedTopics[0].topic}</strong>
+              {" — "}
+              <a href={`/content?seed_topic=${encodeURIComponent(untappedTopics[0].topic)}`} className="font-bold text-[color:var(--text)] hover:underline">
+                write about it →
+              </a>
+            </>
+          ) : (
+            <>
+              <strong className="text-[color:var(--brand-strong)]">
+                {untappedTopics.slice(0, 2).map((t) => t.topic).join(" and ")}
+              </strong>
+              {" keep coming up in sessions — "}
+              <a href="/content" className="font-bold text-[color:var(--text)] hover:underline">
+                write about them →
+              </a>
+            </>
+          )}
+        </div>
       )}
       <EditorialMasthead
         tiles={[
@@ -2243,9 +2271,14 @@ function DraftPreview({
           />
         </>
       ) : (
-        <pre className="mt-4 max-h-[420px] whitespace-pre-wrap rounded-[var(--r-lg)] border border-[var(--border-faint)] bg-[var(--surface-deep)] p-4 font-sans text-[length:var(--t-body)] leading-[var(--leading-relaxed)] text-[color:var(--text)] overflow-auto">
-          {item.body}
-        </pre>
+        <>
+          <div className="mt-3 flex justify-end">
+            <SparkButton text={`${item.title}\n\n${item.body}`} brandKit={brandKit} />
+          </div>
+          <pre className="mt-2 max-h-[420px] whitespace-pre-wrap rounded-[var(--r-lg)] border border-[var(--border-faint)] bg-[var(--surface-deep)] p-4 font-sans text-[length:var(--t-body)] leading-[var(--leading-relaxed)] text-[color:var(--text)] overflow-auto">
+            {item.body}
+          </pre>
+        </>
       )}
     </article>
   );

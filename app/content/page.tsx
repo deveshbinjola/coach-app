@@ -12,6 +12,7 @@ import { enforceOnboardingGate } from "@/lib/onboarding";
 import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
 import { loadNavUnlocks } from "@/lib/nav-unlocks";
 import { cookies } from "next/headers";
+import { getContentSignals } from "@/lib/ambient";
 
 export const runtime = 'edge';
 
@@ -136,6 +137,8 @@ export default async function ContentPage({
           }
         : null;
 
+  const contentSignals = await getContentSignals(user.id);
+
   return (
     <div className="min-h-screen">
       <Header
@@ -158,6 +161,7 @@ export default async function ContentPage({
           hasRunBrandOs={hasRunBrandOs}
           buyerMirror={buyerMirror}
           voiceRetune={voiceRetune}
+          untappedTopics={contentSignals.untappedTopics}
         />
       </main>
     </div>
