@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeRevenueVitals } from "@/lib/admin-dashboard";
+import { computeRevenueVitals, computeLeadPipeline, computeContentPipeline } from "@/lib/admin-dashboard";
 
 describe("computeRevenueVitals", () => {
   const now = new Date("2026-05-15T12:00:00Z").getTime();
@@ -37,5 +37,31 @@ describe("computeRevenueVitals", () => {
     const v = computeRevenueVitals(payments, now);
     expect(v.sparkline).toHaveLength(6);
     expect(v.sparkline[5]).toBe(1400000);
+  });
+});
+
+describe("computeLeadPipeline", () => {
+  it("buckets by status and excludes closed_lost", () => {
+    const leads = [
+      { status: "new" }, { status: "new" }, { status: "contacted" },
+      { status: "qualified" }, { status: "booked" }, { status: "client" },
+      { status: "closed_lost" },
+    ];
+    const p = computeLeadPipeline(leads);
+    expect(p).toEqual({ new: 2, contacted: 1, qualified: 1, booked: 1, won: 1 });
+  });
+});
+
+describe("computeContentPipeline", () => {
+  const now = new Date("2026-05-15T12:00:00Z").getTime();
+  it("counts drafts, scheduled, and published-in-last-7-days", () => {
+    const content = [
+      { status: "draft", published_at: null },
+      { status: "draft", published_at: null },
+      { status: "scheduled", published_at: null },
+      { status: "published", published_at: "2026-05-12T00:00:00Z" }, // within 7d
+      { status: "published", published_at: "2026-05-01T00:00:00Z" }, // older than 7d
+    ];
+    expect(computeContentPipeline(content, now)).toEqual({ draft: 2, scheduled: 1, publishedThisWeek: 1 });
   });
 });

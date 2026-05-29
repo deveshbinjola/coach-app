@@ -74,3 +74,38 @@ export function computeRevenueVitals(
 
   return { thisMonthCents, lastMonthCents, trend, pctChange, sparkline: buckets };
 }
+
+// ── Pure helper: lead pipeline ────────────────────────────────────────
+
+export function computeLeadPipeline(
+  leads: Array<{ status: string }>,
+): AdminDashboard["leadPipeline"] {
+  const p = { new: 0, contacted: 0, qualified: 0, booked: 0, won: 0 };
+  for (const l of leads) {
+    if (l.status === "new") p.new++;
+    else if (l.status === "contacted") p.contacted++;
+    else if (l.status === "qualified") p.qualified++;
+    else if (l.status === "booked") p.booked++;
+    else if (l.status === "client") p.won++;
+    // closed_lost intentionally excluded
+  }
+  return p;
+}
+
+// ── Pure helper: content pipeline ─────────────────────────────────────
+
+export function computeContentPipeline(
+  content: Array<{ status: string; published_at: string | null }>,
+  now: number,
+): AdminDashboard["content"] {
+  const sevenDaysAgo = now - 7 * 86_400_000;
+  let draft = 0, scheduled = 0, publishedThisWeek = 0;
+  for (const c of content) {
+    if (c.status === "draft") draft++;
+    else if (c.status === "scheduled") scheduled++;
+    else if (c.status === "published" && c.published_at && new Date(c.published_at).getTime() >= sevenDaysAgo) {
+      publishedThisWeek++;
+    }
+  }
+  return { draft, scheduled, publishedThisWeek };
+}
