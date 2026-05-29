@@ -25,10 +25,12 @@ export default function BusinessPulseStrip({ metrics }: Props) {
           warning: false,
         }
       : null,
-    metrics.sessionsThisMonth > 0
+    metrics.sessionsThisMonth >= 0
       ? {
           label: "",
-          value: `${metrics.sessionsThisMonth} session${metrics.sessionsThisMonth === 1 ? "" : "s"}`,
+          value: metrics.sessionsThisMonth === 0
+            ? "0 sessions"
+            : `${metrics.sessionsThisMonth} session${metrics.sessionsThisMonth === 1 ? "" : "s"}`,
           warning: metrics.sessionsThisMonth === 0,
         }
       : null,

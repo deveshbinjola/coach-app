@@ -417,6 +417,12 @@ export async function getBusinessPulse(coachId: string, now: number): Promise<Bu
   const lastMonthStart = new Date(monthStart);
   lastMonthStart.setUTCMonth(lastMonthStart.getUTCMonth() - 1);
 
+  // Session lookback: we need 14-day overdue detection + month count.
+  // Use the earlier of monthStart and 30 days ago to avoid false positives
+  // on days 1-13 when monthStart is less than 14 days back.
+  const thirtyDaysAgo = new Date(now - 30 * 86_400_000);
+  const sessionLookbackStart = thirtyDaysAgo < monthStart ? thirtyDaysAgo : monthStart;
+
   // Trust window: 28 days
   const trustWindowStart = new Date(now - 28 * 86_400_000).toISOString();
 
@@ -437,7 +443,7 @@ export async function getBusinessPulse(coachId: string, now: number): Promise<Bu
     supabase.from("cp_coaching_sessions")
       .select("client_id, session_date")
       .eq("coach_id", coachId)
-      .gte("session_date", monthStart.toISOString()),
+      .gte("session_date", sessionLookbackStart.toISOString()),
     supabase.from("cp_leads")
       .select("id, full_name, status")
       .eq("coach_id", coachId)
@@ -491,10 +497,17 @@ export async function getBusinessPulse(coachId: string, now: number): Promise<Bu
   const trustMessages = trustRes.data ?? [];
   const trust = summarizeTrust(trustMessages as any, now);
 
+  // Filter to current month for the metric count (query may include older sessions
+  // for overdue detection when monthStart is less than 14 days ago).
+  const monthStartIso = monthStart.toISOString();
+  const sessionsInMonth = rawData.sessionsThisMonth.filter(
+    (s) => s.session_date >= monthStartIso,
+  );
+
   const metrics = computeMetrics({
     paymentsWindow: rawData.paymentsWindow,
     activeMembers: rawData.activeMembers,
-    sessionsThisMonth: rawData.sessionsThisMonth,
+    sessionsThisMonth: sessionsInMonth,
     trustRate: trust.asIsPct28,
     now,
   });
@@ -554,9 +567,9 @@ export async function getPersonSignals(leadId: string): Promise<PersonSignals> {
 
   const now = Date.now();
 
-  // Last message
+  // Last message (sent_at can be null — skip if missing)
   const lastMsg = (messageRes.data ?? [])[0] ?? null;
-  const lastMessage = lastMsg
+  const lastMessage = lastMsg && lastMsg.sent_at
     ? {
         direction: lastMsg.direction as "inbound" | "outbound",
         date: lastMsg.sent_at,

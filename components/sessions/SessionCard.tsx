@@ -26,8 +26,8 @@ function formatDate(dateStr: string): string {
 }
 
 export default function SessionCard({ session, clientName }: Props) {
-  const topicSlice = session.key_topics.slice(0, 3);
-  const hasSomatic = session.somatic_observations.length > 0;
+  const topicSlice = (session.key_topics ?? []).slice(0, 3);
+  const hasSomatic = (session.somatic_observations ?? []).length > 0;
 
   return (
     <Link href={`/sessions/${session.id}`} className="block group">
