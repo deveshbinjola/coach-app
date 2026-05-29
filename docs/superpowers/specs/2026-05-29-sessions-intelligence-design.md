@@ -2,10 +2,13 @@
 
 ## Summary
 
-Redesign the Clients Sessions tab from a flat session log into a **coaching notebook** that prepares coaches for their day. Integrate session intelligence into the Command Center as a compact widget.
+Redesign the Clients Sessions tab from a flat session log into a **coaching notebook** that prepares coaches for their day. Integrate session intelligence across every surface of the app — not through configuration, but through ambient connectivity.
 
-Two phases:
+**Design principle: Google's connectivity + Apple's invisibility.** Every surface in the app is quietly aware of the client's full story. Session data flows to client cards, client activity flows into session prep, and captures ripple outward without the coach doing anything.
+
+Three phases:
 - **Phase 1:** Rebuild the Sessions tab with three zones (Today's Prep, Needs Attention, Recent Sessions) + inline session capture.
+- **Phase 1b:** Cross-surface session intelligence — client cards show session pulse, session prep shows recent activity.
 - **Phase 2:** Add a "Sessions Today" card to Command Center.
 
 ## Core Feeling
@@ -36,6 +39,14 @@ The card face is compact — three lines max:
 
 **Tap/click to expand:** The card expands inline to reveal:
 - AI pre-brief (2-3 bullet points from `generatePreSessionBrief()` — only if previous sessions exist)
+- Recent activity (max 3 items from the client's contact timeline — messages, events, sequence steps that happened since the last session). Shows what happened *between* sessions so the coach walks in with the full picture. Example:
+  ```
+  Recent:
+  💬 Message sent 2 days ago
+  📅 Discovery call completed May 20
+  🔄 In sequence: "Post-session follow-up" (step 2 of 4)
+  ```
+  If no recent activity beyond sessions, this section doesn't render. Data source: `cp_contact_timeline` entries for this client since last `cp_coaching_sessions.session_date`.
 - "Join call" link (if `cp_client_events.meeting_url` present)
 - "Capture notes" button
 
@@ -144,6 +155,36 @@ The `InsightPanel` component and `/api/sessions/insights` route remain — they'
 
 ---
 
+## Phase 1b: Cross-Surface Session Intelligence
+
+Session data shouldn't live only in the Sessions tab. Like Google surfaces email context in Calendar and meeting context in Gmail, coaching session intelligence flows to every surface where a client appears.
+
+### Client Cards Show Session Pulse
+
+In the Clients tab sidebar (`ClientSidebar.tsx`), each client row currently shows: health dot, name, "X days ago" (based on `last_contact_at`), pain signal, task count.
+
+**Add a session context line** below the existing subtitle:
+- "Last session: 3 days ago" — muted text, `var(--text-faint)`, `var(--t-micro)` size
+- "No sessions yet" — for clients with zero coaching sessions
+- Overdue (14+ days since last session): line uses `var(--warning)` color — "Last session: 23 days ago"
+
+This requires the `ClientsTab` server component to also query `cp_coaching_sessions` and compute `lastSessionDate` per client. The data passes through `ClientsWorkspace` → `ClientSidebar` as a `sessionPulse: Record<string, { daysSince: number; date: string } | null>` prop.
+
+**Zero extra clicks. Zero new UI surface.** The coach glances at their client list and instantly knows who's been coached recently and who's going cold — alongside the existing lead-health signals.
+
+### Post-Capture Ripple
+
+When a session is captured via `InlineCaptureForm`, the data ripples outward:
+
+1. **Sessions tab** — the TodayPrepCard transitions to captured state (already designed above)
+2. **Client sidebar** — the "Last session" line updates to "Today" without a full page reload. The `onSaved` callback triggers `router.refresh()` which re-runs the server component queries.
+3. **Contact timeline** — session entry appears automatically on next view of the lead detail page (the timeline normalizer for sessions already exists in `lib/timeline.ts`)
+4. **Command Center** — next page load shows updated state (no real-time push needed)
+
+No manual linking. No "add to timeline" button. The coach captures notes, and the entire app knows.
+
+---
+
 ## Phase 2: Command Center "Sessions Today" Card
 
 A new `SessionsTodayCard` component on the Command Center page.
@@ -195,8 +236,10 @@ Each entry: time (from `starts_at` or `session_date`), client name, context line
 
 | File | Change |
 |------|--------|
-| `app/clients/page.tsx` | `SessionsTab` — restructure queries (add calendar events + client rooms fetch), pass data to new zone components, remove InsightPanel import |
+| `app/clients/page.tsx` | `SessionsTab` — restructure queries (add calendar events + client rooms fetch), pass data to new zone components, remove InsightPanel import. `ClientsTab` — add `cp_coaching_sessions` query, compute `sessionPulse` per client, pass to `ClientsWorkspace` |
 | `components/sessions/SessionsListClient.tsx` | Enhance search to handle client name filtering (smart search, no separate dropdown) |
+| `components/clients/ClientsWorkspace.tsx` | Accept `sessionPulse` prop, pass to `ClientSidebar` |
+| `components/clients/ClientSidebar.tsx` | Accept `sessionPulse` prop, render "Last session: X days ago" line per client with overdue warning color |
 | `app/command-center/page.tsx` | Add today's sessions query + last session topics per client, render `SessionsTodayCard` |
 
 ### Unchanged files
@@ -255,7 +298,27 @@ Pre-briefs are fetched client-side by each `TodayPrepCard` when expanded, via `G
 
 This keeps the server render fast and avoids blocking on Claude API calls. The compact card face uses server-side data (stored `key_topics` from last session) — no API call needed for the default collapsed view.
 
-### Command Center data flow
+### ClientsTab session pulse (Phase 1b)
+
+The `ClientsTab` server component adds one query to its existing `Promise.all`:
+
+```
+// 7. Most recent coaching session per client (NEW — for session pulse)
+supabase.from("cp_coaching_sessions")
+  .select("client_id, session_date")
+  .eq("coach_id", coachId)
+  .order("session_date", { ascending: false })
+```
+
+Server-side computation: group by `client_id`, take most recent `session_date` per client, compute `daysSince`. Build `sessionPulse: Record<string, { daysSince: number; date: string } | null>`. Pass through `ClientsWorkspace` → `ClientSidebar`.
+
+### TodayPrepCard recent activity (Phase 1)
+
+Recent activity is passed server-side, not fetched client-side. The `SessionsTab` server component queries recent `cp_lead_messages` and `cp_client_events` for each of today's clients (scoped to events since their last coaching session) and passes them as props through `TodayPrepSection` → `TodayPrepCard`. This avoids needing a new API endpoint and keeps the expanded card instant.
+
+The pre-brief is the only client-side fetch (via `GET /api/sessions/insights?client_id=X` on card expand).
+
+### Command Center data flow (Phase 2)
 
 Server-side only. No client-side fetches. Query today's events + today's sessions + last session per client (for `key_topics`). All database reads, zero Claude API calls. The card renders instantly with the page.
 
@@ -298,3 +361,8 @@ NeedsAttentionStrip uses `var(--text-muted)` color, no background — it's a lin
 | Search for client name in archive | Smart search matches client name first, shows that client's sessions. No separate dropdown needed |
 | Overdue client count is 0 | NeedsAttentionStrip doesn't render at all. No "all good" message |
 | Command Center with 0 sessions today | SessionsTodayCard doesn't render at all |
+| Client with coaching sessions but no client room | Session pulse still shows on client card (joins via `client_id` on `cp_leads`, not via rooms) |
+| Client has 0 coaching sessions | Client sidebar shows "No sessions yet" in `var(--text-faint)` — informational, not alarming |
+| Session captured, coach stays on Sessions tab | `router.refresh()` re-runs server queries, client sidebar pulse updates to "Today" |
+| No recent activity between sessions for a client | TodayPrepCard expanded view skips the "Recent" section entirely — just shows pre-brief |
+| Recent activity exists but timeline table is empty | Graceful fallback — section doesn't render. The feature degrades cleanly |
