@@ -28,8 +28,9 @@ export async function logFunnelEvent(
     const admin = createAdminClient();
     await admin.from("cp_funnel_events").insert({ coach_id: coachId, name, meta });
 
-    // Fire sequence triggers for quiz completion events.
-    if (name === "quiz_completed" && lead) {
+    // Fire sequence triggers for quiz/Brand OS completion events.
+    // "brand_os_completed" is the funnel event; sequence triggers use "quiz_completed".
+    if (name === "brand_os_completed" && lead) {
       void checkSequenceTriggers(coachId, "quiz_completed", lead);
     }
   } catch (err) {

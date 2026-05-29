@@ -14,7 +14,7 @@ const StepSchema = z.object({
   delay_minutes: z.number().int().min(0).default(0),
   action_type: z.string().default("send_email"),
   content_mode: z.enum(["template", "ai_draft"]),
-  action_config: z.record(z.unknown()).default({}),
+  action_config: z.record(z.string(), z.unknown()).default({}),
   ai_prompt: z.string().max(2000).nullable().default(null),
 });
 

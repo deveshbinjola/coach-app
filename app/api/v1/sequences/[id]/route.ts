@@ -14,7 +14,7 @@ const PatchSequenceSchema = z
   .object({
     name: z.string().min(1).max(200).optional(),
     trigger_type: z.enum(["quiz_completed", "status_change"]).optional(),
-    trigger_config: z.record(z.unknown()).optional(),
+    trigger_config: z.record(z.string(), z.unknown()).optional(),
   })
   .strict()
   .refine((obj) => Object.keys(obj).length > 0, {

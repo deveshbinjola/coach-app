@@ -12,7 +12,7 @@ export const runtime = "edge";
 const CreateSequenceSchema = z.object({
   name: z.string().min(1).max(200),
   trigger_type: z.enum(["quiz_completed", "status_change"]),
-  trigger_config: z.record(z.unknown()).optional().default({}),
+  trigger_config: z.record(z.string(), z.unknown()).optional().default({}),
 });
 
 export async function GET(request: NextRequest) {

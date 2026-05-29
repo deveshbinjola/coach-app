@@ -64,7 +64,7 @@ export default async function SequencesPage() {
         navUnlocks={navUnlocks}
       />
       <main className="max-w-5xl mx-auto px-3 py-6 sm:px-6 sm:py-10">
-        <SequenceList sequences={enriched} />
+        <SequenceList sequences={enriched as any[]} />
       </main>
     </div>
   );
