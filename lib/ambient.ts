@@ -205,28 +205,43 @@ export function scoreRightNowItems(data: RawPulseData): RightNowItem[] {
       const weeksSince = lastSession
         ? Math.round((data.now - lastSession) / (7 * 86_400_000))
         : null;
+      // A client you've actually seen but not in 14+ days is a real lapse
+      // (P4). A client with NO sessions ever is just un-entered data, not
+      // something urgent — demote it (P7) so it sinks below real work and
+      // can never become the hero unless the board is otherwise empty.
       items.push({
         id: `overdue-${client.id}`,
         leadId: client.id,
         leadName: client.full_name,
-        priority: 4,
+        priority: weeksSince ? 4 : 7,
         reason: weeksSince
           ? `no session in ${weeksSince} week${weeksSince === 1 ? "" : "s"}`
-          : "no sessions recorded",
+          : "no sessions logged yet",
         action: { label: "Capture", href: "/sessions/new", type: "capture" },
         source: "overdue",
       });
     }
   }
 
-  // Priority 5: Content drafts ready
-  for (const c of data.draftContent) {
+  // Priority 5: Content drafts ready — collapsed into ONE item. Eleven
+  // separate "Content draft ready:" rows is noise; a single "N drafts
+  // ready" line that links to /content is far more scannable.
+  if (data.draftContent.length === 1) {
     items.push({
-      id: `content-${c.id}`,
+      id: `content-${data.draftContent[0].id}`,
       leadName: undefined,
       priority: 5,
-      reason: `Content draft ready: "${c.title}"`,
+      reason: `Draft ready: "${data.draftContent[0].title}"`,
       action: { label: "Review", href: "/content", type: "link" },
+      source: "content",
+    });
+  } else if (data.draftContent.length > 1) {
+    items.push({
+      id: "content-drafts-batch",
+      leadName: undefined,
+      priority: 5,
+      reason: `${data.draftContent.length} content drafts ready for review`,
+      action: { label: "Review all", href: "/content", type: "link" },
       source: "content",
     });
   }

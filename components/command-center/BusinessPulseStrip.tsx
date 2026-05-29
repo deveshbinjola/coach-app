@@ -8,36 +8,36 @@ type Props = {
 };
 
 export default function BusinessPulseStrip({ metrics }: Props) {
-  const items: Array<{ label: string; value: string; warning: boolean } | null> = [
+  // Each metric is a stat tile: a value to land on + a label beneath it.
+  // Splitting value from label (instead of "12 members" in one string) is
+  // what makes the strip scannable at a glance.
+  const items: Array<{ label: string; value: string; trend?: "up" | "down"; warning: boolean } | null> = [
     metrics.revenue.amount > 0 || metrics.revenue.trend !== "flat"
       ? {
-          label: "This Month",
-          value: `$${(metrics.revenue.amount / 100).toLocaleString()}${
-            metrics.revenue.trend === "up" ? " ↑" : metrics.revenue.trend === "down" ? " ↓" : ""
-          }`,
+          label: "This month",
+          value: `$${(metrics.revenue.amount / 100).toLocaleString()}`,
+          trend: metrics.revenue.trend === "flat" ? undefined : metrics.revenue.trend,
           warning: metrics.revenue.trend === "down",
         }
       : null,
     metrics.activeMembers > 0
       ? {
-          label: "",
-          value: `${metrics.activeMembers} member${metrics.activeMembers === 1 ? "" : "s"}`,
+          label: metrics.activeMembers === 1 ? "Active member" : "Active members",
+          value: `${metrics.activeMembers}`,
           warning: false,
         }
       : null,
     metrics.sessionsThisMonth >= 0
       ? {
-          label: "",
-          value: metrics.sessionsThisMonth === 0
-            ? "0 sessions"
-            : `${metrics.sessionsThisMonth} session${metrics.sessionsThisMonth === 1 ? "" : "s"}`,
+          label: "Sessions this month",
+          value: `${metrics.sessionsThisMonth}`,
           warning: metrics.sessionsThisMonth === 0,
         }
       : null,
     metrics.trustRate !== null
       ? {
-          label: "",
-          value: `${metrics.trustRate}% trust`,
+          label: "Voice trust",
+          value: `${metrics.trustRate}%`,
           warning: metrics.trustRate < 60,
         }
       : null,
@@ -48,29 +48,37 @@ export default function BusinessPulseStrip({ metrics }: Props) {
 
   return (
     <div
-      className="flex items-center gap-2 flex-wrap rounded-[var(--r-md)] bg-[var(--surface-deep)] px-4 py-2.5"
+      className="grid grid-cols-2 lg:grid-cols-4 gap-2.5"
       aria-label="Business pulse"
     >
       {visible.map((item, i) => (
-        <span key={i} className="flex items-center gap-1.5">
-          {i > 0 && item.label === "" && (
-            <span className="text-[color:var(--text-faint)]">·</span>
-          )}
-          {item.label && (
-            <span className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] font-bold">
-              {item.label}
+        <div
+          key={i}
+          className="rounded-[var(--r-md)] bg-[var(--surface-elevated)] border border-[var(--border-faint)] shadow-[var(--shadow-sm)] px-4 py-3"
+        >
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-display text-[length:var(--t-h3)] font-bold tabular-nums leading-none text-[color:var(--text)]">
+              {item.value}
             </span>
-          )}
-          <span
-            className={`text-[length:var(--t-caption)] font-bold tabular-nums ${
-              item.warning
-                ? "text-[color:var(--warning)]"
-                : "text-[color:var(--text)]"
+            {item.trend && (
+              <span
+                className={`text-[length:var(--t-caption)] font-bold leading-none ${
+                  item.trend === "up" ? "text-[color:var(--brand-strong)]" : "text-[color:var(--text-faint)]"
+                }`}
+                aria-label={item.trend === "up" ? "trending up" : "trending down"}
+              >
+                {item.trend === "up" ? "↑" : "↓"}
+              </span>
+            )}
+          </div>
+          <div
+            className={`mt-2 text-[length:var(--t-caption)] ${
+              item.warning ? "text-[color:var(--text-muted)] font-semibold" : "text-[color:var(--text-faint)]"
             }`}
           >
-            {item.value}
-          </span>
-        </span>
+            {item.label}
+          </div>
+        </div>
       ))}
     </div>
   );

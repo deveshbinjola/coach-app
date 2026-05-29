@@ -16,9 +16,17 @@ export default function RightNowList({ heroItem, quietList, daySummary }: Props)
     return (
       <section aria-label="Right now">
         <Card variant="elevated" padding="md">
-          <p className="text-center text-[length:var(--t-body)] text-[color:var(--text-muted)] py-4">
-            Nothing needs you right now.
-          </p>
+          <div className="flex flex-col items-center gap-2 py-6 text-center">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--brand-soft)]">
+              <span className="h-2 w-2 rounded-full bg-[var(--brand)]" />
+            </span>
+            <p className="text-[length:var(--t-body)] font-semibold text-[color:var(--text)]">
+              You&apos;re all clear.
+            </p>
+            <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] max-w-xs">
+              Nothing needs you right now. When a lead, message, or session needs attention, it&apos;ll show up here.
+            </p>
+          </div>
         </Card>
       </section>
     );
@@ -52,25 +60,31 @@ export default function RightNowList({ heroItem, quietList, daySummary }: Props)
         </div>
       </div>
 
-      {/* Quiet list */}
+      {/* Quiet list — a grouped object, not floating lines. Hairline
+          separators + an anchor dot per row give the eye something to
+          land on, and the readable body-size text fixes the "I can't
+          see anything" problem. */}
       {quietList.length > 0 && (
-        <div className="space-y-0.5">
+        <div className="rounded-[var(--r-lg)] bg-[var(--surface-elevated)] border border-[var(--border-faint)] shadow-[var(--shadow-sm)] divide-y divide-[var(--border-faint)] overflow-hidden">
           {quietList.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between gap-3 px-3 py-2 rounded-[var(--r-md)] hover:bg-[var(--surface-elevated)] transition"
+              className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-[var(--surface-deep)] transition"
             >
-              <div className="flex items-baseline gap-2 min-w-0 flex-1 text-[length:var(--t-caption)]">
-                {item.leadId && item.leadName ? (
-                  <>
-                    <PersonName leadId={item.leadId} name={item.leadName} />
-                    <span className="text-[color:var(--text-muted)] truncate">
-                      — {item.reason}
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-[color:var(--text)] truncate">{item.reason}</span>
-                )}
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--border-strong)]" aria-hidden />
+                <div className="flex items-baseline gap-1.5 min-w-0 flex-1 text-[length:var(--t-body)]">
+                  {item.leadId && item.leadName ? (
+                    <>
+                      <PersonName leadId={item.leadId} name={item.leadName} />
+                      <span className="text-[color:var(--text-muted)] truncate">
+                        — {item.reason}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-[color:var(--text)] truncate">{item.reason}</span>
+                  )}
+                </div>
               </div>
               <ActionLink action={item.action} />
             </div>
@@ -80,8 +94,8 @@ export default function RightNowList({ heroItem, quietList, daySummary }: Props)
 
       {/* Day summary */}
       {(daySummary.sessions > 0 || daySummary.draftsReady > 0 || daySummary.leadsWaiting > 0) && (
-        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] px-3">
-          Your day:{" "}
+        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] px-1.5">
+          <span className="font-semibold text-[color:var(--text-faint)]">Today &middot; </span>
           {[
             daySummary.sessions > 0 && `${daySummary.sessions} session${daySummary.sessions === 1 ? "" : "s"}`,
             daySummary.draftsReady > 0 && `${daySummary.draftsReady} draft${daySummary.draftsReady === 1 ? "" : "s"} ready`,

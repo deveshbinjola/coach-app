@@ -1,6 +1,6 @@
 export default function FirstRunCommandCenter() {
   return (
-    <section className="rounded-[var(--r-xl)] border border-[var(--border)] bg-[linear-gradient(135deg,var(--surface-elevated)_0%,var(--surface-elevated)_60%,var(--brand-soft)_100%)] p-6 sm:p-8 shadow-[var(--shadow-xs)]">
+    <section className="rounded-[var(--r-xl)] border border-[var(--border)] bg-[linear-gradient(135deg,var(--surface-elevated)_0%,var(--surface-elevated)_60%,var(--brand-soft)_100%)] p-6 sm:p-8 shadow-[var(--shadow-sm)]">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-7 items-start">
         <div className="min-w-0">
           <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-faint)] bg-white/70 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)]">
