@@ -239,7 +239,7 @@ export async function getAdminDashboard(coachId: string, now: number): Promise<A
     supabase.from("cp_content").select("id, title, status, published_at").eq("coach_id", coachId),
     supabase.from("cp_client_rooms").select("id, lead_id").eq("coach_id", coachId),
     supabase.from("cp_offerings").select("id, name, status, price_cents, capacity").eq("coach_id", coachId),
-    supabase.from("cp_lead_messages").select("id, lead_id, coach_id, channel, direction, content, ai_drafted, was_edited, original_draft, created_at").eq("coach_id", coachId),
+    supabase.from("cp_lead_messages").select("id, lead_id, coach_id, channel, direction, content, ai_drafted, sent_at, purpose, external_id, synced_from, original_draft, was_edited, created_at").eq("coach_id", coachId).eq("ai_drafted", true).not("sent_at", "is", null),
   ]);
 
   const events = eventsRes.data ?? [];

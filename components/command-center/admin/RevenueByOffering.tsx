@@ -35,6 +35,11 @@ export default function RevenueByOffering({ offerings }: { offerings: Offering[]
                 ? `${o.enrolled} of ${o.capacity} seats${o.priceCents ? ` · ${usd(o.priceCents)} / seat` : ""}${o.pctFull != null ? ` · ${o.pctFull}% full` : ""}`
                 : `${o.enrolled} active${o.priceCents ? ` · ${usd(o.priceCents)}` : ""}`}
             </div>
+            {o.projectedCents != null && (
+              <div className="text-[length:var(--t-caption)] text-[color:var(--text-faint)] mt-0.5">
+                {usd(o.projectedCents)} at full capacity
+              </div>
+            )}
           </a>
         ))
       )}
