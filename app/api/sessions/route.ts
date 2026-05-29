@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { analyzeSession } from "@/lib/session-intelligence";
+import { generatePostSessionDraft } from "@/lib/ambient";
 import type { CoachingSession } from "@/lib/session-intelligence";
 import type { VoiceProfile } from "@/lib/types";
 
@@ -160,5 +161,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ session, analysis }, { status: 201 });
+  // Generate follow-up draft (non-blocking — null on failure)
+  const followUpDraft = await generatePostSessionDraft({
+    clientName: clientLead.full_name || "the client",
+    aiSummary: analysis.ai_summary,
+    commitments: analysis.commitments,
+    keyTopics: analysis.key_topics,
+    voiceProfile: profile,
+  });
+
+  return NextResponse.json({ session, analysis, followUpDraft }, { status: 201 });
 }

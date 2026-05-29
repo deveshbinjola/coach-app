@@ -1,6 +1,24 @@
 // lib/__tests__/ambient.test.ts
 import { describe, it, expect } from "vitest";
-import { scoreRightNowItems, computeMetrics, computeDaySummary, detectSessionRhythm, pickHonestQuestion, extractUntappedTopics, type RawPulseData } from "@/lib/ambient";
+import { scoreRightNowItems, computeMetrics, computeDaySummary, detectSessionRhythm, pickHonestQuestion, extractUntappedTopics, generatePostSessionDraft, type RawPulseData } from "@/lib/ambient";
+
+describe("generatePostSessionDraft", () => {
+  it("returns null when no API key is set", async () => {
+    const original = process.env.ANTHROPIC_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
+
+    const result = await generatePostSessionDraft({
+      clientName: "Marcus",
+      aiSummary: "Discussed boundaries with COO",
+      commitments: ["Set boundary with COO this week"],
+      keyTopics: ["boundaries", "leadership"],
+      voiceProfile: null,
+    });
+
+    expect(result).toBeNull();
+    process.env.ANTHROPIC_API_KEY = original;
+  });
+});
 
 describe("scoreRightNowItems", () => {
   const now = new Date("2026-06-01T14:00:00Z").getTime();

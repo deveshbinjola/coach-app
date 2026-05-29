@@ -653,3 +653,70 @@ export async function getContentSignals(coachId: string): Promise<ContentSignals
 
   return { untappedTopics: extractUntappedTopics(sessionTopics, contentTitles) };
 }
+
+// ── Post-session draft generation (AI) ────────────────────────────────
+
+const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
+const MODEL = "claude-sonnet-4-6";
+
+export async function generatePostSessionDraft(params: {
+  clientName: string;
+  aiSummary: string;
+  commitments: string[];
+  keyTopics: string[];
+  voiceProfile: { voice_json: Record<string, unknown>; sample_messages: string[] } | null;
+}): Promise<string | null> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return null;
+  if (!params.aiSummary) return null;
+
+  const system = [
+    "You write 2-3 sentence follow-up messages from a coach to their client after a session.",
+    "Be warm, specific, direct. Reference one concrete commitment or topic from the session.",
+    "Match the coach's voice style if provided. No em dashes. No generic encouragement.",
+    "Return only the message text, no quotes, no greeting header.",
+  ].join(" ");
+
+  const voiceContext = params.voiceProfile
+    ? `COACH VOICE:\n${JSON.stringify(params.voiceProfile.voice_json, null, 2).slice(0, 400)}\n\nSAMPLE MESSAGES:\n${params.voiceProfile.sample_messages.slice(0, 2).join("\n")}`
+    : "(No voice profile available. Use a warm, direct tone.)";
+
+  const prompt = [
+    `Write a follow-up message to ${params.clientName} after today's coaching session.`,
+    "",
+    "SESSION SUMMARY:",
+    params.aiSummary,
+    "",
+    "KEY TOPICS:",
+    params.keyTopics.join(", ") || "(none)",
+    "",
+    "COMMITMENTS:",
+    params.commitments.length > 0 ? params.commitments.join("\n") : "(none stated)",
+    "",
+    voiceContext,
+  ].join("\n");
+
+  try {
+    const response = await fetch(ANTHROPIC_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 200,
+        system,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    if (!response.ok) return null;
+    const result = await response.json();
+    const text = String(result?.content?.[0]?.text ?? "").trim();
+    return text || null;
+  } catch {
+    return null;
+  }
+}
