@@ -517,7 +517,7 @@ export async function getBusinessPulse(coachId: string, now: number): Promise<Bu
 export async function getPersonSignals(leadId: string): Promise<PersonSignals> {
   const supabase = createClient();
 
-  const [leadRes, messageRes, sessionsRes, offeringRes, enrollmentRes, paymentsRes] =
+  const [leadRes, messageRes, sessionsRes, offeringRes, enrollmentRes, paymentsRes, countRes] =
     await Promise.all([
       supabase.from("cp_leads")
         .select("id, full_name, status, source, created_at, email")
@@ -544,6 +544,9 @@ export async function getPersonSignals(leadId: string): Promise<PersonSignals> {
       supabase.from("cp_payments")
         .select("amount_cents")
         .eq("lead_id", leadId),
+      supabase.from("cp_coaching_sessions")
+        .select("id", { count: "exact", head: true })
+        .eq("client_id", leadId),
     ]);
 
   const lead = leadRes.data;
@@ -563,7 +566,7 @@ export async function getPersonSignals(leadId: string): Promise<PersonSignals> {
 
   // Sessions
   const sessions = sessionsRes.data ?? [];
-  const totalSessions = sessions.length;
+  const totalSessions = countRes.count ?? sessions.length;
   const lastSession = sessions[0]
     ? {
         date: sessions[0].session_date,
