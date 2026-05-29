@@ -10,7 +10,7 @@ export type RightNowItem = {
   id: string;
   leadId?: string;
   leadName?: string;
-  priority: number; // 1-7
+  priority: number; // 1-6
   reason: string;
   context?: string;
   action: { label: string; href?: string; type: "link" | "compose" | "capture" };

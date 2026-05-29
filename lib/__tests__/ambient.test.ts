@@ -1,6 +1,6 @@
 // lib/__tests__/ambient.test.ts
 import { describe, it, expect } from "vitest";
-import { scoreRightNowItems, computeMetrics, type RawPulseData } from "@/lib/ambient";
+import { scoreRightNowItems, computeMetrics, computeDaySummary, detectSessionRhythm, pickHonestQuestion, type RawPulseData } from "@/lib/ambient";
 
 describe("scoreRightNowItems", () => {
   const now = new Date("2026-06-01T14:00:00Z").getTime();
@@ -147,5 +147,110 @@ describe("computeMetrics", () => {
     expect(metrics.activeMembers).toBe(2);
     expect(metrics.sessionsThisMonth).toBe(1);
     expect(metrics.trustRate).toBe(85);
+  });
+
+  it("returns flat when both months are zero", () => {
+    const now = new Date("2026-06-15T10:00:00Z").getTime();
+    const metrics = computeMetrics({
+      paymentsWindow: [],
+      activeMembers: [],
+      sessionsThisMonth: [],
+      trustRate: null,
+      now,
+    });
+    expect(metrics.revenue.amount).toBe(0);
+    expect(metrics.revenue.trend).toBe("flat");
+  });
+
+  it("returns down when last month revenue exceeds this month", () => {
+    const now = new Date("2026-06-15T10:00:00Z").getTime();
+    const thisMonth = new Date("2026-06-05T10:00:00Z").toISOString();
+    const lastMonth = new Date("2026-05-10T10:00:00Z").toISOString();
+    const metrics = computeMetrics({
+      paymentsWindow: [
+        { amount_cents: 100_00, created_at: thisMonth },
+        { amount_cents: 500_00, created_at: lastMonth },
+      ],
+      activeMembers: [],
+      sessionsThisMonth: [],
+      trustRate: null,
+      now,
+    });
+    expect(metrics.revenue.trend).toBe("down");
+  });
+
+  it("counts only active members (ignores inactive)", () => {
+    const now = new Date("2026-06-15T10:00:00Z").getTime();
+    const metrics = computeMetrics({
+      paymentsWindow: [],
+      activeMembers: [
+        { id: "m1", status: "active" },
+        { id: "m2", status: "inactive" },
+        { id: "m3", status: "active" },
+      ],
+      sessionsThisMonth: [],
+      trustRate: null,
+      now,
+    });
+    expect(metrics.activeMembers).toBe(2);
+  });
+});
+
+describe("detectSessionRhythm", () => {
+  it("returns null for fewer than 2 sessions", () => {
+    expect(detectSessionRhythm([])).toBeNull();
+    expect(detectSessionRhythm(["2026-06-01"])).toBeNull();
+  });
+
+  it("detects 2nd consecutive week for a 7-day gap", () => {
+    const result = detectSessionRhythm(["2026-06-01", "2026-06-08"]);
+    expect(result).toBe("2nd consecutive week");
+  });
+
+  it("returns null for irregular gaps (15 days)", () => {
+    const result = detectSessionRhythm(["2026-06-01", "2026-06-16"]);
+    expect(result).toBeNull();
+  });
+
+  it("detects 3rd consecutive week for 3 consecutive weekly sessions", () => {
+    const result = detectSessionRhythm(["2026-06-01", "2026-06-08", "2026-06-15"]);
+    expect(result).toBe("3rd consecutive week");
+  });
+});
+
+describe("computeDaySummary", () => {
+  it("returns correct counts for sessions, drafts, and leadsWaiting", () => {
+    const items = [
+      { id: "1", priority: 3, reason: "msg", source: "message" as const, action: { label: "Reply", type: "compose" as const } },
+      { id: "2", priority: 2, reason: "seq", source: "sequence" as const, action: { label: "View", type: "link" as const } },
+      { id: "3", priority: 1, reason: "session", source: "session" as const, action: { label: "Join", type: "link" as const } },
+    ];
+    const summary = computeDaySummary(items, 4, 2);
+    expect(summary.sessions).toBe(4);
+    expect(summary.draftsReady).toBe(2);
+    expect(summary.leadsWaiting).toBe(2); // message + sequence sources
+  });
+});
+
+describe("pickHonestQuestion", () => {
+  it("returns a string", () => {
+    const q = pickHonestQuestion(Date.now());
+    expect(typeof q).toBe("string");
+    expect(q.length).toBeGreaterThan(0);
+  });
+
+  it("returns the same question for the same day (deterministic)", () => {
+    const now = new Date("2026-06-15T09:00:00Z").getTime();
+    const later = new Date("2026-06-15T23:59:00Z").getTime();
+    expect(pickHonestQuestion(now)).toBe(pickHonestQuestion(later));
+  });
+
+  it("returns a different question for a different day", () => {
+    const day1 = new Date("2026-06-01T12:00:00Z").getTime();
+    const day2 = new Date("2026-06-02T12:00:00Z").getTime();
+    // Not guaranteed to differ for every pair, but these specific days map to different indices
+    const q1 = pickHonestQuestion(day1);
+    const q2 = pickHonestQuestion(day2);
+    expect(q1).not.toBe(q2);
   });
 });
