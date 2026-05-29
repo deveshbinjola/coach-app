@@ -267,8 +267,14 @@ export async function getAdminDashboard(coachId: string, now: number): Promise<A
     clientRooms: rooms.map((r) => ({ id: r.id, lead_id: r.lead_id })),
     now,
   };
+  // Cap the working list to the 5 most urgent. New leads (priority 5) sit
+  // at the bottom, so an inbox full of uncontacted leads can't bury — or
+  // endlessly extend — the things that actually need action.
+  const ADMIN_ATTENTION_MAX = 5;
   const scored = scoreRightNowItems(rawData, Infinity);
-  const attention = [...scored, ...computeNewLeadItems(leads, now)].sort((a, b) => a.priority - b.priority);
+  const attention = [...scored, ...computeNewLeadItems(leads, now)]
+    .sort((a, b) => a.priority - b.priority)
+    .slice(0, ADMIN_ATTENTION_MAX);
 
   const trust = summarizeTrust((trustRes.data ?? []) as any, now);
 
