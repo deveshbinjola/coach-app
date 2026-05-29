@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Calendar, Clock, MessageCircle } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
+import PersonName from "@/components/ambient/PersonName";
 import type { CoachingSession } from "@/lib/session-intelligence";
 
 type Props = {
@@ -35,9 +36,10 @@ export default function SessionCard({ session, clientName }: Props) {
           <div className="min-w-0 flex-1">
             {/* Client name + date */}
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[length:var(--t-h3)] font-extrabold text-[color:var(--text)] truncate">
-                {clientName}
-              </span>
+              <PersonName
+                leadId={session.client_id}
+                name={clientName}
+              />
               <span className="flex items-center gap-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] shrink-0">
                 <Calendar size={12} aria-hidden />
                 {formatDate(session.session_date)}
