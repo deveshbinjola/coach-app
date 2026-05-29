@@ -1,6 +1,6 @@
 // lib/__tests__/ambient.test.ts
 import { describe, it, expect } from "vitest";
-import { scoreRightNowItems, computeMetrics, computeDaySummary, detectSessionRhythm, pickHonestQuestion, type RawPulseData } from "@/lib/ambient";
+import { scoreRightNowItems, computeMetrics, computeDaySummary, detectSessionRhythm, pickHonestQuestion, extractUntappedTopics, type RawPulseData } from "@/lib/ambient";
 
 describe("scoreRightNowItems", () => {
   const now = new Date("2026-06-01T14:00:00Z").getTime();
@@ -252,5 +252,43 @@ describe("pickHonestQuestion", () => {
     const q1 = pickHonestQuestion(day1);
     const q2 = pickHonestQuestion(day2);
     expect(q1).not.toBe(q2);
+  });
+});
+
+describe("extractUntappedTopics", () => {
+  it("finds topics in 3+ sessions not covered by content", () => {
+    const sessionTopics = [
+      ["boundaries", "leadership"],
+      ["boundaries", "vulnerability"],
+      ["boundaries", "anger"],
+      ["leadership", "communication"],
+    ];
+    const contentTitles = ["Leadership in coaching", "Finding your voice"];
+
+    const result = extractUntappedTopics(sessionTopics, contentTitles);
+
+    expect(result).toEqual([
+      { topic: "boundaries", sessionCount: 3 },
+    ]);
+  });
+
+  it("returns empty when all frequent topics are covered", () => {
+    const sessionTopics = [
+      ["boundaries"],
+      ["boundaries"],
+      ["boundaries"],
+    ];
+    const contentTitles = ["Setting boundaries with clients"];
+
+    const result = extractUntappedTopics(sessionTopics, contentTitles);
+    expect(result).toEqual([]);
+  });
+
+  it("returns empty when no topic appears 3+ times", () => {
+    const sessionTopics = [["a"], ["b"], ["c"]];
+    const contentTitles: string[] = [];
+
+    const result = extractUntappedTopics(sessionTopics, contentTitles);
+    expect(result).toEqual([]);
   });
 });

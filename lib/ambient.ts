@@ -4,6 +4,10 @@
 // that powers the Command Center's unified priority list and the
 // Person Panel's signal aggregation.
 
+// ── Server-only imports (tree-shaken in browser bundles) ──────────────
+import { createClient } from "@/lib/supabase-server";
+import { summarizeTrust } from "@/lib/voice-trust";
+
 // ── Types ─────────────────────────────────────────────────────────────
 
 export type RightNowItem = {
@@ -361,4 +365,288 @@ export function pickHonestQuestion(now: number): string {
   const start = Date.UTC(d.getUTCFullYear(), 0, 0);
   const dayOfYear = Math.floor((d.getTime() - start) / 86_400_000);
   return HONEST_QUESTIONS[dayOfYear % HONEST_QUESTIONS.length];
+}
+
+// ── Content signal extraction ─────────────────────────────────────────
+
+export function extractUntappedTopics(
+  sessionTopicSets: string[][],
+  contentTitles: string[],
+): ContentSignals["untappedTopics"] {
+  // Count topic frequency across all sessions
+  const counts = new Map<string, number>();
+  for (const topics of sessionTopicSets) {
+    for (const topic of topics) {
+      const normalized = topic.toLowerCase().trim();
+      if (!normalized) continue;
+      counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
+    }
+  }
+
+  // Filter to topics appearing in 3+ sessions
+  const frequent = [...counts.entries()]
+    .filter(([, count]) => count >= 3)
+    .sort((a, b) => b[1] - a[1]);
+
+  // Subtract topics that appear in content titles (case-insensitive substring match)
+  const lowerTitles = contentTitles.map((t) => t.toLowerCase());
+  const untapped = frequent.filter(
+    ([topic]) => !lowerTitles.some((title) => title.includes(topic)),
+  );
+
+  return untapped.map(([topic, sessionCount]) => ({ topic, sessionCount }));
+}
+
+// ── Server-side Supabase query functions ──────────────────────────────
+// These use createClient (server-only) and run parallel queries.
+// Only called from server components and API routes.
+
+export async function getBusinessPulse(coachId: string, now: number): Promise<BusinessPulse> {
+  const supabase = createClient();
+
+  const todayStart = new Date(now);
+  todayStart.setUTCHours(0, 0, 0, 0);
+  const todayEnd = new Date(now);
+  todayEnd.setUTCHours(23, 59, 59, 999);
+
+  const monthStart = new Date(now);
+  monthStart.setUTCDate(1);
+  monthStart.setUTCHours(0, 0, 0, 0);
+
+  // Revenue window: from start of last month to now
+  const lastMonthStart = new Date(monthStart);
+  lastMonthStart.setUTCMonth(lastMonthStart.getUTCMonth() - 1);
+
+  // Trust window: 28 days
+  const trustWindowStart = new Date(now - 28 * 86_400_000).toISOString();
+
+  const [
+    eventsRes, capturedRes, monthSessionsRes, clientsRes,
+    messagesRes, enrollmentsRes, paymentsRes, membersRes,
+    contentRes, roomsRes, trustRes,
+  ] = await Promise.all([
+    supabase.from("cp_client_events")
+      .select("id, title, starts_at, meeting_url, client_room_id")
+      .eq("coach_id", coachId)
+      .gte("starts_at", todayStart.toISOString())
+      .lte("starts_at", todayEnd.toISOString()),
+    supabase.from("cp_coaching_sessions")
+      .select("id, client_id, session_date, key_topics")
+      .eq("coach_id", coachId)
+      .gte("session_date", todayStart.toISOString()),
+    supabase.from("cp_coaching_sessions")
+      .select("client_id, session_date")
+      .eq("coach_id", coachId)
+      .gte("session_date", monthStart.toISOString()),
+    supabase.from("cp_leads")
+      .select("id, full_name, status")
+      .eq("coach_id", coachId)
+      .eq("status", "client"),
+    supabase.from("cp_lead_messages")
+      .select("id, lead_id, direction, sent_at, created_at")
+      .eq("coach_id", coachId)
+      .eq("direction", "inbound")
+      .gte("sent_at", new Date(now - 7 * 86_400_000).toISOString()),
+    supabase.from("cp_sequence_enrollments")
+      .select("id, lead_id, status, sequence_id")
+      .eq("coach_id", coachId)
+      .eq("status", "failed"),
+    supabase.from("cp_payments")
+      .select("amount_cents, created_at")
+      .eq("coach_id", coachId)
+      .gte("created_at", lastMonthStart.toISOString()),
+    supabase.from("cp_offering_members")
+      .select("id, status")
+      .eq("status", "active"),
+    supabase.from("cp_content")
+      .select("id, title, status")
+      .eq("coach_id", coachId)
+      .eq("status", "draft"),
+    supabase.from("cp_client_rooms")
+      .select("id, lead_id")
+      .eq("coach_id", coachId),
+    supabase.from("cp_lead_messages")
+      .select("id, lead_id, coach_id, channel, direction, content, ai_drafted, sent_at, purpose, external_id, synced_from, original_draft, was_edited, created_at")
+      .eq("coach_id", coachId)
+      .eq("ai_drafted", true)
+      .not("sent_at", "is", null)
+      .gte("sent_at", trustWindowStart),
+  ]);
+
+  const rawData: RawPulseData = {
+    calendarEvents: eventsRes.data ?? [],
+    capturedToday: capturedRes.data ?? [],
+    sessionsThisMonth: monthSessionsRes.data ?? [],
+    activeClients: clientsRes.data ?? [],
+    waitingMessages: messagesRes.data ?? [],
+    failedEnrollments: enrollmentsRes.data ?? [],
+    paymentsWindow: paymentsRes.data ?? [],
+    activeMembers: membersRes.data ?? [],
+    draftContent: contentRes.data ?? [],
+    clientRooms: roomsRes.data ?? [],
+    now,
+  };
+
+  const items = scoreRightNowItems(rawData);
+  const trustMessages = trustRes.data ?? [];
+  const trust = summarizeTrust(trustMessages as any, now);
+
+  const metrics = computeMetrics({
+    paymentsWindow: rawData.paymentsWindow,
+    activeMembers: rawData.activeMembers,
+    sessionsThisMonth: rawData.sessionsThisMonth,
+    trustRate: trust.asIsPct28,
+    now,
+  });
+
+  const daySummary = computeDaySummary(
+    items,
+    rawData.capturedToday.length,
+    rawData.draftContent.length,
+  );
+
+  return {
+    heroItem: items[0] ?? null,
+    quietList: items.slice(1, 6),
+    daySummary,
+    metrics,
+    honestQuestion: pickHonestQuestion(now),
+  };
+}
+
+export async function getPersonSignals(leadId: string): Promise<PersonSignals> {
+  const supabase = createClient();
+
+  const [leadRes, messageRes, sessionsRes, offeringRes, enrollmentRes, paymentsRes] =
+    await Promise.all([
+      supabase.from("cp_leads")
+        .select("id, full_name, status, source, created_at, email")
+        .eq("id", leadId)
+        .single(),
+      supabase.from("cp_lead_messages")
+        .select("direction, sent_at, channel")
+        .eq("lead_id", leadId)
+        .order("sent_at", { ascending: false })
+        .limit(1),
+      supabase.from("cp_coaching_sessions")
+        .select("session_date, key_topics, commitments")
+        .eq("client_id", leadId)
+        .order("session_date", { ascending: false })
+        .limit(10),
+      supabase.from("cp_offering_members")
+        .select("offering_id, status, created_at, cp_offerings(name, duration_months)")
+        .eq("lead_id", leadId)
+        .eq("status", "active"),
+      supabase.from("cp_sequence_enrollments")
+        .select("sequence_id, status, current_step_id, cp_sequences(name)")
+        .eq("lead_id", leadId)
+        .in("status", ["active", "paused"]),
+      supabase.from("cp_payments")
+        .select("amount_cents")
+        .eq("lead_id", leadId),
+    ]);
+
+  const lead = leadRes.data;
+  if (!lead) throw new Error("Lead not found");
+
+  const now = Date.now();
+
+  // Last message
+  const lastMsg = (messageRes.data ?? [])[0] ?? null;
+  const lastMessage = lastMsg
+    ? {
+        direction: lastMsg.direction as "inbound" | "outbound",
+        date: lastMsg.sent_at,
+        channel: lastMsg.channel,
+      }
+    : null;
+
+  // Sessions
+  const sessions = sessionsRes.data ?? [];
+  const totalSessions = sessions.length;
+  const lastSession = sessions[0]
+    ? {
+        date: sessions[0].session_date,
+        keyTopics: sessions[0].key_topics ?? [],
+        daysSince: Math.round(
+          (now - new Date(sessions[0].session_date).getTime()) / 86_400_000,
+        ),
+      }
+    : null;
+  const rhythm = detectSessionRhythm(sessions.map((s) => s.session_date));
+
+  // Offering
+  const offeringRow = (offeringRes.data ?? [])[0] as any;
+  const offering = offeringRow
+    ? {
+        name: offeringRow.cp_offerings?.name ?? "Program",
+        monthsIn: Math.max(
+          1,
+          Math.ceil(
+            (now - new Date(offeringRow.created_at).getTime()) / (30 * 86_400_000),
+          ),
+        ),
+        totalMonths: offeringRow.cp_offerings?.duration_months ?? 0,
+      }
+    : null;
+
+  // Sequence
+  const enrollRow = (enrollmentRes.data ?? [])[0] as any;
+  const sequence = enrollRow
+    ? {
+        name: enrollRow.cp_sequences?.name ?? "Sequence",
+        currentStep: 0,
+        totalSteps: 0,
+      }
+    : null;
+
+  // Lifetime paid
+  const lifetimePaid = (paymentsRes.data ?? []).reduce(
+    (sum: number, p: { amount_cents: number }) => sum + p.amount_cents,
+    0,
+  );
+
+  // Flags
+  const sessionOverdue = lastSession ? lastSession.daysSince > 14 : false;
+  const messageWaiting = lastMessage
+    ? lastMessage.direction === "inbound" &&
+      (now - new Date(lastMessage.date).getTime()) > 48 * 3600_000
+    : false;
+
+  return {
+    name: lead.full_name,
+    status: lead.status as "lead" | "client",
+    source: lead.source,
+    createdAt: lead.created_at,
+    lastMessage,
+    lastSession,
+    totalSessions,
+    sessionRhythm: rhythm,
+    offering,
+    sequence,
+    lifetimePaid,
+    flags: { sessionOverdue, messageWaiting },
+  };
+}
+
+export async function getContentSignals(coachId: string): Promise<ContentSignals> {
+  const supabase = createClient();
+
+  const [sessionsRes, contentRes] = await Promise.all([
+    supabase.from("cp_coaching_sessions")
+      .select("key_topics")
+      .eq("coach_id", coachId),
+    supabase.from("cp_content")
+      .select("title")
+      .eq("coach_id", coachId),
+  ]);
+
+  const sessionTopics = (sessionsRes.data ?? []).map(
+    (s: { key_topics: string[] }) => s.key_topics ?? [],
+  );
+  const contentTitles = (contentRes.data ?? []).map(
+    (c: { title: string }) => c.title,
+  );
+
+  return { untappedTopics: extractUntappedTopics(sessionTopics, contentTitles) };
 }
