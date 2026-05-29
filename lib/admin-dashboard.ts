@@ -158,6 +158,29 @@ export function computeRevenueByOffering(
     });
 }
 
+// ── Pure helper: new-lead triage items (admin attention only) ─────────
+// Coach mode never shows these — they live in the admin assembly so the
+// calm Coach view stays untouched.
+
+export function computeNewLeadItems(
+  leads: Array<{ id: string; full_name: string; status: string; created_at: string }>,
+  now: number,
+): RightNowItem[] {
+  const oneDayAgo = now - 86_400_000;
+  return leads
+    .filter((l) => l.status === "new" && new Date(l.created_at).getTime() < oneDayAgo)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .map((l) => ({
+      id: `new-lead-${l.id}`,
+      leadId: l.id,
+      leadName: l.full_name,
+      priority: 5,
+      reason: "new lead, not contacted",
+      action: { label: "Triage", href: `/leads/${l.id}`, type: "link" as const },
+      source: "lead" as const,
+    }));
+}
+
 // ── Pure helper: this week ────────────────────────────────────────────
 
 export function computeThisWeek(

@@ -18,7 +18,7 @@ export type RightNowItem = {
   reason: string;
   context?: string;
   action: { label: string; href?: string; type: "link" | "compose" | "capture" };
-  source: "session" | "sequence" | "message" | "overdue" | "content" | "content_suggestion";
+  source: "session" | "sequence" | "message" | "overdue" | "content" | "content_suggestion" | "lead";
 };
 
 export type BusinessPulse = {
@@ -115,7 +115,7 @@ export type RawPulseData = {
 
 const MAX_RIGHT_NOW = 6; // 1 hero + 5 quiet list
 
-export function scoreRightNowItems(data: RawPulseData): RightNowItem[] {
+export function scoreRightNowItems(data: RawPulseData, maxItems: number = MAX_RIGHT_NOW): RightNowItem[] {
   const items: RightNowItem[] = [];
   const clientMap = new Map(data.activeClients.map((c) => [c.id, c.full_name]));
   const roomToLead = new Map(data.clientRooms.map((r) => [r.id, r.lead_id]));
@@ -257,7 +257,7 @@ export function scoreRightNowItems(data: RawPulseData): RightNowItem[] {
       seenLeads.add(item.leadId);
     }
     deduplicated.push(item);
-    if (deduplicated.length >= MAX_RIGHT_NOW) break;
+    if (deduplicated.length >= maxItems) break;
   }
 
   return deduplicated;

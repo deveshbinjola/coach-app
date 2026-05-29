@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeRevenueVitals, computeLeadPipeline, computeContentPipeline, computeRevenueByOffering, computeThisWeek } from "@/lib/admin-dashboard";
+import { computeRevenueVitals, computeLeadPipeline, computeContentPipeline, computeRevenueByOffering, computeThisWeek, computeNewLeadItems } from "@/lib/admin-dashboard";
 
 describe("computeRevenueVitals", () => {
   const now = new Date("2026-05-15T12:00:00Z").getTime();
@@ -116,5 +116,20 @@ describe("computeThisWeek", () => {
     expect(week.map((w) => w.id)).toEqual(["e2", "e1"]);
     expect(week[0].clientName).toBe("Marcus Lee");
     expect(week[1].clientName).toBeNull();
+  });
+});
+
+describe("computeNewLeadItems", () => {
+  const now = new Date("2026-05-15T12:00:00Z").getTime();
+  it("emits triage items for new leads older than 24h, newest first, skips recent", () => {
+    const leads = [
+      { id: "l1", full_name: "Old Lead", status: "new", created_at: "2026-05-10T00:00:00Z" },
+      { id: "l2", full_name: "Fresh Lead", status: "new", created_at: "2026-05-15T06:00:00Z" }, // < 24h
+      { id: "l3", full_name: "Contacted", status: "contacted", created_at: "2026-05-01T00:00:00Z" },
+    ];
+    const items = computeNewLeadItems(leads, now);
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({ leadId: "l1", priority: 5, source: "lead" });
+    expect(items[0].action.href).toBe("/leads/l1");
   });
 });
