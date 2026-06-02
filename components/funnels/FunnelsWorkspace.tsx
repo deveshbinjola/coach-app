@@ -10,13 +10,14 @@
 // Generate calls /api/funnels/generate, which reads the coach's latest
 // Brand OS synthesis and produces a 5-question Resonance Quiz via Claude.
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Zap, Plus, BarChart3, Sparkles } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Modal from "@/components/ui/Modal";
 import FunnelCard, { type FunnelSummary } from "./FunnelCard";
+import QuizCreateModal from "@/components/funnels/QuizCreateModal";
 import type { FunnelRow } from "@/app/funnels/page";
 
 type Props = {
@@ -27,50 +28,11 @@ type Props = {
 export default function FunnelsWorkspace({ funnels: initialFunnels, hasBrandOs }: Props) {
   const router = useRouter();
   const [funnels, setFunnels] = useState<FunnelSummary[]>(initialFunnels);
-  const [generating, setGenerating] = useState(false);
-  const [genError, setGenError] = useState("");
+  const [createOpen, setCreateOpen] = useState(false);
 
   // Delete confirm
   const [deleteTarget, setDeleteTarget] = useState<FunnelSummary | null>(null);
   const [deleting, setDeleting] = useState(false);
-
-  // ── Generate ──────────────────────────────────────────────
-
-  const handleGenerate = useCallback(async () => {
-    setGenerating(true);
-    setGenError("");
-    try {
-      const res = await fetch("/api/funnels/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setGenError(data.error || "Failed to generate quiz.");
-        return;
-      }
-      // Prepend the new funnel to the list
-      const newFunnel: FunnelSummary = {
-        id: data.funnel.id,
-        slug: data.funnel.slug,
-        type: "resonance",
-        title: data.funnel.title,
-        published: data.funnel.published ?? false,
-        view_count: 0,
-        start_count: 0,
-        complete_count: 0,
-        email_count: 0,
-        created_at: data.funnel.created_at,
-        updated_at: data.funnel.created_at,
-      };
-      setFunnels((prev) => [newFunnel, ...prev]);
-    } catch {
-      setGenError("Network error. Please try again.");
-    } finally {
-      setGenerating(false);
-    }
-  }, []);
 
   // ── Duplicate ─────────────────────────────────────────────
 
@@ -175,20 +137,13 @@ export default function FunnelsWorkspace({ funnels: initialFunnels, hasBrandOs }
           </p>
         </div>
         <Button
-          onClick={handleGenerate}
-          disabled={generating || !hasBrandOs}
-          leadingIcon={generating ? <Spinner /> : <Plus size={16} />}
+          onClick={() => setCreateOpen(true)}
+          disabled={!hasBrandOs}
+          leadingIcon={<Plus size={16} />}
         >
-          {generating ? "Generating..." : "New Quiz"}
+          New Quiz
         </Button>
       </div>
-
-      {/* Error banner */}
-      {genError && (
-        <div className="mb-4 p-3 rounded-[var(--r-md)] bg-[var(--danger-soft)] text-[color:var(--danger)] text-sm font-semibold">
-          {genError}
-        </div>
-      )}
 
       {/* Empty state with Brand OS */}
       {funnels.length === 0 && hasBrandOs && (
@@ -204,15 +159,11 @@ export default function FunnelsWorkspace({ funnels: initialFunnels, hasBrandOs }
           </p>
           <Button
             className="mt-5"
-            onClick={handleGenerate}
-            disabled={generating}
-            leadingIcon={generating ? <Spinner /> : <Sparkles size={16} />}
+            onClick={() => setCreateOpen(true)}
+            leadingIcon={<Sparkles size={16} />}
           >
-            {generating ? "Generating quiz..." : "Generate Resonance Quiz"}
+            Generate Resonance Quiz
           </Button>
-          {genError && (
-            <p className="text-sm text-[color:var(--danger)] mt-3 font-semibold">{genError}</p>
-          )}
         </Card>
       )}
 
@@ -265,27 +216,9 @@ export default function FunnelsWorkspace({ funnels: initialFunnels, hasBrandOs }
           </Button>
         </div>
       </Modal>
-    </div>
-  );
-}
 
-// Tiny inline spinner for the generate button
-function Spinner() {
-  return (
-    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="3"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
+      {/* Create quiz modal */}
+      <QuizCreateModal open={createOpen} onClose={() => setCreateOpen(false)} hasBrandOs={hasBrandOs} />
+    </div>
   );
 }
