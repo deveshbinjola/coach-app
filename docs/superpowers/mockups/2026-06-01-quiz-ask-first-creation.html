@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ask-First Quiz Creation — mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --surface:#FAFAF8; --elevated:#FFFFFF; --deep:#F2F2EE;
+    --text:#0A0F1C; --muted:#5A5A6E; --faint:#9CA3AF;
+    --brand:#00FF41; --brand-strong:#00CC34; --brand-soft:rgba(0,255,65,0.12);
+    --navy:#0A0F1C; --border:#E5E5DD; --border-faint:#F0F0EA;
+    --r-md:10px; --r-lg:14px; --r-xl:20px;
+    --shadow-md:0 4px 12px rgba(10,15,28,0.06); --shadow-lg:0 12px 36px rgba(10,15,28,0.10);
+    --font:"Plus Jakarta Sans",system-ui,sans-serif; --display:"Fraunces",Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);color:var(--text);background:var(--deep);-webkit-font-smoothing:antialiased;line-height:1.55;padding:40px 20px 80px}
+  .display{font-family:var(--display);letter-spacing:-0.02em}
+  .stage{max-width:560px;margin:0 auto 56px}
+  .stage-label{font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint);margin-bottom:12px;text-align:center}
+
+  /* modal card */
+  .card{background:var(--elevated);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);overflow:hidden}
+  .card-pad{padding:30px 30px 26px}
+
+  /* soma chip */
+  .soma{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);background:var(--deep);border-radius:9999px;padding:5px 11px}
+  .soma .dot{width:6px;height:6px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+
+  h1{font-size:26px;font-weight:700;letter-spacing:-0.02em;line-height:1.15;margin:16px 0 6px}
+  .sub{color:var(--muted);font-size:14px}
+
+  /* brief input */
+  .brief-wrap{margin-top:20px;border:1.5px solid var(--border);border-radius:var(--r-lg);background:var(--surface);transition:.15s}
+  .brief-wrap.focus{border-color:var(--brand-strong);box-shadow:0 0 0 4px var(--brand-soft)}
+  .brief-ta{width:100%;border:none;background:transparent;resize:none;font-family:inherit;font-size:15px;color:var(--text);padding:16px 16px 4px;outline:none;min-height:84px;line-height:1.5}
+  .brief-ta::placeholder{color:var(--faint)}
+  .brief-foot{display:flex;align-items:center;justify-content:space-between;padding:8px 12px 12px}
+  .mic{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;font-weight:600}
+  .mic-btn{width:36px;height:36px;border-radius:9999px;background:var(--deep);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;color:var(--muted)}
+  .mic-btn.rec{background:#EF4444;color:#fff;animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.35)}50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}
+  .hint{font-size:12px;color:var(--faint)}
+
+  .actions{display:flex;align-items:center;justify-content:space-between;margin-top:20px}
+  .surprise{font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;border-bottom:1px dashed var(--border)}
+  .surprise:hover{color:var(--text)}
+  .btn{border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:14px;border-radius:var(--r-md);padding:12px 22px}
+  .btn-primary{background:var(--brand);color:var(--navy)}
+  .btn-primary:hover{background:var(--brand-strong)}
+  .btn-ghost{background:var(--elevated);color:var(--text);border:1px solid var(--border);padding:11px 18px}
+  .btn-ghost:hover{background:var(--deep)}
+
+  /* generating */
+  .gen{padding:54px 30px;text-align:center}
+  .orb{width:64px;height:64px;border-radius:50%;margin:0 auto 22px;background:radial-gradient(circle at 50% 40%,var(--brand) 0%,var(--brand-strong) 70%);box-shadow:0 0 0 0 var(--brand-soft);animation:breathe 2.4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(.86);box-shadow:0 0 0 0 rgba(0,255,65,.28)}50%{transform:scale(1);box-shadow:0 0 0 22px rgba(0,255,65,0)}}
+  .gen h2{font-size:20px;font-weight:700;letter-spacing:-0.01em}
+  .gen p{color:var(--muted);font-size:14px;margin-top:6px}
+
+  /* review draft */
+  .review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .pill-draft{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-strong);background:var(--brand-soft);border-radius:9999px;padding:4px 10px}
+  .q-list{margin-top:18px;border:1px solid var(--border-faint);border-radius:var(--r-lg);overflow:hidden}
+  .q-row{padding:13px 16px;border-top:1px solid var(--border-faint);display:flex;gap:11px;font-size:14px}
+  .q-row:first-child{border-top:none}
+  .q-num{font-family:var(--display);font-weight:700;color:var(--faint);width:18px;flex-shrink:0}
+  .results-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .res-chip{font-size:12px;font-weight:700;color:var(--muted);background:var(--deep);border-radius:9999px;padding:6px 12px}
+  .review-actions{display:flex;align-items:center;gap:10px;margin-top:22px}
+  .review-actions .spacer{flex:1}
+  .link-muted{font-size:13px;font-weight:700;color:var(--muted);background:none;border:none;cursor:pointer}
+  .link-muted:hover{color:var(--text)}
+  .briefline{font-size:13px;color:var(--muted);background:var(--deep);border-radius:var(--r-md);padding:10px 13px;margin-top:16px;font-style:italic}
+  .briefline b{font-style:normal;color:var(--faint);font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:3px}
+</style>
+</head>
+<body>
+
+<!-- STATE 1: THE ASK -->
+<div class="stage">
+  <div class="stage-label">1 · The ask</div>
+  <div class="card">
+    <div class="card-pad">
+      <span class="soma"><span class="dot"></span>Soma</span>
+      <h1 class="display">What do you want this quiz to do?</h1>
+      <div class="sub">Tell me who it's for and what they'll discover. Type it, or tap the mic and just say it.</div>
+
+      <div class="brief-wrap focus">
+        <textarea class="brief-ta" placeholder="e.g. Help stressed founders figure out if they're actually burnt out or just bored — and point them toward my reset program.">Help stressed founders figure out if they're actually burnt out or just bored — and point them toward my reset program.</textarea>
+        <div class="brief-foot">
+          <span class="mic">
+            <button class="mic-btn" title="Tap to talk">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+            </button>
+            Tap to talk
+          </span>
+          <span class="hint">Soma uses your Brand OS voice automatically</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a class="surprise" href="#">Surprise me from my Brand OS</a>
+        <button class="btn btn-primary">Generate quiz</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATE 1b: RECORDING -->
+<div class="stage">
+  <div class="stage-label">1b · While speaking</div>
+  <div class="card">
+    <div class="card-pad">
+      <span class="soma"><span class="dot"></span>Soma · listening</span>
+      <h1 class="display">What do you want this quiz to do?</h1>
+      <div class="sub">Go ahead — I'm listening. Tap the square when you're done.</div>
+      <div class="brief-wrap">
+        <textarea class="brief-ta" placeholder="Your words appear here as you speak…"></textarea>
+        <div class="brief-foot">
+          <span class="mic">
+            <button class="mic-btn rec" title="Stop">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+            </button>
+            Listening…
+          </span>
+          <span class="hint">Deepgram · transcribing live</span>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="surprise" href="#">Surprise me from my Brand OS</a>
+        <button class="btn btn-primary" style="opacity:.5">Generate quiz</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATE 2: GENERATING -->
+<div class="stage">
+  <div class="stage-label">2 · Generating (~4s)</div>
+  <div class="card">
+    <div class="gen">
+      <div class="orb"></div>
+      <h2 class="display">Building your quiz…</h2>
+      <p>Shaping 5 questions and 3 results around your brief, in your voice.</p>
+    </div>
+  </div>
+</div>
+
+<!-- STATE 3: REVIEW DRAFT -->
+<div class="stage">
+  <div class="stage-label">3 · Review the draft — nothing saved yet</div>
+  <div class="card">
+    <div class="card-pad">
+      <div class="review-head">
+        <div>
+          <span class="soma"><span class="dot"></span>Soma</span>
+          <h1 class="display" style="font-size:23px;margin-top:14px">Are You Burnt Out, or Just Bored?</h1>
+          <div class="sub">A 5-question read on where your fire actually went.</div>
+        </div>
+        <span class="pill-draft">Draft</span>
+      </div>
+
+      <div class="briefline"><b>Your brief</b>Help stressed founders figure out if they're actually burnt out or just bored — point them to my reset program.</div>
+
+      <div class="q-list">
+        <div class="q-row"><span class="q-num">1</span><span>It's Sunday night. The week ahead makes you feel…</span></div>
+        <div class="q-row"><span class="q-num">2</span><span>When you finish a big task lately, you mostly feel…</span></div>
+        <div class="q-row"><span class="q-num">3</span><span>The thought of a brand-new challenge right now is…</span></div>
+        <div class="q-row"><span class="q-num">4</span><span>Your body at the end of a workday feels…</span></div>
+        <div class="q-row"><span class="q-num">5</span><span>If you had a free afternoon, you'd want to…</span></div>
+      </div>
+
+      <div class="results-row">
+        <span class="res-chip">→ Burnt Out</span>
+        <span class="res-chip">→ Quietly Bored</span>
+        <span class="res-chip">→ Running on Fumes</span>
+      </div>
+
+      <div class="review-actions">
+        <button class="link-muted">↻ Regenerate</button>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost">Discard</button>
+        <button class="btn btn-primary">Save quiz</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
