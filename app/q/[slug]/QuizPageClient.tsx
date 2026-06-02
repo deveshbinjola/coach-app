@@ -1,9 +1,10 @@
 // Client component for the public quiz page.
-// Fetches funnel config and renders the QuizPlayer.
+// Receives the funnel from the server (no client fetch, no loading flash)
+// and renders the QuizPlayer.
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import QuizPlayer from "@/components/funnels/QuizPlayer";
 
 type FunnelConfig = {
@@ -37,7 +38,7 @@ type FunnelConfig = {
   };
 };
 
-type FunnelData = {
+export type FunnelData = {
   id: string;
   slug: string;
   title: string;
@@ -45,43 +46,15 @@ type FunnelData = {
   type: string;
 };
 
-export default function QuizPageClient({ slug }: { slug: string }) {
-  const [funnel, setFunnel] = useState<FunnelData | null>(null);
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(true);
-
+export default function QuizPageClient({ funnel }: { funnel: FunnelData | null }) {
   useEffect(() => {
-    if (!slug) return;
+    if (funnel) {
+      document.title = funnel.config?.intro?.headline || funnel.title || "Quiz";
+    }
+  }, [funnel]);
 
-    fetch(`/api/funnels/public?slug=${encodeURIComponent(slug)}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("not found");
-        return res.json();
-      })
-      .then((data) => {
-        setFunnel(data.funnel);
-        document.title = data.funnel.config?.intro?.headline || data.funnel.title || "Quiz";
-      })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, [slug]);
-
-  // Loading state
-  if (loading) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: "#FAFAF8" }}
-      >
-        <div className="text-center">
-          <div className="inline-block w-8 h-8 border-2 border-[#00FF41] border-t-transparent rounded-full animate-spin" />
-        </div>
-      </div>
-    );
-  }
-
-  // Not found
-  if (error || !funnel) {
+  // Not found / unpublished
+  if (!funnel) {
     return (
       <div
         className="min-h-screen flex items-center justify-center px-4"
