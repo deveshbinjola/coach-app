@@ -8,7 +8,7 @@
 //   3. Has funnels          -> List with stats + generate more button
 //
 // "New Quiz" opens QuizCreateModal (ask-first flow): the coach describes
-// the quiz intent, Soma generates a draft via /api/funnels/generate, and
+// the quiz intent, the app generates a draft via /api/funnels/generate, and
 // the coach reviews before saving to /api/funnels.
 
 import { useState } from "react";

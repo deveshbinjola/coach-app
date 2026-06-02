@@ -120,7 +120,7 @@ export default function QuizCreateModal({
         {phase === "ask" && (
           <div className="p-6 sm:p-8">
             <span className="inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)] bg-[var(--surface-deep)] rounded-full px-3 py-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" /> Soma
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" /> New quiz
             </span>
             <h1 className="font-display text-[26px] font-bold tracking-tight leading-tight mt-4 text-[color:var(--text)]">
               What do you want this quiz to do?
@@ -133,7 +133,7 @@ export default function QuizCreateModal({
             </div>
             <div className="flex items-center justify-between mt-5 gap-3">
               <button onClick={generate} className="text-[length:var(--t-caption)] font-semibold text-[color:var(--text-muted)] hover:text-[color:var(--text)] border-b border-dashed border-[var(--border)]">
-                Let Soma draft from my brand
+                Draft from my brand instead
               </button>
               <button onClick={generate} disabled={!brief.trim()} className="rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] font-extrabold text-[14px] px-5 py-3 hover:bg-[var(--brand-strong)] disabled:opacity-40 transition">
                 Generate quiz
@@ -154,7 +154,7 @@ export default function QuizCreateModal({
           <div className="p-6 sm:p-8">
             <div className="flex items-start justify-between gap-3">
               <span className="inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)] bg-[var(--surface-deep)] rounded-full px-3 py-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" /> Soma
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" /> New quiz
               </span>
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--brand-strong)] bg-[var(--brand-soft)] rounded-full px-2.5 py-1">Draft</span>
             </div>
@@ -204,7 +204,7 @@ export default function QuizCreateModal({
           <div className="p-8 text-center">
             {!hasBrandOs ? (
               <>
-                <h2 className="font-display text-[20px] font-bold text-[color:var(--text)]">Soma needs your Brand OS first</h2>
+                <h2 className="font-display text-[20px] font-bold text-[color:var(--text)]">Finish your Brand OS first</h2>
                 <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-2">It powers your quiz&apos;s voice and archetypes.</p>
                 <a href="/brand-os" className="inline-block mt-5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] px-5 py-3 text-[14px] font-extrabold">Build my Brand OS</a>
               </>
