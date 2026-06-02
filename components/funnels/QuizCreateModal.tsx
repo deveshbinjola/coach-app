@@ -1,7 +1,7 @@
 // components/funnels/QuizCreateModal.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SpeakOrType from "@/components/voice/SpeakOrType";
 import type { FunnelConfig } from "@/lib/funnel-config";
@@ -23,6 +23,27 @@ export default function QuizCreateModal({
   const [ctaUrls, setCtaUrls] = useState<string[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  // Reset to a clean ask state every time the modal opens.
+  useEffect(() => {
+    if (open) {
+      setPhase("ask");
+      setBrief("");
+      setDraft(null);
+      setTitle("");
+      setCtaUrls([]);
+      setErrorMsg(null);
+      setSaving(false);
+    }
+  }, [open]);
+
+  // Escape to close.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
 
   if (!open) return null;
 
@@ -91,6 +112,8 @@ export default function QuizCreateModal({
   return (
     <div className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center bg-black/30 sm:p-6" onClick={onClose}>
       <div
+        role="dialog"
+        aria-modal="true"
         className="bg-[var(--surface-elevated)] w-full sm:max-w-[560px] sm:rounded-[var(--r-xl)] shadow-[var(--shadow-lg)] overflow-y-auto max-h-screen sm:max-h-[88vh]"
         onClick={(e) => e.stopPropagation()}
       >

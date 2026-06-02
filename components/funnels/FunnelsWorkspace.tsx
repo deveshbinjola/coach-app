@@ -7,8 +7,9 @@
 //   2. Empty + has Brand OS -> "Generate your first quiz" hero
 //   3. Has funnels          -> List with stats + generate more button
 //
-// Generate calls /api/funnels/generate, which reads the coach's latest
-// Brand OS synthesis and produces a 5-question Resonance Quiz via Claude.
+// "New Quiz" opens QuizCreateModal (ask-first flow): the coach describes
+// the quiz intent, Soma generates a draft via /api/funnels/generate, and
+// the coach reviews before saving to /api/funnels.
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";

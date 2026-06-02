@@ -125,9 +125,9 @@ export async function POST(request: NextRequest) {
   const run = runs[0];
   const synthesis = run.synthesis_json as BrandOsSynthesis;
 
-  if (!synthesis.pillars || synthesis.pillars.length < 2) {
+  if (!synthesis.pillars || synthesis.pillars.length < 3) {
     return NextResponse.json(
-      { error: "Brand OS synthesis needs at least 2 pillars to generate a quiz." },
+      { error: "Brand OS synthesis needs at least 3 pillars to generate a quiz." },
       { status: 422 }
     );
   }
@@ -323,8 +323,8 @@ function parseAndValidateConfig(
       }
     }
 
-    // Validate results
-    if (!Array.isArray(parsed.results) || parsed.results.length < 2) return null;
+    // Validate results — must be exactly 3 to match validateFunnelConfigShape in lib/funnel-config.ts
+    if (!Array.isArray(parsed.results) || parsed.results.length !== 3) return null;
     for (const r of parsed.results) {
       if (!r.key || !r.pillar_name || !r.headline || !r.body) return null;
     }
