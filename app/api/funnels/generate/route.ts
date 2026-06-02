@@ -3,16 +3,16 @@
 // Generates a 5-question Resonance Quiz from the coach's Brand OS
 // synthesis. Reads cp_brand_os_runs.synthesis_json, sends to Claude
 // Sonnet 4.6, validates the response as strict FunnelConfig JSON,
-// creates a cp_funnels row, and returns the new funnel.
+// and returns a DRAFT — does NOT write to the DB.
+// The coach reviews the draft, then POST /api/funnels persists it.
 //
 // Requires: authenticated coach with at least one completed Brand OS run.
-// Rate limit: 4 per minute (quiz generation is ~$0.03 per call).
+// Rate limit: 10 per minute (regeneration during review is expected).
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { createAdminClient } from "@/lib/supabase-admin";
 import { rateLimitByUser } from "@/lib/rate-limit";
-import { generateFunnelSlug } from "@/lib/funnel-slug";
+import { buildBriefBlock } from "@/lib/funnel-config";
 import type { BrandOsSynthesis } from "@/app/api/brand-os/synthesize/route";
 
 export const runtime = "edge";
@@ -62,6 +62,7 @@ type FunnelConfig = {
 type GenerateBody = {
   runId?: string;
   ctaUrl?: string;
+  brief?: string;
 };
 
 // ── Handler ──────────────────────────────────────────────
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const rl = rateLimitByUser(user.id, "funnels/generate", 4, 60_000);
+  const rl = rateLimitByUser(user.id, "funnels/generate", 10, 60_000);
   if (!rl.allowed) {
     return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }
@@ -124,9 +125,9 @@ export async function POST(request: NextRequest) {
   const run = runs[0];
   const synthesis = run.synthesis_json as BrandOsSynthesis;
 
-  if (!synthesis.pillars || synthesis.pillars.length < 2) {
+  if (!synthesis.pillars || synthesis.pillars.length < 3) {
     return NextResponse.json(
-      { error: "Brand OS synthesis needs at least 2 pillars to generate a quiz." },
+      { error: "Brand OS synthesis needs at least 3 pillars to generate a quiz." },
       { status: 422 }
     );
   }
@@ -153,9 +154,10 @@ export async function POST(request: NextRequest) {
   const pillarKeys = pillars.map((_, i) => `pillar_${i + 1}`);
 
   const ctaUrl = body.ctaUrl || "";
+  const brief = (body.brief ?? "").trim().slice(0, 500);
 
   const systemPrompt = buildSystemPrompt(pillarKeys);
-  const userPrompt = buildUserPrompt(synthesis, pillars, ctaUrl);
+  const userPrompt = buildUserPrompt(synthesis, pillars, ctaUrl, brief);
 
   // ── Call Anthropic ─────────────────────────────────────
 
@@ -195,53 +197,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // ── Save to database ───────────────────────────────────
-
+  // ── Return a draft — do NOT persist. The coach reviews, then POST /api/funnels saves it. ──
   const title = config.intro.headline || "Your Brand Quiz";
-  const slug = generateFunnelSlug(title);
 
-  const admin = createAdminClient();
-  const { data: funnel, error: insertError } = await admin
-    .from("cp_funnels")
-    .insert({
-      coach_id: user.id,
-      slug,
-      type: "resonance",
+  return NextResponse.json({
+    draft: {
       title,
+      type: "resonance",
       config,
-      published: false,
       generated_from_run_id: run.id,
-    })
-    .select("id, slug, title, config, published, created_at")
-    .single();
-
-  if (insertError) {
-    // Slug collision: regenerate with new suffix
-    if (insertError.code === "23505") {
-      const retrySlug = generateFunnelSlug(title);
-      const { data: retry, error: retryErr } = await admin
-        .from("cp_funnels")
-        .insert({
-          coach_id: user.id,
-          slug: retrySlug,
-          type: "resonance",
-          title,
-          config,
-          published: false,
-          generated_from_run_id: run.id,
-        })
-        .select("id, slug, title, config, published, created_at")
-        .single();
-
-      if (retryErr) {
-        return NextResponse.json({ error: "Failed to save quiz." }, { status: 500 });
-      }
-      return NextResponse.json({ funnel: retry });
-    }
-    return NextResponse.json({ error: "Failed to save quiz." }, { status: 500 });
-  }
-
-  return NextResponse.json({ funnel });
+    },
+  });
 }
 
 // ── Prompt builders ──────────────────────────────────────
@@ -287,15 +253,19 @@ function buildSystemPrompt(pillarKeys: string[]): string {
     "- NO coach jargon: transformation, unlock, level up, thrive, journey",
     "- NO em dashes",
     "- Return ONLY the JSON object. No markdown fences. No explanation.",
+    "",
+    "VOICE FIDELITY (non-negotiable): The quiz's voice, tone, and vocabulary come ONLY from the coach's Brand OS voice DNA below — never from the register of the brief. Use their vocab_yes language, honor their signature moves, avoid their vocab_no words and generic coaching jargon, and never use em dashes. If the brief is written in flat or corporate language, do NOT mirror that — translate the intent into the coach's voice.",
+    "RESULTS: Always resolve to exactly the 3 pillar archetypes provided. Never invent a 4th archetype or drop a pillar, even if the brief's topic seems unrelated — frame the questions around the brief's topic while still mapping to these 3 pillars.",
   ].join("\n");
 }
 
 function buildUserPrompt(
   synthesis: BrandOsSynthesis,
   pillars: BrandOsSynthesis["pillars"],
-  ctaUrl: string
+  ctaUrl: string,
+  brief?: string
 ): string {
-  return [
+  return buildBriefBlock(brief) + [
     "Generate a Resonance Quiz from this coach's Brand OS synthesis.",
     "",
     `POSITIONING: ${synthesis.positioning_line}`,
@@ -353,8 +323,8 @@ function parseAndValidateConfig(
       }
     }
 
-    // Validate results
-    if (!Array.isArray(parsed.results) || parsed.results.length < 2) return null;
+    // Validate results — must be exactly 3 to match validateFunnelConfigShape in lib/funnel-config.ts
+    if (!Array.isArray(parsed.results) || parsed.results.length !== 3) return null;
     for (const r of parsed.results) {
       if (!r.key || !r.pillar_name || !r.headline || !r.body) return null;
     }
