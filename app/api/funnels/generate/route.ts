@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { rateLimitByUser } from "@/lib/rate-limit";
 import { generateFunnelSlug } from "@/lib/funnel-slug";
+import { buildBriefBlock } from "@/lib/funnel-config";
 import type { BrandOsSynthesis } from "@/app/api/brand-os/synthesize/route";
 
 export const runtime = "edge";
@@ -287,15 +288,19 @@ function buildSystemPrompt(pillarKeys: string[]): string {
     "- NO coach jargon: transformation, unlock, level up, thrive, journey",
     "- NO em dashes",
     "- Return ONLY the JSON object. No markdown fences. No explanation.",
+    "",
+    "VOICE FIDELITY (non-negotiable): The quiz's voice, tone, and vocabulary come ONLY from the coach's Brand OS voice DNA below — never from the register of the brief. Use their vocab_yes language, honor their signature moves, avoid their vocab_no words and generic coaching jargon, and never use em dashes. If the brief is written in flat or corporate language, do NOT mirror that — translate the intent into the coach's voice.",
+    "RESULTS: Always resolve to exactly the 3 pillar archetypes provided. Never invent a 4th archetype or drop a pillar, even if the brief's topic seems unrelated — frame the questions around the brief's topic while still mapping to these 3 pillars.",
   ].join("\n");
 }
 
 function buildUserPrompt(
   synthesis: BrandOsSynthesis,
   pillars: BrandOsSynthesis["pillars"],
-  ctaUrl: string
+  ctaUrl: string,
+  brief?: string
 ): string {
-  return [
+  return buildBriefBlock(brief) + [
     "Generate a Resonance Quiz from this coach's Brand OS synthesis.",
     "",
     `POSITIONING: ${synthesis.positioning_line}`,
