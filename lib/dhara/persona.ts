@@ -9,12 +9,12 @@ export type DharaContext = {
 };
 
 export function buildDharaSystemPrompt(ctx: DharaContext): string {
-  const confirmed = ctx.memories
-    .filter((m) => m.confidence !== "candidate")
-    .map((m) => `- ${m.text}`);
+  const confirmed = ctx.memories.filter((m) => m.confidence === "confirmed").map((m) => `- ${m.text}`);
   const candidates = ctx.memories
-    .filter((m) => m.confidence === "candidate")
-    .map((m) => `- ${m.text} (unconfirmed, do not assert as fact)`);
+    .filter((m) => m.confidence !== "confirmed")
+    .map((m) => m.confidence === "repeated"
+      ? `- ${m.text} (noticed more than once, likely but not yet confirmed; do not assert as hard fact)`
+      : `- ${m.text} (unconfirmed, do not assert as fact)`);
 
   return [
     `You are Dhara, a grounded guide inside ${ctx.coachFirstName}'s coaching platform.`,

@@ -27,4 +27,15 @@ describe("buildDharaSystemPrompt", () => {
     expect(p.toLowerCase()).toContain("unconfirmed");
     expect(p).toContain("fall cohort");
   });
+  it("keeps 'repeated' memories soft, not in the confirmed-fact block", () => {
+    const p = buildDharaSystemPrompt({
+      coachFirstName: "Sunny", identityText: "x", snapshotText: "y",
+      memories: [{ text: "Runs a Tuesday men's circle", confidence: "repeated" }],
+    });
+    // The confirmed/fact section should NOT list it as a hard fact;
+    // it should appear in the soft/unconfirmed section instead.
+    const [factSection, softSection] = p.split("WHAT YOU SUSPECT");
+    expect(factSection).not.toContain("Runs a Tuesday men's circle");
+    expect(softSection).toContain("Runs a Tuesday men's circle");
+  });
 });

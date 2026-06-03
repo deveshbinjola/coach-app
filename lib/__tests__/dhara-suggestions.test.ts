@@ -14,4 +14,8 @@ describe("deriveSuggestions", () => {
   it("returns [] when no known lead is mentioned", () => {
     expect(deriveSuggestions("Your month looks steady.", leads)).toEqual([]);
   });
+  it("does not false-positive a short first name inside another word", () => {
+    const sam = [{ id: "l3", name: "Sam Cole" }];
+    expect(deriveSuggestions("We discussed the same approach.", sam)).toEqual([]);
+  });
 });

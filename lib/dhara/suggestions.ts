@@ -11,19 +11,25 @@ export type DharaSuggestion = {
   payload?: Record<string, unknown>;
 };
 
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function nameMatches(replyLower: string, name: string): boolean {
+  const n = name.trim();
+  if (!n) return false;
+  // Whole-word match on the full name or any token of length >= 3.
+  const tokens = [n, ...n.split(/\s+/)].filter((t) => t.length >= 3);
+  return tokens.some((t) => new RegExp(`\\b${escapeRegExp(t.toLowerCase())}\\b`).test(replyLower));
+}
+
 export function deriveSuggestions(
   replyText: string,
   leads: Array<{ id: string; name: string }>,
 ): DharaSuggestion[] {
   const out: DharaSuggestion[] = [];
   const lower = replyText.toLowerCase();
-  const mentioned = leads.find((l) => {
-    if (!l.name) return false;
-    // Match on full name or any individual word (e.g. first name alone)
-    const nameLower = l.name.toLowerCase();
-    if (lower.includes(nameLower)) return true;
-    return nameLower.split(/\s+/).some((word) => word.length > 2 && lower.includes(word));
-  });
+  const mentioned = leads.find((l) => nameMatches(lower, l.name));
   if (mentioned) {
     out.push({
       level: "suggest",
