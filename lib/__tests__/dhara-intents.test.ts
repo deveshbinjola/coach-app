@@ -25,21 +25,36 @@ describe("matchIntent — data questions", () => {
   });
 });
 
-describe("matchIntent — navigation", () => {
-  it("take me to leads -> /clients", () => {
-    expect(matchIntent("take me to leads")).toEqual({ type: "navigate", target: "leads", route: "/clients" });
+describe("matchIntent — navigation (many phrasings)", () => {
+  const f = (route: string, target: string) => ({ type: "navigate", target, route });
+  it.each([
+    ["take me to leads", f("/clients", "leads")],
+    ["give me the dashboard", f("/command-center", "dashboard")],
+    ["open content", f("/content", "content")],
+    ["show me my quizzes", f("/funnels", "quizzes")],
+    ["show my quizzes", f("/funnels", "quizzes")],          // the reported bug
+    ["open my quizzes", f("/funnels", "quizzes")],
+    ["view content", f("/content", "content")],
+    ["pull up my clients", f("/clients", "clients")],
+    ["where are my quizzes", f("/funnels", "quizzes")],
+    ["go to inbox", f("/inbox", "inbox")],
+    ["take me to the command center", f("/command-center", "command center")],
+    ["dashboard", f("/command-center", "dashboard")],
+    ["my quizzes", f("/funnels", "quizzes")],
+  ])("'%s' navigates", (input, expected) => {
+    expect(matchIntent(input)).toEqual(expected);
   });
-  it("give me the dashboard -> /command-center", () => {
-    expect(matchIntent("give me the dashboard")).toEqual({ type: "navigate", target: "dashboard", route: "/command-center" });
-  });
-  it("open content -> /content", () => {
-    expect(matchIntent("open content")).toEqual({ type: "navigate", target: "content", route: "/content" });
-  });
-  it("show me my quizzes -> /funnels", () => {
-    expect(matchIntent("show me my quizzes")).toEqual({ type: "navigate", target: "quizzes", route: "/funnels" });
-  });
-  it("a bare destination word navigates", () => {
-    expect(matchIntent("dashboard")).toEqual({ type: "navigate", target: "dashboard", route: "/command-center" });
+});
+
+describe("matchIntent — does NOT false-navigate", () => {
+  it.each([
+    "show me content ideas",          // ends with "ideas", not a place
+    "I want to write about content",
+    "what should I do about my leads",
+    "help me with my leads strategy",
+  ])("'%s' is not a navigation", (input) => {
+    const r = matchIntent(input);
+    expect(r?.type === "navigate").toBe(false);
   });
 });
 

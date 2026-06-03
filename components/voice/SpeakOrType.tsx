@@ -9,10 +9,12 @@ type Props = {
   disabled?: boolean;
   minRows?: number;
   maxLength?: number;
+  /** When set, pressing Enter (without Shift) fires this instead of a newline. */
+  onSubmit?: () => void;
 };
 
 export default function SpeakOrType({
-  value, onChange, placeholder, disabled = false, minRows = 4, maxLength = 500,
+  value, onChange, placeholder, disabled = false, minRows = 4, maxLength = 500, onSubmit,
 }: Props) {
   const appendTranscript = (text: string) => {
     const joined = value.trim() ? `${value.trim()} ${text}` : text;
@@ -26,6 +28,9 @@ export default function SpeakOrType({
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value.slice(0, maxLength))}
+        onKeyDown={(e) => {
+          if (onSubmit && e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSubmit(); }
+        }}
         placeholder={placeholder}
         disabled={disabled}
         rows={minRows}

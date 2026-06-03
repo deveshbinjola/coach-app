@@ -55,13 +55,25 @@ export function matchIntent(message: string): DharaIntent | null {
     return { type: "pain_points" };
   }
 
-  // ── Navigation: a nav verb + a known destination, or a bare destination ──
-  const navVerb = /\b(take me|bring me|go to|go|open|show me|navigate|give me|jump|head|get me)\b/.test(m);
+  // ── Navigation ──
+  // Match when the message ENDS WITH a place name (so "show me content ideas"
+  // is NOT navigation — it ends with "ideas") and either carries a nav verb or
+  // is a bare destination like "my quizzes" / "dashboard".
+  const cleaned = m
+    .replace(/[?!.]+$/g, "")
+    .replace(/\b(please|now|right now|for me|thanks|thank you)\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const navVerb = /\b(take me|bring me|lead me|send me|give me|go to|go|open|show|view|see|pull up|navigate|jump to|jump|head to|head|get me|where are|where'?s|where is|let me see)\b/.test(cleaned);
+
   // Longest keys first so "command center" beats "content"-style partials.
-  const words = Object.keys(NAV_ROUTES).sort((a, b) => b.length - a.length);
-  for (const word of words) {
-    if (m.includes(word) && (navVerb || m === word)) {
-      return { type: "navigate", target: word, route: NAV_ROUTES[word] };
+  const dests = Object.keys(NAV_ROUTES).sort((a, b) => b.length - a.length);
+  for (const w of dests) {
+    const endsWithDest = cleaned === w || cleaned.endsWith(` ${w}`);
+    const bareDest = new RegExp(`^(my |the |our )?${w}$`).test(cleaned);
+    if (endsWithDest && (navVerb || bareDest)) {
+      return { type: "navigate", target: w, route: NAV_ROUTES[w] };
     }
   }
 

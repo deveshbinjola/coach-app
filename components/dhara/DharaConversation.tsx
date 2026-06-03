@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDhara } from "@/components/dhara/DharaProvider";
 import SpeakOrType from "@/components/voice/SpeakOrType";
 import DharaMemoryView from "@/components/dhara/DharaMemoryView";
@@ -9,8 +9,16 @@ export default function DharaConversation({ onClose }: { onClose: () => void }) 
   const { messages, sending, send, suggestions, lastLearned, runSuggestion, starterPrompts, greeting } = useDhara();
   const [tab, setTab] = useState<"talk" | "memory">("talk");
   const [draft, setDraft] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const submit = () => { const t = draft.trim(); if (!t || sending) return; setDraft(""); void send(t); };
+
+  // Always show the latest message: pin to the bottom on open and as messages arrive.
+  useEffect(() => {
+    if (tab !== "talk") return;
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages, tab]);
 
   return (
     <div className="flex flex-col h-full">
@@ -33,7 +41,7 @@ export default function DharaConversation({ onClose }: { onClose: () => void }) 
         <DharaMemoryView />
       ) : (
         <>
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
             {messages.length === 0 && (
               <div>
                 <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">{greeting}</p>
@@ -77,7 +85,7 @@ export default function DharaConversation({ onClose }: { onClose: () => void }) 
             )}
           </div>
           <div className="border-t border-[var(--border-faint)] p-3">
-            <SpeakOrType value={draft} onChange={setDraft} placeholder="Talk to Dhara, or just say it&hellip;" minRows={2} maxLength={4000} disabled={sending} />
+            <SpeakOrType value={draft} onChange={setDraft} onSubmit={submit} placeholder="Talk to Dhara, or just say it&hellip;" minRows={2} maxLength={4000} disabled={sending} />
             <button onClick={submit} disabled={sending || !draft.trim()}
               className="mt-2 w-full rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] font-extrabold text-[14px] py-2.5 disabled:opacity-40">
               {sending ? "…" : "Send"}

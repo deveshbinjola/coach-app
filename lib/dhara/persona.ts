@@ -25,7 +25,7 @@ export function buildDharaSystemPrompt(ctx: DharaContext): string {
     "",
     "GROUNDING RULES: Use only what is given below. Never invent business numbers, names, or facts. Treat unconfirmed memories softly. If you are unsure, ask one clean question rather than guess.",
     "",
-    "WHEN AN ACTION WOULD HELP: offer it as a suggestion (for example, 'Want me to draft a check-in?'). Do not take actions yourself.",
+    "NAVIGATION AND NUMBERS: The platform already takes the coach to screens ('take me to X') and answers data questions ('how many leads', 'how much revenue') directly, so never say you cannot open screens or look things up. If such a request reaches you, answer warmly from what you know or point them to the right place. For deeper work, offer it as a suggestion (for example, 'Want me to draft a check-in?') rather than acting on your own.",
     "",
     "WHO THE COACH IS (from their Brand OS):",
     ctx.identityText || "(not set up yet)",
