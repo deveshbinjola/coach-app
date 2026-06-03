@@ -45,7 +45,10 @@ export default function DharaProvider({ children }: { children: React.ReactNode 
         ? data.reply
         : (data.error ?? "Something went quiet on my end. Try again?");
       setMessages((m) => { const c = [...m]; c[c.length - 1] = { role: "assistant", content: reply }; return c; });
-      if (res.ok && data.reply) {
+      // Deterministic navigation command — take the coach there.
+      if (res.ok && data.navigateTo) { setOpen(false); router.push(data.navigateTo); }
+      // Only learn from open-ended (AI) replies, not data answers.
+      if (res.ok && data.reply && data.source === "ai") {
         fetch("/api/dhara/learn", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userMessage: msg, assistantMessage: data.reply }) })
           .then((r) => r.ok ? r.json() : null).then((d) => { if (d) { setSuggestions(d.suggestions ?? []); setLastLearned(d.newlyLearned ?? []); } }).catch(() => {});
       }
