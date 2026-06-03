@@ -6,7 +6,7 @@ import SpeakOrType from "@/components/voice/SpeakOrType";
 import DharaMemoryView from "@/components/dhara/DharaMemoryView";
 
 export default function DharaConversation({ onClose }: { onClose: () => void }) {
-  const { messages, sending, send, suggestions, lastLearned, runSuggestion } = useDhara();
+  const { messages, sending, send, suggestions, lastLearned, runSuggestion, starterPrompts, greeting } = useDhara();
   const [tab, setTab] = useState<"talk" | "memory">("talk");
   const [draft, setDraft] = useState("");
 
@@ -35,13 +35,28 @@ export default function DharaConversation({ onClose }: { onClose: () => void }) 
         <>
           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
             {messages.length === 0 && (
-              <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">Take a breath. What&apos;s on your mind?</p>
+              <div>
+                <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">{greeting}</p>
+                {starterPrompts.length > 0 && (
+                  <div className="flex flex-col gap-2 mt-4">
+                    {starterPrompts.map((p, i) => (
+                      <button key={i} onClick={() => { if (!sending) void send(p.message); }}
+                        className="text-left text-[length:var(--t-caption)] font-semibold text-[color:var(--text)] bg-[var(--surface-deep)] hover:bg-[var(--border-faint)] rounded-[var(--r-md)] px-3 py-2.5 transition">
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
             {messages.map((m, i) => (
-              <div key={i} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
-                <div className={`max-w-[85%] rounded-[var(--r-md)] px-3 py-2 text-[length:var(--t-body)] leading-relaxed whitespace-pre-wrap ${m.role === "user" ? "bg-[var(--navy)] text-white" : "bg-[var(--surface-deep)] text-[color:var(--text)]"}`}>
+              <div key={i} className={m.role === "user" ? "flex justify-end" : "flex flex-col items-start"}>
+                <div className={`max-w-[85%] rounded-[var(--r-md)] px-3 py-2 text-[length:var(--t-body)] leading-relaxed whitespace-pre-wrap ${m.role === "user" ? "bg-[var(--navy)] text-white self-end" : "bg-[var(--surface-deep)] text-[color:var(--text)]"}`}>
                   {m.content || (m.streaming ? "…" : "")}
                 </div>
+                {m.role === "assistant" && m.source === "data" && (
+                  <span className="text-[10px] text-[color:var(--text-faint)] mt-1 ml-1">· from your data</span>
+                )}
               </div>
             ))}
             {lastLearned.length > 0 && (
