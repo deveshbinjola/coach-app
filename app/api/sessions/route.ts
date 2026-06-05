@@ -5,10 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { analyzeSession } from "@/lib/session-intelligence";
-import { generatePostSessionDraft } from "@/lib/ambient";
 import type { CoachingSession } from "@/lib/session-intelligence";
-import type { VoiceProfile } from "@/lib/types";
 
 export const runtime = "edge";
 
@@ -103,42 +100,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Client not found" }, { status: 404 });
   }
 
-  // Fetch previous sessions for pattern detection + voice profile
-  const [previousRes, profileRes] = await Promise.all([
-    supabase
-      .from("cp_coaching_sessions")
-      .select("ai_summary, key_topics, commitments")
-      .eq("coach_id", user.id)
-      .eq("client_id", clientId)
-      .order("session_date", { ascending: false })
-      .limit(5),
-    supabase
-      .from("cp_voice_profiles")
-      .select("*")
-      .eq("coach_id", user.id)
-      .eq("active", true)
-      .order("version", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
-
-  const previousSessions = (previousRes.data ?? []) as Array<{
-    ai_summary: string | null;
-    key_topics: string[];
-    commitments: string[];
-  }>;
-  const profile = (profileRes.data as VoiceProfile | null) ?? null;
-
-  // Run AI analysis
-  const analysis = await analyzeSession({
-    rawNotes,
-    transcript,
-    clientName: clientLead.full_name || "the client",
-    previousSessions,
-    profile,
-  });
-
-  // Insert the session
+  // Save the session as-is. No AI on the save path — just persist the notes,
+  // instantly and reliably. Topic/commitment extraction can be a separate,
+  // opt-in action later.
   const { data: session, error: insertError } = await supabase
     .from("cp_coaching_sessions")
     .insert({
@@ -148,11 +112,11 @@ export async function POST(request: NextRequest) {
       duration_minutes: durationMinutes,
       raw_notes: rawNotes,
       transcript,
-      ai_summary: analysis.ai_summary,
-      key_topics: analysis.key_topics,
-      commitments: analysis.commitments,
-      somatic_observations: analysis.somatic_observations,
-      patterns_flagged: analysis.patterns_flagged,
+      ai_summary: null,
+      key_topics: [],
+      commitments: [],
+      somatic_observations: [],
+      patterns_flagged: [],
     })
     .select()
     .single();
@@ -161,14 +125,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
 
-  // Generate follow-up draft (non-blocking — null on failure)
-  const followUpDraft = await generatePostSessionDraft({
-    clientName: clientLead.full_name || "the client",
-    aiSummary: analysis.ai_summary,
-    commitments: analysis.commitments,
-    keyTopics: analysis.key_topics,
-    voiceProfile: profile,
-  });
-
-  return NextResponse.json({ session, analysis, followUpDraft }, { status: 201 });
+  return NextResponse.json({ session }, { status: 201 });
 }

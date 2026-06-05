@@ -205,10 +205,10 @@ Write freely. The AI will find the structure."
             )
           }
         >
-          {saving ? "Analyzing session..." : "Save session"}
+          {saving ? "Saving..." : "Save session"}
         </Button>
         <span className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-          AI will extract topics, commitments, and patterns
+          Saved to this client&apos;s timeline
         </span>
       </div>
     </div>
