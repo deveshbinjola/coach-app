@@ -402,6 +402,53 @@ export function getVoiceProfile(slug: VoiceProfileSlug | null | undefined): Voic
   return VOICE_PROFILES[slug] ?? VOICE_PROFILES[DEFAULT_VOICE_PROFILE_SLUG];
 }
 
+/** Build a valid voice_json + sample_messages WITHOUT calling the AI.
+ *
+ *  Onboarding must never hard-block when the voice-mine Edge Function is
+ *  unavailable (missing key, timeout, outage). This produces a usable
+ *  starter voice so the coach can finish onboarding and refine later.
+ *
+ *  Audience-correct: forbidden words and seed phrases come from the coach's
+ *  own profile, and the coach's interview answers become the sample_messages
+ *  (the strongest signal the drafter has). Marked `fallback: true` so the app
+ *  can nudge a refine. Shape matches the voice-mine Edge Function schema. */
+export function buildFallbackVoice(
+  slug: VoiceProfileSlug,
+  answers: Array<{ q: string; a: string }>,
+): { voice_json: Record<string, unknown>; sample_messages: string[] } {
+  const p = getVoiceProfile(slug);
+  const samples = answers
+    .map((x) => (x.a ?? "").trim())
+    .filter((a) => a.length >= 10);
+  return {
+    voice_json: {
+      tone: ["grounded", "direct", "human"],
+      sentence_rhythm:
+        "Short, plain sentences. The occasional longer line when something matters.",
+      vocabulary: {
+        use: p.seedPhrases.slice(0, 10),
+        avoid: p.forbiddenDefaults,
+      },
+      openers: [],
+      closers: [],
+      ctas: [],
+      emotional_register: p.description,
+      do_nots: p.forbiddenDefaults.map((w) => `Never say "${w}"`),
+      ig_specific: {
+        hook_pattern: "Lead with the realest line, not a greeting.",
+        hashtag_style: "sparse",
+        post_length: "short",
+      },
+      training_signal: {
+        fallback: true,
+        reason: "voice_ai_unavailable",
+        interview_answers: samples.length,
+      },
+    },
+    sample_messages: samples.length > 0 ? samples : p.seedPhrases,
+  };
+}
+
 /** Derive the profile slug from the two onboarding answers.
  *
  *  Matrix: (audience_self) × (audience_serves) → slug

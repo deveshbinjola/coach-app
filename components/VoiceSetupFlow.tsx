@@ -19,7 +19,8 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import { Badge, Button, Card } from "@/components/ui";
-import { getVoiceProfile, DEFAULT_VOICE_PROFILE_SLUG, type VoiceProfileSlug } from "@/lib/voice-profiles";
+import { getVoiceProfile, buildFallbackVoice, DEFAULT_VOICE_PROFILE_SLUG, type VoiceProfileSlug } from "@/lib/voice-profiles";
+import { readInvokeError } from "@/lib/voice/invoke-error";
 
 // 5 questions chosen for maximum voice-fidelity-per-second:
 //   Q1 → core belief (reveals tone, conviction, the "what they always say")
@@ -61,8 +62,6 @@ function buildQuestions(slug: VoiceProfileSlug): Question[] {
   ];
 }
 
-type Answer = { id: string; q: string; a: string };
-
 type Props = {
   /** Where to send the coach after a successful save. Default: /voice */
   redirectTo?: string;
@@ -89,6 +88,7 @@ export default function VoiceSetupFlow({
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [building, setBuilding] = useState(false);
   const [savedVersion, setSavedVersion] = useState<number | null>(null);
+  const [usedFallback, setUsedFallback] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const currentQuestion = QUESTIONS[stepIndex];
@@ -116,6 +116,47 @@ export default function VoiceSetupFlow({
     if (stepIndex > 0) setStepIndex((i) => i - 1);
   }
 
+  // Persist a voice profile to cp_voice_profiles (versioned, active=true).
+  // Throws on auth/DB failure so the caller can surface it. Returns the new
+  // version number.
+  async function persistVoice(
+    voiceJson: Record<string, unknown>,
+    sampleMessages: string[],
+  ): Promise<number> {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Not authenticated. Sign in again.");
+
+    const { data: latest } = await supabase
+      .from("cp_voice_profiles")
+      .select("version")
+      .eq("coach_id", user.id)
+      .order("version", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const nextVersion = (latest?.version ?? 0) + 1;
+
+    // Deactivate prior active row, insert new active one.
+    await supabase
+      .from("cp_voice_profiles")
+      .update({ active: false })
+      .eq("coach_id", user.id)
+      .eq("active", true);
+
+    const { error: insErr } = await supabase
+      .from("cp_voice_profiles")
+      .insert({
+        coach_id: user.id,
+        voice_json: voiceJson,
+        sample_messages: sampleMessages,
+        version: nextVersion,
+        active: true,
+      });
+    if (insErr) throw new Error(insErr.message);
+    return nextVersion;
+  }
+
   async function buildVoice() {
     setError(null);
     if (substantiveCount < 3) {
@@ -125,81 +166,59 @@ export default function VoiceSetupFlow({
       return;
     }
     setBuilding(true);
+
+    // Build the interview payload — only answered questions.
+    const interview = QUESTIONS.map((q) => ({
+      q: q.q,
+      a: (answers[q.id] ?? "").trim(),
+    })).filter((item) => item.a.length >= 10);
+
     try {
-      // Build the interview payload, only include answered questions.
-      const interview: Answer[] = QUESTIONS.map((q) => ({
-        id: q.id,
-        q: q.q,
-        a: (answers[q.id] ?? "").trim(),
-      })).filter((item) => item.a.length >= 10);
+      let voiceJson: Record<string, unknown> | null = null;
+      let sampleMessages: string[] = [];
+      let fallback = false;
 
       const { data, error: invokeErr } = await supabase.functions.invoke(
         "voice-mine",
-        { body: { interview: interview.map(({ q, a }) => ({ q, a })) } }
+        { body: { interview } }
       );
-      if (invokeErr) {
-        setError(invokeErr.message);
-        return;
-      }
-      const r = data as {
+      const r = (data ?? {}) as {
         voice_json?: unknown;
         sample_messages?: string[];
         error?: string;
       };
-      if (r.error) {
-        setError(r.error);
-        return;
-      }
-      if (!r.voice_json) {
-        setError("Voice profile didn't come back. Try again.");
-        return;
-      }
 
-      // Save to cp_voice_profiles. Same versioning pattern as VoiceMinePanel.
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setError("Not authenticated. Sign in again.");
-        return;
-      }
-
-      const { data: latest } = await supabase
-        .from("cp_voice_profiles")
-        .select("version")
-        .eq("coach_id", user.id)
-        .order("version", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      const nextVersion = (latest?.version ?? 0) + 1;
-
-      // Deactivate prior active row, insert new active one.
-      await supabase
-        .from("cp_voice_profiles")
-        .update({ active: false })
-        .eq("coach_id", user.id)
-        .eq("active", true);
-
-      const { error: insErr } = await supabase
-        .from("cp_voice_profiles")
-        .insert({
-          coach_id: user.id,
-          voice_json: {
-            ...(r.voice_json as Record<string, unknown>),
-            training_signal: {
-              ...(((r.voice_json as Record<string, unknown>).training_signal as Record<string, unknown> | undefined) ?? {}),
-              interview_answers: substantiveCount,
-            },
+      if (invokeErr || r.error || !r.voice_json) {
+        // The AI step failed (missing key, timeout, outage). In onboarding we
+        // NEVER hard-block — fall back to a starter voice built from the
+        // coach's own answers + their audience profile. Standalone (/voice),
+        // surface the real error so they can retry deliberately.
+        const realMsg = invokeErr
+          ? await readInvokeError(invokeErr, "Voice profile didn't come back. Try again.")
+          : r.error ?? "Voice profile didn't come back. Try again.";
+        if (!onComplete) {
+          setError(realMsg);
+          return;
+        }
+        const fb = buildFallbackVoice(profileSlug, interview);
+        voiceJson = fb.voice_json;
+        sampleMessages = fb.sample_messages;
+        fallback = true;
+      } else {
+        voiceJson = {
+          ...(r.voice_json as Record<string, unknown>),
+          training_signal: {
+            ...(((r.voice_json as Record<string, unknown>).training_signal as Record<string, unknown> | undefined) ?? {}),
+            interview_answers: substantiveCount,
           },
-          sample_messages: r.sample_messages ?? [],
-          version: nextVersion,
-          active: true,
-        });
-      if (insErr) {
-        setError(insErr.message);
-        return;
+        };
+        sampleMessages = r.sample_messages ?? [];
       }
 
+      // Persist failures (auth/DB) ARE real blocks — let them throw to catch.
+      const nextVersion = await persistVoice(voiceJson, sampleMessages);
+
+      setUsedFallback(fallback);
       setSavedVersion(nextVersion);
       // Hand off to caller (onboarding flow) or default redirect.
       setTimeout(() => {
@@ -208,9 +227,9 @@ export default function VoiceSetupFlow({
         } else if (typeof window !== "undefined") {
           window.location.href = redirectTo;
         }
-      }, 1100);
+      }, fallback ? 1600 : 1100);
     } catch (err) {
-      setError(String(err));
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setBuilding(false);
     }
@@ -226,11 +245,21 @@ export default function VoiceSetupFlow({
       >
         <div className="text-[length:var(--t-display)] leading-none">✓</div>
         <h2 className="text-[length:var(--t-h2)] font-bold mt-2 text-[color:var(--text)]">
-          Your voice is built.
+          {usedFallback ? "Starter voice saved." : "Your voice is built."}
         </h2>
         <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-2 max-w-md mx-auto leading-[var(--leading-relaxed)]">
-          Saved as version {savedVersion}. Every AI draft from here on writes
-          in this voice.
+          {usedFallback ? (
+            <>
+              We couldn&rsquo;t reach the voice AI just now, so we saved a
+              starter built from your answers (version {savedVersion}). Sharpen
+              it anytime on the Voice page.
+            </>
+          ) : (
+            <>
+              Saved as version {savedVersion}. Every AI draft from here on
+              writes in this voice.
+            </>
+          )}
         </p>
       </Card>
     );

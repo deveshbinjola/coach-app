@@ -17,6 +17,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
+import { readInvokeError } from "@/lib/voice/invoke-error";
 import { Badge, Button, Card, Textarea } from "@/components/ui";
 
 type MinedVoice = {
@@ -86,7 +87,7 @@ export default function VoiceMinePanel() {
         { body: { captions: parsedCaptions } }
       );
       if (invokeErr) {
-        setError(invokeErr.message);
+        setError(await readInvokeError(invokeErr, "Couldn't mine your voice right now. Try again."));
         return;
       }
       const r = data as MineResult & { error?: string };

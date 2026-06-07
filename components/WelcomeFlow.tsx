@@ -30,6 +30,7 @@ import { Share2 } from "lucide-react";
 import { Badge, Button, Card } from "@/components/ui";
 import VoiceSetupFlow from "@/components/VoiceSetupFlow";
 import { createClient } from "@/lib/supabase-browser";
+import { readInvokeError } from "@/lib/voice/invoke-error";
 import { renderShareCard, shareOrDownload } from "@/lib/share-card";
 import type { VoiceProfile } from "@/lib/types";
 import {
@@ -153,7 +154,7 @@ export default function WelcomeFlow({
         { body: { inbound_message: inbound.trim() } }
       );
       if (invokeErr) {
-        setDraftError(invokeErr.message);
+        setDraftError(await readInvokeError(invokeErr, "Couldn't draft right now. Try again, or skip the proof for now."));
         return;
       }
       const r = data as {
