@@ -12,39 +12,26 @@ export async function loadNavUnlocks(
   supabase: SupabaseClient,
   coachId: string,
 ): Promise<NavUnlocks> {
-  const [{ count: leadCount }, { data: voiceProfile }, { data: coachRow }] =
-    await Promise.all([
-      supabase
-        .from("cp_leads")
-        .select("id", { count: "exact", head: true })
-        .eq("coach_id", coachId)
-        .limit(1),
-      supabase
-        .from("cp_voice_profiles")
-        .select("id")
-        .eq("coach_id", coachId)
-        .eq("active", true)
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from("cp_coaches")
-        .select("nav_show_all")
-        .eq("id", coachId)
-        .maybeSingle(),
-    ]);
-
-  const showAll = (coachRow as { nav_show_all?: boolean } | null)?.nav_show_all === true;
+  const [{ count: leadCount }, { data: voiceProfile }] = await Promise.all([
+    supabase
+      .from("cp_leads")
+      .select("id", { count: "exact", head: true })
+      .eq("coach_id", coachId)
+      .limit(1),
+    supabase
+      .from("cp_voice_profiles")
+      .select("id")
+      .eq("coach_id", coachId)
+      .eq("active", true)
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
   const hasLead = (leadCount ?? 0) > 0;
   const hasVoice = voiceProfile !== null;
 
-  if (showAll) {
-    return { voice: true, content: true, _milestones: { hasLead, hasVoice } };
-  }
-
-  return {
-    voice: hasLead,
-    content: hasLead && hasVoice,
-    _milestones: { hasLead, hasVoice },
-  };
+  // Full nav for everyone — no progressive reveal. Every section is visible
+  // from the first load so the menu never changes shape under the coach.
+  // (_milestones is still surfaced for the Settings page.)
+  return { voice: true, content: true, _milestones: { hasLead, hasVoice } };
 }
