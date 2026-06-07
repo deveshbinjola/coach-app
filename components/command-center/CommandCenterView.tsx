@@ -24,13 +24,17 @@ type Props = {
   pulse: BusinessPulse;
   coachFirstName: string;
   toggle?: React.ReactNode;
+  /** True once the coach has any lead or a voice profile — i.e. they've started. */
+  hasActivity?: boolean;
 };
 
-export default function CommandCenterView({ pulse, coachFirstName, toggle }: Props) {
-  // First-run: a brand-new coach with no urgent items, no quiet items, and
-  // no business signals at all. Rather than a dead-end "nothing here" card,
-  // show the welcome hero with a concrete activation path.
+export default function CommandCenterView({ pulse, coachFirstName, toggle, hasActivity }: Props) {
+  // First-run: a brand-new coach who has not started yet. Once they have a
+  // lead or a voice profile, they're past the setup hero even if no urgent
+  // business signals exist yet. Rather than a dead-end, show the welcome hero
+  // with a concrete activation path — but only before they've done anything.
   const isFirstRun =
+    !hasActivity &&
     !pulse.heroItem &&
     pulse.quietList.length === 0 &&
     pulse.metrics.revenue.amount === 0 &&

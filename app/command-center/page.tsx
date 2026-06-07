@@ -54,7 +54,13 @@ export default async function CommandCenterPage() {
     );
   }
 
-  const pulse = await getBusinessPulse(user.id, now);
+  const [pulse, leadCountRes, voiceRes] = await Promise.all([
+    getBusinessPulse(user.id, now),
+    supabase.from("cp_leads").select("id", { count: "exact", head: true }).eq("coach_id", user.id),
+    supabase.from("cp_voice_profiles").select("id", { count: "exact", head: true }).eq("coach_id", user.id),
+  ]);
+  // Past first-run once they've actually started: any lead or a voice profile.
+  const hasActivity = (leadCountRes.count ?? 0) > 0 || (voiceRes.count ?? 0) > 0;
   return (
     <div className="min-h-screen">
       <Header
@@ -70,6 +76,7 @@ export default async function CommandCenterPage() {
           pulse={pulse}
           coachFirstName={userFirstName(user.email, user.user_metadata)}
           toggle={toggle}
+          hasActivity={hasActivity}
         />
       </main>
     </div>
