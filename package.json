@@ -13,7 +13,8 @@
     "qa:daily": "node scripts/qa-daily.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "eval:polish": "node scripts/eval-polish.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
