@@ -149,6 +149,14 @@ export default async function ContentPage({
         navUnlocks={navUnlocks}
       />
       <main className="max-w-6xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
+        <div className="mb-4 flex justify-end">
+          <a
+            href="/content/polish"
+            className="inline-flex items-center gap-2 h-9 px-4 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] text-[length:var(--t-caption)] font-bold hover:border-[var(--border-strong)] transition"
+          >
+            ✎ Polish a rough draft
+          </a>
+        </div>
         <ContentWorkspace
           profile={(profileRes.data as VoiceProfile | null) ?? null}
           leads={(leadsRes.data as Lead[] | null) ?? []}
