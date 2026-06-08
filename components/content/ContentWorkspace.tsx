@@ -40,7 +40,6 @@ import BrandOsPillarStrip, { type ResonanceHook, type StripPillar } from "@/comp
 import BuyerMirrorBanner, { type BuyerMirror } from "@/components/content/BuyerMirrorBanner";
 import VoiceRetuneBanner from "@/components/content/VoiceRetuneBanner";
 import VoiceCompose from "@/components/VoiceCompose";
-import EditorialMasthead from "@/components/content/EditorialMasthead";
 import EditorialSectionHeader from "@/components/content/EditorialSectionHeader";
 import SacredZonesInline from "@/components/content/SacredZonesInline";
 import ContentTabBar from "@/components/content/ContentTabBar";
@@ -724,19 +723,19 @@ export default function ContentWorkspace({
           )}
         </div>
       )}
-      <EditorialMasthead
-        tiles={[
-          { label: "Voice asset", value: voiceStats.confidence, detail: `${voiceStats.totalSignals} signals` },
-          { label: "Imported",    value: sourceSummary.primary, detail: sourceSummary.detail },
-          { label: "Market",      value: `${leadSignals.length || 0} signals`, detail: "from active leads" },
-        ]}
-      />
-
-      <ContentTabBar
-        activeTab={contentTab}
-        onTabChange={handleTabChange}
-        draftCount={items.filter((item) => !isContentArchived(item)).length}
-      />
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <ContentTabBar
+          activeTab={contentTab}
+          onTabChange={handleTabChange}
+          draftCount={items.filter((item) => !isContentArchived(item)).length}
+        />
+        <a
+          href="/content/polish"
+          className="inline-flex items-center gap-2 h-9 px-4 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] text-[length:var(--t-caption)] font-bold hover:border-[var(--border-strong)] transition"
+        >
+          ✎ Polish a rough draft
+        </a>
+      </div>
 
       {contentTab === "create" && (
       <>
