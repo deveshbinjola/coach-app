@@ -47,17 +47,20 @@ export function renderPostCallInviteEmail(input: PostCallInviteInput): RenderedP
   const first = input.firstName.trim();
   const greet = first ? `${first}.` : "Hey.";
 
-  // Default CTA: prefilled public Snapshot funnel with their email + name.
-  // Captures email if they bounce out before signing up.
-  const snapshotLink = `${APP_ORIGIN}/snapshot?email=${encodeURIComponent(input.to)}&first_name=${encodeURIComponent(first)}&audience=M`;
+  // Post-call recipients have already talked to Sunny. They trust him.
+  // Skip the Snapshot funnel and drop them straight into the app:
+  //   /login?email=...&next=/welcome auto-fires the magic-link send on
+  //   mount. They see "Check your inbox" within a second of clicking.
+  //   They click the magic link → /auth/callback → Day 0 + drip starts.
+  const snapshotLink = `${APP_ORIGIN}/login?email=${encodeURIComponent(input.to)}&next=/welcome`;
 
   const cta = input.ctaOverride ?? {
     href: snapshotLink,
     eyebrow: "Your first move",
-    time: "10 min",
-    title: "Name your voice with Brand OS.",
-    description: "Five questions. The platform reads you back. The first thing you write after is the most you. Free.",
-    cta: "Start the Snapshot",
+    time: "30 seconds",
+    title: "Open the platform.",
+    description: "One click. We send a magic link to this inbox. You click it once and you are in. No password to remember.",
+    cta: "Open the platform",
   };
 
   const noteBlock = input.note?.trim()

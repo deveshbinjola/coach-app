@@ -1,15 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import "./login.css";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const searchParams = useSearchParams();
+  const prefilledEmail = (searchParams?.get("email") ?? "").trim().toLowerCase();
+  const nextPath = searchParams?.get("next") ?? null;
+
+  const [email, setEmail] = useState(prefilledEmail);
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const autoFiredRef = useRef(false);
 
   async function handleGoogle() {
     setGoogleLoading(true);
@@ -17,24 +23,38 @@ export default function LoginPage() {
     const supabase = createClient();
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${location.origin}/api/auth/callback` },
+      options: { redirectTo: `${location.origin}/api/auth/callback${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ""}` },
     });
     if (err) { setError(err.message); setGoogleLoading(false); }
   }
 
-  async function handleMagicLink(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email.trim()) return;
+  const fireMagicLink = useCallback(async (rawEmail: string) => {
+    const clean = rawEmail.trim();
+    if (!clean || !clean.includes("@")) return;
     setLoading(true);
     setError(null);
     const supabase = createClient();
     const { error: err } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: `${location.origin}/api/auth/callback` },
+      email: clean,
+      options: { emailRedirectTo: `${location.origin}/api/auth/callback${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ""}` },
     });
     setLoading(false);
     if (err) setError(err.message);
     else setSent(true);
+  }, [nextPath]);
+
+  // Auto-fire magic link when post-call email link arrives with prefilled email.
+  // Only fires once per page load. Guarded so manual edits don't re-trigger.
+  useEffect(() => {
+    if (autoFiredRef.current) return;
+    if (!prefilledEmail || !prefilledEmail.includes("@")) return;
+    autoFiredRef.current = true;
+    void fireMagicLink(prefilledEmail);
+  }, [prefilledEmail, fireMagicLink]);
+
+  async function handleMagicLink(e: React.FormEvent) {
+    e.preventDefault();
+    await fireMagicLink(email);
   }
 
   return (
