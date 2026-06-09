@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Resonance Content Engine — Blueprint v1.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF8F3; --surface:#FFFFFF; --surface-2:#F4F0E6;
+    --ink:#0A0F1C; --muted:#4F4F46; --soft:#7A7A70; --softer:#A6A39A;
+    --border:#E5E1D8; --border-soft:#EFECE3;
+    --accent:#0B6E23; --accent-2:#3F8B4A; --accent-3:#7AAE82;
+    --accent-soft:rgba(11,110,35,0.08); --accent-line:rgba(11,110,35,0.22);
+    --amber:#B07A14; --amber-soft:rgba(176,122,20,0.10);
+    --pain:#B23A2E; --pain-soft:rgba(178,58,46,0.08);
+    --code-bg:#0A0F1C; --code-fg:#F0EEE6; --code-accent:#7AAE82;
+    --font-serif:'Playfair Display', serif;
+    --font-body:'Plus Jakarta Sans', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+    --radius:14px; --radius-lg:22px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:var(--font-body);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+
+  .topstrip{border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;background:var(--bg);position:sticky;top:0;z-index:10;}
+  .topstrip .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;}
+  .leaf{width:18px;height:18px;}
+  .topstrip .meta{font-family:var(--font-mono);font-size:11px;color:var(--soft);letter-spacing:.06em;text-transform:uppercase;}
+  .topstrip .meta b{color:var(--accent);font-weight:600;}
+
+  .hero{padding:96px 0 60px;border-bottom:1px solid var(--border);}
+  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:22px;display:inline-flex;align-items:center;gap:10px;}
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--accent);}
+  .hero h1{font-family:var(--font-serif);font-weight:700;font-size:clamp(40px,5.5vw,68px);line-height:1.05;letter-spacing:-.02em;margin-bottom:24px;max-width:940px;}
+  .hero h1 em{font-style:italic;color:var(--accent);font-weight:600;}
+  .hero .lede{font-size:19px;color:var(--muted);max-width:740px;line-height:1.6;}
+  .hero .lede + .lede{margin-top:14px;}
+  .promise{
+    margin-top:36px;padding:24px 28px;background:var(--accent-soft);
+    border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;
+    font-family:var(--font-serif);font-style:italic;font-size:20px;color:var(--ink);max-width:780px;line-height:1.45;
+  }
+  .promise b{font-style:normal;color:var(--accent);font-weight:600;font-family:var(--font-body);font-size:14px;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:8px;}
+
+  section.block{padding:80px 0;border-bottom:1px solid var(--border);}
+  .section-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+  .section-label::before{content:"";width:24px;height:1px;background:var(--accent);}
+  .section-title{font-family:var(--font-serif);font-weight:700;font-size:42px;line-height:1.1;letter-spacing:-.015em;margin-bottom:14px;max-width:880px;}
+  .section-sub{font-size:17px;color:var(--muted);max-width:760px;margin-bottom:40px;}
+
+  /* ===== Architecture flow ===== */
+  .arch{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:40px;display:grid;grid-template-rows:auto auto auto;gap:24px;
+  }
+  .arch-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media (max-width:880px){.arch-row{grid-template-columns:1fr;}}
+  .arch-row.inputs .arch-card{border-color:var(--amber);background:var(--amber-soft);}
+  .arch-row.process .arch-card{border-color:var(--accent);background:var(--accent-soft);}
+  .arch-row.output .arch-card{border-color:var(--ink);background:var(--surface-2);}
+  .arch-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;
+  }
+  .arch-card .label{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:6px;}
+  .arch-row.inputs .arch-card .label{color:var(--amber);}
+  .arch-row.process .arch-card .label{color:var(--accent);}
+  .arch-card .name{font-family:var(--font-serif);font-size:18px;font-weight:600;margin-bottom:4px;}
+  .arch-card .desc{font-size:12px;color:var(--muted);line-height:1.45;}
+  .arch-arrow{text-align:center;font-family:var(--font-mono);font-size:18px;color:var(--accent);}
+
+  /* ===== Loop visualization ===== */
+  .loop{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  @media (max-width:980px){.loop{grid-template-columns:repeat(2,1fr);}}
+  .step-day{background:var(--surface);padding:24px 18px;position:relative;}
+  .step-day .d{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;font-weight:600;}
+  .step-day .stepnum{font-family:var(--font-mono);font-size:11px;color:var(--soft);margin-bottom:10px;}
+  .step-day h4{font-family:var(--font-serif);font-size:18px;font-weight:600;line-height:1.2;margin-bottom:8px;}
+  .step-day .who{font-family:var(--font-mono);font-size:10px;color:var(--accent);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px;}
+  .step-day p{font-size:13px;color:var(--muted);line-height:1.5;}
+  .step-day .out{margin-top:10px;font-family:var(--font-mono);font-size:10px;color:var(--soft);letter-spacing:.04em;line-height:1.5;}
+  .step-day .out b{color:var(--ink);}
+
+  /* ===== File structure ===== */
+  .filetree{
+    background:var(--code-bg);color:var(--code-fg);border-radius:var(--radius);
+    padding:32px;font-family:var(--font-mono);font-size:13px;line-height:1.75;overflow-x:auto;
+  }
+  .filetree .dir{color:var(--code-accent);font-weight:600;}
+  .filetree .file{color:#D9D5C7;}
+  .filetree .comment{color:#7A7A70;font-style:italic;}
+  .filetree .new{color:#F0CB6B;}
+
+  /* ===== Theme calendar ===== */
+  .calendar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;overflow:hidden;}
+  table.cal{width:100%;border-collapse:collapse;font-size:13px;}
+  table.cal th{text-align:left;padding:12px 12px;font-family:var(--font-mono);font-size:10px;color:var(--soft);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border);font-weight:600;}
+  table.cal td{padding:14px 12px;border-bottom:1px dashed var(--border);vertical-align:middle;color:var(--muted);}
+  table.cal td.wk{font-family:var(--font-mono);color:var(--accent);font-weight:600;font-size:12px;}
+  table.cal td.theme{color:var(--ink);font-weight:600;}
+  table.cal td.depth{font-family:var(--font-mono);font-size:11px;color:var(--soft);text-transform:uppercase;letter-spacing:.06em;}
+  table.cal tr.anchor td{background:var(--accent-soft);}
+  table.cal tr.anchor td.theme::before{content:"◆ ";color:var(--accent);}
+
+  /* ===== Ownership matrix ===== */
+  .own-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+  .own{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;}
+  .own.sunny{border-color:var(--accent-line);background:var(--accent-soft);}
+  .own .nm{font-family:var(--font-serif);font-size:24px;font-weight:600;}
+  .own .role{font-family:var(--font-mono);font-size:11px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin:4px 0 16px;}
+  .own .role::before{content:"▸ ";}
+  .own h5{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--soft);text-transform:uppercase;margin-bottom:8px;margin-top:14px;}
+  .own h5:first-of-type{margin-top:0;}
+  .own ul{list-style:none;}
+  .own li{font-size:13px;color:var(--muted);padding:6px 0;border-bottom:1px dashed var(--border);line-height:1.4;}
+  .own li:last-child{border-bottom:0;}
+  .own li b{color:var(--ink);font-weight:600;}
+
+  /* ===== Prompt chain ===== */
+  .chain{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:32px;display:flex;flex-direction:column;gap:14px;
+  }
+  .link{
+    background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+    padding:18px 22px;display:grid;grid-template-columns:60px 1fr 1fr;gap:18px;align-items:center;
+  }
+  @media (max-width:880px){.link{grid-template-columns:1fr;}}
+  .link .step{font-family:var(--font-mono);font-size:11px;color:var(--accent);letter-spacing:.1em;font-weight:600;}
+  .link .what b{display:block;font-family:var(--font-serif);font-size:17px;font-weight:600;margin-bottom:4px;}
+  .link .what{font-size:13px;color:var(--muted);line-height:1.45;}
+  .link .out{font-family:var(--font-mono);font-size:11px;color:var(--soft);background:var(--surface);padding:8px 12px;border-radius:6px;border:1px solid var(--border);line-height:1.5;}
+  .link .out b{color:var(--accent);display:block;margin-bottom:4px;}
+  .link-arrow{text-align:center;font-family:var(--font-mono);color:var(--accent);font-size:16px;margin:0;}
+
+  /* ===== Metrics dashboard ===== */
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  @media (max-width:880px){.metrics{grid-template-columns:1fr;}}
+  .met-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-top:3px solid var(--accent);}
+  .met-col h4{font-family:var(--font-serif);font-size:22px;font-weight:600;margin-bottom:4px;}
+  .met-col .sub{font-family:var(--font-mono);font-size:11px;color:var(--soft);letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px;}
+  .met-col ul{list-style:none;}
+  .met-col li{padding:10px 0;border-bottom:1px dashed var(--border);font-size:13px;color:var(--muted);display:grid;grid-template-columns:1fr auto;gap:10px;}
+  .met-col li:last-child{border-bottom:0;}
+  .met-col li b{color:var(--ink);font-weight:600;}
+  .met-col li span{font-family:var(--font-mono);font-size:11px;color:var(--accent);}
+
+  /* ===== Rollout ===== */
+  .roll{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  @media (max-width:980px){.roll{grid-template-columns:repeat(2,1fr);}}
+  .rd{background:var(--surface);padding:22px 18px;}
+  .rd .day{font-family:var(--font-mono);font-size:10px;color:var(--accent);letter-spacing:.1em;font-weight:600;text-transform:uppercase;}
+  .rd .label{font-family:var(--font-serif);font-size:18px;font-weight:600;line-height:1.2;margin:6px 0 8px;}
+  .rd p{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+  .rd .ship{font-family:var(--font-mono);font-size:10px;color:var(--soft);letter-spacing:.04em;border-top:1px dashed var(--border);padding-top:8px;}
+  .rd .ship b{color:var(--accent);}
+
+  /* ===== Code blocks ===== */
+  .codeblock{
+    background:var(--code-bg);color:var(--code-fg);border-radius:var(--radius);
+    padding:24px 28px;font-family:var(--font-mono);font-size:12.5px;line-height:1.75;overflow-x:auto;margin:24px 0;
+  }
+  .codeblock .clabel{font-family:var(--font-mono);font-size:11px;color:var(--code-accent);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:14px;}
+  .codeblock .clabel b{color:#FAF8F3;}
+  .codeblock .key{color:var(--code-accent);}
+  .codeblock em{color:#C9C5B8;font-style:italic;}
+
+  /* ===== Closing ===== */
+  .closing{padding:90px 0;}
+  .closing blockquote{font-family:var(--font-serif);font-style:italic;font-size:30px;line-height:1.35;color:var(--ink);max-width:880px;font-weight:500;letter-spacing:-.01em;}
+  .closing blockquote::before{content:"" ";color:var(--accent);font-size:48px;line-height:0;}
+  .closing .source{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--soft);margin-top:24px;}
+
+  footer{padding:32px;border-top:1px solid var(--border);text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--soft);letter-spacing:.06em;}
+  footer b{color:var(--accent);}
+
+  @media print{.topstrip{position:static;}section.block{page-break-inside:avoid;}body{background:#fff;}}
+</style>
+</head>
+<body>
+
+<header class="topstrip">
+  <div class="logo">
+    <svg class="leaf" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C8 6 4 10 4 15a8 8 0 0 0 16 0c0-5-4-9-8-13Z" fill="#0B6E23"/>
+      <path d="M12 5v15" stroke="#FAF8F3" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <span>Elevate AI · Content Engine Blueprint</span>
+  </div>
+  <div class="meta">SYSTEM · <b>2026-06-03</b> · v1.0</div>
+</header>
+
+<!-- HERO -->
+<section class="hero wrap">
+  <div class="eyebrow">From canon to running system</div>
+  <h1>The Resonance Content Engine — <em>10 themes, 1 weekly loop, 7 assets, 1 embodied human.</em></h1>
+  <p class="lede">Vol. I named the canon. Vol. II went deep on each book and gave you 10 agent prompts. This blueprint wires them together — into a system that produces a Signal essay, a blog post, a carousel, two reels, a LinkedIn POV, and a lead magnet <b>every week, on autopilot, with Sunny only holding the embodied QA.</b></p>
+  <p class="lede">Read top to bottom. By the end you have the file structure, the prompt chain, the theme calendar, the daily flow, the ownership matrix, the metrics dashboard, and a 7-day rollout you can start Monday.</p>
+  <div class="promise">
+    <b>The promise</b>
+    By week 6, content ships without Sunny touching the keyboard except for the 30-minute embodied pass on Thursday and the Monday morning Beehiiv Send button. Everything else runs.
+  </div>
+</section>
+
+<!-- ============ 01 ARCHITECTURE ============ -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-label">01 · Architecture</div>
+    <h2 class="section-title">The engine, at a glance.</h2>
+    <p class="section-sub">Six inputs feed a five-step process that produces seven assets per week. Each row below is one layer of the stack.</p>
+
+    <div class="arch">
+      <div class="arch-row inputs">
+        <div class="arch-card"><div class="label">Input</div><div class="name">Theme of the week</div><div class="desc">From the 12-week theme calendar. One of the 10 canon themes.</div></div>
+        <div class="arch-card"><div class="label">Input</div><div class="name">Mira's VOC pull</div><div class="desc">5 verbatim quotes by awareness stage, harvested weekly from DMs, sales calls, comments.</div></div>
+        <div class="arch-card"><div class="label">Input</div><div class="name">Sunny's voice memo</div><div class="desc">2-minute Wispr capture: what's alive about this theme this week. Embodied seed.</div></div>
+        <div class="arch-card"><div class="label">Input</div><div class="name">Brand voice spec</div><div class="desc">Locked. Forest green / warm white. Playfair + Plus Jakarta. Resonance vocabulary.</div></div>
+        <div class="arch-card"><div class="label">Input</div><div class="name">Last week's metrics</div><div class="desc">Atlas's read on what landed and what didn't. Feeds next theme's angle.</div></div>
+        <div class="arch-card"><div class="label">Input</div><div class="name">Active offer state</div><div class="desc">Which rung needs warming this week — quiz, $7, $2K cohort, $12K Build Your Brand.</div></div>
+      </div>
+
+      <div class="arch-arrow">↓</div>
+
+      <div class="arch-row process">
+        <div class="arch-card"><div class="label">Process · Mon</div><div class="name">Brief</div><div class="desc">Atlas + Mira assemble the brief. One markdown file.</div></div>
+        <div class="arch-card"><div class="label">Process · Tue</div><div class="name">Seed generation</div><div class="desc">Loki runs the theme's agent prompt + brief → 7 idea seeds.</div></div>
+        <div class="arch-card"><div class="label">Process · Wed</div><div class="name">Draft</div><div class="desc">Loki drafts all 7 assets. Schwartz, StoryBrand, Hook lab checks applied.</div></div>
+        <div class="arch-card"><div class="label">Process · Thu</div><div class="name">Embodied QA</div><div class="desc">Sunny does post-breath rewrite. 30 minutes, un-delegatable.</div></div>
+        <div class="arch-card"><div class="label">Process · Fri</div><div class="name">Production + schedule</div><div class="desc">Visuals generated. Assets queued. Beehiiv drafted. Buffer scheduled.</div></div>
+        <div class="arch-card"><div class="label">Process · Sun</div><div class="name">Review + feed forward</div><div class="desc">Atlas pulls metrics. Mira tags resonant lines. Next brief seeded.</div></div>
+      </div>
+
+      <div class="arch-arrow">↓</div>
+
+      <div class="arch-row output">
+        <div class="arch-card"><div class="label">Output</div><div class="name">The Signal essay</div><div class="desc">700–900 words. Beehiiv. Monday 9am HST.</div></div>
+        <div class="arch-card"><div class="label">Output</div><div class="name">Blog post</div><div class="desc">Operational version of the theme. SEO + Brand OS feed.</div></div>
+        <div class="arch-card"><div class="label">Output</div><div class="name">Carousel</div><div class="desc">10 slides. IG + LinkedIn. Mute-test passed.</div></div>
+        <div class="arch-card"><div class="label">Output</div><div class="name">2 reels</div><div class="desc">60s POV + 45s example. Embodied pre-roll.</div></div>
+        <div class="arch-card"><div class="label">Output</div><div class="name">LinkedIn POV</div><div class="desc">One sharp paragraph. Pinned for the week.</div></div>
+        <div class="arch-card"><div class="label">Output</div><div class="name">Lead magnet</div><div class="desc">5-day mini-course or worksheet tied to the theme.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 THE WEEKLY LOOP ============ -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-label">02 · The weekly loop</div>
+    <h2 class="section-title">One theme. Seven days. Seven assets. Same loop every week.</h2>
+    <p class="section-sub">After the first three loops, you stop thinking about it. The system runs and you live inside it. Days marked <b>SUNNY</b> are the only ones requiring your direct hands.</p>
+
+    <div class="loop">
+      <div class="step-day">
+        <div class="d">MON</div>
+        <div class="stepnum">STEP 1</div>
+        <h4>Brief assembly</h4>
+        <div class="who">Atlas + Mira</div>
+        <p>Theme pulled from calendar. VOC quotes layered in. Last week's metrics summarized. Active offer flagged.</p>
+        <div class="out"><b>Output</b>00-brief.md</div>
+      </div>
+
+      <div class="step-day">
+        <div class="d">MON-EVE</div>
+        <div class="stepnum">STEP 2</div>
+        <h4>Voice memo seed</h4>
+        <div class="who">SUNNY (2 min)</div>
+        <p>Wispr capture: "Here's what's alive about this theme this week." Body-first download. No script.</p>
+        <div class="out"><b>Output</b>00-seed.txt</div>
+      </div>
+
+      <div class="step-day">
+        <div class="d">TUE</div>
+        <div class="stepnum">STEP 3</div>
+        <h4>Idea seeds</h4>
+        <div class="who">Loki</div>
+        <p>Theme's agent prompt + brief + seed memo → 7 idea seeds, one per asset. JSON output, structured.</p>
+        <div class="out"><b>Output</b>01-seeds.json</div>
+      </div>
+
+      <div class="step-day">
+        <div class="d">WED</div>
+        <div class="stepnum">STEP 4</div>
+        <h4>Drafts</h4>
+        <div class="who">Loki</div>
+        <p>All 7 assets drafted. Each passes through Schwartz check, StoryBrand check, Hook lab, Embodied Voice agent before save.</p>
+        <div class="out"><b>Output</b>02-drafts/*.html · *.md</div>
+      </div>
+
+      <div class="step-day">
+        <div class="d">THU</div>
+        <div class="stepnum">STEP 5</div>
+        <h4>Embodied QA</h4>
+        <div class="who">SUNNY (30 min)</div>
+        <p>Post-breath rewrite pass. Mark KEEP / CUT / REWRITE on each draft. Final POV pass on Signal essay.</p>
+        <div class="out"><b>Output</b>03-qa/embodied-pass.md</div>
+      </div>
+
+      <div class="step-day">
+        <div class="d">FRI</div>
+        <div class="stepnum">STEP 6</div>
+        <h4>Production + schedule</h4>
+        <div class="who">Loki + Atlas</div>
+        <p>Visuals generated (carousel slides, hero images). Beehiiv draft created. Buffer/Hypefury queue loaded for the week.</p>
+        <div class="out"><b>Output</b>04-published/* · schedules set</div>
+      </div>
+
+      <div class="step-day">
+        <div class="d">SUN</div>
+        <div class="stepnum">STEP 7</div>
+        <h4>Review + feed</h4>
+        <div class="who">Atlas → Mira → Athena</div>
+        <p>Metrics pulled. Resonant lines tagged into VOC library. New sources/voices flagged for canon updates.</p>
+        <div class="out"><b>Output</b>05-metrics.md · feed forward</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 FILE STRUCTURE ============ -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-label">03 · File structure</div>
+    <h2 class="section-title">Where everything lives — one folder per week, predictable forever.</h2>
+    <p class="section-sub">Same shape every week. Atlas builds the folder on Monday morning automatically. Sunny only ever opens <span style="font-family:var(--font-mono);background:var(--surface-2);padding:2px 6px;border-radius:4px;">02-drafts/</span> on Thursday.</p>
+
+    <div class="filetree">
+<span class="comment"># /Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/scheduled-tasks/</span>
+<span class="dir">weekly-content-sprint/</span>
+├── <span class="dir">2026-W23/</span>                           <span class="comment"># week 23 of 2026 — current</span>
+│   ├── <span class="file">00-brief.md</span>                    <span class="comment"># Atlas + Mira, Monday AM</span>
+│   ├── <span class="file">00-seed.txt</span>                    <span class="comment"># Sunny's Wispr memo, Monday PM</span>
+│   ├── <span class="file">01-seeds.json</span>                  <span class="comment"># Loki, Tuesday</span>
+│   ├── <span class="dir">02-drafts/</span>                      <span class="comment"># Loki, Wednesday</span>
+│   │   ├── <span class="file">01-signal-essay.html</span>
+│   │   ├── <span class="file">02-blog-post.html</span>
+│   │   ├── <span class="file">03-carousel-slides.html</span>
+│   │   ├── <span class="file">04-reel-pov.md</span>
+│   │   ├── <span class="file">05-reel-example.md</span>
+│   │   ├── <span class="file">06-linkedin-pov.md</span>
+│   │   └── <span class="file">07-lead-magnet.html</span>
+│   ├── <span class="dir">03-qa/</span>                          <span class="comment"># Sunny + Atlas, Thursday</span>
+│   │   ├── <span class="file">embodied-pass.md</span>           <span class="comment"># Sunny's KEEP/CUT/REWRITE</span>
+│   │   └── <span class="file">distinctive-check.md</span>       <span class="comment"># Atlas: palette + font + phrase compliance</span>
+│   ├── <span class="dir">04-published/</span>                   <span class="comment"># Loki, Friday</span>
+│   │   ├── <span class="file">signal-final.html</span>
+│   │   ├── <span class="file">blog-final.html</span>
+│   │   ├── <span class="dir">carousel-pngs/</span>              <span class="comment"># exported 1080×1080 slides</span>
+│   │   ├── <span class="file">reels-scripts.md</span>
+│   │   └── <span class="file">lead-magnet-final.html</span>
+│   └── <span class="file">05-metrics.md</span>                  <span class="comment"># Atlas, following Sunday</span>
+│
+├── <span class="dir">2026-W22/</span>                           <span class="comment"># last week — archive</span>
+├── <span class="dir">2026-W24/</span>                           <span class="comment"># next week — Atlas seeds on Sunday eve</span>
+│
+└── <span class="dir">_reference/</span>                         <span class="comment"># the locked layer — never edited mid-sprint</span>
+    ├── <span class="file">theme-calendar-2026.md</span>         <span class="comment"># 12-week rolling theme schedule</span>
+    ├── <span class="file">brand-voice-spec.md</span>            <span class="comment"># palette · fonts · phrases · forbidden words</span>
+    ├── <span class="file">voc-library.md</span>                 <span class="comment"># Mira's running VOC quote library, stage-tagged</span>
+    ├── <span class="dir">agent-prompts/</span>                  <span class="comment"># the 10 theme agent prompts from Vol. II</span>
+    │   ├── <span class="file">01-positioning.md</span>
+    │   ├── <span class="file">02-awareness.md</span>
+    │   ├── <span class="file">03-pre-suasion.md</span>
+    │   ├── <span class="file">04-story-architecture.md</span>
+    │   ├── <span class="file">05-value-equation.md</span>
+    │   ├── <span class="file">06-60-40-audit.md</span>
+    │   ├── <span class="file">07-audience-asset.md</span>
+    │   ├── <span class="file">08-embodied-voice.md</span>
+    │   ├── <span class="file">09-hook-lab.md</span>
+    │   └── <span class="file">10-oversubscribed.md</span>
+    └── <span class="dir">templates/</span>
+        ├── <span class="file">brief-template.md</span>
+        ├── <span class="file">signal-shell.html</span>
+        ├── <span class="file">blog-shell.html</span>
+        └── <span class="file">carousel-shell.html</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 THE PROMPT CHAIN ============ -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-label">04 · The prompt chain</div>
+    <h2 class="section-title">How the 10 theme prompts compose into one pipeline.</h2>
+    <p class="section-sub">Each weekly run executes this chain. The theme prompt swaps based on calendar; the supporting prompts (embodied, hook lab, story, voice) run on every theme. Each link's output becomes the next link's input.</p>
+
+    <div class="chain">
+      <div class="link">
+        <div class="step">LINK 01</div>
+        <div class="what"><b>Brief Assembly</b>Atlas + Mira gather the brief. Theme + VOC + offer state + metrics.</div>
+        <div class="out"><b>Output → next link</b>00-brief.md (theme · VOC quotes · active offer · last week's signal)</div>
+      </div>
+      <div class="link-arrow">↓</div>
+
+      <div class="link">
+        <div class="step">LINK 02</div>
+        <div class="what"><b>Theme Agent</b>One of the 10 theme prompts runs (e.g. Theme 04 Story Architecture Agent if it's a Story week).</div>
+        <div class="out"><b>Output → next link</b>theme-structured.json (BrandScript / value equation / hook lab / etc.)</div>
+      </div>
+      <div class="link-arrow">↓</div>
+
+      <div class="link">
+        <div class="step">LINK 03</div>
+        <div class="what"><b>Loki Seed Generator</b>Theme output + brief + Sunny's voice memo → 7 idea seeds, one per asset format.</div>
+        <div class="out"><b>Output → next link</b>01-seeds.json (essay seed · blog seed · carousel seeds · reel seeds · LI seed · lead-magnet seed)</div>
+      </div>
+      <div class="link-arrow">↓</div>
+
+      <div class="link">
+        <div class="step">LINK 04</div>
+        <div class="what"><b>Loki Drafter</b>Each seed becomes a full draft using its shell template + brand voice spec.</div>
+        <div class="out"><b>Output → next link</b>02-drafts/*.html · *.md (7 ready-to-QA assets)</div>
+      </div>
+      <div class="link-arrow">↓</div>
+
+      <div class="link">
+        <div class="step">LINK 05</div>
+        <div class="what"><b>Schwartz Awareness Check</b>Every asset tagged with intended awareness stage. Mismatched copy auto-rewritten.</div>
+        <div class="out"><b>Output → next link</b>02-drafts/*.html (stage-validated)</div>
+      </div>
+      <div class="link-arrow">↓</div>
+
+      <div class="link">
+        <div class="step">LINK 06</div>
+        <div class="what"><b>Hook Lab</b>Every asset's hook scored on System 1 and System 2. Hooks below 7 regenerated.</div>
+        <div class="out"><b>Output → next link</b>02-drafts/*.html (mute-test passed)</div>
+      </div>
+      <div class="link-arrow">↓</div>
+
+      <div class="link">
+        <div class="step">LINK 07</div>
+        <div class="what"><b>Embodied Voice Agent</b>Line-by-line audit. PERFORMED lines flagged for Sunny. Sensory check confirmed.</div>
+        <div class="out"><b>Output → next link</b>02-drafts/*.html (with [PERFORMED] markup for human pass)</div>
+      </div>
+      <div class="link-arrow">↓</div>
+
+      <div class="link">
+        <div class="step">LINK 08</div>
+        <div class="what"><b>Sunny Embodied QA</b>30-minute post-breath rewrite on Thursday. Final yes/no on every line marked [PERFORMED]. POV pass on the Signal essay.</div>
+        <div class="out"><b>Output → next link</b>03-qa/embodied-pass.md (instructions for Loki to apply)</div>
+      </div>
+      <div class="link-arrow">↓</div>
+
+      <div class="link">
+        <div class="step">LINK 09</div>
+        <div class="what"><b>Atlas Distinctive Check</b>Palette compliance · font compliance · brand phrase usage · forbidden words (no em-dashes, no "level up", no "10X").</div>
+        <div class="out"><b>Output → next link</b>03-qa/distinctive-check.md (pass/fail per asset)</div>
+      </div>
+      <div class="link-arrow">↓</div>
+
+      <div class="link">
+        <div class="step">LINK 10</div>
+        <div class="what"><b>Production + Ship</b>Visuals generated. Beehiiv draft created. Buffer/Hypefury queued for the week. Blog pushed to Cloudflare Pages.</div>
+        <div class="out"><b>Output → end</b>04-published/* + scheduled posts + Beehiiv draft (Sunny presses Send Monday 9am)</div>
+      </div>
+    </div>
+
+    <div class="codeblock">
+<span class="clabel"><b>Example</b> · the full prompt sequence for a Theme 04 (Story) week</span>
+<span class="key">$</span> cat 00-brief.md 00-seed.txt &gt; context.md
+<span class="key">$</span> loki run --prompt _reference/agent-prompts/04-story-architecture.md \
+    --context context.md \
+    --output theme-structured.json
+
+<span class="key">$</span> loki seed-7 --theme theme-structured.json \
+    --output 01-seeds.json
+
+<span class="key">$</span> loki draft-all --seeds 01-seeds.json \
+    --voice _reference/brand-voice-spec.md \
+    --templates _reference/templates/ \
+    --output 02-drafts/
+
+<span class="key">$</span> loki qa-chain --drafts 02-drafts/ \
+    --checks "schwartz hook-lab embodied" \
+    --output 02-drafts/   <span class="key">#</span> in-place markup
+
+<span class="key">$</span> open 02-drafts/   <span class="comment"># Sunny's Thursday 30 min</span>
+
+<span class="key">$</span> atlas distinctive-check --drafts 02-drafts/ \
+    --output 03-qa/distinctive-check.md
+
+<span class="key">$</span> loki produce --qa 03-qa/embodied-pass.md \
+    --drafts 02-drafts/ \
+    --output 04-published/
+
+<span class="key">$</span> atlas schedule --published 04-published/ \
+    --beehiiv-draft "monday-09:00-hst" \
+    --buffer-queue "tue-sun"
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 THEME CALENDAR ============ -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-label">05 · The 12-week theme calendar</div>
+    <h2 class="section-title">Ten themes on a rotating cadence — every theme returns deeper.</h2>
+    <p class="section-sub">Themes don't run once. They cycle. Each loop you go deeper, because your audience has changed, you have changed, and the canon reveals lines that were invisible last pass. Theme 08 (Embodied) anchors every quarter — it's the substrate, not an event.</p>
+
+    <div class="calendar">
+      <table class="cal">
+        <thead>
+          <tr><th>Week</th><th>Date</th><th>Theme</th><th>Depth pass</th><th>Active offer focus</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="wk">W23</td><td>Jun 1</td><td class="theme">01 Positioning</td><td class="depth">PASS 1</td><td>Quiz funnel · Brand OS Avatar</td></tr>
+          <tr><td class="wk">W24</td><td>Jun 8</td><td class="theme">04 Story as architecture</td><td class="depth">PASS 1</td><td>$12K Build Your Brand · about page</td></tr>
+          <tr><td class="wk">W25</td><td>Jun 15</td><td class="theme">05 Offer as physics</td><td class="depth">PASS 1</td><td>$2K cohort · pricing page</td></tr>
+          <tr><td class="wk">W26</td><td>Jun 22</td><td class="theme">02 Awareness &amp; sophistication</td><td class="depth">PASS 1</td><td>Funnel rung copy audit</td></tr>
+          <tr><td class="wk">W27</td><td>Jun 29</td><td class="theme">07 Audience as compounding asset</td><td class="depth">PASS 1</td><td>The Signal · newsletter growth</td></tr>
+          <tr class="anchor"><td class="wk">W28</td><td>Jul 6</td><td class="theme">08 Embodied presence</td><td class="depth">ANCHOR</td><td>Voice spec · Brand OS Voice step</td></tr>
+          <tr><td class="wk">W29</td><td>Jul 13</td><td class="theme">03 Influence &amp; pre-suasion</td><td class="depth">PASS 1</td><td>Homepage · quiz funnel</td></tr>
+          <tr><td class="wk">W30</td><td>Jul 20</td><td class="theme">09 System 1 / System 2</td><td class="depth">PASS 1</td><td>Hooks · subject lines · reels</td></tr>
+          <tr><td class="wk">W31</td><td>Jul 27</td><td class="theme">06 Brand vs activation (60/40)</td><td class="depth">PASS 1</td><td>Calendar audit · brand block defense</td></tr>
+          <tr><td class="wk">W32</td><td>Aug 3</td><td class="theme">10 Solo economics &amp; oversubscribed</td><td class="depth">PASS 1</td><td>Cohort cap · waitlist funnel</td></tr>
+          <tr><td class="wk">W33</td><td>Aug 10</td><td class="theme">01 Positioning</td><td class="depth">PASS 2 — DEEPER</td><td>Brand OS Avatar v2</td></tr>
+          <tr><td class="wk">W34</td><td>Aug 17</td><td class="theme">04 Story</td><td class="depth">PASS 2 — DEEPER</td><td>Origin essay republish</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="codeblock">
+<span class="clabel"><b>Rule</b> · theme rotation</span>
+<span class="key">·</span> 10 unique themes + Theme 08 (Embodied) repeating quarterly = 13-week core loop
+<span class="key">·</span> Quarter 1: PASS 1 — broad surface, foundational treatment
+<span class="key">·</span> Quarter 2: PASS 2 — deeper, with case studies from your own work
+<span class="key">·</span> Quarter 3: PASS 3 — adversarial, "where I changed my mind" essays
+<span class="key">·</span> Quarter 4: PASS 4 — teaching mode, you become the source the canon quotes
+<span class="key">·</span> Atlas owns the calendar. Athena flags emerging themes to add as 11th, 12th rotation entries.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 OWNERSHIP MATRIX ============ -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-label">06 · Who owns what</div>
+    <h2 class="section-title">The squad map — clean lines, zero confusion.</h2>
+    <p class="section-sub">Every step has one owner. If two agents touch the same step, the one listed first holds the yes/no.</p>
+
+    <div class="own-grid">
+
+      <div class="own sunny">
+        <div class="nm">Sunny</div>
+        <div class="role">Embodied QA · un-delegatable</div>
+        <h5>Owns</h5>
+        <ul>
+          <li><b>Voice memo seed</b>Monday PM, 2-min Wispr</li>
+          <li><b>Embodied QA pass</b>Thursday, 30 min, post-breath</li>
+          <li><b>Final POV on Signal essay</b>One line from you, in your voice</li>
+          <li><b>Press Send</b>Monday 9am HST on Beehiiv</li>
+        </ul>
+        <h5>Never owns</h5>
+        <ul>
+          <li>Drafting · scheduling · formatting · metric pulling</li>
+        </ul>
+      </div>
+
+      <div class="own">
+        <div class="nm">Loki</div>
+        <div class="role">Content engine</div>
+        <h5>Owns</h5>
+        <ul>
+          <li><b>Seed generation</b>Tuesday — 7 idea seeds from theme prompt + brief</li>
+          <li><b>Drafting all 7 assets</b>Wednesday — full drafts ready for QA</li>
+          <li><b>Production</b>Friday — visuals, Beehiiv draft, scheduling</li>
+          <li><b>Repurposing</b>Same idea, six surfaces</li>
+        </ul>
+        <h5>Hand-off to</h5>
+        <ul>
+          <li>Sunny for embodied QA</li>
+          <li>Atlas for distinctive check</li>
+        </ul>
+      </div>
+
+      <div class="own">
+        <div class="nm">Atlas</div>
+        <div class="role">Ops · QA · custodian</div>
+        <h5>Owns</h5>
+        <ul>
+          <li><b>Folder creation</b>Monday AM, auto-builds the week's structure</li>
+          <li><b>Distinctive-asset check</b>Thursday — palette, fonts, brand phrases</li>
+          <li><b>Scheduling</b>Friday — Buffer/Hypefury queue · Beehiiv draft</li>
+          <li><b>Metrics pull</b>Sunday — last week's signal → next week's brief</li>
+          <li><b>Calendar protection</b>Brand blocks held against activation panic</li>
+        </ul>
+        <h5>Hand-off to</h5>
+        <ul>
+          <li>Mira for VOC tagging</li>
+          <li>Athena for trend signals</li>
+        </ul>
+      </div>
+
+      <div class="own">
+        <div class="nm">Mira</div>
+        <div class="role">Voice of customer</div>
+        <h5>Owns</h5>
+        <ul>
+          <li><b>Weekly VOC pull</b>Monday — 5 verbatim quotes by awareness stage</li>
+          <li><b>Resonant-line tagging</b>Sunday — which lines from last week landed</li>
+          <li><b>Objection map</b>Updated monthly from sales calls</li>
+          <li><b>Stage-tagged quote library</b>Locked reference for Loki + Brand OS Agent</li>
+        </ul>
+        <h5>Hand-off to</h5>
+        <ul>
+          <li>Loki — quotes used verbatim in drafts</li>
+          <li>Brand OS Agent — quotes feed the avatar work</li>
+        </ul>
+      </div>
+
+      <div class="own">
+        <div class="nm">Athena</div>
+        <div class="role">Research</div>
+        <h5>Owns</h5>
+        <ul>
+          <li><b>Canon refresh</b>Quarterly — new books, voices, papers added</li>
+          <li><b>Trend signal report</b>Weekly — what's emerging in the field</li>
+          <li><b>Theme calendar additions</b>Proposes new themes after 4 quarters of rotation</li>
+          <li><b>Source verification</b>Every quoted study/stat in long-form work</li>
+        </ul>
+        <h5>Hand-off to</h5>
+        <ul>
+          <li>Atlas for calendar updates</li>
+          <li>Loki for source-rich essays</li>
+        </ul>
+      </div>
+
+      <div class="own">
+        <div class="nm">Brand OS Agent</div>
+        <div class="role">Client-facing strategy</div>
+        <h5>Owns</h5>
+        <ul>
+          <li><b>Avatar / Voice / Pillars / Content</b>For paying clients only</li>
+          <li><b>Theme agent prompts</b>Run on client inputs to produce strategy assets</li>
+          <li><b>Brand OS dashboards</b>Per-client positioning, story, offer audits</li>
+        </ul>
+        <h5>Reads from</h5>
+        <ul>
+          <li>Same _reference layer as Loki</li>
+          <li>Same VOC library for client work</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 METRICS LAYER ============ -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-label">07 · Metrics layer</div>
+    <h2 class="section-title">Three time horizons — what Atlas tracks, what Sunny sees on a dashboard.</h2>
+    <p class="section-sub">Most coaches drown in vanity metrics. This dashboard shows the only numbers that change a decision. Everything else is rolled up or hidden.</p>
+
+    <div class="metrics">
+      <div class="met-col">
+        <h4>Per asset</h4>
+        <div class="sub">Tracked for 14 days post-publish</div>
+        <ul>
+          <li><b>Reach</b><span>impressions</span></li>
+          <li><b>Save rate</b><span>saves ÷ reach</span></li>
+          <li><b>Engaged opens (Signal)</b><span>≥ 30s read</span></li>
+          <li><b>Click to quiz</b><span>conversions</span></li>
+          <li><b>Resonant lines</b><span>flagged comments</span></li>
+        </ul>
+      </div>
+
+      <div class="met-col">
+        <h4>Per week</h4>
+        <div class="sub">Sunday review with Atlas</div>
+        <ul>
+          <li><b>60/40 brand vs activation</b><span>target 60/40</span></li>
+          <li><b>Net new email subs</b><span>target +50/wk</span></li>
+          <li><b>Discovery calls booked</b><span>cohort + $12K pipeline</span></li>
+          <li><b>Demand-to-capacity ratio</b><span>target ≥ 2.0×</span></li>
+          <li><b>Embodied QA hours</b><span>Sunny: ≤ 1 hr</span></li>
+        </ul>
+      </div>
+
+      <div class="met-col">
+        <h4>Per theme cycle (10 wks)</h4>
+        <div class="sub">Quarterly review with Athena</div>
+        <ul>
+          <li><b>Theme → engagement rank</b><span>which themes resonate</span></li>
+          <li><b>Theme → revenue rank</b><span>cohort + $12K signups by theme</span></li>
+          <li><b>Pass-on-pass delta</b><span>are themes deepening?</span></li>
+          <li><b>Asset-format ROI</b><span>Signal vs blog vs reel</span></li>
+          <li><b>Canon additions</b><span>new sources to add</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="codeblock" style="margin-top:32px;">
+<span class="clabel"><b>Forbidden metrics</b> · Atlas auto-hides these</span>
+<span class="key">·</span> follower count (vanity)
+<span class="key">·</span> raw likes (System 1 cheap signal)
+<span class="key">·</span> story views (not actionable)
+<span class="key">·</span> total subscribers without engagement filter
+<span class="key">·</span> "going viral" anything
+
+<span class="clabel"><b>Decision rule</b></span>
+<span class="key">·</span> a metric earns dashboard space only if it changes next week's brief.
+<span class="key">·</span> if you can't name the decision it triggers, hide it.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 08 ROLLOUT ============ -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-label">08 · 7-day rollout</div>
+    <h2 class="section-title">From zero to running — what you build, in what order, this week.</h2>
+    <p class="section-sub">Don't try to ship a full week of content while you're building the system. Use Days 1–5 to build the rails. Day 6 is the pilot. Day 7 is the first real ship.</p>
+
+    <div class="roll">
+      <div class="rd">
+        <div class="day">DAY 1 · MON</div>
+        <div class="label">File scaffold</div>
+        <p>Create the <span style="font-family:var(--font-mono);font-size:11px;">weekly-content-sprint/</span> folder + <span style="font-family:var(--font-mono);font-size:11px;">_reference/</span> subtree. Move the 10 theme agent prompts (from Vol. II) into <span style="font-family:var(--font-mono);font-size:11px;">_reference/agent-prompts/</span>.</p>
+        <div class="ship"><b>Ship</b>File structure exists.</div>
+      </div>
+
+      <div class="rd">
+        <div class="day">DAY 2 · TUE</div>
+        <div class="label">Brand spec lockdown</div>
+        <p>Write <span style="font-family:var(--font-mono);font-size:11px;">brand-voice-spec.md</span>: palette, fonts, signature phrases, forbidden words (no em-dashes, no "level up", no "10X"). One page. Locked.</p>
+        <div class="ship"><b>Ship</b>Brand spec live.</div>
+      </div>
+
+      <div class="rd">
+        <div class="day">DAY 3 · WED</div>
+        <div class="label">Theme calendar</div>
+        <p>Build <span style="font-family:var(--font-mono);font-size:11px;">theme-calendar-2026.md</span> for the next 12 weeks. Use the rotation in §05. Map each week to active offer focus.</p>
+        <div class="ship"><b>Ship</b>12 weeks scheduled.</div>
+      </div>
+
+      <div class="rd">
+        <div class="day">DAY 4 · THU</div>
+        <div class="label">Templates + VOC seed</div>
+        <p>Build the 4 shell templates (Signal, blog, carousel, lead magnet). Mira pulls a starter VOC library — 25 quotes across awareness stages from existing DMs/calls.</p>
+        <div class="ship"><b>Ship</b>Templates + VOC v0.1.</div>
+      </div>
+
+      <div class="rd">
+        <div class="day">DAY 5 · FRI</div>
+        <div class="label">Schedule + integration wiring</div>
+        <p>Wire Beehiiv API key into Loki. Connect Buffer or Hypefury. Set Atlas's cron jobs: Monday 6am brief assembly, Sunday 8pm metrics pull.</p>
+        <div class="ship"><b>Ship</b>Integrations live.</div>
+      </div>
+
+      <div class="rd">
+        <div class="day">DAY 6 · SAT</div>
+        <div class="label">Pilot run</div>
+        <p>Run the full week loop in dry-run mode. Theme 01 Positioning. Generate brief → seeds → drafts. Don't publish — just confirm every link of the chain works end-to-end.</p>
+        <div class="ship"><b>Ship</b>Dry-run successful.</div>
+      </div>
+
+      <div class="rd">
+        <div class="day">DAY 7 · SUN</div>
+        <div class="label">Real ship next week</div>
+        <p>Atlas seeds W+1 folder with brief. Sunny records the voice memo Sunday evening. Tuesday Loki drafts. Thursday Sunny QAs. Monday W+1 — Signal goes live.</p>
+        <div class="ship"><b>Ship</b>First real Signal under the system.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 FAILURE MODES ============ -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-label">09 · Failure modes &amp; the fix</div>
+    <h2 class="section-title">Where this system breaks — and the rule that prevents each break.</h2>
+    <p class="section-sub">A system without named failure modes is a system you'll abandon at week 4. These are the four ways this engine dies, and the rule that keeps each one alive.</p>
+
+    <div class="codeblock">
+<span class="clabel"><b>Failure mode 1</b> · "I'll just do this week manually, it's faster"</span>
+The trap: skipping the brief Monday because you "already know the theme."
+Result: by week 3 the system has decayed and you're back to ad-hoc content.
+<span class="key">The rule:</span> Atlas auto-creates the folder Monday 6am whether you read it or not.
+        The folder existing is the commitment. You either fill it or you publicly skip it.
+
+<span class="clabel"><b>Failure mode 2</b> · "Loki's draft is fine, I'll skip the embodied QA"</span>
+The trap: shipping a draft that's technically correct but performatively empty.
+Result: audience starts feeling the drift in 2-3 weeks. Open rates dip. You can't articulate why.
+<span class="key">The rule:</span> Sunny's Thursday 30-minute block is on the calendar with a hard alarm.
+        If skipped, Atlas holds the Friday ship. No QA = no publish. Non-negotiable.
+
+<span class="clabel"><b>Failure mode 3</b> · "I want to swap themes mid-week"</span>
+The trap: theme calendar gets overridden because "this week feels different."
+Result: rotation breaks, second-pass depth never happens, audience loses the rhythm.
+<span class="key">The rule:</span> Theme calendar swaps require 7-day notice + a logged reason.
+        Spontaneous theme changes go in a "next quarter" backlog, not in this week.
+
+<span class="clabel"><b>Failure mode 4</b> · "Metrics aren't worth pulling, nothing's changed"</span>
+The trap: Sunday review skipped because "I can feel how it's going."
+Result: the brief next Monday is based on vibes, not data. Themes that worked don't repeat right.
+<span class="key">The rule:</span> Atlas posts a 5-line summary in your inbox Sunday 8pm.
+        You don't have to do the review — but you have to read the 5 lines.
+    </div>
+  </div>
+</section>
+
+<!-- ============ CLOSING ============ -->
+<section class="closing wrap">
+  <blockquote>The system isn't the content. The system is what lets you do the inner work that makes the content land. Build the rails so the man behind them can stay on the mat.</blockquote>
+  <div class="source">RESONANCE THESIS · ELEVATE AI · 2026</div>
+</section>
+
+<footer>
+  <b>Resonance Content Engine — Blueprint v1.0</b> · 10 themes · 7 assets/wk · 1 weekly loop · sunny.binjola@gmail.com · 2026-06-03
+</footer>
+
+</body>
+</html>

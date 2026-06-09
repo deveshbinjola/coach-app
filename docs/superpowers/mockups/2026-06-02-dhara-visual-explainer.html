@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dhara — visual explainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --green:#00F33D; --green-d:#00C233; --navy:#071126; --navy-2:#0e1a30;
+    --paper:#FAFAF8; --ink:#0A0F1C; --muted:#5A5A6E; --faint:#9aa0ad; --line:#e6e6de;
+    --cand:#C9A227; --conf:#00C233;
+    --f:"Plus Jakarta Sans",system-ui,sans-serif; --d:"Fraunces",Georgia,serif; --m:"JetBrains Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--f);background:#E9E9E3;color:var(--ink);line-height:1.55;padding:36px 16px 100px}
+  .wrap{max-width:1000px;margin:0 auto}
+  .d{font-family:var(--d);letter-spacing:-.02em}
+  h1{font-size:40px;font-weight:700;text-align:center}
+  .lede{text-align:center;color:var(--muted);font-size:15px;margin-top:8px;max-width:620px;margin-inline:auto}
+  .sec{background:#fff;border-radius:20px;box-shadow:0 8px 30px rgba(7,17,38,.09);padding:30px 28px;margin-top:24px}
+  .sec h2{font-family:var(--d);font-size:23px;font-weight:700;display:flex;align-items:center;gap:10px}
+  .sec h2 .n{font-family:var(--m);font-size:13px;font-weight:700;color:var(--green-d);background:rgba(0,243,61,.1);border-radius:8px;padding:2px 9px}
+  .sub{color:var(--muted);font-size:13.5px;margin-top:6px;margin-bottom:18px}
+
+  /* three capabilities */
+  .caps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:760px){.caps{grid-template-columns:1fr}}
+  .cap{border:1.5px solid var(--line);border-radius:14px;padding:18px}
+  .cap .t{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px}
+  .cap .dot{width:9px;height:9px;border-radius:50%}
+  .cap p{font-size:13px;color:var(--muted);margin-top:8px}
+  .cap .tag{display:inline-block;font-size:11px;font-weight:800;margin-top:10px;border-radius:999px;padding:3px 9px}
+  .now{background:rgba(0,243,61,.12);color:var(--green-d)} .later{background:#f1f1ea;color:var(--faint)}
+
+  /* flow diagram */
+  .flow{display:flex;flex-direction:column;gap:10px}
+  .row{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+  .node{flex:1;min-width:150px;border-radius:12px;padding:13px 14px;font-size:13px}
+  .node .l{font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
+  .node .x{margin-top:4px;font-weight:600}
+  .n-in{background:var(--navy);color:#fff}
+  .n-ctx{background:#eef6ef;border:1.5px solid #cdebd3}
+  .n-ai{background:rgba(0,243,61,.12);border:1.5px solid var(--green)}
+  .n-mem{background:#fff8e6;border:1.5px solid #ecd9a0}
+  .arrow{text-align:center;color:var(--faint);font-size:18px;line-height:1}
+  .ctxgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  @media(max-width:760px){.ctxgrid{grid-template-columns:1fr 1fr}}
+  .chip{background:#eef6ef;border:1.5px solid #cdebd3;border-radius:10px;padding:9px 11px;font-size:12px}
+  .chip b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#3a7a48;margin-bottom:2px}
+
+  /* memory ladder */
+  .ladder{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+  .step{flex:1;min-width:150px;border-radius:12px;padding:14px;border:1.5px solid}
+  .s1{border-color:#ecd9a0;background:#fff8e6} .s2{border-color:#cdebd3;background:#eef6ef} .s3{border-color:#bfe9c8;background:#e3f7e8}
+  .step .h{font-weight:800;font-size:13px;display:flex;align-items:center;gap:7px}
+  .step p{font-size:12px;color:var(--muted);margin-top:6px}
+  .pill{font-size:10px;font-weight:800;border-radius:999px;padding:2px 8px}
+  .pill.c{background:#f4e7bf;color:#8a6d12} .pill.r{background:#cdebd3;color:#2c6b3c} .pill.f{background:#bfe9c8;color:#1d6b32}
+
+  /* autonomy slider */
+  .slider{display:flex;align-items:center;gap:0;margin-top:6px;border-radius:999px;overflow:hidden;border:1.5px solid var(--line)}
+  .lvl{flex:1;text-align:center;padding:12px 6px;font-size:12.5px;font-weight:800}
+  .lvl small{display:block;font-weight:500;color:var(--muted);font-size:11px;margin-top:2px}
+  .lvl.on{background:var(--green);color:var(--navy)} .lvl.on small{color:#0a3a17}
+  .lvl.off{background:#f6f6f0;color:var(--faint)} .lvl.off small{color:#b9b9b0}
+
+  /* roadmap */
+  .tracks{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:760px){.tracks{grid-template-columns:1fr}}
+  .track{border-radius:14px;padding:16px;border:1.5px solid var(--line)}
+  .track .th{font-weight:800;font-size:14px}
+  .track ul{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:7px}
+  .track li{font-size:12.5px;display:flex;gap:7px;align-items:flex-start}
+  .k{font-family:var(--m);font-size:10px;font-weight:700;background:var(--navy);color:#fff;border-radius:5px;padding:1px 5px;flex-shrink:0;margin-top:1px}
+  .k.g{background:var(--green-d)}
+  .seq{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px;font-size:13px;font-weight:700}
+  .seq .s{background:var(--navy);color:#fff;border-radius:999px;padding:7px 14px}
+  .seq .s.first{background:var(--green);color:var(--navy)}
+  .seq .gt{color:var(--faint)}
+
+  /* UI mock */
+  .mockstage{background:linear-gradient(180deg,#1a2540,#0c1426);border-radius:18px;padding:26px;position:relative;min-height:300px}
+  .screen{font-size:12px;color:#6b7790;font-family:var(--m)}
+  .bar{position:absolute;left:50%;transform:translateX(-50%);bottom:22px;width:min(560px,92%);background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.35);overflow:hidden}
+  .barhead{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--line)}
+  .barhead .who{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px}
+  .barhead .leaf{width:22px;height:22px;border-radius:6px;background:var(--green);display:flex;align-items:center;justify-content:center}
+  .barhead .tabs{display:flex;gap:6px;font-size:11px;font-weight:700}
+  .barhead .tabs b{padding:4px 9px;border-radius:8px;background:#f1f1ea;color:var(--muted)} .barhead .tabs b.on{background:var(--navy);color:#fff}
+  .conv{padding:14px;display:flex;flex-direction:column;gap:10px}
+  .msg{max-width:80%;font-size:13px;border-radius:12px;padding:9px 12px;line-height:1.45}
+  .me{align-self:flex-end;background:var(--navy);color:#fff}
+  .dh{align-self:flex-start;background:#f3f3ec;color:var(--ink)}
+  .dh .stream{color:var(--green-d);font-weight:700}
+  .remembered{align-self:flex-start;font-size:11px;color:#8a6d12;background:#fff8e6;border:1px solid #ecd9a0;border-radius:999px;padding:3px 10px}
+  .sugg{align-self:flex-start;display:flex;gap:7px;margin-top:2px}
+  .sugg a{font-size:11px;font-weight:800;border-radius:999px;padding:5px 11px;border:1.5px solid var(--green);color:var(--green-d)}
+  .sugg span{font-size:11px;font-weight:800;border-radius:999px;padding:5px 11px;border:1.5px dashed var(--line);color:var(--faint)}
+  .barinput{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding:11px 14px}
+  .barinput .ta{flex:1;color:var(--faint);font-size:13px}
+  .barinput .mic{width:32px;height:32px;border-radius:50%;background:#f1f1ea;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+  .kbd{font-family:var(--m);font-size:11px;background:#16223c;color:#9fb0cf;border-radius:6px;padding:3px 8px}
+  .float{position:absolute;right:18px;top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="d">Dhara</h1>
+  <p class="lede">An ambient guide woven into your app — you talk, it answers in its own voice grounded in everything it knows about you, and it quietly remembers.</p>
+
+  <!-- 1. THREE CAPABILITIES -->
+  <div class="sec">
+    <h2>What Dhara is</h2>
+    <div class="sub">Three capabilities, woven together. v0 builds the first two, lightly.</div>
+    <div class="caps">
+      <div class="cap"><div class="t"><span class="dot" style="background:var(--cand)"></span>Memory — <i>knows you</i></div><p>One growing store. Learns from Brand OS, your quiz, your conversations — eventually Instagram, newsletter, email.</p><span class="tag now">v0 · core built</span></div>
+      <div class="cap"><div class="t"><span class="dot" style="background:var(--green-d)"></span>Conversation — <i>talks like someone</i></div><p>A grounded, somatic guide. Calm, few words, mirrors you back. Streams its replies. Learns from every talk.</p><span class="tag now">v0 · text + voice-in</span></div>
+      <div class="cap"><div class="t"><span class="dot" style="background:var(--faint)"></span>Agency — <i>does things</i></div><p>Navigate, draft, act across the app. v0 only <b>suggests</b> — the dial turns up later.</p><span class="tag later">later · suggest only now</span></div>
+    </div>
+  </div>
+
+  <!-- 2. DATA FLOW -->
+  <div class="sec">
+    <h2>How one message works</h2>
+    <div class="sub">Coach speaks &rarr; Dhara assembles what it knows &rarr; streams an answer &rarr; quietly learns. Nothing is hidden, nothing acts on its own.</div>
+    <div class="flow">
+      <div class="row">
+        <div class="node n-in"><div class="l">1 · You</div><div class="x">"How's my month? And remind Marcus I'm thinking of him."</div></div>
+      </div>
+      <div class="arrow">&darr;</div>
+      <div class="ctxgrid">
+        <div class="chip"><b>Persona</b>grounded guide + your guardrails</div>
+        <div class="chip"><b>Brand OS</b>avatar · voice · pillars (live)</div>
+        <div class="chip"><b>Business snapshot</b>revenue · who's slipping · drafts</div>
+        <div class="chip"><b>Your memories</b>confidence-labeled</div>
+      </div>
+      <div class="arrow">&darr; assembled into one grounded prompt</div>
+      <div class="row">
+        <div class="node n-ai"><div class="l">2 · Dhara (streams)</div><div class="x">"$14k this month, up a touch. Two clients are quiet — Marcus is one. Want me to draft him a check-in in your voice?"</div></div>
+      </div>
+      <div class="arrow">&darr; after the reply, in the background</div>
+      <div class="row">
+        <div class="node n-mem"><div class="l">3 · Learns (cheap model)</div><div class="x">New memory: <i>"Cares about staying personally connected to clients like Marcus"</i> &nbsp;→ saved as <b>candidate</b>, you can see &amp; edit it.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. MEMORY LADDER -->
+  <div class="sec">
+    <h2>Memory on a leash <span class="n">#6</span></h2>
+    <div class="sub">Auto-learning is the scary part — wrong facts could compound. So every memory climbs a confidence ladder, carries its origin, and you can forget anything.</div>
+    <div class="ladder">
+      <div class="step s1"><div class="h"><span class="pill c">Candidate</span></div><p>Heard once. <b>Flavors understanding, never stated as fact.</b> Shown softly, with where it came from.</p></div>
+      <div style="align-self:center;color:var(--faint);font-size:20px">&rarr;</div>
+      <div class="step s2"><div class="h"><span class="pill r">Repeated</span></div><p>Came up again. Promoted automatically — now trusted enough to rely on.</p></div>
+      <div style="align-self:center;color:var(--faint);font-size:20px">&rarr;</div>
+      <div class="step s3"><div class="h"><span class="pill f">Confirmed</span></div><p>You said "remember this," or confirmed it. Stated as known fact.</p></div>
+    </div>
+    <div class="sub" style="margin-top:14px;margin-bottom:0">Every memory shows <b>provenance</b> ("learned from your Tue chat") and lives in a <b>"What Dhara remembers"</b> view where you edit or forget it. Soft-deleted, never gone — auditable.</div>
+  </div>
+
+  <!-- 4. AUTONOMY SLIDER -->
+  <div class="sec">
+    <h2>The autonomy dial <span class="n">#7</span></h2>
+    <div class="sub">Built as a seam now so growth is a <i>setting</i>, not a rewrite. v0 is locked at "suggest" — Dhara proposes, you decide. It never acts silently.</div>
+    <div class="slider">
+      <div class="lvl on">Suggest<small>v0 · proposes only</small></div>
+      <div class="lvl off">Draft<small>later · you send</small></div>
+      <div class="lvl off">Act&nbsp;with&nbsp;confirm<small>later · you approve</small></div>
+      <div class="lvl off">Act<small>later · trusted tasks</small></div>
+    </div>
+  </div>
+
+  <!-- 5. UI MOCK -->
+  <div class="sec">
+    <h2>Where it lives <span class="n">#5</span></h2>
+    <div class="sub">Not a page you visit — an ambient bar on <b>every</b> screen (hotkey or tap), expanding in place. The Iron Man suit, not a robot you go talk to.</div>
+    <div class="mockstage">
+      <div class="screen">/ command-center &nbsp;·&nbsp; your normal screen, untouched</div>
+      <div class="float"><span class="kbd">⌘ J</span></div>
+      <div class="bar">
+        <div class="barhead">
+          <div class="who"><span class="leaf"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#071126" stroke-width="2.4" stroke-linecap="round"><path d="M6 18 C6 10 14 10 18 6"/><path d="M18 6 C18 14 10 14 7 16"/></svg></span>Dhara</div>
+          <div class="tabs"><b class="on">Talk</b><b>What I remember</b></div>
+        </div>
+        <div class="conv">
+          <div class="msg me">How's my month? And remind Marcus I'm thinking of him.</div>
+          <div class="msg dh">$14k this month, up a touch.<br/>Two clients have gone quiet — Marcus is one. <span class="stream">Want me to draft him a check-in in your voice?▍</span></div>
+          <div class="sugg"><a href="#">Open Marcus →</a><span>Draft check-in · soon</span></div>
+          <div class="remembered">✓ Remembered: you stay personally connected to clients</div>
+        </div>
+        <div class="barinput"><div class="ta">Talk to Dhara, or just say it…</div><div class="mic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. ROADMAP -->
+  <div class="sec">
+    <h2>The whole plan — all 8 improvements, tracked</h2>
+    <div class="sub">From the Karpathy review. Sorted into what's <i>one build</i>, what's <i>a standard</i>, and what's <i>its own project</i>.</div>
+    <div class="tracks">
+      <div class="track" style="border-color:#bfe9c8;background:#f3fbf5">
+        <div class="th">Track A · Dhara (the spine)</div>
+        <ul>
+          <li><span class="k g">5</span>Ambient, not a page</li>
+          <li><span class="k g">6</span>Memory on a leash</li>
+          <li><span class="k g">7</span>Autonomy slider seam</li>
+          <li><span class="k g">8</span>Streaming + cheap learn</li>
+          <li><span class="k">1</span>Becomes the one front door (as it grows)</li>
+        </ul>
+      </div>
+      <div class="track">
+        <div class="th">Track B · App-wide laws</div>
+        <ul>
+          <li><span class="k">2</span>Verify-before-commit, everywhere — a reusable primitive</li>
+          <li><span class="k">3</span>Jargon cull — plain verbs, fewer concepts</li>
+        </ul>
+      </div>
+      <div class="track">
+        <div class="th">Track C · Evals</div>
+        <ul>
+          <li><span class="k">4</span>Golden-set scoring — starts with voice fidelity + memory correctness</li>
+          <li style="color:var(--faint)">then quiz, follow-ups, suggestions</li>
+        </ul>
+      </div>
+    </div>
+    <div class="seq">
+      <span class="s first">1 · Dhara v0</span><span class="gt">→</span>
+      <span class="s">2 · Eval harness</span><span class="gt">→</span>
+      <span class="s">3 · Verify primitive + jargon</span><span class="gt">→</span>
+      <span class="s">4 · Agency · connectors</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

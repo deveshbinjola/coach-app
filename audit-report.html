@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach App — UI/UX Audit Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: #0A0F1C;
+    color: #E8E8E8;
+    line-height: 1.6;
+  }
+
+  .hero {
+    padding: 80px 60px 60px;
+    border-bottom: 1px solid rgba(0,255,65,0.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(0,255,65,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #00FF41;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .hero h1 {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    color: #fff;
+  }
+
+  .hero h1 span { color: #00FF41; }
+
+  .hero-meta {
+    font-size: 15px;
+    color: #888;
+    margin-bottom: 32px;
+  }
+
+  .score-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+  }
+
+  .score-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 20px 28px;
+    min-width: 160px;
+  }
+
+  .score-card .label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .score-card .value {
+    font-size: 32px;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .score-card .value.green { color: #00FF41; }
+  .score-card .value.yellow { color: #FFD700; }
+  .score-card .value.red { color: #FF4444; }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 60px;
+  }
+
+  section {
+    padding: 60px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  section:last-child { border-bottom: none; }
+
+  .section-badge {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #00FF41;
+    background: rgba(0,255,65,0.1);
+    border: 1px solid rgba(0,255,65,0.2);
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+
+  .section-subtitle {
+    color: #888;
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+
+  /* Wins */
+  .wins-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .win-card {
+    background: rgba(0,255,65,0.04);
+    border: 1px solid rgba(0,255,65,0.12);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .win-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #00FF41;
+    margin-bottom: 8px;
+  }
+
+  .win-card p {
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.5;
+  }
+
+  /* Issues */
+  .issue-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 20px;
+    align-items: start;
+    transition: border-color 0.2s;
+  }
+
+  .issue-card:hover {
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  .issue-number {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 18px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .issue-number.critical { background: rgba(255,68,68,0.2); color: #FF4444; }
+  .issue-number.high { background: rgba(255,165,0,0.2); color: #FFA500; }
+  .issue-number.medium { background: rgba(255,215,0,0.2); color: #FFD700; }
+  .issue-number.low { background: rgba(100,149,237,0.15); color: #6495ED; }
+
+  .issue-content h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .issue-content .page-tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #888;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  .issue-content p {
+    font-size: 14px;
+    color: #999;
+    line-height: 1.5;
+  }
+
+  .issue-content .fix {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #00FF41;
+    font-weight: 500;
+  }
+
+  .issue-severity {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .sev-critical { background: rgba(255,68,68,0.15); color: #FF4444; }
+  .sev-high { background: rgba(255,165,0,0.15); color: #FFA500; }
+  .sev-medium { background: rgba(255,215,0,0.1); color: #FFD700; }
+  .sev-low { background: rgba(100,149,237,0.1); color: #6495ED; }
+
+  /* 80/20 */
+  .pareto-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .pareto-card {
+    background: linear-gradient(135deg, rgba(0,255,65,0.06) 0%, rgba(0,255,65,0.02) 100%);
+    border: 1px solid rgba(0,255,65,0.15);
+    border-radius: 16px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pareto-card::before {
+    content: attr(data-number);
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    font-size: 80px;
+    font-weight: 800;
+    color: rgba(0,255,65,0.06);
+    line-height: 1;
+  }
+
+  .pareto-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .pareto-card p {
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.5;
+  }
+
+  .pareto-card .impact {
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #00FF41;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Page ratings */
+  .page-ratings {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .page-rating {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .page-rating h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+
+  .rating-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .rating-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+
+  .rating-fill.excellent { background: #00FF41; }
+  .rating-fill.good { background: #7CFC00; }
+  .rating-fill.needs-work { background: #FFD700; }
+  .rating-fill.poor { background: #FF4444; }
+
+  .rating-label {
+    font-size: 12px;
+    color: #888;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .footer {
+    padding: 40px 60px;
+    text-align: center;
+    color: #555;
+    font-size: 13px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  @media (max-width: 768px) {
+    .hero { padding: 40px 24px; }
+    .hero h1 { font-size: 28px; }
+    .container { padding: 0 24px; }
+    .wins-grid, .pareto-grid { grid-template-columns: 1fr; }
+    .page-ratings { grid-template-columns: 1fr; }
+    .issue-card { grid-template-columns: 44px 1fr; }
+    .issue-severity { display: none; }
+    .score-row { gap: 12px; }
+    .score-card { min-width: 120px; padding: 14px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">Coach App Audit &middot; May 2026</div>
+  <h1>What's working. What's not.<br>Where to <span>focus next.</span></h1>
+  <p class="hero-meta">Full UI/UX + functionality review of app.elevateaisystem.com &mdash; every page, desktop + mobile.</p>
+
+  <div class="score-row">
+    <div class="score-card">
+      <div class="label">Overall UX</div>
+      <div class="value green">B+</div>
+    </div>
+    <div class="score-card">
+      <div class="label">Visual Design</div>
+      <div class="value green">A-</div>
+    </div>
+    <div class="score-card">
+      <div class="label">Functionality</div>
+      <div class="value yellow">B-</div>
+    </div>
+    <div class="score-card">
+      <div class="label">Mobile</div>
+      <div class="value yellow">C+</div>
+    </div>
+    <div class="score-card">
+      <div class="label">Pages Reviewed</div>
+      <div class="value">8</div>
+    </div>
+    <div class="score-card">
+      <div class="label">Issues Found</div>
+      <div class="value red">14</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- WINS -->
+<section>
+  <div class="section-badge">What's Working</div>
+  <h2>The Good Stuff</h2>
+  <p class="section-subtitle">These are genuine competitive advantages. Don't touch them.</p>
+
+  <div class="wins-grid">
+    <div class="win-card">
+      <h3>Login Page &mdash; Best-in-Class</h3>
+      <p>The split-screen with Generic AI vs Your Voice phone mockup is killer positioning. "Your next client is already in your DMs" is a great hook. The copy sells the product before they even sign in.</p>
+    </div>
+    <div class="win-card">
+      <h3>Command Center &mdash; Opinionated Dashboard</h3>
+      <p>"Hey, Sunny. Take a breath before you start." + the Coach OS status bar + Insight Queue saying "What to do, what to skip" &mdash; this isn't a generic dashboard, it's a coach's cockpit. The 4 action cards give clear next steps, not just metrics.</p>
+    </div>
+    <div class="win-card">
+      <h3>Microcopy Throughout</h3>
+      <p>"Keep the relationship moving after the sale." "Both written by AI. Only one sounds like a coach." Every page has copy that sounds human, opinionated, and coach-native. This is a rare strength most SaaS products never achieve.</p>
+    </div>
+    <div class="win-card">
+      <h3>Voice Page &mdash; Unique Concept</h3>
+      <p>Voice asset status (66% locked, compounding), Brand OS completion, framework generator &mdash; nobody else has this. The "voice trust" concept of tracking how often you ship without editing is genuinely novel IP.</p>
+    </div>
+    <div class="win-card">
+      <h3>Content Pillars with "vs" Positioning</h3>
+      <p>"Why Heartbreak Feels Crazy vs The 'just move on' industrial complex" &mdash; each pillar has a contrarian angle built in. This makes every content draft start with tension, not just a topic.</p>
+    </div>
+    <div class="win-card">
+      <h3>Lead Rescue Concept</h3>
+      <p>Not just a lead list &mdash; it surfaces the 5 warmest conversations that need action NOW with a time estimate (20 min). This is how a chief of staff would brief you, not how a CRM would.</p>
+    </div>
+    <div class="win-card">
+      <h3>Settings as Progressive Disclosure</h3>
+      <p>Numbered sections (Identity & Brand, Delivery, Advanced) with SET UP / DONE status badges. Feels like onboarding that lives permanently &mdash; you always know what's configured and what's not.</p>
+    </div>
+    <div class="win-card">
+      <h3>Brand Consistency</h3>
+      <p>Green + navy + cream is consistent across every page. Typography is clean. Cards have consistent padding and border radius. No visual jarring anywhere. The product looks like one person designed it, not five.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE RATINGS -->
+<section>
+  <div class="section-badge">Page-by-Page</div>
+  <h2>Page Ratings</h2>
+  <p class="section-subtitle">How each page holds up under scrutiny.</p>
+
+  <div class="page-ratings">
+    <div class="page-rating">
+      <h4>Login</h4>
+      <div class="rating-bar"><div class="rating-fill excellent" style="width:92%"></div></div>
+      <div class="rating-label"><span>92/100</span><span>Ship-ready</span></div>
+    </div>
+    <div class="page-rating">
+      <h4>Command Center</h4>
+      <div class="rating-bar"><div class="rating-fill excellent" style="width:85%"></div></div>
+      <div class="rating-label"><span>85/100</span><span>Strong</span></div>
+    </div>
+    <div class="page-rating">
+      <h4>Leads / Inbox</h4>
+      <div class="rating-bar"><div class="rating-fill needs-work" style="width:62%"></div></div>
+      <div class="rating-label"><span>62/100</span><span>Needs work</span></div>
+    </div>
+    <div class="page-rating">
+      <h4>Clients</h4>
+      <div class="rating-bar"><div class="rating-fill needs-work" style="width:58%"></div></div>
+      <div class="rating-label"><span>58/100</span><span>Needs work</span></div>
+    </div>
+    <div class="page-rating">
+      <h4>Voice</h4>
+      <div class="rating-bar"><div class="rating-fill good" style="width:80%"></div></div>
+      <div class="rating-label"><span>80/100</span><span>Solid</span></div>
+    </div>
+    <div class="page-rating">
+      <h4>Content</h4>
+      <div class="rating-bar"><div class="rating-fill good" style="width:78%"></div></div>
+      <div class="rating-label"><span>78/100</span><span>Solid</span></div>
+    </div>
+    <div class="page-rating">
+      <h4>Settings</h4>
+      <div class="rating-bar"><div class="rating-fill good" style="width:75%"></div></div>
+      <div class="rating-label"><span>75/100</span><span>Good enough</span></div>
+    </div>
+    <div class="page-rating">
+      <h4>404 Page</h4>
+      <div class="rating-bar"><div class="rating-fill needs-work" style="width:55%"></div></div>
+      <div class="rating-label"><span>55/100</span><span>Incomplete</span></div>
+    </div>
+    <div class="page-rating">
+      <h4>Mobile (all pages)</h4>
+      <div class="rating-bar"><div class="rating-fill needs-work" style="width:60%"></div></div>
+      <div class="rating-label"><span>60/100</span><span>Functional, not great</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ISSUES -->
+<section>
+  <div class="section-badge">Issues Found</div>
+  <h2>What Needs Fixing</h2>
+  <p class="section-subtitle">Ranked by impact. Critical = losing users. High = losing trust. Medium = losing polish.</p>
+
+  <div class="issue-card">
+    <div class="issue-number critical">1</div>
+    <div class="issue-content">
+      <span class="page-tag">Leads / Inbox</span>
+      <h3>No search or filter on 329 leads</h3>
+      <p>You have 329 active leads and zero way to search by name, email, tag, or temperature. A coach looking for "that guy from the breathwork event" has to scroll through the entire list. This is the #1 daily-use blocker.</p>
+      <div class="fix">Fix: Add a search bar + filter pills (Warm/Hot/Cold, source, tag) at the top of the leads list.</div>
+    </div>
+    <span class="issue-severity sev-critical">Critical</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number critical">2</div>
+    <div class="issue-content">
+      <span class="page-tag">Leads / Inbox</span>
+      <h3>No pagination &mdash; 329 leads in one scroll</h3>
+      <p>The entire lead list loads as one flat scroll. Below the Lead Rescue section, it becomes a wall of identical-looking rows with no visual hierarchy. Every row has the same structure: name, status, "Draft next message", "None", "Edit".</p>
+      <div class="fix">Fix: Add pagination (25/page) or virtual scroll. Give the table rows avatars, color-coded temperature dots, and last-activity timestamps.</div>
+    </div>
+    <span class="issue-severity sev-critical">Critical</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number high">3</div>
+    <div class="issue-content">
+      <span class="page-tag">Mobile</span>
+      <h3>No bottom tab bar on mobile</h3>
+      <p>On mobile, the only navigation is the hamburger menu. Coaches check this app between sessions on their phone &mdash; needing two taps (hamburger + nav item) to switch sections kills momentum. Every competitor has a bottom tab bar.</p>
+      <div class="fix">Fix: Add a fixed bottom tab bar with 5 icons: Home, Leads, Clients, Voice, Content. Hide hamburger on mobile.</div>
+    </div>
+    <span class="issue-severity sev-high">High</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number high">4</div>
+    <div class="issue-content">
+      <span class="page-tag">Clients</span>
+      <h3>Duplicated client description</h3>
+      <p>The client bio appears twice &mdash; once as static text below the name and again in the editable "Current focus" textarea with identical content. Confusing: which one is the source of truth? Why show it twice?</p>
+      <div class="fix">Fix: Remove the static text above "Current focus". The editable textarea IS the description.</div>
+    </div>
+    <span class="issue-severity sev-high">High</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number high">5</div>
+    <div class="issue-content">
+      <span class="page-tag">Clients</span>
+      <h3>Massive dead whitespace below client sidebar</h3>
+      <p>The left sidebar shows 2 clients, then the entire lower-left quadrant of the page is completely empty. With Session Memory showing "No session notes yet", more than 50% of the visible page is blank. Feels like a beta product.</p>
+      <div class="fix">Fix: Stack Session Memory, Calendar, Homework, and Resources into a tighter column layout. Add a "Quick actions" strip or client timeline to fill dead space.</div>
+    </div>
+    <span class="issue-severity sev-high">High</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number high">6</div>
+    <div class="issue-content">
+      <span class="page-tag">Clients &rarr; Offerings</span>
+      <h3>Form always visible, empty state buried</h3>
+      <p>The "New offering" form is always expanded at the top of the Offerings tab, even when there are zero offerings. The empty state message ("No offerings yet") is pushed below the fold. New users see a form before understanding what offerings are.</p>
+      <div class="fix">Fix: Show the empty state first with a prominent "+ Create your first offering" button. Move the form behind a button or modal.</div>
+    </div>
+    <span class="issue-severity sev-high">High</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number medium">7</div>
+    <div class="issue-content">
+      <span class="page-tag">404 Page</span>
+      <h3>Missing nav bar + incomplete navigation cards</h3>
+      <p>The 404 page has no navigation bar at all. The recovery cards only show 3 options (Home, Leads, Voice) &mdash; missing Clients and Content. If /leads is 404 on production, users hit a dead end with no way to navigate properly.</p>
+      <div class="fix">Fix: Add the standard nav bar to the 404 page. Include all 5 sections in recovery cards.</div>
+    </div>
+    <span class="issue-severity sev-medium">Medium</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number medium">8</div>
+    <div class="issue-content">
+      <span class="page-tag">Command Center</span>
+      <h3>Revenue + Weekly Reach cards are wasted space</h3>
+      <p>Bottom of dashboard: Revenue card just says "Add your offerings" and Weekly Reach shows 0/30 with a tiny chart. These are prime real-estate taking up space with no actionable value until configured. On first visit, 30% of the dashboard is empty states.</p>
+      <div class="fix">Fix: Collapse empty-state cards into a single "Set up" checklist strip. Only expand Revenue/Reach cards once data exists.</div>
+    </div>
+    <span class="issue-severity sev-medium">Medium</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number medium">9</div>
+    <div class="issue-content">
+      <span class="page-tag">Command Center</span>
+      <h3>Lead rescue horizontal strip has no scroll indicator</h3>
+      <p>The rescue names (Sarah Hennessy, Amy Jamieson, Ken Holdway) sit in a horizontally scrollable strip, but there's no visual cue that more names exist off-screen. Users may think there are only 3 when there are 5.</p>
+      <div class="fix">Fix: Add a fade/gradient on the right edge or show "2 more" indicator. Or stack them vertically on the lead rescue section.</div>
+    </div>
+    <span class="issue-severity sev-medium">Medium</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number medium">10</div>
+    <div class="issue-content">
+      <span class="page-tag">Content</span>
+      <h3>Single long scroll &mdash; no section navigation</h3>
+      <p>Content page has: Editorial masthead, Pillars, Ship This Week, Buyer Mirror, Draft Room, Signal Stack, Latest Draft &mdash; all in one vertical scroll. No tabs, no anchors, no collapsible sections. Finding the Draft Room requires scrolling past everything.</p>
+      <div class="fix">Fix: Add anchor tabs at the top ("Desk | Drafts | Library") or collapsible sections so users can jump to what they need.</div>
+    </div>
+    <span class="issue-severity sev-medium">Medium</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number low">11</div>
+    <div class="issue-content">
+      <span class="page-tag">Leads / Inbox</span>
+      <h3>Lead table rows have no visual differentiation</h3>
+      <p>Below Lead Rescue, the full lead list is a flat table where every row looks identical. No avatars, no color-coded left borders by temperature, no inline last-message preview. Scanning 329 rows is a wall of sameness.</p>
+      <div class="fix">Fix: Add colored left-border by lead temperature. Show initials/avatar. Add a one-line last message preview.</div>
+    </div>
+    <span class="issue-severity sev-low">Low</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number low">12</div>
+    <div class="issue-content">
+      <span class="page-tag">Clients</span>
+      <h3>No manual "Add client" button</h3>
+      <p>Clients can only come from lead conversion. There's no way to manually add a client who came through a referral, an event, or an offline conversation. Edge case but important for coaches.</p>
+      <div class="fix">Fix: Add "+ Add client" button in the sidebar header.</div>
+    </div>
+    <span class="issue-severity sev-low">Low</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number low">13</div>
+    <div class="issue-content">
+      <span class="page-tag">Voice</span>
+      <h3>Voice Trust card is oversized for its content</h3>
+      <p>"Send 3 more AI-drafted messages and we'll start tracking..." takes up a full card width with a lot of empty space. One sentence doesn't need that much real estate.</p>
+      <div class="fix">Fix: Make it an inline banner or slim card, not a full-width block.</div>
+    </div>
+    <span class="issue-severity sev-low">Low</span>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-number low">14</div>
+    <div class="issue-content">
+      <span class="page-tag">Settings</span>
+      <h3>No way to navigate back &mdash; no breadcrumb</h3>
+      <p>Settings page has no "Back to Home" link or breadcrumb. The only way out is the nav bar. Minor, but feels like a dead-end page.</p>
+      <div class="fix">Fix: Add a "Back to dashboard" link below the Settings header.</div>
+    </div>
+    <span class="issue-severity sev-low">Low</span>
+  </div>
+</section>
+
+<!-- 80/20 -->
+<section>
+  <div class="section-badge">80/20 &mdash; Do These 4 Things</div>
+  <h2>The Moves That Matter</h2>
+  <p class="section-subtitle">These 4 changes will fix 80% of the perceived jank. Everything else is polish.</p>
+
+  <div class="pareto-grid">
+    <div class="pareto-card" data-number="01">
+      <h3>Add Search + Filters to Leads</h3>
+      <p>Search bar at the top of the lead list. Filter pills for temperature (Warm/Hot/Cold), source, and tags. Pagination at 25/page. This single change transforms the app from "demo" to "daily driver" for any coach with more than 50 leads.</p>
+      <div class="impact">Impact: Unblocks daily use &middot; Est. 1-2 days</div>
+    </div>
+
+    <div class="pareto-card" data-number="02">
+      <h3>Fix the Clients Page Layout</h3>
+      <p>Remove the duplicated description. Tighten the card layout so Session Memory, Calendar, Homework, and Resources stack without massive dead space. Add an "Add client" button. This page is where coaches spend the most time &mdash; it should feel tight and useful, not empty.</p>
+      <div class="impact">Impact: Retention / daily engagement &middot; Est. 1 day</div>
+    </div>
+
+    <div class="pareto-card" data-number="03">
+      <h3>Add Mobile Bottom Tab Bar</h3>
+      <p>Fixed bottom bar with 5 icons: Home, Leads, Clients, Voice, Content. Active state matches the green brand color. Coaches live on their phones between sessions &mdash; this is table stakes for any mobile-used SaaS.</p>
+      <div class="impact">Impact: Mobile retention &middot; Est. 0.5 day</div>
+    </div>
+
+    <div class="pareto-card" data-number="04">
+      <h3>Fix Empty States Everywhere</h3>
+      <p>Offerings form always open, Revenue card showing nothing, Voice Trust oversized, 404 missing nav &mdash; collapse all empty states into slim banners or checklists. Show the full card only when there's data. Empty states shouldn't take up more space than populated ones.</p>
+      <div class="impact">Impact: First impression / trust &middot; Est. 1 day</div>
+    </div>
+  </div>
+</section>
+
+<!-- VERDICT -->
+<section>
+  <div class="section-badge">Verdict</div>
+  <h2>Bottom Line</h2>
+  <p class="section-subtitle" style="max-width: 800px; font-size: 16px; line-height: 1.7; color: #bbb;">
+    The design language, brand consistency, and microcopy are genuinely excellent &mdash; better than most funded SaaS products. The <strong style="color:#fff">Login page</strong> and <strong style="color:#fff">Command Center</strong> are ship-ready. The <strong style="color:#fff">Voice</strong> and <strong style="color:#fff">Content</strong> pages have unique IP that no competitor offers.
+    <br><br>
+    The weak spots are all in <strong style="color:#fff">daily-use ergonomics</strong>: searching leads, managing clients, navigating on mobile. These aren't design problems &mdash; they're the gap between a demo product and a tool someone uses 10 times a day.
+    <br><br>
+    The 4 changes in the 80/20 section would close that gap in about 4 days of focused work.
+  </p>
+</section>
+
+</div>
+
+<div class="footer">
+  Coach App Audit &mdash; Jarvis for Sunny Binjola &mdash; May 20, 2026
+</div>
+
+</body>
+</html>

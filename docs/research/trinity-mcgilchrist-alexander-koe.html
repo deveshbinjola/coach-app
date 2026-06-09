@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Trinity — McGilchrist · Alexander · Koe · An Operating Thesis</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF8F3; --surface:#FFFFFF; --surface-2:#F4F0E6; --surface-dark:#0A0F1C;
+    --ink:#0A0F1C; --muted:#4F4F46; --soft:#7A7A70; --softer:#A6A39A;
+    --border:#E5E1D8; --border-soft:#EFECE3;
+    --accent:#0B6E23; --accent-2:#3F8B4A; --accent-3:#7AAE82;
+    --accent-soft:rgba(11,110,35,0.08); --accent-line:rgba(11,110,35,0.22);
+    --amber:#B07A14; --amber-soft:rgba(176,122,20,0.10);
+    --blue:#1F4068; --blue-soft:rgba(31,64,104,0.08);
+    --pain:#B23A2E; --pain-soft:rgba(178,58,46,0.08);
+    --font-serif:'Playfair Display', serif;
+    --font-body:'Plus Jakarta Sans', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+    --radius:14px; --radius-lg:22px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:var(--font-body);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+
+  .topstrip{border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;background:var(--bg);position:sticky;top:0;z-index:10;}
+  .topstrip .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;}
+  .leaf{width:18px;height:18px;}
+  .topstrip .meta{font-family:var(--font-mono);font-size:11px;color:var(--soft);letter-spacing:.06em;text-transform:uppercase;}
+  .topstrip .meta b{color:var(--accent);}
+
+  .hero{padding:96px 0 70px;border-bottom:1px solid var(--border);}
+  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:22px;display:inline-flex;align-items:center;gap:10px;}
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--accent);}
+  .hero h1{font-family:var(--font-serif);font-weight:700;font-size:clamp(40px,5.5vw,72px);line-height:1.04;letter-spacing:-.02em;margin-bottom:24px;max-width:960px;}
+  .hero h1 em{font-style:italic;color:var(--accent);font-weight:600;}
+  .hero .lede{font-size:19px;color:var(--muted);max-width:760px;line-height:1.6;}
+  .hero .lede + .lede{margin-top:14px;}
+
+  /* Trinity badges */
+  .trinity{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin-top:48px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  @media (max-width:880px){.trinity{grid-template-columns:1fr;}}
+  .tri{background:var(--surface);padding:24px;}
+  .tri .num{font-family:var(--font-mono);font-size:11px;color:var(--accent);letter-spacing:.1em;}
+  .tri .nm{font-family:var(--font-serif);font-size:24px;font-weight:600;margin:6px 0 4px;}
+  .tri .role{font-family:var(--font-mono);font-size:10px;color:var(--soft);letter-spacing:.1em;text-transform:uppercase;}
+  .tri .gives{margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);font-size:13px;color:var(--muted);line-height:1.5;}
+  .tri .gives b{color:var(--ink);}
+
+  /* Section frame */
+  section.block{padding:96px 0;border-bottom:1px solid var(--border);}
+  .section-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+  .section-label::before{content:"";width:24px;height:1px;background:var(--accent);}
+  .section-title{font-family:var(--font-serif);font-weight:700;font-size:46px;line-height:1.08;letter-spacing:-.015em;margin-bottom:14px;max-width:880px;}
+  .section-essence{font-family:var(--font-serif);font-style:italic;font-size:22px;color:var(--muted);max-width:760px;margin-bottom:48px;line-height:1.4;}
+
+  /* Works pill row */
+  .works{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;margin-bottom:40px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;}
+  .works .wl{font-family:var(--font-mono);font-size:11px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;padding-top:2px;}
+  .works .wbody{font-size:14px;color:var(--ink);line-height:1.7;}
+  .works .wbody b{font-weight:600;}
+
+  /* Teaching prose */
+  .teaching{font-size:17px;color:var(--ink);max-width:820px;line-height:1.7;}
+  .teaching p + p{margin-top:18px;}
+  .teaching .first{font-family:var(--font-serif);font-size:22px;font-style:italic;color:var(--muted);line-height:1.4;margin-bottom:8px;}
+
+  /* Two-column comparison */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);margin:40px 0;overflow:hidden;}
+  @media (max-width:880px){.two-col{grid-template-columns:1fr;}}
+  .tc{background:var(--surface);padding:32px;}
+  .tc.left{background:var(--surface-dark);color:#F0EEE6;}
+  .tc.right{background:var(--surface);}
+  .tc h4{font-family:var(--font-serif);font-size:24px;font-weight:600;margin-bottom:6px;letter-spacing:-.01em;}
+  .tc.left h4{color:#FAF8F3;}
+  .tc .head-meta{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px;}
+  .tc.left .head-meta{color:#7AAE82;}
+  .tc.right .head-meta{color:var(--accent);}
+  .tc ul{list-style:none;}
+  .tc li{padding:12px 0;border-bottom:1px dashed rgba(255,255,255,0.08);font-size:14px;line-height:1.55;display:grid;grid-template-columns:18px 1fr;gap:10px;}
+  .tc.right li{border-bottom-color:var(--border);color:var(--muted);}
+  .tc.left li{color:#C9C5B8;}
+  .tc li:last-child{border-bottom:0;}
+  .tc.left li::before{content:"•";color:#A6A39A;}
+  .tc.right li::before{content:"•";color:var(--accent);}
+  .tc li b{display:block;color:#FAF8F3;font-weight:600;margin-bottom:2px;}
+  .tc.right li b{color:var(--ink);}
+
+  /* Means box */
+  .means{margin:40px 0;padding:32px 36px;background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;}
+  .means .ml{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;margin-bottom:10px;}
+  .means p{font-family:var(--font-serif);font-style:italic;font-size:22px;color:var(--ink);line-height:1.4;max-width:780px;}
+
+  /* Feel box */
+  .feel{margin:28px 0 40px;padding:24px 28px;background:var(--surface);border:1px dashed var(--accent-line);border-radius:var(--radius);}
+  .feel .fl{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--soft);text-transform:uppercase;margin-bottom:8px;}
+  .feel .fl b{color:var(--accent);}
+  .feel p{font-size:15px;color:var(--muted);max-width:780px;line-height:1.6;}
+
+  /* 15 Properties grid (Alexander) */
+  .props{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:40px 0;}
+  @media (max-width:880px){.props{grid-template-columns:repeat(2,1fr);}}
+  .prop{background:var(--surface);padding:20px 22px;}
+  .prop .pn{font-family:var(--font-mono);font-size:10px;color:var(--accent);letter-spacing:.08em;font-weight:600;}
+  .prop .nm{font-family:var(--font-serif);font-size:17px;font-weight:600;margin:6px 0 8px;letter-spacing:-.01em;line-height:1.2;}
+  .prop p{font-size:12px;color:var(--muted);line-height:1.5;}
+  .prop .brand{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);font-family:var(--font-mono);font-size:10px;color:var(--soft);letter-spacing:.04em;line-height:1.5;}
+  .prop .brand b{color:var(--accent);}
+
+  /* Koe workflow diagram */
+  .workflow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin:40px 0;position:relative;}
+  @media (max-width:980px){.workflow{grid-template-columns:1fr;gap:14px;}}
+  .wf-node{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:18px 14px;text-align:center;position:relative;z-index:2;}
+  .wf-node .wn{font-family:var(--font-mono);font-size:10px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+  .wf-node .what{font-family:var(--font-serif);font-size:16px;font-weight:600;line-height:1.2;}
+  .wf-node .out{font-family:var(--font-mono);font-size:9px;color:var(--soft);letter-spacing:.04em;margin-top:6px;}
+  .wf-arrow{text-align:center;font-family:var(--font-mono);font-size:18px;color:var(--accent);font-weight:600;}
+  @media (max-width:980px){.wf-arrow{display:none;}}
+
+  /* Koe principles */
+  .principles{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:36px 0;}
+  @media (max-width:880px){.principles{grid-template-columns:1fr;}}
+  .principle{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-left:3px solid var(--accent);}
+  .principle .pl{font-family:var(--font-mono);font-size:10px;color:var(--accent);letter-spacing:.08em;font-weight:600;margin-bottom:6px;}
+  .principle h5{font-family:var(--font-serif);font-size:20px;font-weight:600;margin-bottom:8px;letter-spacing:-.01em;}
+  .principle p{font-size:14px;color:var(--muted);line-height:1.55;}
+
+  /* Convergence — Venn-style */
+  .convergence{padding:60px 0 30px;text-align:center;}
+  .venn{position:relative;width:520px;height:340px;margin:30px auto 60px;}
+  @media (max-width:600px){.venn{transform:scale(0.7);transform-origin:center top;}}
+  .circle{position:absolute;width:280px;height:280px;border-radius:50%;display:flex;align-items:flex-start;justify-content:center;padding-top:36px;font-family:var(--font-serif);font-weight:700;font-size:18px;color:var(--ink);mix-blend-mode:multiply;}
+  .c-m{background:rgba(11,110,35,0.40);top:0;left:120px;}
+  .c-a{background:rgba(176,122,20,0.40);top:60px;left:0;}
+  .c-k{background:rgba(31,64,104,0.40);top:60px;right:0;}
+  .center-label{position:absolute;top:160px;left:50%;transform:translateX(-50%);font-family:var(--font-serif);font-style:italic;font-size:18px;color:var(--ink);font-weight:600;text-align:center;width:160px;line-height:1.2;}
+
+  /* Threads grid */
+  .threads{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+  @media (max-width:880px){.threads{grid-template-columns:1fr;}}
+  .thread{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;}
+  .thread .tnum{font-family:var(--font-mono);font-size:11px;color:var(--accent);letter-spacing:.1em;font-weight:600;}
+  .thread h4{font-family:var(--font-serif);font-size:24px;font-weight:600;margin:6px 0 12px;letter-spacing:-.01em;line-height:1.2;}
+  .thread p{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+  .thread .sources{font-family:var(--font-mono);font-size:11px;color:var(--soft);letter-spacing:.05em;}
+  .thread .sources b{color:var(--accent);}
+
+  /* Unified thesis */
+  .thesis{padding:80px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface-2);}
+  .thesis-box{background:var(--surface);border:1px solid var(--accent-line);border-radius:var(--radius-lg);padding:48px;text-align:left;}
+  .thesis-box .tl{font-family:var(--font-mono);font-size:11px;letter-spacing:.15em;color:var(--accent);text-transform:uppercase;margin-bottom:18px;}
+  .thesis-box .stmt{font-family:var(--font-serif);font-size:32px;line-height:1.3;color:var(--ink);font-weight:500;letter-spacing:-.01em;max-width:920px;}
+  .thesis-box .stmt em{color:var(--accent);font-style:italic;font-weight:600;}
+  .thesis-box .meta{margin-top:24px;font-family:var(--font-mono);font-size:11px;color:var(--soft);letter-spacing:.06em;}
+
+  /* Application sections */
+  .apply{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-top:40px;}
+  @media (max-width:880px){.apply{grid-template-columns:1fr;}}
+  .ap{background:var(--surface);padding:36px;}
+  .ap.business{border-top:3px solid var(--accent);}
+  .ap.content{border-top:3px solid var(--amber);}
+  .ap.life{border-top:3px solid var(--blue);}
+  .ap .al{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:6px;}
+  .ap.business .al{color:var(--accent);}
+  .ap.content .al{color:var(--amber);}
+  .ap.life .al{color:var(--blue);}
+  .ap h3{font-family:var(--font-serif);font-size:28px;font-weight:600;margin-bottom:24px;letter-spacing:-.01em;}
+  .ap .item{padding:16px 0;border-bottom:1px dashed var(--border);}
+  .ap .item:last-child{border-bottom:0;}
+  .ap .item b{display:block;font-weight:600;font-size:14px;margin-bottom:4px;}
+  .ap .item p{font-size:13px;color:var(--muted);line-height:1.55;}
+  .ap .item .from{font-family:var(--font-mono);font-size:10px;color:var(--soft);letter-spacing:.05em;margin-top:6px;}
+  .ap .item .from b{display:inline;color:var(--accent);}
+
+  /* 90-day plan */
+  .plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media (max-width:880px){.plan-grid{grid-template-columns:1fr;}}
+  .plan-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;}
+  .plan-card .day{font-family:var(--font-mono);font-size:11px;color:var(--accent);letter-spacing:.1em;font-weight:600;}
+  .plan-card h4{font-family:var(--font-serif);font-size:22px;font-weight:600;margin:8px 0 14px;letter-spacing:-.01em;}
+  .plan-card ul{list-style:none;}
+  .plan-card li{padding:8px 0;font-size:13px;color:var(--muted);line-height:1.5;display:grid;grid-template-columns:14px 1fr;gap:8px;align-items:start;}
+  .plan-card li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);margin-top:8px;}
+  .plan-card li b{color:var(--ink);font-weight:600;}
+
+  /* Closing */
+  .closing{padding:90px 0;}
+  .closing blockquote{font-family:var(--font-serif);font-style:italic;font-size:30px;line-height:1.35;color:var(--ink);max-width:880px;font-weight:500;letter-spacing:-.01em;}
+  .closing blockquote::before{content:"" ";color:var(--accent);font-size:48px;line-height:0;}
+  .closing .source{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--soft);margin-top:24px;}
+
+  footer{padding:32px;border-top:1px solid var(--border);text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--soft);letter-spacing:.06em;}
+  footer b{color:var(--accent);}
+
+  @media print{.topstrip{position:static;}section.block{page-break-inside:avoid;}body{background:#fff;}}
+</style>
+</head>
+<body>
+
+<header class="topstrip">
+  <div class="logo">
+    <svg class="leaf" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C8 6 4 10 4 15a8 8 0 0 0 16 0c0-5-4-9-8-13Z" fill="#0B6E23"/>
+      <path d="M12 5v15" stroke="#FAF8F3" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <span>Elevate AI · The Trinity Brief</span>
+  </div>
+  <div class="meta">SYNTHESIS · <b>2026-06-03</b> · v1.0</div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero wrap">
+  <div class="eyebrow">McGilchrist · Alexander · Koe</div>
+  <h1>Three thinkers. Three layers. <em>One operating thesis for the embodied AI marketing coach.</em></h1>
+  <p class="lede">McGilchrist gives you the <b>worldview</b> — why the AI age needs embodied practitioners more than any age before it. Alexander gives you the <b>aesthetic</b> — the 15 properties that make a brand feel alive instead of dead. Koe gives you the <b>workflow</b> — the one-person business cadence that turns daily writing into compounding sovereignty.</p>
+  <p class="lede">Read each in order. Then read the synthesis. By the end you have a thesis no other coach can hold, a brand language no other coach can speak, and a daily practice no other coach can sustain.</p>
+
+  <div class="trinity">
+    <div class="tri">
+      <div class="num">LAYER 01</div>
+      <div class="nm">Iain McGilchrist</div>
+      <div class="role">Worldview · the why</div>
+      <div class="gives">Gives you <b>the philosophical authority</b> to name the AI age as a left-hemisphere apotheosis, and embodied practice as the corrective. Long-form essay engine for 12 months.</div>
+    </div>
+    <div class="tri">
+      <div class="num">LAYER 02</div>
+      <div class="nm">Christopher Alexander</div>
+      <div class="role">Aesthetic · the how it looks</div>
+      <div class="gives">Gives you <b>the visual IP</b> — 15 named properties of "aliveness" that explain why your brand resonates and lets you teach it. Brand-design course material.</div>
+    </div>
+    <div class="tri">
+      <div class="num">LAYER 03</div>
+      <div class="nm">Dan Koe</div>
+      <div class="role">Workflow · the how it ships</div>
+      <div class="gives">Gives you <b>the daily operating cadence</b> — voice memo → essay → product, audience as compounding asset. Already your favorite. Now your operating system.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LAYER 01 · MCGILCHRIST ===== -->
+<section class="block" id="mcgilchrist">
+  <div class="wrap">
+    <div class="section-label">Layer 01 · McGilchrist · the worldview</div>
+    <h2 class="section-title">The civilization went left-brain. The embodied coach is right-brain medicine.</h2>
+    <p class="section-essence">"The right hemisphere has the master's view. The left, the emissary's. We have inverted them — and called the inversion progress."</p>
+
+    <div class="works">
+      <div class="wl">Sources</div>
+      <div class="wbody"><b>The Master and His Emissary</b> (2009, 600 pages — the foundation) · <b>The Matter With Things</b> (2021, 1,500 pages — the magnum opus, two volumes) · Channel McGilchrist on YouTube · Theos podcast interviews · his Substack.</div>
+    </div>
+
+    <div class="teaching">
+      <p class="first">The thesis, in one breath.</p>
+      <p>The two hemispheres of the human brain don't divide tasks. They divide <em>kinds of attention.</em> The left hemisphere attends narrowly, abstractly, decontextualized — it categorizes, manipulates, treats things as already-known. The right hemisphere attends broadly, contextually, embodied — it sees wholes, notices novelty, encounters living things as living. Both are necessary. But they were never equal partners.</p>
+      <p>In every healthy culture, McGilchrist argues, the right hemisphere is the master — the one that perceives reality — and the left is the emissary — the one that handles the focused tasks the master delegates. The master sees the forest. The emissary chops the wood. The master returns the wood to the forest in a way that serves the whole.</p>
+      <p>Western civilization, for about 500 years and accelerating, has inverted this. The emissary took the throne. The left hemisphere now defines reality. Bureaucracy, scientism, mechanism, optimization, abstraction, manipulation, the algorithm — these are all left-hemisphere apotheoses. The right hemisphere — the master — has been demoted to "subjective experience" or "irrational" or "the soft stuff." What it actually knows — connection, context, embodiment, music, metaphor, the sacred, the living — has been quietly evicted from public reality.</p>
+      <p>And then came AI. Which is, in McGilchrist's frame, the perfection of left-hemisphere attention. Pattern-matching on abstraction. Categorization at scale. Manipulation without context. The emissary, finally given infinite hands.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="tc left">
+        <h4>The left hemisphere knows</h4>
+        <div class="head-meta">The emissary · narrow attention</div>
+        <ul>
+          <li><b>Parts, not wholes.</b>Decomposes into components. Loses the gestalt.</li>
+          <li><b>Categories.</b>Treats things as instances of known types. Resists novelty.</li>
+          <li><b>Manipulation.</b>How to use, control, optimize. Not how to encounter.</li>
+          <li><b>Abstraction.</b>Words as labels. Concepts detached from felt experience.</li>
+          <li><b>Certainty.</b>Insists it already knows. Cannot tolerate ambiguity.</li>
+          <li><b>The dead.</b>Treats living things as mechanisms. Reduces beings to functions.</li>
+          <li><b>Algorithm.</b>The world as a rule-following system to be solved.</li>
+        </ul>
+      </div>
+      <div class="tc right">
+        <h4>The right hemisphere knows</h4>
+        <div class="head-meta">The master · broad attention</div>
+        <ul>
+          <li><b>Wholes.</b>Perceives gestalt before parts. Sees context.</li>
+          <li><b>Novelty.</b>Notices what's new. Stays open to what doesn't fit.</li>
+          <li><b>Embodiment.</b>The body is included in cognition. Felt sense is data.</li>
+          <li><b>Connection.</b>Sees relationship before object. Sees beings, not things.</li>
+          <li><b>Metaphor + music.</b>Carries meaning that abstraction cannot.</li>
+          <li><b>The living.</b>Encounters living things as alive. Honors their otherness.</li>
+          <li><b>The sacred.</b>The dimension of depth, beauty, awe. Real, not decorative.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="means">
+      <div class="ml">What it means for us</div>
+      <p>Embodied marketing isn't a tactic. It's a corrective. In a culture that's worshipped the emissary for 500 years and just gave him infinite scale through AI, the man who practices right-hemisphere primacy <em>becomes a category of one</em>. Brand OS exists because the left-brain content engine is now infinite — and the right-brain presence behind it is the only remaining moat.</p>
+    </div>
+
+    <div class="feel">
+      <div class="fl"><b>How to feel it.</b> The two-mode noticing.</div>
+      <p>Spend an hour scrolling, then ten minutes with a person. The shift is McGilchrist's whole thesis felt directly. The first is left-hemisphere extension. The second is right-hemisphere encounter. Train the noticing. Your nervous system will sort the rest.</p>
+    </div>
+
+    <div class="teaching">
+      <p><b>Why he matters most to your specific position.</b> McGilchrist is the only living philosopher giving you intellectual sovereignty for the embodied marketing thesis. Everyone else who agrees with you uses softer language — "energy," "presence," "vibes." McGilchrist gives you neuroscience, philosophy, 2,100 pages of citations, and a 30-year career at Oxford. When you quote him in a Signal essay, the resistance from the rationalist side of your audience dissolves in one move.</p>
+      <p><b>The single sentence to internalize.</b> "Attention is not a cognitive resource. It is a moral act." Once you carry this, every marketing decision sharpens — because you stop asking "how do I capture attention?" and start asking "what kind of attention am I cultivating in the people I serve?"</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LAYER 02 · ALEXANDER ===== -->
+<section class="block" id="alexander">
+  <div class="wrap">
+    <div class="section-label">Layer 02 · Alexander · the aesthetic</div>
+    <h2 class="section-title">There's a quality without a name. The 15 properties unlock it.</h2>
+    <p class="section-essence">"The buildings that have it have a certain freshness. They feel alive. The buildings that don't have it feel dead — and we have built almost nothing else for a hundred years."</p>
+
+    <div class="works">
+      <div class="wl">Sources</div>
+      <div class="wbody"><b>A Pattern Language</b> (1977, with Ishikawa &amp; Silverstein — 253 design patterns) · <b>The Timeless Way of Building</b> (1979 — the philosophical companion) · <b>The Nature of Order</b> (2003–04, 4 volumes — the magnum opus on aliveness). Background: he spent 60 years building, teaching, and arguing that modern architecture had forgotten how to make places feel alive.</div>
+    </div>
+
+    <div class="teaching">
+      <p class="first">The thesis.</p>
+      <p>Christopher Alexander spent his career asking one question: <em>why do some places feel alive and others feel dead?</em> An old Italian village. A medieval courtyard. A great cathedral. A modest farmhouse. Versus: a corporate office park. A suburban tract. A modernist plaza nobody sits in. The first kind have what he calls <b>quality without a name</b> — a felt aliveness that cannot be reduced to style, period, or budget. The second don't.</p>
+      <p>His scientific claim, controversial in his field, is that this aliveness is not subjective. It's structural. There are <b>fifteen fundamental properties</b> — patterns of organization — that recur in everything that feels alive: a leaf, a face, a Persian rug, a Bach fugue, a Tuscan piazza, a great brand. Things that have these properties feel alive to the body before the mind catches up. Things that lack them feel dead, no matter how clever or expensive.</p>
+      <p>These properties aren't a style. They're not "rustic" or "minimalist" or "warm." They're geometric-perceptual recurrences that show up in nature and in everything humans have made that endured. Below: the fifteen, named, with the brand-design translation for your work.</p>
+    </div>
+
+    <div class="props">
+      <div class="prop"><div class="pn">PROP 01</div><div class="nm">Levels of scale</div><p>Multiple sizes that step gracefully into each other. Nothing leaps from huge to tiny.</p><div class="brand"><b>Brand:</b> hero serif → subhead → body → caption → micro. Five sizes that step.</div></div>
+      <div class="prop"><div class="pn">02</div><div class="nm">Strong centers</div><p>Every living whole has a recognizable center holding it together.</p><div class="brand"><b>Brand:</b> one dominant element per page. The Signal hero. The carousel slide-1 phrase.</div></div>
+      <div class="prop"><div class="pn">03</div><div class="nm">Boundaries</div><p>Real edges that contain, not just delineate. A boundary belongs to two things.</p><div class="brand"><b>Brand:</b> 32px gutters. Card borders. Section dividers that mean something.</div></div>
+      <div class="prop"><div class="pn">04</div><div class="nm">Alternating repetition</div><p>Rhythm: A then B then A. Never just A A A. Living systems pulse.</p><div class="brand"><b>Brand:</b> dark hero / light section / dark callout / light section. The page breathes.</div></div>
+      <div class="prop"><div class="pn">05</div><div class="nm">Positive space</div><p>Every space — including "empty" space — is shaped intentionally.</p><div class="brand"><b>Brand:</b> generous whitespace IS the design. Not absence — presence of breath.</div></div>
+      <div class="prop"><div class="pn">06</div><div class="nm">Good shape</div><p>Each part is itself a coherent whole, not a leftover.</p><div class="brand"><b>Brand:</b> every component (button, card, pill) has its own complete proportion.</div></div>
+      <div class="prop"><div class="pn">07</div><div class="nm">Local symmetries</div><p>Small local symmetries, never imposed global ones. Nature is locally symmetric, globally varied.</p><div class="brand"><b>Brand:</b> within a card: symmetric. Across the page: varied. Not rigid grids.</div></div>
+      <div class="prop"><div class="pn">08</div><div class="nm">Deep interlock + ambiguity</div><p>Things lock into each other. The "between" is as designed as the things.</p><div class="brand"><b>Brand:</b> overlapping headers + content. Sections that blend, not just sit next to.</div></div>
+      <div class="prop"><div class="pn">09</div><div class="nm">Contrast</div><p>Polarities that bring out each other. Not just visual contrast — felt contrast.</p><div class="brand"><b>Brand:</b> warm white vs ink. Forest green vs muted soft. Hard against soft.</div></div>
+      <div class="prop"><div class="pn">10</div><div class="nm">Gradients</div><p>Smooth transitions in density, color, attention. The eye is led, not jumped.</p><div class="brand"><b>Brand:</b> hero is dense, footer is light. Carousel slides build attention gradually.</div></div>
+      <div class="prop"><div class="pn">11</div><div class="nm">Roughness</div><p>Imperfection. Hand-made marks. Asymmetries that match the situation.</p><div class="brand"><b>Brand:</b> serif italics. Hand-felt copy. Not a designed-to-death surface.</div></div>
+      <div class="prop"><div class="pn">12</div><div class="nm">Echoes</div><p>Themes that recur and reinforce. Visual rhymes across a system.</p><div class="brand"><b>Brand:</b> leaf logo echoes in section dividers. Forest green echoes in accent lines.</div></div>
+      <div class="prop"><div class="pn">13</div><div class="nm">The void</div><p>Real emptiness at the center of certain things. Space that holds, not space that's missing.</p><div class="brand"><b>Brand:</b> the silence in a reel. The full white slide between sections. The pause.</div></div>
+      <div class="prop"><div class="pn">14</div><div class="nm">Simplicity + inner calm</div><p>Nothing extra. Nothing missing. The thing comes to rest.</p><div class="brand"><b>Brand:</b> if you can remove it without loss, remove it. Calm is the test.</div></div>
+      <div class="prop"><div class="pn">15</div><div class="nm">Not-separateness</div><p>The thing belongs to its environment. Doesn't shout at it. Doesn't disappear into it.</p><div class="brand"><b>Brand:</b> your brand belongs in your audience's life, not interrupting it.</div></div>
+    </div>
+
+    <div class="means">
+      <div class="ml">What it means for us</div>
+      <p>You've already been designing this way intuitively — warm light over neon, generous whitespace, alternating dark and light sections, serif italic for breath. <em>Alexander gives you the vocabulary to teach it.</em> Which means Brand OS gets a 15-Property Audit module. Which means the cohort gets an aesthetic curriculum nobody else in coaching offers. Which means your visual taste becomes IP, not just a vibe.</p>
+    </div>
+
+    <div class="feel">
+      <div class="fl"><b>How to feel it.</b> The street-walk test.</div>
+      <p>Walk through a city. Notice which streets you want to linger in. Those streets have multiple levels of scale, strong centers, alternating rhythm, positive space, roughness. The streets you flee through don't. Then walk through coach websites. Same test. The dead ones break Alexander's properties; the alive ones, even without knowing his name, are using them. You can now diagnose this aloud — and that's a teachable skill.</p>
+    </div>
+
+    <div class="teaching">
+      <p><b>The meta-move on this very document.</b> Look at how this page is built. The 15 properties are being applied as you read: strong center (one dominant heading per section), alternating repetition (dark cards / light cards), positive space (these wide gutters are not empty — they're shaped), contrast (warm white vs ink, serif vs sans), echoes (the green accent line recurring), roughness (the dashed borders, the italic essences). The document teaches Alexander by being made of him.</p>
+      <p><b>The single sentence to internalize.</b> "Aliveness is not a metaphor. It is a structural property of certain configurations." Once you carry this, you stop apologizing for your aesthetic taste and start defending it as engineering.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LAYER 03 · KOE ===== -->
+<section class="block" id="koe">
+  <div class="wrap">
+    <div class="section-label">Layer 03 · Koe · the workflow</div>
+    <h2 class="section-title">The one-person business is the modern monastery. Daily writing is the rule.</h2>
+    <p class="section-essence">"Your purpose is not a thing you find. It's a thing you write into being, one essay a day, until the writing and the man become indistinguishable."</p>
+
+    <div class="works">
+      <div class="wl">Sources</div>
+      <div class="wbody"><b>One Person Business Model</b> (free essay · the foundation) · <b>2 Hour Writer</b> (course) · <b>Modern Mastery HQ</b> (community) · Daily essays on Twitter/X + Substack · YouTube long-form (newer, growing fast). Background: built a multi-million-dollar solo business in his 20s without team, ads, or hype — purely by writing daily about purpose, business, and self-mastery.</div>
+    </div>
+
+    <div class="teaching">
+      <p class="first">The thesis.</p>
+      <p>Koe's argument, distilled: the internet now makes it possible for one person to build a global audience, deliver leveraged products, and earn at scale — without team, without venture capital, without dilution. The question is no longer <em>can</em> you build a one-person business. The question is what you write about, every day, for the next decade.</p>
+      <p>His three claims that compound:</p>
+      <p><em>One.</em> Your audience is your only compounding asset. Everything else — products, calls, ads, partnerships — comes and goes. The audience, if you build it from real writing, becomes the gravity well around which everything else organizes.</p>
+      <p><em>Two.</em> Daily writing is the cheapest, fastest, most distinct asset you can build. One person writing one essay a day, for one year, becomes a brand. The barrier isn't capital. The barrier is the year.</p>
+      <p><em>Three.</em> Purpose is downstream of practice. You don't find your niche and then write. You write and your niche finds you. After 200 essays, the throughline is undeniable — and that throughline is the business.</p>
+    </div>
+
+    <div class="workflow">
+      <div class="wf-node"><div class="wn">CAPTURE</div><div class="what">Voice memo</div><div class="out">→ raw thought</div></div>
+      <div class="wf-arrow">→</div>
+      <div class="wf-node"><div class="wn">SHAPE</div><div class="what">Daily essay</div><div class="out">→ Substack / X</div></div>
+      <div class="wf-arrow">→</div>
+      <div class="wf-node"><div class="wn">SOLIDIFY</div><div class="what">Frameworks</div><div class="out">→ products</div></div>
+      <div class="wf-arrow">→</div>
+      <div class="wf-node"><div class="wn">DEPLOY</div><div class="what">Audience</div><div class="out">→ list grows</div></div>
+      <div class="wf-arrow">→</div>
+      <div class="wf-node"><div class="wn">RETURN</div><div class="what">Voice memo</div><div class="out">→ loop</div></div>
+    </div>
+
+    <div class="principles">
+      <div class="principle">
+        <div class="pl">PRINCIPLE 01</div>
+        <h5>Voice memos in, essays out</h5>
+        <p>He records himself talking through ideas in flow state. Then he shapes the transcript into an essay. The order matters: capture before edit, body before mind. Wispr Flow is your version.</p>
+      </div>
+      <div class="principle">
+        <div class="pl">02</div>
+        <h5>Daily cadence, ruthless</h5>
+        <p>Daily on X. Multiple times a day. Weekly long-form on Substack. The cadence is not negotiable. The rhythm becomes the brand.</p>
+      </div>
+      <div class="principle">
+        <div class="pl">03</div>
+        <h5>Philosophical &gt; tactical</h5>
+        <p>Most of his posts are philosophy, identity, purpose — not "5 tips." Tactical wins clicks; philosophical wins identification. He optimized for the latter, won both.</p>
+      </div>
+      <div class="principle">
+        <div class="pl">04</div>
+        <h5>Products are solidified essays</h5>
+        <p>His best essays become frameworks. Frameworks become courses. Courses become community. Each product is the next level of solidification of an idea he's already proven works in writing.</p>
+      </div>
+      <div class="principle">
+        <div class="pl">05</div>
+        <h5>Direct-from-essay funnel</h5>
+        <p>No ads. No cold outreach. Free essay → email → low-ticket → high-ticket → community. The essays are the funnel. Each one captures and qualifies in the same act.</p>
+      </div>
+      <div class="principle">
+        <div class="pl">06</div>
+        <h5>Niche convergence, not choice</h5>
+        <p>He didn't pick a niche; he wrote until one emerged. Purpose + business + self-mastery converged into one identity over hundreds of essays. The niche is the residue of consistency.</p>
+      </div>
+      <div class="principle">
+        <div class="pl">07</div>
+        <h5>Aesthetic minimalism</h5>
+        <p>His visual identity: clean type, minimal color, warm tone, no logos screaming. The form doesn't compete with the writing. Alexander would approve.</p>
+      </div>
+      <div class="principle">
+        <div class="pl">08</div>
+        <h5>He lives his thesis</h5>
+        <p>He IS a one-person business writing daily about being a one-person business. The embodiment of the message is the message. You can feel it through every line. McGilchrist would call this right-hemisphere primacy in practice.</p>
+      </div>
+    </div>
+
+    <div class="means">
+      <div class="ml">What it means for us</div>
+      <p>Koe is your operational template. His funnel maps to your offer ladder almost exactly (free essay → $7 trip-wire → $2K cohort → $12K Build Your Brand). His workflow (Wispr → essay → product → loop) is already half-installed in your stack. <em>The difference is theme.</em> Koe writes about purpose + business. You write about <b>embodiment + AI + men's work</b>. Same cadence, deeper substrate. Your niche is bigger than his because you're at the intersection no one else stands at.</p>
+    </div>
+
+    <div class="feel">
+      <div class="fl"><b>How to feel it.</b> The 90-day test.</div>
+      <p>Write daily for 90 days using his cadence — voice memo → essay → ship. After 90 days, read all 90 essays in sequence. You will see your real niche, in your own voice, having converged in front of you. This is not theory. Hundreds of writers have run this experiment with the same outcome.</p>
+    </div>
+
+    <div class="teaching">
+      <p><b>The single sentence to internalize.</b> "The man and the writing become indistinguishable, and then both compound." Once you carry this, you stop separating "marketing time" from "thinking time" from "being time" — they're one practice, and the compounding only works at that integration.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONVERGENCE ===== -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-label">04 · The convergence</div>
+    <h2 class="section-title">Three thinkers. Eight common threads. One operating thesis.</h2>
+    <p class="section-essence">They don't quote each other. They don't share a field. But they're saying the same thing, at three different layers — and when you stack them, you get a thesis no one else in your space is holding.</p>
+
+    <div class="convergence">
+      <div class="venn">
+        <div class="circle c-m">McGILCHRIST</div>
+        <div class="circle c-a">ALEXANDER</div>
+        <div class="circle c-k">KOE</div>
+        <div class="center-label">aliveness ·<br>attention ·<br>cadence</div>
+      </div>
+    </div>
+
+    <div class="threads">
+
+      <div class="thread">
+        <div class="tnum">THREAD 01</div>
+        <h4>Attention is the foundation, not a resource</h4>
+        <p>McGilchrist: attention is a moral act. Alexander: the quality without a name comes from how you attend to materials. Koe: deep work is the only competitive advantage left. All three reject the modern frame where attention is a thing to capture or spend.</p>
+        <div class="sources">CITED IN: <b>McGilchrist · Alexander · Koe</b></div>
+      </div>
+
+      <div class="thread">
+        <div class="tnum">02</div>
+        <h4>The whole comes before the parts</h4>
+        <p>McGilchrist: the right brain perceives gestalt; the left, components. Alexander: a pattern works only because it serves the whole. Koe: a one-person business is a whole life integrated, not parts scaled. All three are anti-reductionist.</p>
+        <div class="sources">CITED IN: <b>all three</b></div>
+      </div>
+
+      <div class="thread">
+        <div class="tnum">03</div>
+        <h4>The body knows first</h4>
+        <p>McGilchrist: the right brain is embodied; felt sense is real cognition. Alexander: the quality without a name is felt before articulated. Koe: voice memos capture body-knowing before mind-editing. All three trust felt response as a measurement device.</p>
+        <div class="sources">CITED IN: <b>all three — explicitly</b></div>
+      </div>
+
+      <div class="thread">
+        <div class="tnum">04</div>
+        <h4>Aliveness over optimization</h4>
+        <p>McGilchrist: don't optimize the dead. Alexander: build for life, not efficiency. Koe: depth over reach, presence over performance. All three privilege aliveness as the metric — and refuse to treat optimization as a substitute.</p>
+        <div class="sources">CITED IN: <b>all three</b></div>
+      </div>
+
+      <div class="thread">
+        <div class="tnum">05</div>
+        <h4>Patterns, not rules</h4>
+        <p>McGilchrist: the right brain works contextually, not algorithmically. Alexander: patterns are situated, never universal — they emerge from problem and place. Koe: frameworks emerge from practice, not from theory imposed on practice. All three resist rigid prescription.</p>
+        <div class="sources">CITED IN: <b>all three</b></div>
+      </div>
+
+      <div class="thread">
+        <div class="tnum">06</div>
+        <h4>The strong center</h4>
+        <p>McGilchrist: the right hemisphere holds the integrated self. Alexander: every living whole has a strong center. Koe: one-person sovereignty — the centered self at the heart of the business. All three are about centeredness as primary, decentralization as secondary.</p>
+        <div class="sources">CITED IN: <b>all three</b></div>
+      </div>
+
+      <div class="thread">
+        <div class="tnum">07</div>
+        <h4>Time as cultivation, not consumption</h4>
+        <p>McGilchrist: right-brain time is flow, presence, unfolding. Alexander: aliveness emerges through slow construction. Koe: daily practice over launch events. All three reject the launch-event model in favor of long cultivation.</p>
+        <div class="sources">CITED IN: <b>all three</b></div>
+      </div>
+
+      <div class="thread">
+        <div class="tnum">08</div>
+        <h4>Right relationship to technology</h4>
+        <p>McGilchrist: AI is left-brain apotheosis; we need right-brain primacy to use it well. Alexander: technology should serve life patterns, not impose dead order. Koe: AI as leverage for the embodied creator, not a replacement of thinking. All three want technology subordinated to life, not the other way.</p>
+        <div class="sources">CITED IN: <b>all three — most relevant to your AI thesis</b></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== UNIFIED THESIS ===== -->
+<section class="thesis">
+  <div class="wrap">
+    <div class="thesis-box">
+      <div class="tl">YOUR UNIFIED THESIS · ONE SENTENCE TO HOLD</div>
+      <div class="stmt">Embodied marketing is <em>right-hemisphere medicine</em> in a left-hemisphere AI age, designed with the <em>patterns that make brands feel alive</em>, executed at the <em>cadence of one-person sovereignty</em> — so the man, the work, and the writing become indistinguishable, and all three compound.</div>
+      <div class="meta">McGILCHRIST (worldview) · ALEXANDER (aesthetic) · KOE (cadence) · 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== APPLICATION ===== -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-label">05 · Application · business · content · life</div>
+    <h2 class="section-title">How the trinity actually changes what you do — at all three layers.</h2>
+    <p class="section-sub" style="font-size:17px;color:var(--muted);max-width:760px;margin-bottom:0;">Each column below uses all three thinkers. Read across to see how the worldview, the aesthetic, and the cadence reinforce each move.</p>
+
+    <div class="apply">
+      <div class="ap business">
+        <div class="al">BUSINESS</div>
+        <h3>What changes in the offer stack &amp; ops.</h3>
+
+        <div class="item">
+          <b>Reposition Brand OS as right-brain medicine</b>
+          <p>The product positioning shifts from "AI marketing for coaches" to "embodied marketing carried by AI leverage." Same product, McGilchrist frame.</p>
+          <div class="from">FROM <b>McGilchrist</b></div>
+        </div>
+
+        <div class="item">
+          <b>15-Property brand audit as cohort module</b>
+          <p>Add Week 4 of the $2K cohort: Alexander's 15 properties applied to each member's brand. Audit, score, redesign. Pure aesthetic IP.</p>
+          <div class="from">FROM <b>Alexander</b></div>
+        </div>
+
+        <div class="item">
+          <b>Offer ladder mirrors Koe's exactly</b>
+          <p>Free Signal → $7 Brand OS Mini → $2K Cohort → $12K Build Your Brand → Community (annual). Direct port of Koe's structure.</p>
+          <div class="from">FROM <b>Koe</b></div>
+        </div>
+
+        <div class="item">
+          <b>Daily output, real caps on capacity</b>
+          <p>Koe-cadence content (daily) + McGilchrist-aware capacity (max 8 calls/wk, cohorts capped) = oversubscribed-by-design.</p>
+          <div class="from">FROM <b>Koe + McGilchrist</b></div>
+        </div>
+
+        <div class="item">
+          <b>Aesthetic as priced moat</b>
+          <p>Charge for aesthetic taste, not labor. The 15-property literacy = something no other coach can teach. Justifies premium pricing without justifying anything else.</p>
+          <div class="from">FROM <b>Alexander</b></div>
+        </div>
+
+        <div class="item">
+          <b>AI does left-brain, you do right-brain</b>
+          <p>Loki handles scaffolding, drafts, repurposing, scheduling. You hold POV, presence, pricing, mission. The division is McGilchrist's emissary/master, operationalized.</p>
+          <div class="from">FROM <b>McGilchrist + Koe</b></div>
+        </div>
+      </div>
+
+      <div class="ap content">
+        <div class="al">CONTENT</div>
+        <h3>What the trinity puts on the feed, the blog, the channel.</h3>
+
+        <div class="item">
+          <b>Three signature long-form series</b>
+          <p>12 essays on McGilchrist for coaches. 12 on Alexander's properties for brands. 12 teardowns of Koe-style operators applied to embodied work. Run over 12 months.</p>
+          <div class="from">FROM <b>all three</b></div>
+        </div>
+
+        <div class="item">
+          <b>Daily voice-memo → essay practice</b>
+          <p>Koe's cadence. Wispr Flow → 200-word post (X/LinkedIn). Weekly: shape into Signal essay. Yearly: 365 posts = a body of work no other embodied coach has.</p>
+          <div class="from">FROM <b>Koe</b></div>
+        </div>
+
+        <div class="item">
+          <b>The signature thesis essay</b>
+          <p>"The AI Age Needs Embodied Practitioners." Long-form. McGilchrist quotes. Alexander structure. Koe cadence. This becomes the pinned essay. Pillar piece for 12 months.</p>
+          <div class="from">FROM <b>all three</b></div>
+        </div>
+
+        <div class="item">
+          <b>YouTube long-form, embodied-aesthetic</b>
+          <p>Shoot in the warm-light brand. McGilchrist as topic source. Alexander as visual grammar. Koe-cadence weekly upload. The closest peer becomes Joshua Schrei.</p>
+          <div class="from">FROM <b>Alexander + Koe</b></div>
+        </div>
+
+        <div class="item">
+          <b>Carousels that pass the 15-property test</b>
+          <p>Every carousel audited against Alexander before publish. Strong center, alternating repetition, positive space, contrast, roughness — all visible. Aesthetic moat compounds slide by slide.</p>
+          <div class="from">FROM <b>Alexander</b></div>
+        </div>
+
+        <div class="item">
+          <b>The hook bank, refilled monthly</b>
+          <p>Every hook scored on right-brain (body-stop) + alive (Alexander) + voice-true (Koe). Three-axis quality control replaces "is this clever?"</p>
+          <div class="from">FROM <b>all three</b></div>
+        </div>
+      </div>
+
+      <div class="ap life">
+        <div class="al">LIFE</div>
+        <h3>What the trinity asks of the man behind it.</h3>
+
+        <div class="item">
+          <b>Right-brain primacy practice, daily</b>
+          <p>10 minutes of breath, walk, or silence before any work. McGilchrist's training of the master before the emissary takes the wheel. Non-negotiable.</p>
+          <div class="from">FROM <b>McGilchrist</b></div>
+        </div>
+
+        <div class="item">
+          <b>Design your home + studio with the 15 properties</b>
+          <p>Light on two sides of every workroom. Strong center. Positive space. Roughness (real wood, real paper). Echoes. Your environment becomes embodied practice.</p>
+          <div class="from">FROM <b>Alexander</b></div>
+        </div>
+
+        <div class="item">
+          <b>Voice memo on the morning walk</b>
+          <p>Koe's loop, but somatic. Walk for 30 minutes. Record what comes. The walking + the talking + the body — that's the writing. Edit it later.</p>
+          <div class="from">FROM <b>Koe + McGilchrist</b></div>
+        </div>
+
+        <div class="item">
+          <b>Refuse premature scaling</b>
+          <p>Koe's discipline. Stay solo until the math forces otherwise. Hire only against bottlenecks you've felt, not roles you've imagined. The solo is the practice.</p>
+          <div class="from">FROM <b>Koe</b></div>
+        </div>
+
+        <div class="item">
+          <b>Long-form reading, weekly</b>
+          <p>One McGilchrist chapter + one Alexander section per week. Annotate. The reading becomes the right-brain training the embodiment thesis depends on.</p>
+          <div class="from">FROM <b>McGilchrist + Alexander</b></div>
+        </div>
+
+        <div class="item">
+          <b>The strong-center week</b>
+          <p>Sunday: review what mattered. Monday: state the week's one center. Friday: did the center hold? Alexander's strong-center property as a weekly review cadence.</p>
+          <div class="from">FROM <b>Alexander</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 90-DAY PLAN ===== -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-label">06 · The 90-day install</div>
+    <h2 class="section-title">How to actually absorb the trinity — month by month.</h2>
+    <p class="section-essence">Don't try to absorb all three at once. Take one thinker per month. By month 4 the synthesis will be your default operating system.</p>
+
+    <div class="plan-grid">
+
+      <div class="plan-card">
+        <div class="day">MONTH 01 · McGILCHRIST</div>
+        <h4>Install the worldview</h4>
+        <ul>
+          <li><b>Read</b>The Master and His Emissary, ch. 1–6 (the foundation). Weekly chapter.</li>
+          <li><b>Watch</b>3 Channel McGilchrist YouTube lectures. Take notes.</li>
+          <li><b>Practice</b>Daily 10-min right-brain block before work (breath/walk/silence).</li>
+          <li><b>Write</b>4 Signal essays explicitly using the left/right frame.</li>
+          <li><b>Ship</b>"Why the AI age needs embodied practitioners" — the thesis essay.</li>
+          <li><b>Audit</b>By end of month — is your offer copy framed as right-brain medicine?</li>
+        </ul>
+      </div>
+
+      <div class="plan-card">
+        <div class="day">MONTH 02 · ALEXANDER</div>
+        <h4>Install the aesthetic</h4>
+        <ul>
+          <li><b>Read</b>The Timeless Way of Building (shorter, philosophical) + skim Nature of Order vol 1.</li>
+          <li><b>Practice</b>Street-walks weekly. Diagnose aliveness aloud.</li>
+          <li><b>Apply</b>15-property audit on your own homepage. Rewrite the weakest property.</li>
+          <li><b>Write</b>4 essays on aesthetic for coaches. One per major property cluster.</li>
+          <li><b>Ship</b>The 15-property cohort module (slides + worksheet) — first version.</li>
+          <li><b>Audit</b>Every carousel + reel passes the 15-property check before publish.</li>
+        </ul>
+      </div>
+
+      <div class="plan-card">
+        <div class="day">MONTH 03 · KOE</div>
+        <h4>Install the cadence</h4>
+        <ul>
+          <li><b>Read</b>Every Koe Substack from 2024–2026. Notion file with structure notes.</li>
+          <li><b>Teardown</b>His funnel: free → $7 → cohort → community. Map yours alongside.</li>
+          <li><b>Practice</b>Daily voice memo → 200-word post. 30 days, no exceptions.</li>
+          <li><b>Ship</b>The "embodied one-person business" essay — your version of his thesis.</li>
+          <li><b>Build</b>Modern Mastery-style community offering for $12K Build Your Brand alumni.</li>
+          <li><b>Audit</b>By end of month — is the daily cadence sustainable without willpower?</li>
+        </ul>
+      </div>
+
+      <div class="plan-card" style="grid-column:1 / -1;border-color:var(--accent-line);background:var(--accent-soft);">
+        <div class="day">MONTH 04 · THE SYNTHESIS LIVES</div>
+        <h4>Stop "applying" them. Live them.</h4>
+        <ul>
+          <li><b>The morning</b>10 min right-brain practice → 30 min walk-voice-memo → 1 hr essay shape → ship.</li>
+          <li><b>The week</b>One Signal essay, one YouTube, daily voice-memo posts, one 15-property audit (yours or a client's).</li>
+          <li><b>The quarter</b>One signature long-form series alive on the site. One cohort delivered. One bigger thesis essay shipped that quotes all three.</li>
+          <li><b>The signal</b>By end of month 4: the man, the writing, the brand, and the offer are indistinguishable. That's the trinity living, not theorized.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== CLOSING ===== -->
+<section class="closing wrap">
+  <blockquote>Three men, separated by field and time, are pointing at the same thing. Right-hemisphere attention, alive design, daily sovereign practice. When you carry all three at once, the work stops feeling like marketing and starts feeling like a way of being you can charge for — which is the only sustainable version of any of this.</blockquote>
+  <div class="source">RESONANCE THESIS · ELEVATE AI · 2026</div>
+</section>
+
+<footer>
+  <b>The Trinity Brief v1.0</b> · McGilchrist · Alexander · Koe · sunny.binjola@gmail.com · 2026-06-03
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Content Arsenal — Reframed Through Resonance</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+:root{
+  --bg:#FAF8F3;--white:#FFFFFF;--sage:#EFF4EC;--ink:#0A0F1C;--forest:#0B6E23;
+  --muted:#5A5A52;--faint:#9a968c;--line:#E5E1D8;--red:#B23A2E;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;line-height:1.6;padding:0 24px 120px;}
+.wrap{max-width:920px;margin:0 auto;}
+
+/* hero */
+.hero{position:relative;padding:96px 0 48px;border-bottom:1px solid var(--line);overflow:hidden;}
+.hero .spanda{position:absolute;right:-420px;top:-420px;width:900px;height:900px;pointer-events:none;}
+.eyebrow{font-size:13px;letter-spacing:5px;text-transform:uppercase;font-weight:800;color:var(--forest);margin-bottom:22px;}
+h1{font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(38px,6vw,60px);line-height:1.05;letter-spacing:-1px;margin-bottom:24px;position:relative;}
+h1 em{font-style:italic;color:var(--forest);}
+.lede{font-size:19px;color:var(--muted);max-width:680px;position:relative;}
+.lede strong{color:var(--ink);font-weight:700;}
+
+.verdict{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px;position:relative;}
+.vpill{font-size:14px;font-weight:700;padding:9px 16px;border-radius:100px;border:1px solid var(--line);background:var(--white);}
+.vpill b{color:var(--forest);}
+
+.seclabel{font-size:13px;letter-spacing:5px;text-transform:uppercase;font-weight:800;color:var(--faint);margin:66px 0 22px;}
+h2{font-family:'Playfair Display',serif;font-weight:900;font-size:34px;line-height:1.1;margin-bottom:14px;}
+h2 em{font-style:italic;color:var(--forest);}
+p.body{font-size:17px;color:var(--muted);margin-bottom:14px;max-width:760px;}
+p.body strong{color:var(--ink);}
+
+/* whats right chips */
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.chip{background:var(--sage);border:1px solid var(--line);border-radius:12px;padding:20px 22px;}
+.chip .t{font-weight:800;font-size:16px;margin-bottom:4px;}
+.chip .d{font-size:14px;color:var(--muted);}
+
+/* big flip */
+.flip{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:40px;margin-top:8px;}
+.flip .from-to{display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:20px;}
+.flip .word{font-family:'Playfair Display',serif;font-weight:900;font-size:48px;}
+.flip .from{color:var(--red);text-decoration:line-through;text-decoration-thickness:2px;opacity:0.75;}
+.flip .arrow{color:var(--faint);font-size:30px;}
+.flip .to{color:var(--forest);font-style:italic;}
+
+/* shifts */
+.shift{border-top:1px solid var(--line);padding:26px 0;display:grid;grid-template-columns:42px 1fr;gap:20px;}
+.shift .n{font-family:'Playfair Display',serif;font-size:34px;font-weight:900;color:var(--faint);line-height:1;}
+.shift h3{font-size:19px;font-weight:800;margin-bottom:6px;}
+.shift h3 .from{color:var(--red);} .shift h3 .to{color:var(--forest);}
+.shift p{font-size:15px;color:var(--muted);}
+
+/* before/after table */
+.ba{border-top:1px solid var(--line);padding:22px 0;}
+.ba .src{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--faint);margin-bottom:10px;letter-spacing:1px;}
+.ba .before{font-size:17px;color:var(--red);opacity:0.85;margin-bottom:8px;}
+.ba .before s{opacity:0.6;}
+.ba .after{font-family:'Playfair Display',serif;font-size:21px;font-style:italic;color:var(--forest);line-height:1.4;}
+
+/* piece cards */
+.pieces{display:grid;gap:16px;}
+.piece{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:26px 30px;border-left:4px solid var(--forest);}
+.piece .tag{font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:800;color:var(--forest);margin-bottom:10px;}
+.piece .b{font-size:16px;color:var(--red);margin-bottom:6px;}
+.piece .b s{opacity:0.6;}
+.piece .a{font-family:'Playfair Display',serif;font-size:20px;font-style:italic;color:var(--ink);line-height:1.4;margin-bottom:8px;}
+.piece .why{font-size:14px;color:var(--muted);}
+
+/* verdict table */
+.kv{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.kvcol{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:22px;border-top:3px solid;}
+.kvcol.keep{border-top-color:var(--forest);}
+.kvcol.transform{border-top-color:#C9881F;}
+.kvcol.drop{border-top-color:var(--red);}
+.kvcol .h{font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:800;margin-bottom:12px;}
+.kvcol.keep .h{color:var(--forest);} .kvcol.transform .h{color:#C9881F;} .kvcol.drop .h{color:var(--red);}
+.kvcol ul{list-style:none;font-size:14px;color:var(--muted);}
+.kvcol li{padding:6px 0;border-bottom:1px solid var(--line);}
+.kvcol li:last-child{border-bottom:none;}
+
+.endline{text-align:center;font-family:'Playfair Display',serif;font-style:italic;font-size:24px;margin-top:70px;padding-top:50px;border-top:1px solid var(--line);}
+.endline em{color:var(--forest);}
+
+@media(max-width:680px){.chips,.kv{grid-template-columns:1fr;}.shift{grid-template-columns:1fr;gap:8px;}.flip .word{font-size:34px;}}
+@media print{body{background:#fff;}.flip,.piece,.kvcol,.chip{background:#fbfbf9;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <svg class="spanda" viewBox="0 0 200 200" fill="none" stroke="#0B6E23" stroke-opacity="0.10" stroke-width="0.7"><circle cx="100" cy="100" r="24"/><circle cx="100" cy="100" r="44"/><circle cx="100" cy="100" r="64"/><circle cx="100" cy="100" r="84"/><circle cx="100" cy="100" r="104"/><circle cx="100" cy="100" r="124"/><circle cx="100" cy="100" r="4.5" fill="#0B6E23" stroke="none"/></svg>
+    <div class="eyebrow">Content Arsenal · reframed through resonance</div>
+    <h1>You built the arsenal from <em>books.</em><br>The signal comes from your <em>body.</em></h1>
+    <p class="lede">The arsenal is strong and already half-embodied. But it's sourced from 28 marketing books — authority by citation. Your whole thesis says the opposite: <strong>source from your lived experience; let the canon be the proof, not the well.</strong> Six shifts turn a smart content machine into a transmission.</p>
+    <div class="verdict">
+      <span class="vpill"><b>Keep</b> ~40%</span>
+      <span class="vpill"><b>Transform</b> ~45%</span>
+      <span class="vpill"><b>Drop / merge</b> ~15%</span>
+      <span class="vpill">Volume <b>25 → 5 deep</b></span>
+    </div>
+  </div>
+
+  <!-- WHAT'S RIGHT -->
+  <div class="seclabel">First — what's already right</div>
+  <p class="body">Credit where it's due. These are the parts to protect and make <em>more</em> of:</p>
+  <div class="chips">
+    <div class="chip"><div class="t">The mute test</div><div class="d">"Stop the body before you explain yourself." That's resonance thinking, exactly right.</div></div>
+    <div class="chip"><div class="t">Pre-roll breath, the mat, the body</div><div class="d">The breath reel and "I stopped calling myself a marketing coach" are the model. Embodied, not explained.</div></div>
+    <div class="chip"><div class="t">"You hold the breath; agents hold the mechanics"</div><div class="d">Separating the machine from the man is the whole game. Keep that line — it's a manifesto.</div></div>
+    <div class="chip"><div class="t">Warm light + forest green, "Marketing is what leaks out of you"</div><div class="d">Deida's line is your resonance manifesto. That carousel should be pinned.</div></div>
+  </div>
+
+  <!-- THE BIG FLIP -->
+  <div class="seclabel">The one structural change</div>
+  <div class="flip">
+    <div class="from-to">
+      <span class="word from">Books</span>
+      <span class="arrow">→</span>
+      <span class="word to">Body</span>
+    </div>
+    <p class="body" style="margin-bottom:0;">Right now every piece starts from a book — Cialdini, Hormozi, Schwartz — and you narrate it. That makes you a <strong>synthesizer</strong>, not a man who's done the work. The Prosperous Coach is blunt about this: you create clients from <em>who you are</em>, not from cleverness. <strong>Flip the source.</strong> Start each piece from a real moment in your body or your men's work — then, if it helps, name the book that confirms it. The canon becomes the footnote, you become the source. Same intelligence, opposite center of gravity.</p>
+  </div>
+
+  <!-- THE 6 SHIFTS -->
+  <div class="seclabel">The six shifts</div>
+
+  <div class="shift"><div class="n">1</div><div><h3><span class="from">Books</span> → <span class="to">Body</span></h3><p>Source from lived experience; cite the canon only as proof. You're the well, not the narrator. (Above.)</p></div></div>
+  <div class="shift"><div class="n">2</div><div><h3>Persuasion-tech: <span class="from">gospel</span> → <span class="to">foil</span></h3><p>Cialdini/Hormozi/Schwartz teach the manipulation game your brand tells coaches to quit. Use them as the thing you push <em>against</em> — "here's what the industry does, here's why it's the wrong layer for work this real" — never as tactics to deploy.</p></div></div>
+  <div class="shift"><div class="n">3</div><div><h3>Mode: <span class="from">inform</span> → <span class="to">transmit</span></h3><p>Most carousels explain a marketing concept (they nod). Your own Script 1 thesis: the content that converts makes them <em>feel a shift</em> (they move). Weight the arsenal toward the embodied reels, away from the explainer carousels.</p></div></div>
+  <div class="shift"><div class="n">4</div><div><h3>Domain: <span class="from">marketing coach</span> → <span class="to">embodied man</span></h3><p>Your unfair advantage is the intersection — men's work, love &amp; leadership, the nervous system. The arsenal aims at generic "$5K–$30K coaches." Lead from your real domain and let marketing be the application. Nobody else can stand where you stand.</p></div></div>
+  <div class="shift"><div class="n">5</div><div><h3>Cadence: <span class="from">volume</span> → <span class="to">depth</span></h3><p>"Ship a quarter's content in a week / 25 pieces" is a push brag — the exact thing the brand disowns. Prosperous Coach: a few powerful pieces beat a flood. Ship <strong>5 that are most you</strong>, deep. Let the other 20 wait.</p></div></div>
+  <div class="shift"><div class="n">6</div><div><h3>CTA: <span class="from">scattered</span> → <span class="to">BRAND / SCORE</span></h3><p>"Link in bio," "free 5-day mini-course," "quiz/cohort/$12K/list" — too many doors. Two only: <strong>BRAND</strong> → Brand OS, <strong>SCORE</strong> → Resonance Score quiz. And serve first; the invitation comes quiet, last.</p></div></div>
+
+  <!-- REFRAMED HOOKS -->
+  <div class="seclabel">Reframed hooks · keep the embodied ones, transmute the persuasion ones</div>
+
+  <div class="ba"><div class="src">Hormozi → persuasion/money curiosity</div><div class="before"><s>"I sold $12K coaching by changing one number — and it wasn't the price."</s></div><div class="after">"What I changed wasn't a number. It was how much of myself I stopped hiding."</div></div>
+  <div class="ba"><div class="src">Schwartz → awareness mechanics</div><div class="before"><s>"Your $97 course didn't fail because of the price."</s></div><div class="after">"Your course didn't fail. You launched it from a body that didn't believe it would sell."</div></div>
+  <div class="ba"><div class="src">Cialdini → persuasion tech</div><div class="before"><s>"90% of persuasion happens before you speak."</s></div><div class="after">"People decide if they trust you before you say a word. Your body already told them the truth."</div></div>
+  <div class="ba"><div class="src">Miller → tactic</div><div class="before"><s>"Your About page is killing the sale and you can't see it."</s></div><div class="after">"Your About page is performing. That's the exact reason no one believes it."</div></div>
+  <div class="ba"><div class="src">Deida → already embodied · KEEP</div><div class="before" style="color:var(--forest);opacity:1;">✓ "Marketing is what leaks out of you when you're not trying."</div><div class="after" style="color:var(--muted);font-size:16px;font-style:normal;">No change. This is the north star. Pin the carousel.</div></div>
+  <div class="ba"><div class="src">Godin → already pull-not-push · KEEP</div><div class="before" style="color:var(--forest);opacity:1;">✓ "If Instagram disappeared tomorrow, how many people could you still reach?"</div><div class="after" style="color:var(--muted);font-size:16px;font-style:normal;">No change. It tests attraction vs chasing — on thesis.</div></div>
+
+  <!-- REFRAMED PIECES -->
+  <div class="seclabel">Reframed pieces</div>
+  <div class="pieces">
+    <div class="piece"><div class="tag">YouTube 01</div><div class="b"><s>"I Read 28 Marketing Books — Here's What Actually Works for Coaches"</s></div><div class="a">"I read 28 marketing books so you don't have to. None of them taught the one thing that actually sells you."</div><div class="why">The book-summary angle makes you a curator (informs). Reframe so the canon is the setup and the payoff is embodiment — the thing no book could teach. Better: open with <em>your</em> story, let the 28 books be the foil.</div></div>
+    <div class="piece"><div class="tag">Carousel 01</div><div class="b"><s>"Why your $97 course stopped selling" — Schwartz sophistication stages</s></div><div class="a">"You don't have an awareness-stage problem. You have a conviction problem."</div><div class="why">Keep the smart insight, but turn it from a marketing lesson (nod) into a felt diagnosis (move). The fix isn't a new awareness stage — it's believing your own offer in your body.</div></div>
+    <div class="piece"><div class="tag">Reel — already great · KEEP</div><div class="b" style="color:var(--forest);">✓ "I stopped calling myself a marketing coach"</div><div class="a">Make this the template, not the exception.</div><div class="why">POV reset, eye contact, body-led, the "slot test," soft close ("if your positioning makes your shoulders climb — change it"). This is exactly the mode. Most of the arsenal should feel like this, not like the explainer carousels.</div></div>
+  </div>
+
+  <!-- KEEP / TRANSFORM / DROP -->
+  <div class="seclabel">The verdict on the 25</div>
+  <div class="kv">
+    <div class="kvcol keep"><div class="h">Keep · ship as-is</div><ul><li>Breath reel (the mat, quiet)</li><li>"Stopped calling myself a marketing coach"</li><li>"Marketing is what leaks out of you" (pin it)</li><li>"Stop selling transformation"</li><li>The Deida + Godin hooks</li></ul></div>
+    <div class="kvcol transform"><div class="h">Transform · re-source from you</div><ul><li>The Schwartz / Cialdini / Hormozi carousels</li><li>The "28 books" YouTube (lead with your story)</li><li>The persuasion-tech hooks (→ embodied)</li><li>Any "here's a marketing concept" explainer</li></ul></div>
+    <div class="kvcol drop"><div class="h">Drop / merge</div><ul><li>The "ship a quarter in a week" volume brag</li><li>"Link in bio" + the 5-day mini-course CTA</li><li>Duplicate persuasion-tech pieces</li><li>Anything that informs but never transmits</li></ul></div>
+  </div>
+
+  <div class="endline">The canon proves you're right.<br>It was never supposed to be the <em>thing you say.</em></div>
+
+</div>
+</body>
+</html>
