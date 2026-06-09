@@ -99,7 +99,12 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user && path === "/login") {
-    return redirectWithCookies("/command-center", request, response);
+    // Already signed in. If the link carried ?next=, respect it — this is
+    // how the post-call email Cards 01/02 take a signed-in admin straight
+    // to /welcome or /brand-os/start-snapshot. Otherwise default home.
+    const nextRaw = request.nextUrl.searchParams.get("next");
+    const next = nextRaw && nextRaw.startsWith("/") ? nextRaw : "/command-center";
+    return redirectWithCookies(next, request, response);
   }
 
   // First-time activation gate. Only checks on root + main-app entry points
