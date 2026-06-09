@@ -105,23 +105,23 @@ export default function SnapshotReveal({ payload, onContinueToFullRound }: Snaps
         </ul>
       </Card>
 
-      {/* Full Round offer */}
+      {/* Full Round offer · free */}
       <Card variant="elevated" className="px-10 py-12 text-center bg-[var(--ink)]">
         <div className="mb-3 font-mono text-xs uppercase tracking-widest text-green-neon">
-          If this landed
+          Go deeper · free
         </div>
         <h2 className="mb-4 font-serif text-2xl font-bold text-bg">
-          The Full Round goes <em className="italic text-green-neon">deeper.</em>
+          The Full Round goes <em className="italic text-green-neon">eleven questions deeper.</em>
         </h2>
         <p className="mb-6 text-muted-on-dark">
           Eleven more questions. Twenty-two minutes. The draft is held twenty-four hours before
           you can publish it. Your voice profile populates the platform automatically.
         </p>
         <Button variant="primary" onClick={onContinueToFullRound}>
-          Continue · $7
+          Continue to Full Round →
         </Button>
         <p className="mt-3 font-mono text-xs text-muted-on-dark">
-          22 min · 24-hour hold · yours forever
+          22 min · 24-hour hold · yours forever · free
         </p>
       </Card>
     </div>

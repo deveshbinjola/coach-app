@@ -1,11 +1,8 @@
-// Brand OS Agent v2 — landing page.
+// Brand OS v5 — in-app landing page.
 //
-// Coach lands here from /command-center → "Run Brand OS". This page:
-//   1. Shows any in-progress runs (resume link)
-//   2. Shows completed runs (view-output link)
-//   3. Offers "Start new run" — picks variant (mvp / full)
-//
-// Single source of truth: lib/brand-os/questions.ts + cp_brand_os_runs.
+// Order matters here. The Snapshot CTA is the headline action and sits
+// directly under the hero. Resume + voice + legacy options are below the
+// fold. Brand OS is free across the board — no $7 anywhere on this page.
 
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -31,7 +28,11 @@ type RunRow = {
   label: string | null;
 };
 
-export default async function BrandOsLanding() {
+export default async function BrandOsLanding({
+  searchParams,
+}: {
+  searchParams: { error?: string };
+}) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -45,10 +46,10 @@ export default async function BrandOsLanding() {
 
   const inProgress = (runs ?? []).filter((r) => r.state === "in_progress") as RunRow[];
   const completed  = (runs ?? []).filter((r) => r.state === "complete") as RunRow[];
+  const mostRecentInProgress = inProgress[0]; // single most-recent only
+  const otherInProgressCount = Math.max(0, inProgress.length - 1);
 
-  // v5 is the default. Coaches land on the free Snapshot (5 questions, 10 min)
-  // and upgrade to the $7 Full Round inside the reveal. Legacy variants stay
-  // visible as a "more options" affordance for admin / staging.
+  const errorMsg = searchParams.error ? decodeURIComponent(searchParams.error) : null;
 
   return (
     <div className="min-h-screen bg-[var(--surface)]">
@@ -59,27 +60,53 @@ export default async function BrandOsLanding() {
       />
       <main className="max-w-3xl mx-auto px-3 py-6 sm:px-6 sm:py-10">
 
-        <div className="mb-8">
+        {/* Hero */}
+        <div className="mb-6">
           <Badge tone="brand" size="xs" uppercase>Brand OS · v5</Badge>
           <h1 className="font-display text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] mt-2 leading-[var(--leading-tight)]">
             Your voice. Named in ten minutes.
           </h1>
           <p className="text-[length:var(--t-body)] text-[color:var(--text-muted)] mt-2 max-w-xl leading-[var(--leading-relaxed)]">
-            Five questions. One Snapshot. The first thing you write after is the most you. Continue for $7 and you get the full Round (eleven questions, twenty-four hour hold, one calendar week of content).
+            Five questions to your archetype, voice rules, and three pillars. Free. Continue inside for the full Round when you are ready.
           </p>
         </div>
 
-        {/* In-progress runs */}
-        {inProgress.length > 0 && (
+        {/* Debug: surface POST errors that previously bounced silently */}
+        {errorMsg && (
+          <div className="mb-6 rounded-[var(--r-lg)] border border-[var(--danger)] bg-[color-mix(in_srgb,var(--danger)_8%,var(--surface-elevated))] px-4 py-3 text-[length:var(--t-caption)] text-[color:var(--text)]">
+            Could not start a new run: <strong>{errorMsg}</strong>
+          </div>
+        )}
+
+        {/* PRIMARY: Start Snapshot */}
+        <section className="mb-8">
+          <form action="/brand-os/start" method="POST" id="start-snapshot">
+            <input type="hidden" name="variant" value="designed" />
+            <input type="hidden" name="tier" value="snapshot" />
+            <Card className="p-6 flex flex-col gap-3 border-2 border-[var(--brand)]">
+              <Badge tone="brand" size="xs" uppercase>Snapshot · Free</Badge>
+              <h3 className="font-bold text-[length:var(--t-h2)] text-[color:var(--text)] leading-[var(--leading-tight)]">
+                5 questions. 10 minutes. One archetype.
+              </h3>
+              <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-relaxed)]">
+                You walk out with your archetype, three voice rules pulled from the way you actually answered, and three content pillars. Continue inside for the full Round when you want it.
+              </p>
+              <Button type="submit" block>Start Snapshot →</Button>
+            </Card>
+          </form>
+        </section>
+
+        {/* Completed runs */}
+        {completed.length > 0 && (
           <section className="mb-8">
             <h2 className="text-[length:var(--t-label)] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)] mb-3">
-              Resume in progress
+              Completed
             </h2>
             <div className="space-y-2">
-              {inProgress.map((r) => (
+              {completed.slice(0, 3).map((r) => (
                 <Link
                   key={r.id}
-                  href={resumeHref(r)}
+                  href={`/brand-os/run/${r.id}/output`}
                   className="block rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 hover:border-[var(--brand-strong)] transition"
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -88,11 +115,11 @@ export default async function BrandOsLanding() {
                         {r.label ?? labelFor(r)} · audience {r.audience}
                       </div>
                       <div className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-                        Last in <strong>{r.current_module}</strong> · started {formatDate(r.started_at)}
+                        Completed {r.completed_at ? formatDate(r.completed_at) : ""}
                       </div>
                     </div>
                     <span className="text-[color:var(--brand-strong)] text-[length:var(--t-caption)] font-bold">
-                      Resume →
+                      View output →
                     </span>
                   </div>
                 </Link>
@@ -101,22 +128,70 @@ export default async function BrandOsLanding() {
           </section>
         )}
 
-        {/* Start with Voice */}
+        {/* Single most-recent resume (the rest hidden behind "Show more") */}
+        {mostRecentInProgress && (
+          <section className="mb-8">
+            <h2 className="text-[length:var(--t-label)] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)] mb-3">
+              Resume
+            </h2>
+            <Link
+              href={resumeHref(mostRecentInProgress)}
+              className="block rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 hover:border-[var(--brand-strong)] transition"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-bold text-[color:var(--text)]">
+                    {mostRecentInProgress.label ?? labelFor(mostRecentInProgress)} · audience {mostRecentInProgress.audience}
+                  </div>
+                  <div className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+                    Last in <strong>{mostRecentInProgress.current_module}</strong> · started {formatDate(mostRecentInProgress.started_at)}
+                  </div>
+                </div>
+                <span className="text-[color:var(--brand-strong)] text-[length:var(--t-caption)] font-bold">
+                  Resume →
+                </span>
+              </div>
+            </Link>
+            {otherInProgressCount > 0 && (
+              <details className="mt-2">
+                <summary className="text-[length:var(--t-caption)] text-[color:var(--text-faint)] cursor-pointer hover:text-[color:var(--text-muted)] list-none">
+                  <span className="underline decoration-dotted">
+                    {otherInProgressCount} more in progress
+                  </span>
+                </summary>
+                <div className="space-y-2 mt-2">
+                  {inProgress.slice(1).map((r) => (
+                    <Link
+                      key={r.id}
+                      href={resumeHref(r)}
+                      className="block rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] px-3 py-2 hover:border-[var(--brand-strong)] transition text-[length:var(--t-caption)]"
+                    >
+                      <span className="text-[color:var(--text)]">{r.label ?? labelFor(r)}</span>
+                      <span className="text-[color:var(--text-muted)]"> · {formatDate(r.started_at)}</span>
+                    </Link>
+                  ))}
+                </div>
+              </details>
+            )}
+          </section>
+        )}
+
+        {/* Voice path · secondary, below the fold */}
         <section className="mb-8">
           <Link
             href="/brand-os/voice-discovery"
-            className="block rounded-[var(--r-lg)] border-2 border-[var(--brand)] bg-[var(--surface-elevated)] px-5 py-4 hover:bg-[color-mix(in_srgb,var(--brand)_8%,var(--surface-elevated))] transition"
+            className="block rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] px-5 py-4 hover:border-[var(--brand-strong)] transition"
           >
             <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[var(--brand)] flex items-center justify-center">
-                <Mic className="w-5 h-5 text-[color:var(--surface)]" />
+              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-[color-mix(in_srgb,var(--brand)_15%,var(--surface-elevated))] flex items-center justify-center">
+                <Mic className="w-4 h-4 text-[color:var(--brand-strong)]" />
               </div>
-              <div>
-                <h3 className="font-bold text-[length:var(--t-h2)] text-[color:var(--text)] leading-[var(--leading-tight)]">
-                  Start with Voice
+              <div className="min-w-0">
+                <h3 className="font-bold text-[length:var(--t-body)] text-[color:var(--text)]">
+                  Or start with Voice
                 </h3>
-                <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-relaxed)]">
-                  Have a conversation instead of filling out forms. Talk about your brand and the AI builds your Brand OS from what you say.
+                <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+                  Talk instead of type. The agent builds your Brand OS from what you say.
                 </p>
               </div>
               <span className="text-[color:var(--brand-strong)] text-[length:var(--t-caption)] font-bold ml-auto flex-shrink-0">
@@ -126,28 +201,7 @@ export default async function BrandOsLanding() {
           </Link>
         </section>
 
-        {/* Start new — v5 Snapshot is the primary path */}
-        <section className="mb-8 space-y-3">
-          <h2 className="text-[length:var(--t-label)] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
-            Start a new run
-          </h2>
-          <form action="/brand-os/start" method="POST" id="start-snapshot" className="scroll-mt-8">
-            <input type="hidden" name="variant" value="designed" />
-            <input type="hidden" name="tier" value="snapshot" />
-            <Card className="p-5 h-full flex flex-col gap-3 border-2 border-[var(--brand)]">
-              <Badge tone="brand" size="xs" uppercase>Snapshot · Free</Badge>
-              <h3 className="font-bold text-[length:var(--t-h2)] text-[color:var(--text)] leading-[var(--leading-tight)]">
-                5 questions. 10 minutes. One archetype.
-              </h3>
-              <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-relaxed)] flex-1">
-                You walk out with your archetype, three voice rules pulled from the way you actually answered, and three content pillars. Continue inside for the full Round ($7).
-              </p>
-              <Button type="submit" block>Start Snapshot →</Button>
-            </Card>
-          </form>
-        </section>
-
-        {/* Legacy variants — hidden under a details affordance for admin */}
+        {/* Legacy variants · hidden under details for admin */}
         <details className="mb-8 group">
           <summary className="text-[length:var(--t-caption)] text-[color:var(--text-faint)] cursor-pointer hover:text-[color:var(--text-muted)] list-none">
             <span className="underline decoration-dotted">More options (legacy)</span>
@@ -182,38 +236,6 @@ export default async function BrandOsLanding() {
           </div>
         </details>
 
-        {/* Completed runs */}
-        {completed.length > 0 && (
-          <section>
-            <h2 className="text-[length:var(--t-label)] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)] mb-3">
-              Completed
-            </h2>
-            <div className="space-y-2">
-              {completed.map((r) => (
-                <Link
-                  key={r.id}
-                  href={`/brand-os/run/${r.id}/output`}
-                  className="block rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 hover:border-[var(--brand-strong)] transition"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="font-bold text-[color:var(--text)]">
-                        {r.label ?? labelFor(r)} · audience {r.audience}
-                      </div>
-                      <div className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-                        Completed {r.completed_at ? formatDate(r.completed_at) : "—"}
-                      </div>
-                    </div>
-                    <span className="text-[color:var(--brand-strong)] text-[length:var(--t-caption)] font-bold">
-                      View output →
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
       </main>
     </div>
   );
@@ -227,8 +249,6 @@ function labelFor(r: { variant: string; variant_v: "legacy" | "v5" | null; tier:
 }
 
 function resumeHref(r: RunRow): string {
-  // v5: Snapshot done but unpaid → land on reveal (upsell). Full Round in hold
-  // → land on hold screen. Otherwise the runner page picks up where they left off.
   if (r.variant_v === "v5") {
     if (r.tier === "snapshot" && r.current_module === "reveal") {
       return `/brand-os/reveal/${r.id}`;
