@@ -112,7 +112,7 @@ export function renderPostCallInviteEmail(input: PostCallInviteInput): RenderedP
         </td></tr>
         <tr><td align="center" style="padding:0 0 36px;">
           <h2 style="margin:0;font-size:24px;line-height:1.2;font-weight:600;color:#0A0F1C;">
-            Good talk <em style="font-style:italic;color:#0B6E23;font-weight:700;">today.</em>
+            Good <em style="font-style:italic;color:#0B6E23;font-weight:700;">talk.</em>
           </h2>
         </td></tr>
 
@@ -164,9 +164,9 @@ export function renderPostCallInviteEmail(input: PostCallInviteInput): RenderedP
 
   const text = `${greet}
 
-Good talk today.
+Good talk.
 
-${input.note?.trim() ? `The thing that stayed with me after we hung up:\n\n"${input.note.trim()}"\n\nThat is the part the platform is built to hold.` : `Good talk. I want to make sure you have what we discussed in front of you.\n\nThe platform is one promise. Every draft. Every message. In your voice.`}
+${input.note?.trim() ? `The thing that stayed with me after we hung up:\n\n"${input.note.trim()}"\n\nThat is the part the platform is built to hold.` : `I want to make sure you have what we discussed in front of you.\n\nThe platform is one promise. Every draft. Every message. In your voice.`}
 
 YOUR FIRST MOVE · ${cta.time ?? "10 min"}
 ${cta.title}
