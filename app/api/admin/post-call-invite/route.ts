@@ -24,7 +24,6 @@ const ADMIN_EMAIL = "sunny.binjola@gmail.com";
 type Body = {
   email?: string;
   first_name?: string;
-  note?: string | null;
   ps?: string | null;
 };
 
@@ -46,7 +45,6 @@ export async function POST(request: NextRequest) {
   const body = (await request.json().catch(() => ({}))) as Body;
   const email = (body.email ?? "").trim().toLowerCase();
   const firstName = (body.first_name ?? "").trim();
-  const note = body.note?.trim() || null;
   const ps = body.ps?.trim() || null;
 
   if (!email || !email.includes("@")) {
@@ -60,7 +58,6 @@ export async function POST(request: NextRequest) {
   const result = await sendPostCallInviteEmail({
     to: email,
     firstName,
-    note,
     ps,
   });
 
@@ -69,7 +66,9 @@ export async function POST(request: NextRequest) {
   }
 
   // Log the outreach so /admin can show who's been touched.
-  // Best-effort. Don't block the response on this.
+  // Best-effort. Don't block the response on this. `note` and `snapshot_link`
+  // columns kept for backward-compat with old rows; new rows leave note NULL
+  // and use the entry link (login magic-link URL).
   try {
     const admin = createAdminClient();
     await admin
@@ -78,8 +77,8 @@ export async function POST(request: NextRequest) {
         email,
         first_name: firstName,
         kind: "post_call",
-        note,
-        snapshot_link: result.rendered.snapshotLink,
+        note: null,
+        snapshot_link: result.rendered.entryLink,
         sent_at: new Date().toISOString(),
       });
   } catch {
@@ -90,6 +89,6 @@ export async function POST(request: NextRequest) {
     ok: true,
     sent_to: email,
     subject: result.rendered.subject,
-    snapshot_link: result.rendered.snapshotLink,
+    entry_link: result.rendered.entryLink,
   });
 }

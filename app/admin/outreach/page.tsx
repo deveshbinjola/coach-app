@@ -34,10 +34,9 @@ type HistoryResponse = {
 export default function OutreachPage() {
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
-  const [note, setNote] = useState("");
   const [ps, setPs] = useState("");
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<null | { ok: boolean; subject?: string; error?: string; snapshot_link?: string }>(null);
+  const [result, setResult] = useState<null | { ok: boolean; subject?: string; error?: string; entry_link?: string }>(null);
 
   const [history, setHistory] = useState<HistoryResponse | null>(null);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -72,7 +71,6 @@ export default function OutreachPage() {
         body: JSON.stringify({
           email: email.trim(),
           first_name: firstName.trim(),
-          note: note.trim() || null,
           ps: ps.trim() || null,
         }),
       });
@@ -81,7 +79,6 @@ export default function OutreachPage() {
       if (json.ok) {
         setFirstName("");
         setEmail("");
-        setNote("");
         setPs("");
         void loadHistory();
       }
@@ -152,23 +149,9 @@ export default function OutreachPage() {
             />
           </div>
 
-          <div style={{ marginBottom: 18 }}>
-            <label htmlFor="note" style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#0A0F1C" }}>
-              The one alive thing they said <span style={{ color: "#5A5A52", fontWeight: 400 }}>· optional, becomes a quoted callback</span>
-            </label>
-            <textarea
-              id="note"
-              rows={3}
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="My posts keep sounding like every other coach and I hate it."
-              style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }}
-            />
-          </div>
-
           <div style={{ marginBottom: 24 }}>
             <label htmlFor="ps" style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#0A0F1C" }}>
-              PS line <span style={{ color: "#5A5A52", fontWeight: 400 }}>· optional</span>
+              PS line <span style={{ color: "#5A5A52", fontWeight: 400 }}>· optional, adds a personal callback at the bottom</span>
             </label>
             <input
               id="ps"

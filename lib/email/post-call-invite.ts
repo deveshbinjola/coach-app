@@ -1,18 +1,18 @@
 // lib/email/post-call-invite.ts
 //
-// The "after our call" outreach email Sunny sends manually from /admin/outreach.
-// Designed to:
-//   1. Acknowledge the call. (Halbert letter voice.)
-//   2. Quote one alive thing they said (if Sunny entered a note).
-//   3. Hand them the one move next: a prefilled link into the public Snapshot
-//      funnel. They open it, the email field is filled, they click through.
-//   4. When they finish Snapshot + sign up, /auth/callback fires Day 0 welcome
-//      and the daily cron picks them up for Day 1 onward.
+// "After our call" outreach email Sunny sends from /admin/outreach.
 //
-// One personal touch from Sunny + the 5-day drip behind it.
+// Same warm scaffold as the Day 0 welcome email (centered leaf + hero,
+// promise lines, two stacked cards with ↓ arrow, navy reply card,
+// signed by Sunny). Two cards:
+//
+//   01  Open the platform · 30 seconds (magic-link auto-send)
+//   02  Name your voice with Brand OS · 10 minutes
+//
+// Personal touch is the first name in the hero (entered in the form).
+// PS line is optional, the only other admin-controlled copy.
 
 const APP_ORIGIN = process.env.NEXT_PUBLIC_APP_ORIGIN ?? "https://app.elevateaisystem.com";
-const MARKETING_ORIGIN = "https://elevateaisystem.com";
 const FROM_EMAIL = process.env.BRAND_OS_RECOVERY_FROM ?? "Sunny Binjola <sunny@elevateaisystem.com>";
 
 const LEAF_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 88 88" style="display:block;"><rect x="6" y="8" width="72" height="72" rx="18" fill="#0B6E23"/><path d="M26 56C24.9 44.1 27.9 34.6 36.5 28.8C43 24.4 50.8 24.8 58.8 18.9C62.2 34.2 58 47.3 47.1 53.2C40.1 57 33 56.7 28.2 54.7L26 56Z" fill="#FAF8F3"/><path d="M24.4 58.9C28.8 49.3 36.1 42.1 46.2 36.9" stroke="#FAF8F3" stroke-width="5" stroke-linecap="round" fill="none"/></svg>`;
@@ -20,18 +20,7 @@ const LEAF_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
 export type PostCallInviteInput = {
   to: string;
   firstName: string;
-  /** Optional. Paraphrase or direct quote of the moment Sunny wants to mirror back. */
-  note?: string | null;
-  /** Optional. Override the default Snapshot CTA. */
-  ctaOverride?: {
-    href: string;
-    title: string;
-    description: string;
-    cta: string;
-    eyebrow?: string;
-    time?: string;
-  } | null;
-  /** Optional. Custom PS line. */
+  /** Optional. Custom PS line at the bottom of the email. */
   ps?: string | null;
 };
 
@@ -40,39 +29,19 @@ export type RenderedPostCall = {
   preview: string;
   html: string;
   text: string;
-  snapshotLink: string;
+  /** First-touch link Sunny may want to log/use. */
+  entryLink: string;
 };
 
 export function renderPostCallInviteEmail(input: PostCallInviteInput): RenderedPostCall {
   const first = input.firstName.trim();
   const greet = first ? `${first}.` : "Hey.";
 
-  // Post-call recipients have already talked to Sunny. They trust him.
-  // Skip the Snapshot funnel and drop them straight into the app:
-  //   /login?email=...&next=/welcome auto-fires the magic-link send on
-  //   mount. They see "Check your inbox" within a second of clicking.
-  //   They click the magic link → /auth/callback → Day 0 + drip starts.
-  const snapshotLink = `${APP_ORIGIN}/login?email=${encodeURIComponent(input.to)}&next=/welcome`;
-
-  const cta = input.ctaOverride ?? {
-    href: snapshotLink,
-    eyebrow: "Your first move",
-    time: "30 seconds",
-    title: "Open the platform.",
-    description: "One click. We send a magic link to this inbox. You click it once and you are in. No password to remember.",
-    cta: "Open the platform",
-  };
-
-  const noteBlock = input.note?.trim()
-    ? `
-        <p style="margin:0 0 16px;">The thing that stayed with me after we hung up:</p>
-        <p style="margin:0 0 16px;font-style:italic;color:#0B6E23;font-weight:600;border-left:3px solid #0B6E23;padding-left:14px;">
-          ${escape(input.note.trim())}
-        </p>
-        <p style="margin:0;">That is the part the platform is built to hold.</p>`
-    : `
-        <p style="margin:0 0 16px;">Good talk. I want to make sure you have what we discussed in front of you.</p>
-        <p style="margin:0;">The platform is one promise. Every draft. Every message. In your voice.</p>`;
+  // Both cards route through /login with email prefilled. The /login page
+  // auto-fires the magic-link send on mount; after they click the magic link,
+  // /auth/callback respects the ?next=... so they land where each card promised.
+  const openPlatformUrl = `${APP_ORIGIN}/login?email=${encodeURIComponent(input.to)}&next=/welcome`;
+  const brandOsUrl = `${APP_ORIGIN}/login?email=${encodeURIComponent(input.to)}&next=/brand-os`;
 
   const psBlock = input.ps?.trim()
     ? `
@@ -83,8 +52,8 @@ export function renderPostCallInviteEmail(input: PostCallInviteInput): RenderedP
         </td></tr>`
     : "";
 
-  const subject = first ? `${first}. Good talk.` : "Good talk. One move next.";
-  const preview = "One thing from our call. One move next.";
+  const subject = first ? `${first}. Good talk.` : "Good talk.";
+  const preview = "The platform is one promise. Two moves to feel it.";
 
   const html = `<!doctype html>
 <html lang="en">
@@ -100,6 +69,7 @@ export function renderPostCallInviteEmail(input: PostCallInviteInput): RenderedP
     <tr><td align="center">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="540" style="max-width:540px;width:100%;">
 
+        <!-- Brand mark + caption -->
         <tr><td align="center" style="padding:0 0 28px;">
           ${LEAF_SVG}
           <div style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#5A5A52;font-weight:700;margin-top:14px;">
@@ -107,6 +77,7 @@ export function renderPostCallInviteEmail(input: PostCallInviteInput): RenderedP
           </div>
         </td></tr>
 
+        <!-- Hero -->
         <tr><td align="center" style="padding:32px 0 12px;">
           <h1 style="margin:0;font-size:40px;line-height:1.05;font-weight:800;letter-spacing:-0.02em;color:#0A0F1C;">${escape(greet)}</h1>
         </td></tr>
@@ -116,16 +87,20 @@ export function renderPostCallInviteEmail(input: PostCallInviteInput): RenderedP
           </h2>
         </td></tr>
 
-        <tr><td style="padding:0 4px 32px;font-size:17px;line-height:1.65;color:#0A0F1C;">
-          ${noteBlock}
-        </td></tr>
-
-        <tr><td align="center" style="padding:0 0 32px;">
+        <!-- Promise · same warmth as Day 0 welcome -->
+        <tr><td align="center" style="padding:0 24px 40px;">
+          <p style="margin:0 0 10px;font-size:18px;line-height:1.55;color:#0A0F1C;font-weight:500;">
+            The platform is one promise.
+          </p>
+          <p style="margin:0 0 14px;font-size:18px;line-height:1.55;color:#5A5A52;">
+            Every draft. Every message. In your voice.
+          </p>
           <div style="display:inline-block;width:32px;height:2px;background:#0B6E23;border-radius:2px;"></div>
         </td></tr>
 
-        <tr><td style="padding:0 0 36px;">
-          <a href="${cta.href}" style="display:block;text-decoration:none;color:inherit;background:#FFFFFF;border:1px solid #E5E1D8;border-radius:14px;padding:28px;">
+        <!-- Card 01 · Open the platform -->
+        <tr><td style="padding:0 0 16px;">
+          <a href="${openPlatformUrl}" style="display:block;text-decoration:none;color:inherit;background:#FFFFFF;border:1px solid #E5E1D8;border-radius:14px;padding:28px;">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
                 <td style="width:64px;vertical-align:top;padding-right:18px;">
@@ -133,25 +108,60 @@ export function renderPostCallInviteEmail(input: PostCallInviteInput): RenderedP
                 </td>
                 <td style="vertical-align:top;">
                   <div style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:#5A5A52;font-weight:700;margin-bottom:6px;">
-                    ${escape(cta.eyebrow ?? "Your first move")} <span style="color:#0B6E23;">· ${escape(cta.time ?? "10 min")}</span>
+                    Open the platform <span style="color:#0B6E23;">· 30 seconds</span>
                   </div>
-                  <div style="font-size:19px;line-height:1.35;color:#0A0F1C;font-weight:700;margin-bottom:8px;">${escape(cta.title)}</div>
-                  <div style="font-size:14px;line-height:1.6;color:#5A5A52;margin-bottom:14px;">${escape(cta.description)}</div>
-                  <div style="display:inline-block;font-size:14px;color:#FAF8F3;background:#0B6E23;font-weight:700;padding:9px 16px;border-radius:100px;">${escape(cta.cta)} →</div>
+                  <div style="font-size:19px;line-height:1.35;color:#0A0F1C;font-weight:700;margin-bottom:8px;">One click. We send a magic link.</div>
+                  <div style="font-size:14px;line-height:1.6;color:#5A5A52;margin-bottom:14px;">You click it once and you are in. No password to remember.</div>
+                  <div style="display:inline-block;font-size:14px;color:#FAF8F3;background:#0B6E23;font-weight:700;padding:9px 16px;border-radius:100px;">Open the platform →</div>
                 </td>
               </tr>
             </table>
           </a>
         </td></tr>
 
-        <tr><td style="padding:0 4px 28px;font-size:17px;line-height:1.65;color:#0A0F1C;">
-          <p style="margin:0 0 14px;">Reply to this email when you have done the first move. One sentence is enough.</p>
-          <p style="margin:0 0 14px;">If anything sticks or anything trips, I want to know.</p>
+        <!-- ↓ flow indicator -->
+        <tr><td align="center" style="padding:6px 0;">
+          <div style="font-size:18px;color:#0B6E23;opacity:0.45;line-height:1;">↓</div>
+        </td></tr>
+
+        <!-- Card 02 · Brand OS -->
+        <tr><td style="padding:0 0 36px;">
+          <a href="${brandOsUrl}" style="display:block;text-decoration:none;color:inherit;background:#FFFFFF;border:1px solid #E5E1D8;border-radius:14px;padding:28px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+              <tr>
+                <td style="width:64px;vertical-align:top;padding-right:18px;">
+                  <div style="font-family:'Playfair Display',Georgia,serif;font-size:42px;line-height:1;font-weight:700;color:#0A0F1C;letter-spacing:-0.02em;">02</div>
+                </td>
+                <td style="vertical-align:top;">
+                  <div style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:#5A5A52;font-weight:700;margin-bottom:6px;">
+                    Name your voice <span style="color:#0B6E23;">· 10 minutes</span>
+                  </div>
+                  <div style="font-size:19px;line-height:1.35;color:#0A0F1C;font-weight:700;margin-bottom:8px;">Your archetype with Brand OS.</div>
+                  <div style="font-size:14px;line-height:1.6;color:#5A5A52;margin-bottom:14px;">Five questions. The platform reads you back. The first thing you write after is the most you.</div>
+                  <div style="display:inline-block;font-size:14px;color:#FAF8F3;background:#0A0F1C;font-weight:700;padding:9px 16px;border-radius:100px;">Start Brand OS →</div>
+                </td>
+              </tr>
+            </table>
+          </a>
+        </td></tr>
+
+        <!-- Reply card -->
+        <tr><td style="padding:0 0 36px;">
+          <div style="background:#0A0F1C;border-radius:14px;padding:28px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:#0B6E23;font-weight:700;margin-bottom:10px;">Reply to this email</div>
+            <div style="font-size:20px;line-height:1.35;color:#FAF8F3;font-weight:700;margin-bottom:8px;">Tell me one bottleneck.</div>
+            <div style="font-size:14px;line-height:1.6;color:#FAF8F3;opacity:0.7;">One sentence. I read every reply.</div>
+          </div>
+        </td></tr>
+
+        <!-- Sign-off -->
+        <tr><td align="center" style="padding:0 0 32px;font-size:16px;line-height:1.6;color:#0A0F1C;">
           <p style="margin:0;">Sunny.</p>
         </td></tr>
 
         ${psBlock}
 
+        <!-- Footer -->
         <tr><td align="center" style="padding:32px 0 0;font-size:11px;line-height:1.7;color:#5A5A52;font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.5px;">
           ElevateAI Systems · sunny.binjola@gmail.com
         </td></tr>
@@ -166,21 +176,29 @@ export function renderPostCallInviteEmail(input: PostCallInviteInput): RenderedP
 
 Good talk.
 
-${input.note?.trim() ? `The thing that stayed with me after we hung up:\n\n"${input.note.trim()}"\n\nThat is the part the platform is built to hold.` : `I want to make sure you have what we discussed in front of you.\n\nThe platform is one promise. Every draft. Every message. In your voice.`}
+The platform is one promise.
+Every draft. Every message. In your voice.
 
-YOUR FIRST MOVE · ${cta.time ?? "10 min"}
-${cta.title}
-${cta.description}
-${cta.href}
+01 · OPEN THE PLATFORM · 30 SECONDS
+One click. We send a magic link.
+You click it once and you are in.
+${openPlatformUrl}
 
-Reply to this email when you have done the first move. One sentence is enough.
-If anything sticks or anything trips, I want to know.
+   ↓
+
+02 · NAME YOUR VOICE · 10 MINUTES
+Your archetype with Brand OS.
+Five questions. The platform reads you back.
+${brandOsUrl}
+
+REPLY TO THIS EMAIL
+Tell me one bottleneck. One sentence. I read every reply.
 
 Sunny.${input.ps?.trim() ? `\n\nPS. ${input.ps.trim()}` : ""}
 
 ElevateAI Systems · sunny.binjola@gmail.com`;
 
-  return { subject, preview, html, text, snapshotLink };
+  return { subject, preview, html, text, entryLink: openPlatformUrl };
 }
 
 export async function sendPostCallInviteEmail(input: PostCallInviteInput): Promise<{ ok: boolean; error?: string; rendered: RenderedPostCall }> {
@@ -216,7 +234,6 @@ export async function sendPostCallInviteEmail(input: PostCallInviteInput): Promi
   }
 }
 
-// Minimal HTML escape for user-provided strings (note, ps, names).
 function escape(s: string): string {
   return s
     .replace(/&/g, "&amp;")
