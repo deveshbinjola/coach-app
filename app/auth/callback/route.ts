@@ -1,15 +1,15 @@
 // /auth/callback · post-magic-link session exchange.
 //
-// On first successful signin for a new coach we:
-//   1. Claim any anonymous Snapshot runs that match this email
-//      (sets coach_id + claimed_at on those rows).
-//   2. Fire the onboarding email (idempotent via cp_coaches.welcome_email_sent_at).
-//   3. Redirect to ?next (defaults to /command-center).
+// On first successful signin we:
+//   1. Claim any anonymous Snapshot runs that match this email.
+//   2. Send Day 0 of the onboarding drip (idempotent via onboarding_email_step).
+//   3. Set step=1 so the daily cron picks them up tomorrow for Day 1.
+//   4. Redirect to ?next (defaults to /command-center).
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { sendOnboardingEmail } from "@/lib/email/onboarding";
+import { renderDay0, sendDripEmail } from "@/lib/email/onboarding-sequence";
 
 export const runtime = "edge";
 
@@ -30,15 +30,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/login?error=auth_failed`);
   }
 
-  // Best-effort post-signin housekeeping. Anything that fails here must not
-  // block the redirect. Worst case the email never sends. Coach is still in.
+  // Best-effort. Never block the redirect on side effects.
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (user?.email) {
       const email = user.email.toLowerCase();
       const admin = createAdminClient();
 
-      // 1. Claim any anonymous Snapshot runs that match this email.
+      // 1. Claim any anonymous Snapshot runs matching this email.
       const { data: claimed } = await admin
         .from("cp_brand_os_runs")
         .update({
@@ -48,40 +47,39 @@ export async function GET(request: NextRequest) {
         .eq("email_for_claim", email)
         .is("coach_id", null)
         .is("claimed_at", null)
-        .select("id, archetype, tier");
+        .select("id, archetype");
 
-      // 2. Onboarding email · idempotent via cp_coaches.welcome_email_sent_at.
+      // 2. Drip Day 0 (welcome) · idempotent via cp_coaches.onboarding_email_step.
       const { data: coachRow } = await admin
         .from("cp_coaches")
-        .select("welcome_email_sent_at, full_name")
+        .select("onboarding_email_step, full_name")
         .eq("id", user.id)
         .maybeSingle();
 
-      const alreadySent = Boolean((coachRow as { welcome_email_sent_at?: string } | null)?.welcome_email_sent_at);
+      const stepRow = coachRow as { onboarding_email_step?: number; full_name?: string } | null;
+      const currentStep = stepRow?.onboarding_email_step ?? 0;
 
-      if (!alreadySent) {
-        // Pick a Snapshot reveal URL if we just claimed one with an archetype.
+      if (currentStep === 0) {
         const claimedWithArchetype = (claimed ?? []).find((r: { archetype?: string | null }) => r.archetype);
         const snapshotRevealUrl = claimedWithArchetype
           ? `${APP_ORIGIN}/snapshot/reveal/${(claimedWithArchetype as { id: string }).id}`
           : null;
 
-        // First name from cp_coaches.full_name or user metadata.
-        const fullName = ((coachRow as { full_name?: string } | null)?.full_name)
+        const fullName = stepRow?.full_name
           ?? (user.user_metadata?.full_name as string | undefined)
           ?? null;
         const firstName = fullName ? fullName.trim().split(/\s+/)[0] : null;
 
-        const sendResult = await sendOnboardingEmail({
-          to: email,
-          firstName,
-          snapshotRevealUrl,
-        });
+        const rendered = renderDay0({ firstName, snapshotRevealUrl });
+        const sendResult = await sendDripEmail({ to: email, rendered });
 
         if (sendResult.ok) {
           await admin
             .from("cp_coaches")
-            .update({ welcome_email_sent_at: new Date().toISOString() })
+            .update({
+              onboarding_email_step: 1,
+              last_onboarding_email_at: new Date().toISOString(),
+            })
             .eq("id", user.id);
         }
       }
