@@ -11,7 +11,7 @@
 // server endpoint generates 2 differentiated alternatives.
 
 export type Audience = "M" | "W" | "X";
-export type ModuleId = "preflight" | "mirror" | "signal" | "stance" | "funnel" | "distribution" | "broadcast";
+export type ModuleId = "preflight" | "mirror" | "signal" | "stance" | "funnel" | "distribution" | "broadcast" | "snapshot" | "round";
 
 export type BranchedText = string | { M: string; W: string; X: string };
 
@@ -95,6 +95,107 @@ const PREFLIGHT: Question[] = [
       { value: "performing", label: "Performing", description: "Notice it. Drop the performance. Then we go." },
       { value: "other",     label: "Something else", description: "Note it and continue." },
     ],
+  },
+];
+
+// ============================================================
+// SNAPSHOT (v5 · Tier 1 · free · 5 questions · ~3 min)
+// ============================================================
+
+const SNAPSHOT: Question[] = [
+  {
+    id: "snapshot.audience",
+    module: "snapshot",
+    order: 1,
+    kind: "longtext",
+    prompt: "Your last best client. Or one you wish you had. Six months in. Name, age, and the one sentence he started saying about himself that he never used to.",
+    hint: "Real name. Real age. Real sentence. The ending is the position.",
+    placeholder: "e.g. Daniel, 38, PE team lead in Boston. Six months in he stopped saying 'I am sorry for being soft-spoken.'",
+    minChars: 60,
+    pushBackTrigger: true,
+  },
+  {
+    id: "snapshot.wound",
+    module: "snapshot",
+    order: 2,
+    kind: "longtext",
+    prompt: "What in you were you trying to fix the year you started this work?",
+    hint: "One year. One thing. Inward, not outward.",
+    minChars: 30,
+  },
+  {
+    id: "snapshot.dissent",
+    module: "snapshot",
+    order: 3,
+    kind: "longtext",
+    prompt: "What does your industry teach that you would lose followers for refusing?",
+    hint: "Name the cost. Not a small disagreement.",
+    minChars: 30,
+    pushBackTrigger: true,
+  },
+  {
+    id: "snapshot.paragraph",
+    module: "snapshot",
+    order: 4,
+    kind: "pasteBlock",
+    prompt: "Pick the last thing you wrote that your closest friend would have screenshotted. Paste it. Or read it to me as a voice memo.",
+    hint: "One paragraph. The friend-screenshot test is the filter.",
+    placeholder: "Paste a real paragraph. Post, email, DM, voice memo transcript. Does not need to be polished.",
+    minChars: 100,
+    flags: ["required-input", "blocking"],
+  },
+  {
+    id: "snapshot.refrain",
+    module: "snapshot",
+    order: 5,
+    kind: "longtext",
+    prompt: "What is the line you said in your last session that you have said in fifty?",
+    hint: "Quote it. Word for word. No paraphrase.",
+    minChars: 20,
+  },
+];
+
+// ============================================================
+// ROUND (v5 · Tier 2 · paid · first 4 questions before stance/funnel/distribution carry-overs)
+// ============================================================
+
+const ROUND: Question[] = [
+  {
+    id: "round.landing_state",
+    module: "round",
+    order: 1,
+    kind: "longtext",
+    prompt: "The last post that landed harder than you expected. What state were you in when you wrote it? Body first.",
+    hint: "One place in the body. Not four.",
+    minChars: 40,
+  },
+  {
+    id: "round.hot_post",
+    module: "round",
+    order: 2,
+    kind: "longtext",
+    prompt: "A post from the last 90 days that did more than you expected. Paste it. What did it finally name for them?",
+    hint: "The paste, then your hypothesis. Specific.",
+    placeholder: "Paste the post. Then tell me what desire your audience already had that the post finally named.",
+    minChars: 80,
+  },
+  {
+    id: "round.unsaid",
+    module: "round",
+    order: 3,
+    kind: "longtext",
+    prompt: "The take in your drafts you have never posted. The one that scares you a little. Paste it. Tell me what stops you.",
+    hint: "The fear is the diagnostic. Name it.",
+    minChars: 100,
+  },
+  {
+    id: "round.promise",
+    module: "round",
+    order: 4,
+    kind: "longtext",
+    prompt: "Ninety days from now. Your audience finishes a piece of yours. What do they do next that they would not have done before reading you?",
+    hint: "Not metric. Behavior. The delta is the brand.",
+    minChars: 40,
   },
 ];
 
@@ -390,8 +491,8 @@ const STANCE: Question[] = [
     module: "stance",
     order: 1,
     kind: "list",
-    prompt: "Brain-dump 20 things you could make content about.",
-    hint: "Don't filter. 90 seconds. Mix it up: topics you care about, frameworks you use, stories you've lived, things you keep telling clients, beliefs you hold strong, hot takes. We'll narrow these to 3 pillars in the next step.",
+    prompt: "Twenty things. Ninety seconds. The lines that have made a client lean forward. The stories you keep telling. The hot takes you have not posted. Mix it. Do not filter.",
+    hint: "One per line. Top three will float in the next step.",
     placeholder: "One per line. Examples:\nWhy most cold plunges are doing more harm than good\nThe 'busy founder' trap\nReps vs. recovery\nMy 90-day burnout story\nHow I price my $12K offer\n…",
     listTarget: 20,
     minChars: 100,
@@ -408,8 +509,8 @@ const STANCE: Question[] = [
     module: "stance",
     order: 3,
     kind: "pillarScore",
-    prompt: "Now let's find your 3 strongest content pillars.",
-    hint: "We'll score each of your ideas on three quick questions — Can you talk about it forever? Do clients already want it? Does it sell your offer? — and the keepers float to the top.",
+    prompt: "Three scores per idea. Can you talk about it for a year? Do clients already pay for adjacent help? Does it bend toward your offer? Top three float.",
+    hint: "Score each idea. The math finds the keepers.",
   },
   {
     id: "stance.q4",
@@ -441,8 +542,8 @@ const STANCE: Question[] = [
     module: "stance",
     order: 7,
     kind: "longtext",
-    prompt: "For each stance, give one client outcome AND one moment from your own life that proves it. Two artifacts per stance.",
-    hint: "If you can't produce two, the stance is unproven. Demote it.",
+    prompt: "Per stance. One client outcome. One moment from your own life. Both specific enough to name the week they happened.",
+    hint: "If you cannot name the week, the artifact is theory. Demote it.",
     minChars: 80,
   },
   {
@@ -459,8 +560,8 @@ const STANCE: Question[] = [
     module: "stance",
     order: 9,
     kind: "list",
-    prompt: "Name your 3–5 stances. Real names, not single words.",
-    hint: "We'll push back on single-word generics ('Leadership', 'Mindset', 'Empowerment').",
+    prompt: "Name your three stances. Real phrases. The kind your closest friend would say back to you and you would know they were quoting you.",
+    hint: "We push back on single-word generics ('Leadership', 'Mindset', 'Empowerment').",
     listTarget: 4,
     pushBackTrigger: true,
     minChars: 30,
@@ -511,8 +612,8 @@ const FUNNEL: Question[] = [
     module: "funnel",
     order: 1,
     kind: "text",
-    prompt: "One destination for the next 45 days. Not three. One.",
-    hint: "Discovery call, $7 trip-wire, cohort application, waitlist. Block if you pick more than one.",
+    prompt: "One destination. Forty-five days. The single place every piece of content ends up pointing. The constraint is the strategy.",
+    hint: "Discovery call, trip-wire, cohort, waitlist. Pick one.",
     flags: ["required-input", "blocking"],
     minChars: 10,
   },
@@ -563,8 +664,8 @@ const FUNNEL: Question[] = [
     module: "funnel",
     order: 7,
     kind: "longtext",
-    prompt: "Write the CTA the way it appears at the end of a piece of content. 1–2 sentences.",
-    hint: "We'll push back if generic ('book a discovery call', 'apply now').",
+    prompt: "Write the CTA the way it appears at the end of a real post. One or two sentences. Read it aloud. If it sounds like a vendor, rewrite before submitting.",
+    hint: "Generic CTAs get push-back.",
     minChars: 15,
     pushBackTrigger: true,
   },
@@ -605,7 +706,8 @@ const DISTRIBUTION: Question[] = [
     module: "distribution",
     order: 1,
     kind: "text",
-    prompt: "One channel for the next 45 days. Not three.",
+    prompt: "One channel. Forty-five days. The one place you can publish consistently from your landing state. Constraint is strategy.",
+    hint: "Format and cadence follow from the channel.",
     minChars: 3,
   },
   {
@@ -699,6 +801,8 @@ export const BRAND_OS_QUESTIONS: Question[] = [
   ...FUNNEL,
   ...DISTRIBUTION,
   ...BROADCAST,
+  ...SNAPSHOT,
+  ...ROUND,
 ];
 
 /** Questions belonging to a single module, in order. */
@@ -720,6 +824,8 @@ export const MODULE_META: Record<ModuleId, { label: string; tagline: string; min
   funnel:       { label: "Funnel",        tagline: "One CTA · belief ladder · pre-mortem",               minutes: "25–35 min" },
   distribution: { label: "Distribution",  tagline: "Channel · repurpose · recovery rules",               minutes: "20–30 min" },
   broadcast:    { label: "Broadcast",     tagline: "45-day calendar generated from everything above",    minutes: "30–45 min" },
+  snapshot:     { label: "Snapshot",      tagline: "Recognition · the first share comes back free",      minutes: "3 min" },
+  round:        { label: "Full Round",    tagline: "Activation · the deeper share, held 24 hours",       minutes: "22 min" },
 };
 
 /** MVP question subset — 13 Qs, ~60–90 min, $7 trip-wire variant. */
@@ -738,15 +844,79 @@ export function isMvpQuestion(id: string): boolean {
   return MVP_QUESTION_IDS.includes(id);
 }
 
+// ============================================================
+// v5 · DESIGNED VARIANT (Snapshot + Full Round · 16 Qs · ~25 min)
+// ============================================================
+//
+// SNAPSHOT_QUESTION_IDS = Tier 1 · free · 5 Qs · ~3 min · no email gate.
+// FULL_ROUND_QUESTION_IDS = Tier 2 · $7 · 11 Qs · ~22 min · 24h hold at end.
+// DESIGNED_QUESTION_IDS = combined ordered pool for the v5 'designed' variant.
+//
+// Existing MVP_QUESTION_IDS preserved for legacy in-flight runs.
+
+/** v5 · Snapshot tier · 5 questions · free · ~3 min */
+export const SNAPSHOT_QUESTION_IDS: string[] = [
+  "snapshot.audience",
+  "snapshot.wound",
+  "snapshot.dissent",
+  "snapshot.paragraph",
+  "snapshot.refrain",
+];
+
+/** v5 · Full Round tier · 11 questions · $7 · ~22 min · 24h hold */
+export const FULL_ROUND_QUESTION_IDS: string[] = [
+  "round.landing_state",
+  "round.hot_post",
+  "round.unsaid",
+  "round.promise",
+  "stance.q1",
+  "stance.q3",
+  "stance.q9",
+  "stance.q7",
+  "funnel.q1",
+  "funnel.q7",
+  "distribution.q1",
+];
+
+/** v5 · Designed variant · Snapshot + Full Round · 16 questions · ~25 min */
+export const DESIGNED_QUESTION_IDS: string[] = [
+  ...SNAPSHOT_QUESTION_IDS,
+  ...FULL_ROUND_QUESTION_IDS,
+];
+
+export function isSnapshotQuestion(id: string): boolean {
+  return SNAPSHOT_QUESTION_IDS.includes(id);
+}
+
+export function isFullRoundQuestion(id: string): boolean {
+  return FULL_ROUND_QUESTION_IDS.includes(id);
+}
+
+export function isDesignedQuestion(id: string): boolean {
+  return DESIGNED_QUESTION_IDS.includes(id);
+}
+
+/** Run variant. 'legacy' covers the original 'mvp' + 'full' flows. 'designed' is v5. */
+export type RunVariant = "mvp" | "full" | "designed" | "snapshot" | "full_round";
+
+function poolForVariant(variant: RunVariant): string[] {
+  switch (variant) {
+    case "mvp":        return MVP_QUESTION_IDS;
+    case "designed":   return DESIGNED_QUESTION_IDS;
+    case "snapshot":   return SNAPSHOT_QUESTION_IDS;
+    case "full_round": return FULL_ROUND_QUESTION_IDS;
+    case "full":
+    default:           return BRAND_OS_QUESTIONS.map((q) => q.id);
+  }
+}
+
 /** Walk to the next question for a run.
  *  Returns null if the run is at the end of the variant. */
 export function nextQuestionId(
   currentId: string | null | undefined,
-  variant: "mvp" | "full"
+  variant: RunVariant
 ): string | null {
-  const pool = variant === "mvp"
-    ? MVP_QUESTION_IDS
-    : BRAND_OS_QUESTIONS.map((q) => q.id);
+  const pool = poolForVariant(variant);
   if (!currentId) return pool[0] ?? null;
   const idx = pool.indexOf(currentId);
   if (idx < 0 || idx >= pool.length - 1) return null;
@@ -756,11 +926,9 @@ export function nextQuestionId(
 /** Walk to the previous question (for "back" button). */
 export function previousQuestionId(
   currentId: string,
-  variant: "mvp" | "full"
+  variant: RunVariant
 ): string | null {
-  const pool = variant === "mvp"
-    ? MVP_QUESTION_IDS
-    : BRAND_OS_QUESTIONS.map((q) => q.id);
+  const pool = poolForVariant(variant);
   const idx = pool.indexOf(currentId);
   if (idx <= 0) return null;
   return pool[idx - 1];

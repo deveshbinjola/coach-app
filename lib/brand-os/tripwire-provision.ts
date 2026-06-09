@@ -147,6 +147,21 @@ export async function provisionTripwireBuyer(
     plan: "trial",
   }, { onConflict: "id" });
 
+  // v5 (2026-06-06): if the coach already has an in-progress Snapshot run
+  // (from before the $7 purchase), promote it to the Full Round tier so the
+  // post-purchase flow continues seamlessly into the deeper questions.
+  await admin
+    .from("cp_brand_os_runs")
+    .update({
+      tier: "full_round",
+      current_module: "round",
+      current_question_id: "round.landing_state",
+    })
+    .eq("coach_id", coachId)
+    .eq("variant_v", "v5")
+    .eq("tier", "snapshot")
+    .eq("state", "in_progress");
+
   // Subscribe to The Signal newsletter via Beehiiv. Fire-and-forget;
   // never blocks the buyer's checkout flow. Only fires on first
   // provision (not on idempotent retries).
