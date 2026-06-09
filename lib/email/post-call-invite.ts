@@ -155,8 +155,15 @@ export function renderPostCallInviteEmail(input: PostCallInviteInput): RenderedP
         </td></tr>
 
         <!-- Sign-off -->
-        <tr><td align="center" style="padding:0 0 32px;font-size:16px;line-height:1.6;color:#0A0F1C;">
+        <tr><td align="center" style="padding:0 0 18px;font-size:16px;line-height:1.6;color:#0A0F1C;">
           <p style="margin:0;">Sunny.</p>
+        </td></tr>
+
+        <!-- What to expect next · sets expectation for the 5-day drip -->
+        <tr><td align="center" style="padding:0 0 24px;">
+          <p style="margin:0;font-size:13px;line-height:1.6;color:#5A5A52;font-style:italic;">
+            You will get a few short emails over the next few days. Each one shows you one more part of the platform.
+          </p>
         </td></tr>
 
         ${psBlock}
@@ -194,7 +201,9 @@ ${brandOsUrl}
 REPLY TO THIS EMAIL
 Tell me one bottleneck. One sentence. I read every reply.
 
-Sunny.${input.ps?.trim() ? `\n\nPS. ${input.ps.trim()}` : ""}
+Sunny.
+
+You will get a few short emails over the next few days. Each one shows you one more part of the platform.${input.ps?.trim() ? `\n\nPS. ${input.ps.trim()}` : ""}
 
 ElevateAI Systems · sunny.binjola@gmail.com`;
 
