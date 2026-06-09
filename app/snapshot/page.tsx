@@ -134,7 +134,7 @@ export default async function SnapshotLanding({
             type="submit"
             className="mt-2 w-full rounded-md bg-[var(--brand)] px-6 py-3 text-base font-bold text-[var(--surface)] hover:bg-[var(--brand-strong)]"
           >
-            Start your Snapshot →
+            Name my voice →
           </button>
           <p className="text-center text-xs text-[color:var(--text-muted)]">
             No payment. No account needed yet. You get your Snapshot, then choose if you want to go deeper.
