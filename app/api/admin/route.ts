@@ -21,7 +21,7 @@ export async function GET(_request: NextRequest) {
     admin.from("cp_stripe_accounts").select("coach_id, stripe_account_id, charges_enabled, display_name, livemode"),
     admin.from("cp_offerings").select("id, coach_id, name, kind, status, price_cents, capacity"),
     admin.from("cp_leads").select("id, coach_id, created_at", { count: "exact", head: true }),
-    admin.from("cp_brand_os_runs").select("id, coach_id, state, variant, audience, current_module, started_at, completed_at, label").order("started_at", { ascending: false }),
+    admin.from("cp_brand_os_runs").select("id, coach_id, state, variant, variant_v, tier, audience, current_module, current_question_id, started_at, completed_at, label, email_for_claim, first_name_for_claim, claimed_at, archetype").order("started_at", { ascending: false }),
   ]);
 
   const totalRevenue = (paymentsRes.data ?? [])

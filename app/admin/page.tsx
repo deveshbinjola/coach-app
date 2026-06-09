@@ -42,14 +42,21 @@ interface Offering {
 
 interface BrandOsRun {
   id: string;
-  coach_id: string;
+  coach_id: string | null;
   state: "in_progress" | "complete" | "abandoned";
-  variant: "mvp" | "full";
+  variant: "mvp" | "full" | "designed";
+  variant_v: "legacy" | "v5" | null;
+  tier: "snapshot" | "full_round" | null;
   audience: "M" | "W" | "X";
   current_module: string;
+  current_question_id: string | null;
   started_at: string;
   completed_at: string | null;
   label: string | null;
+  email_for_claim: string | null;
+  first_name_for_claim: string | null;
+  claimed_at: string | null;
+  archetype: string | null;
 }
 
 interface AdminData {
@@ -456,24 +463,61 @@ function OverviewTab({
         <div className="adm-card adm-card-full">
           <div className="adm-card-header">
             <h3 className="adm-card-title">All Brand OS Runs</h3>
+            <span className="adm-count-pill">
+              {data.brandOsRuns.filter((r) => !r.coach_id).length} anonymous · {data.brandOsRuns.filter((r) => r.coach_id).length} authed
+            </span>
           </div>
           <div className="adm-table-wrap">
             <table className="adm-table">
               <thead>
-                <tr><th>Coach</th><th>Email</th><th>Variant</th><th>Status</th><th>Module</th><th>Started</th><th>Completed</th></tr>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Tier</th>
+                  <th>Status</th>
+                  <th>On question</th>
+                  <th>Archetype</th>
+                  <th>Started</th>
+                </tr>
               </thead>
               <tbody>
                 {data.brandOsRuns.map((r) => {
-                  const coach = coachMap[r.coach_id];
+                  const coach = r.coach_id ? coachMap[r.coach_id] : undefined;
+                  const isAnon = !r.coach_id;
+                  // Name: prefer coach full name, fall back to first_name_for_claim, then label
+                  const displayName = coach?.full_name ?? r.first_name_for_claim ?? r.label ?? "—";
+                  // Email: prefer coach email, fall back to email_for_claim
+                  const displayEmail = coach?.email ?? r.email_for_claim ?? "—";
+                  // Tier label
+                  const tierLabel =
+                    r.variant_v === "v5"
+                      ? r.tier === "full_round" ? "Full Round" : "Snapshot"
+                      : r.variant === "mvp" ? "MVP" : "Full (legacy)";
+                  const tierTone =
+                    r.variant_v === "v5"
+                      ? r.tier === "full_round" ? "adm-badge-brand" : "adm-badge-success"
+                      : "adm-badge-neutral";
+                  // Question label
+                  const questionLabel = r.state === "complete"
+                    ? "—"
+                    : r.current_question_id ?? r.current_module;
+
                   return (
-                    <tr key={r.id}>
-                      <td className="adm-td-name">{coach?.full_name ?? r.label ?? "—"}</td>
-                      <td className="adm-td-email">{coach?.email ?? "—"}</td>
-                      <td><span className={`adm-badge ${r.variant === "full" ? "adm-badge-brand" : "adm-badge-neutral"}`}>{r.variant}</span></td>
-                      <td><span className={`adm-badge ${r.state === "complete" ? "adm-badge-success" : r.state === "in_progress" ? "adm-badge-warning" : "adm-badge-danger"}`}>{r.state === "in_progress" ? "in progress" : r.state}</span></td>
-                      <td style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.72rem" }}>{r.state === "complete" ? "—" : r.current_module}</td>
+                    <tr key={r.id} style={isAnon ? { background: "rgba(124, 58, 237, 0.04)" } : undefined}>
+                      <td className="adm-td-name">
+                        {displayName}
+                        {isAnon && <span className="adm-badge adm-badge-neutral" style={{ marginLeft: 6, fontSize: "0.65rem" }}>anon</span>}
+                      </td>
+                      <td className="adm-td-email">{displayEmail}</td>
+                      <td><span className={`adm-badge ${tierTone}`}>{tierLabel}</span></td>
+                      <td>
+                        <span className={`adm-badge ${r.state === "complete" ? "adm-badge-success" : r.state === "in_progress" ? "adm-badge-warning" : "adm-badge-danger"}`}>
+                          {r.state === "in_progress" ? "in progress" : r.state}
+                        </span>
+                      </td>
+                      <td style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.72rem" }}>{questionLabel}</td>
+                      <td>{r.archetype ?? "—"}</td>
                       <td>{ago(r.started_at)}</td>
-                      <td>{r.completed_at ? ago(r.completed_at) : "—"}</td>
                     </tr>
                   );
                 })}
