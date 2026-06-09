@@ -207,9 +207,7 @@
       "Bash(git -c user.email=sunny.binjola@gmail.com -c 'user.name=Sunny Binjola' commit -m 'Three changes per feedback *)",
       "Bash(git -c user.email=sunny.binjola@gmail.com -c user.name=\"Sunny Binjola\" commit -m \"Consultations hero photo back to rounded rectangle — oval looked weird\")",
       "Bash(git revert *)",
-      "Bash(git stash *)",
-      "Bash(git -c user.email=sunny.binjola@gmail.com -c 'user.name=Sunny Binjola' commit -m 'Marble backgrounds + appointment-link cleanup *)",
-      "Bash(git -c user.email=sunny.binjola@gmail.com -c user.name=\"Sunny Binjola\" commit -m \"Boost marble intensity — more visible veining + clouds across site\")"
+      "Bash(git stash *)"
     ]
   }
 }
