@@ -41,7 +41,10 @@ export function renderPostCallInviteEmail(input: PostCallInviteInput): RenderedP
   // auto-fires the magic-link send on mount; after they click the magic link,
   // /auth/callback respects the ?next=... so they land where each card promised.
   const openPlatformUrl = `${APP_ORIGIN}/login?email=${encodeURIComponent(input.to)}&next=/welcome`;
-  const brandOsUrl = `${APP_ORIGIN}/login?email=${encodeURIComponent(input.to)}&next=/brand-os`;
+  // Drops them straight into Question 1 of the Snapshot. The
+  // /brand-os/start-snapshot page provisions a fresh v5 Snapshot run
+  // server-side and redirects to /brand-os/run/{id}.
+  const brandOsUrl = `${APP_ORIGIN}/login?email=${encodeURIComponent(input.to)}&next=/brand-os/start-snapshot`;
 
   const psBlock = input.ps?.trim()
     ? `
