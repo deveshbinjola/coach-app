@@ -14,7 +14,7 @@
 // Runs below the 4-answer floor are archived with recovery_tier = 'skip'.
 // Idempotent: safe to re-run. Skips runs that already have a recovery_token.
 
-import { randomUUID } from "crypto";
+// Web Crypto API is available globally in edge runtime. No import needed.
 import { createAdminClient } from "@/lib/supabase-admin";
 import { generateSnapshot } from "./snapshot-generator";
 
@@ -707,7 +707,7 @@ export async function runLegacyRecoveryBackfill(
       await generateSnapshot(member.run_id);
 
       // 3 · Mint token + tag the run
-      const token = randomUUID().replace(/-/g, "");
+      const token = crypto.randomUUID().replace(/-/g, "");
       await admin
         .from("cp_brand_os_runs")
         .update({ recovery_tier: tier, recovery_token: token })
