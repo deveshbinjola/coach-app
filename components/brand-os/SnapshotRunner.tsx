@@ -8,10 +8,8 @@
 //
 // After Q5 locks, transition to SnapshotReveal.
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Badge, Button, Card } from "@/components/ui";
-import { createClient } from "@/lib/supabase-browser";
+import { useCallback, useMemo, useState } from "react";
+import { Badge, Button } from "@/components/ui";
 import {
   getQuestion,
   SNAPSHOT_QUESTION_IDS,
@@ -21,7 +19,6 @@ import {
   type Audience,
   type Question,
 } from "@/lib/brand-os/questions";
-import { generateSnapshot } from "@/lib/brand-os/snapshot-generator";
 import VoiceMicInput from "@/components/VoiceMicInput";
 
 type SnapshotRunnerProps = {
@@ -51,21 +48,38 @@ export default function SnapshotRunner({
 
   const handleNext = useCallback(async () => {
     if (!q) return;
+    const text = (answers[currentId] ?? "").trim();
+    if (text.length < 5) return;
     setBusy(true);
 
-    // TODO: persist answer via /api/trial/[token]/persist
-    // TODO: lock answer; advance current_question_id.
+    try {
+      // Persist via the same public endpoint (it accepts any run that's
+      // anonymous OR matches a coach via the admin client — the in-app
+      // SnapshotRunner uses the legacy auth'd persist below for now).
+      await fetch("/api/snapshot/answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ run_id: runId, question_id: currentId, raw_text: text }),
+      });
 
-    const next = nextQuestionId(currentId, "snapshot");
-    if (next) {
-      setCurrentId(next);
-    } else {
-      // Last Snapshot question locked. Generate the reveal.
-      await generateSnapshot(runId);
+      const next = nextQuestionId(currentId, "snapshot");
+      if (next) {
+        setCurrentId(next);
+        setBusy(false);
+        return;
+      }
+
+      // Last question. Fire the generator via API (not direct lib call).
+      await fetch("/api/snapshot/finish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ run_id: runId }),
+      });
       onComplete(runId);
+    } finally {
+      setBusy(false);
     }
-    setBusy(false);
-  }, [q, currentId, runId, onComplete]);
+  }, [q, currentId, answers, runId, onComplete]);
 
   const handleBack = useCallback(() => {
     const prev = previousQuestionId(currentId, "snapshot");

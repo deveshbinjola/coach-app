@@ -88,6 +88,8 @@ export async function middleware(request: NextRequest) {
     "/q/",
     // Embeddable quiz pages — no auth, for iframe embedding on coach sites
     "/embed/",
+    // Public Brand OS Snapshot — free, anonymous, email-gated at the marketing site
+    "/snapshot",
   ];
   const isApi = path.startsWith("/api/");
   const isPublic = isApi || publicPaths.some((p) => path.startsWith(p));
