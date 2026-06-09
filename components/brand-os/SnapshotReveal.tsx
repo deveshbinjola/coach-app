@@ -44,7 +44,7 @@ export default function SnapshotReveal({ payload, onContinueToFullRound }: Snaps
   return (
     <div className="snapshot-reveal mx-auto max-w-2xl px-6 py-16">
       <div className="mb-6">
-        <Badge variant="ghost">Brand OS · Snapshot · for {firstName ?? "you"}</Badge>
+        <Badge tone="muted">Brand OS · Snapshot · for {firstName ?? "you"}</Badge>
       </div>
 
       <h1 className="mb-3 font-serif text-4xl font-bold leading-tight text-ink">
@@ -94,7 +94,7 @@ export default function SnapshotReveal({ payload, onContinueToFullRound }: Snaps
       </Card>
 
       {/* Pillar seeds */}
-      <Card variant="muted" className="mb-12 py-6">
+      <Card variant="flat" className="mb-12 py-6">
         <h3 className="mb-4 font-mono text-xs uppercase tracking-widest text-green">
           Three pillar seeds (preview only · the Full Round names them)
         </h3>
@@ -106,7 +106,7 @@ export default function SnapshotReveal({ payload, onContinueToFullRound }: Snaps
       </Card>
 
       {/* Full Round offer */}
-      <Card variant="dark" className="px-10 py-12 text-center">
+      <Card variant="elevated" className="px-10 py-12 text-center bg-[var(--ink)]">
         <div className="mb-3 font-mono text-xs uppercase tracking-widest text-green-neon">
           If this landed
         </div>
@@ -117,7 +117,7 @@ export default function SnapshotReveal({ payload, onContinueToFullRound }: Snaps
           Eleven more questions. Twenty-two minutes. The draft is held twenty-four hours before
           you can publish it. Your voice profile populates the platform automatically.
         </p>
-        <Button variant="neon" onClick={onContinueToFullRound}>
+        <Button variant="primary" onClick={onContinueToFullRound}>
           Continue · $7
         </Button>
         <p className="mt-3 font-mono text-xs text-muted-on-dark">

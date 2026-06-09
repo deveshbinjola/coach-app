@@ -87,8 +87,6 @@ export default async function TrialRunPage({
         <BrandOsRunner
           runId={params.runId}
           variant={run.variant as "mvp" | "full"}
-          variant_v={(run.variant_v as "legacy" | "v5" | null) ?? "legacy"}
-          tier={(run.tier as "snapshot" | "full_round" | null) ?? null}
           audience={run.audience as "M" | "W" | "X"}
           currentQuestionId={currentId}
           nextQuestionId={nextId}

@@ -23,9 +23,11 @@ import {
 import { detectPushBack, triggerForQuestion } from "@/lib/brand-os/pushback";
 import VoiceMicInput from "@/components/VoiceMicInput";
 
-// v5 dispatch · render the new components for variant_v='v5' runs.
-import SnapshotRunner from "@/components/brand-os/SnapshotRunner";
-import FullRoundRunner from "@/components/brand-os/FullRoundRunner";
+// v5 dispatch happens in the parent server pages (app/brand-os/run/[runId]/page.tsx
+// and app/trial/[token]/run/[runId]/page.tsx) — BrandOsRunner only renders
+// legacy variants. Keeping the dispatch out of here keeps the hook order stable
+// and avoids the rules-of-hooks violation that an early return inside this
+// component would trigger.
 
 // Mirror of /api/trial/[token]/persist op union. Kept inline to avoid an
 // import cycle through the route file.
@@ -83,41 +85,10 @@ type Props = {
   /** When in trial mode, navigation goes back to /trial/[token]/... paths
    *  instead of /brand-os/run/... paths. */
   trialBasePath?: string;
-  /** v5 discriminator. When 'v5', the runner dispatches to SnapshotRunner or
-   *  FullRoundRunner based on tier instead of rendering the legacy quiz UI. */
-  variant_v?: "legacy" | "v5";
-  /** v5 tier. 'snapshot' → free 5 questions. 'full_round' → paid 11 questions. */
-  tier?: "snapshot" | "full_round" | null;
 };
 
 export default function BrandOsRunner(props: Props) {
   const router = useRouter();
-
-  // v5 dispatch · ahead of all legacy state hooks so the bundle stays minimal
-  // for the new flow. Existing legacy in-flight runs (variant_v unset or
-  // 'legacy') continue to the original UI below.
-  if (props.variant_v === "v5") {
-    if (props.tier === "snapshot") {
-      return (
-        <SnapshotRunner
-          runId={props.runId}
-          audience={props.audience}
-          onComplete={(id) => router.push(`/brand-os/reveal/${id}`)}
-        />
-      );
-    }
-    if (props.tier === "full_round") {
-      return (
-        <FullRoundRunner
-          runId={props.runId}
-          audience={props.audience}
-          onHoldStarted={() => router.push(`/brand-os/hold/${props.runId}`)}
-        />
-      );
-    }
-    // v5 run with no tier set: fall through to legacy UI as a safety net.
-  }
-
   const supabase = createClient();
 
   // Trial-mode writes go through the token-scoped proxy. The proxy

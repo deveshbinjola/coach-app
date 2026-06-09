@@ -9,6 +9,8 @@ import { createClient } from "@/lib/supabase-server";
 import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import BrandOsRunner from "@/components/brand-os/BrandOsRunner";
+import SnapshotRunnerClient from "@/components/brand-os/SnapshotRunnerClient";
+import FullRoundRunnerClient from "@/components/brand-os/FullRoundRunnerClient";
 import {
   getQuestion,
   nextQuestionId,
@@ -35,6 +37,35 @@ export default async function BrandOsRunPage({ params }: { params: { runId: stri
 
   // Already complete → go to output.
   if (run.state === "complete") redirect(`/brand-os/run/${params.runId}/output`);
+
+  // v5 dispatch happens server-side, before legacy quiz data is loaded.
+  // SnapshotRunner / FullRoundRunner own their own state and persistence.
+  const variantV = (run.variant_v as "legacy" | "v5" | null) ?? "legacy";
+  const tier = (run.tier as "snapshot" | "full_round" | null) ?? null;
+  if (variantV === "v5") {
+    return (
+      <div className="min-h-screen bg-[var(--surface)]">
+        <Header
+          email={user.email ?? ""}
+          name={userDisplayName(user.user_metadata)}
+          avatarUrl={userAvatarUrl(user.user_metadata)}
+        />
+        <main className="max-w-2xl mx-auto px-3 py-6 sm:px-6 sm:py-10">
+          {tier === "full_round" ? (
+            <FullRoundRunnerClient
+              runId={params.runId}
+              audience={run.audience as "M" | "W" | "X"}
+            />
+          ) : (
+            <SnapshotRunnerClient
+              runId={params.runId}
+              audience={run.audience as "M" | "W" | "X"}
+            />
+          )}
+        </main>
+      </div>
+    );
+  }
 
   // Resolve current question. If null/missing, start at the first question
   // of the variant.
@@ -77,8 +108,6 @@ export default async function BrandOsRunPage({ params }: { params: { runId: stri
         <BrandOsRunner
           runId={params.runId}
           variant={run.variant as "mvp" | "full"}
-          variant_v={(run.variant_v as "legacy" | "v5" | null) ?? "legacy"}
-          tier={(run.tier as "snapshot" | "full_round" | null) ?? null}
           audience={run.audience as "M" | "W" | "X"}
           currentQuestionId={currentId}
           nextQuestionId={nextId}

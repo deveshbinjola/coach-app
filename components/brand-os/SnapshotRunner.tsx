@@ -77,7 +77,7 @@ export default function SnapshotRunner({
   return (
     <div className="snapshot-runner mx-auto max-w-2xl px-6 py-12">
       <div className="mb-4 flex items-center justify-between">
-        <Badge variant="ghost">Snapshot · Q{idx + 1} of {SNAPSHOT_QUESTION_IDS.length}</Badge>
+        <Badge tone="muted">Snapshot · Q{idx + 1} of {SNAPSHOT_QUESTION_IDS.length}</Badge>
         <span className="font-mono text-xs text-muted">free · ~3 min</span>
       </div>
 

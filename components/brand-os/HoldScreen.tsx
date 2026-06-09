@@ -46,7 +46,7 @@ export default function HoldScreen({ runId, holdUntil, onUnlockReady }: HoldScre
   return (
     <div className="hold-screen mx-auto max-w-2xl px-6 py-20 text-center">
       <div className="mb-6">
-        <Badge variant="amber">Held · the pause is the product</Badge>
+        <Badge tone="warning">Held · the pause is the product</Badge>
       </div>
 
       <h1 className="mb-4 font-serif text-4xl font-bold leading-tight text-ink">
@@ -73,7 +73,7 @@ export default function HoldScreen({ runId, holdUntil, onUnlockReady }: HoldScre
       </div>
 
       {done && (
-        <Button variant="neon" onClick={onUnlockReady}>
+        <Button variant="primary" onClick={onUnlockReady}>
           Open the unlock check →
         </Button>
       )}

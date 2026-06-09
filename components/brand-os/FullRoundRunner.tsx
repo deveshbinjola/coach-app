@@ -73,7 +73,7 @@ export default function FullRoundRunner({
   return (
     <div className="full-round-runner mx-auto max-w-2xl px-6 py-12">
       <div className="mb-4 flex items-center justify-between">
-        <Badge variant="ghost">
+        <Badge tone="muted">
           Full Round · Q{idx + 1} of {FULL_ROUND_QUESTION_IDS.length}
         </Badge>
         <span className="font-mono text-xs text-muted">$7 · 24h hold at end</span>

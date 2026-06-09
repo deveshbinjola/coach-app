@@ -40,7 +40,7 @@ export default function UnlockCheck({
   return (
     <div className="unlock-check mx-auto max-w-3xl px-6 py-16">
       <div className="mb-6 text-center">
-        <Badge variant="ghost">Twenty-four hours later · the unlock check</Badge>
+        <Badge tone="muted">Twenty-four hours later · the unlock check</Badge>
       </div>
 
       <h1 className="mb-4 text-center font-serif text-3xl font-bold leading-tight text-ink">

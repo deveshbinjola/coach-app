@@ -39,7 +39,7 @@ describe("decideGatePath — trial ($7) scoping preserved", () => {
       decideGatePath(
         input({
           plan: "trial",
-          brandOsRunState: { kind: "in_progress", runId: "R1", variant: "mvp", currentQuestionId: null },
+          brandOsRunState: { kind: "in_progress", runId: "R1", variant: "mvp", variant_v: "legacy", tier: null, currentQuestionId: null },
         })
       )
     ).toBe("/brand-os/run/R1");
@@ -50,7 +50,7 @@ describe("decideGatePath — trial ($7) scoping preserved", () => {
       decideGatePath(
         input({
           plan: "trial",
-          brandOsRunState: { kind: "complete", runId: "R2", variant: "mvp", synthesizedAt: null },
+          brandOsRunState: { kind: "complete", runId: "R2", variant: "mvp", variant_v: "legacy", synthesizedAt: null },
         })
       )
     ).toBe("/brand-os/run/R2/output");
@@ -61,7 +61,7 @@ describe("decideGatePath — trial ($7) scoping preserved", () => {
       decideGatePath(
         input({
           plan: "trial",
-          brandOsRunState: { kind: "complete_no_synthesis", runId: "R3", variant: "mvp" },
+          brandOsRunState: { kind: "complete_no_synthesis", runId: "R3", variant: "mvp", variant_v: "legacy" },
         })
       )
     ).toBe("/brand-os/run/R3/output");
