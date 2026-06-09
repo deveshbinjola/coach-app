@@ -11,8 +11,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { runLegacyRecoveryBackfill } from "@/lib/brand-os/legacy-recovery";
 
-export const runtime = "nodejs";       // not edge · the backfill calls the agent + Resend
-export const maxDuration = 300;        // 5 minutes
+// Cloudflare Pages requires edge runtime on all routes. The backfill makes
+// 5 Anthropic calls × 12 coaches plus 12 Resend sends. That can exceed the
+// edge CPU limit when run synchronously, so the endpoint takes a `?batch_size=N`
+// query param. Pass batch_size=2 or 3 to process coaches in chunks and fire
+// the endpoint multiple times. Idempotent — already-processed runs are skipped.
+export const runtime = "edge";
 
 export async function POST(request: NextRequest) {
   const adminToken = process.env.BRAND_OS_ADMIN_TOKEN;
@@ -29,15 +33,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  // Optional dry-run mode: ?dry=1 prints what would happen without sending
+  // Optional dry-run mode: ?dry=1 prints what would happen without sending.
+  // Optional ?limit=N to process N coaches per call (edge runtime CPU budget).
   const url = new URL(request.url);
   const dryRun = url.searchParams.get("dry") === "1";
+  const limitParam = url.searchParams.get("limit");
+  const limit = limitParam ? Math.max(1, parseInt(limitParam, 10)) : undefined;
 
   try {
-    const summary = await runLegacyRecoveryBackfill({ dryRun });
+    const summary = await runLegacyRecoveryBackfill({ dryRun, limit });
     return NextResponse.json({
       ok: true,
       dryRun,
+      limit: limit ?? "all",
       ...summary,
     });
   } catch (err) {

@@ -37,6 +37,9 @@ export type RecoveryTier = "skip" | "partial" | "full" | "gift";
 
 type BackfillOptions = {
   dryRun?: boolean;
+  /** Max coaches to process this call. Defaults to all. Use small batches
+   *  (2 to 4) when running under the edge runtime CPU limit. */
+  limit?: number;
 };
 
 type BackfillSummary = {
@@ -663,8 +666,12 @@ export async function runLegacyRecoveryBackfill(
   opts: BackfillOptions = {},
 ): Promise<BackfillSummary> {
   const dry = opts.dryRun ?? false;
+  const limit = opts.limit ?? Infinity;
   const admin = createAdminClient();
-  const cohort = await loadCohort();
+  const fullCohort = await loadCohort();
+  // Filter to runs that have not been processed yet. Re-running the endpoint
+  // walks forward through the cohort until everyone is done.
+  const cohort = fullCohort.slice(0, limit);
 
   let sent = 0;
   let skipped = 0;
