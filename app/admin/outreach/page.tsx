@@ -14,7 +14,10 @@ type HistoryRow = {
   sent_at: string;
   email: string;
   first_name: string | null;
+  kind: string;
   note: string | null;
+  referred_by_email: string | null;
+  referred_by_first_name: string | null;
   signed_up: boolean;
   signed_up_at: string | null;
   drip_step: number;
@@ -24,11 +27,21 @@ type HistoryRow = {
   snapshot_run_id: string | null;
 };
 
+type ReferrerRow = {
+  email: string;
+  first_name: string | null;
+  count: number;
+  signups: number;
+  snapshots: number;
+};
+
 type HistoryResponse = {
   outreach: HistoryRow[];
   total: number;
   signed_up_count: number;
   snapshot_done_count: number;
+  referral_count: number;
+  referrer_leaderboard: ReferrerRow[];
 };
 
 export default function OutreachPage() {
@@ -109,10 +122,50 @@ export default function OutreachPage() {
 
         {/* KPI row */}
         {history && history.total > 0 && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
             <Kpi label="Total outreach" value={history.total} />
             <Kpi label="Signed up" value={history.signed_up_count} valueColor="#0B6E23" />
-            <Kpi label="Snapshot complete" value={history.snapshot_done_count} valueColor="#0B6E23" />
+            <Kpi label="Snapshot done" value={history.snapshot_done_count} valueColor="#0B6E23" />
+            <Kpi label="Referrals" value={history.referral_count} valueColor="#0B6E23" />
+          </div>
+        )}
+
+        {/* Referrer leaderboard */}
+        {history && history.referrer_leaderboard.length > 0 && (
+          <div style={{ background: "#FFFFFF", border: "1px solid #E5E1D8", borderRadius: 14, padding: 22, marginBottom: 32, maxWidth: 640 }}>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
+              <h2 style={{ margin: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: "2px", textTransform: "uppercase", color: "#0A0F1C", fontWeight: 700 }}>
+                Top referrers
+              </h2>
+              <span style={{ fontSize: 12, color: "#5A5A52" }}>{history.referrer_leaderboard.length} active</span>
+            </div>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ background: "#F0EDE5", borderBottom: "1px solid #E5E1D8" }}>
+                    <th style={thStyle}>Referrer</th>
+                    <th style={thStyle}>Email</th>
+                    <th style={thStyle}>Invites</th>
+                    <th style={thStyle}>Signed up</th>
+                    <th style={thStyle}>Snapshot</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.referrer_leaderboard.map((r, i) => (
+                    <tr key={r.email} style={{ borderBottom: "1px solid #F0EDE5" }}>
+                      <td style={{ ...tdStyle, fontWeight: 700 }}>
+                        {i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : `${i + 1}. `}
+                        {r.first_name ?? "—"}
+                      </td>
+                      <td style={{ ...tdStyle, color: "#5A5A52", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{r.email}</td>
+                      <td style={{ ...tdStyle, fontWeight: 700 }}>{r.count}</td>
+                      <td style={{ ...tdStyle, color: r.signups > 0 ? "#0B6E23" : "#5A5A52", fontWeight: r.signups > 0 ? 700 : 400 }}>{r.signups}</td>
+                      <td style={{ ...tdStyle, color: r.snapshots > 0 ? "#0B6E23" : "#5A5A52", fontWeight: r.snapshots > 0 ? 700 : 400 }}>{r.snapshots}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
@@ -216,16 +269,16 @@ export default function OutreachPage() {
           {history && history.outreach.length > 0 && (
             <div style={{ background: "#FFFFFF", border: "1px solid #E5E1D8", borderRadius: 14, overflow: "hidden" }}>
               <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 720 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 820 }}>
                   <thead>
                     <tr style={{ background: "#F0EDE5", borderBottom: "1px solid #E5E1D8" }}>
                       <th style={thStyle}>Sent</th>
                       <th style={thStyle}>Name</th>
                       <th style={thStyle}>Email</th>
+                      <th style={thStyle}>Source</th>
                       <th style={thStyle}>Signed up?</th>
                       <th style={thStyle}>Drip day</th>
                       <th style={thStyle}>Snapshot</th>
-                      <th style={thStyle}>Note</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -234,6 +287,19 @@ export default function OutreachPage() {
                         <td style={tdStyle}>{formatRelative(r.sent_at)}</td>
                         <td style={{ ...tdStyle, fontWeight: 700 }}>{r.first_name ?? "—"}</td>
                         <td style={{ ...tdStyle, color: "#5A5A52", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{r.email}</td>
+                        <td style={tdStyle}>
+                          {r.kind === "referral" && r.referred_by_first_name ? (
+                            <span title={r.referred_by_email ?? undefined}>
+                              <Badge color="#0B6E23" bg="#E8F3E8">ref: {r.referred_by_first_name}</Badge>
+                            </span>
+                          ) : r.kind === "referral" ? (
+                            <span title={r.referred_by_email ?? undefined}>
+                              <Badge color="#0B6E23" bg="#E8F3E8">referral</Badge>
+                            </span>
+                          ) : (
+                            <Badge color="#5A5A52" bg="#F0EDE5">{r.kind ?? "outreach"}</Badge>
+                          )}
+                        </td>
                         <td style={tdStyle}>
                           {r.signed_up ? (
                             <Badge color="#0B6E23" bg="#E8F3E8">Signed up</Badge>
@@ -255,9 +321,6 @@ export default function OutreachPage() {
                           ) : (
                             <span style={{ color: "#5A5A52" }}>—</span>
                           )}
-                        </td>
-                        <td style={{ ...tdStyle, color: "#5A5A52", maxWidth: 240 }} title={r.note ?? ""}>
-                          {r.note ? truncate(r.note, 60) : "—"}
                         </td>
                       </tr>
                     ))}

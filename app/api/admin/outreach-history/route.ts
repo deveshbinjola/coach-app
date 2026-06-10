@@ -27,7 +27,7 @@ export async function GET(_request: NextRequest) {
   // 1. Recent outreach.
   const { data: outreach, error: outreachErr } = await admin
     .from("cp_outreach_log")
-    .select("id, email, first_name, kind, note, snapshot_link, sent_at, claimed_coach_id, claimed_at")
+    .select("id, email, first_name, kind, note, snapshot_link, sent_at, claimed_coach_id, claimed_at, referred_by_email, referred_by_first_name")
     .order("sent_at", { ascending: false })
     .limit(100);
 
@@ -124,7 +124,10 @@ export async function GET(_request: NextRequest) {
       sent_at: o.sent_at,
       email: o.email,
       first_name: o.first_name,
+      kind: o.kind,
       note: o.note,
+      referred_by_email: o.referred_by_email ?? null,
+      referred_by_first_name: o.referred_by_first_name ?? null,
       signed_up: hasSignedUp,
       coach_id: coach?.id ?? null,
       signed_up_at: coach?.created_at ?? null,
@@ -136,10 +139,32 @@ export async function GET(_request: NextRequest) {
     };
   });
 
+  // Aggregate referrers · top of leaderboard
+  const referrers = new Map<string, { email: string; first_name: string | null; count: number; signups: number; snapshots: number }>();
+  rows.forEach((r) => {
+    if (!r.referred_by_email) return;
+    const cur = referrers.get(r.referred_by_email) ?? {
+      email: r.referred_by_email,
+      first_name: r.referred_by_first_name,
+      count: 0,
+      signups: 0,
+      snapshots: 0,
+    };
+    cur.count += 1;
+    if (r.signed_up) cur.signups += 1;
+    if (r.snapshot_state === "completed") cur.snapshots += 1;
+    referrers.set(r.referred_by_email, cur);
+  });
+
+  const referrerLeaderboard = Array.from(referrers.values())
+    .sort((a, b) => b.count - a.count);
+
   return NextResponse.json({
     outreach: rows,
     total: rows.length,
     signed_up_count: rows.filter((r) => r.signed_up).length,
     snapshot_done_count: rows.filter((r) => r.snapshot_state === "completed").length,
+    referral_count: rows.filter((r) => r.kind === "referral").length,
+    referrer_leaderboard: referrerLeaderboard,
   });
 }
