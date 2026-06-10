@@ -90,6 +90,8 @@ export async function middleware(request: NextRequest) {
     "/embed/",
     // Public Brand OS Snapshot — free, anonymous, email-gated at the marketing site
     "/snapshot",
+    // Public referral page — coaches share Brand OS with friends
+    "/refer",
   ];
   const isApi = path.startsWith("/api/");
   const isPublic = isApi || publicPaths.some((p) => path.startsWith(p));
