@@ -14,7 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "eval:polish": "node scripts/eval-polish.mjs"
+    "eval:polish": "node scripts/eval-polish.mjs",
+    "eval:distill": "node scripts/eval-distill.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
