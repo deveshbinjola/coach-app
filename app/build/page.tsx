@@ -79,34 +79,81 @@ const CSS = `
 }
 .rb-page main,.rb-page header,.rb-page footer{position:relative;z-index:2}
 
-.rb-bar{
-  max-width:1280px;
-  margin:0 auto;
-  padding:20px 40px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:24px;
+/* CANONICAL NAV (mirrors navbar.js across the rest of the site) */
+.rb-page .rb-nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(250,250,248,.85);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid #E0E0D8;
+  padding:0 2rem;height:72px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:all .3s;box-sizing:border-box;width:100%;
 }
-.rb-bar .mark{display:flex;align-items:center;gap:11px;line-height:0}
-.rb-bar .mark .name{
-  font-family:var(--fd);font-weight:700;font-size:17px;
-  color:var(--ink);letter-spacing:-.005em;line-height:1;
+.rb-page .rb-nav.scrolled{box-shadow:0 2px 20px rgba(0,0,0,.06)}
+.rb-page .rb-nav-logo{
+  font-size:1.4rem;font-weight:800;
+  color:#0A0F1C;letter-spacing:-.02em;
+  display:flex;align-items:center;gap:.5rem;text-decoration:none;
+  font-family:var(--fb);
 }
-.rb-bar .right{display:flex;align-items:center;gap:24px}
-.rb-bar .right a.txt{font-size:14.5px;color:var(--muted);transition:color .2s ease}
-.rb-bar .right a.txt:hover{color:var(--ink)}
-.rb-bar .cta-mini{
-  font-family:var(--fb);font-weight:600;font-size:13.5px;
-  background:var(--ink);color:var(--bg);
-  padding:10px 18px;border-radius:100px;letter-spacing:.005em;
-  transition:background .2s ease, transform .2s ease;
+.rb-page .rb-nav-logo-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rb-page .rb-nav-logo-text span{color:#00CC34}
+.rb-page .rb-nav-links{display:flex;gap:2rem;align-items:center}
+.rb-page .rb-nav-links a{
+  font-size:.85rem;font-weight:700;
+  color:#0A0F1C;letter-spacing:.08em;text-transform:uppercase;
+  transition:color .2s;position:relative;text-decoration:none;
+  font-family:var(--fb);
 }
-.rb-bar .cta-mini:hover{background:var(--accent-dark);transform:translateY(-1px)}
+.rb-page .rb-nav-links a:hover{color:#0A0F1C}
+.rb-page .rb-nav-links a::after{
+  content:'';position:absolute;bottom:-2px;left:0;
+  width:0;height:2px;background:#00FF41;transition:width .3s;
+}
+.rb-page .rb-nav-links a:hover::after{width:100%}
+.rb-page .rb-nav-cta{
+  background:#00FF41;color:#0A0F1C !important;
+  padding:.65rem 1.6rem;border-radius:50px;
+  font-size:.85rem;font-weight:800;
+  transition:all .3s;letter-spacing:.02em;
+}
+.rb-page .rb-nav-cta:hover{background:#00CC34;transform:translateY(-1px);box-shadow:0 4px 15px rgba(0,255,65,.25)}
+.rb-page .rb-nav-cta::after{display:none !important}
+.rb-page .rb-mobile-menu{
+  display:none;flex-direction:column;gap:5px;cursor:pointer;
+  background:none;border:none;padding:12px;z-index:101;
+  -webkit-tap-highlight-color:transparent;
+}
+.rb-page .rb-mobile-menu span{display:block;width:26px;height:3px;background:#0A0F1C;border-radius:2px;transition:all .3s}
+.rb-page .rb-mobile-nav{
+  display:none;position:fixed;top:72px;left:0;right:0;
+  background:#FFFFFF;border-bottom:1px solid #E0E0D8;
+  padding:1.5rem 2rem;z-index:99;
+  flex-direction:column;gap:.75rem;
+  box-shadow:0 8px 30px rgba(0,0,0,.08);
+}
+.rb-page .rb-mobile-nav.open{display:flex}
+.rb-page .rb-mobile-nav a{font-size:.95rem;font-weight:600;color:#1A1A2E;padding:.5rem 0;text-decoration:none}
+.rb-page .rb-mobile-nav .rb-nav-cta{text-align:center;margin-top:.5rem}
+@media (max-width:768px){
+  .rb-page .rb-nav{padding:0 1rem}
+  .rb-page .rb-nav-links{display:none}
+  .rb-page .rb-mobile-menu{display:flex;margin-right:-4px}
+  .rb-page .rb-mobile-nav{padding:1.25rem 1rem}
+  .rb-page .rb-nav-logo{font-size:1.2rem}
+}
+@media (max-width:380px){
+  .rb-page .rb-nav{padding:0 .75rem}
+  .rb-page .rb-nav-logo-text{font-size:1rem}
+}
+
+/* Push page content below the fixed nav */
+.rb-page{padding-top:72px}
 
 .rb-hero{
   max-width:1280px;margin:0 auto;
-  padding:64px 40px 112px;
+  padding:24px 40px 112px;
   display:grid;grid-template-columns:1.1fr .9fr;gap:80px;
   align-items:center;
 }
@@ -254,8 +301,8 @@ const CSS = `
 .rb-dq li:first-child{border-top:none;padding-top:4px}
 
 .rb-close{
-  background:var(--ink);color:var(--bg);padding:128px 0;
-  position:relative;overflow:hidden;
+  background-color:#0A0F1C;color:#FAF8F3;padding:128px 0;
+  position:relative;overflow:hidden;isolation:isolate;
 }
 .rb-close::before{
   content:'';position:absolute;inset:0;
@@ -351,7 +398,7 @@ const CSS = `
 @media(max-width:960px){
   .rb-bar{padding:16px 22px}
   .rb-bar .right a.txt{display:none}
-  .rb-hero{padding:40px 22px 72px;grid-template-columns:1fr;gap:48px}
+  .rb-hero{padding:16px 22px 72px;grid-template-columns:1fr;gap:48px}
   .rb-hero-photo{max-width:380px;order:-1;aspect-ratio:4/5}
   .rb-h1{font-size:clamp(36px, 9vw, 56px)}
   .rb-lede{font-size:17px}
@@ -379,19 +426,33 @@ const CSS = `
 
 const REVEAL_JS = `
 (function(){
-  if (!('IntersectionObserver' in window)) {
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) {
+          e.target.classList.add('rb-in-view');
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    document.querySelectorAll('.rb-reveal').forEach(function(el){ io.observe(el); });
+  } else {
     document.querySelectorAll('.rb-reveal').forEach(function(el){el.classList.add('rb-in-view')});
-    return;
   }
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if (e.isIntersecting) {
-        e.target.classList.add('rb-in-view');
-        io.unobserve(e.target);
-      }
+  var mobileBtn = document.getElementById('rb-mobile-btn');
+  var mobileNav = document.getElementById('rb-mobile-nav');
+  if (mobileBtn && mobileNav) {
+    mobileBtn.addEventListener('click', function(){ mobileNav.classList.toggle('open'); });
+    mobileNav.querySelectorAll('a').forEach(function(link){
+      link.addEventListener('click', function(){ mobileNav.classList.remove('open'); });
     });
-  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-  document.querySelectorAll('.rb-reveal').forEach(function(el){ io.observe(el); });
+  }
+  var nav = document.getElementById('rb-nav');
+  if (nav) {
+    window.addEventListener('scroll', function(){
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+  }
 })();
 `;
 
@@ -408,16 +469,32 @@ export default function ResonanceBuildPage() {
 
       <div className="rb-page">
 
-        <header className="rb-bar">
-          <a href="/" className="mark" aria-label="ElevateAI Systems">
-            <Leaf size={34} />
-            <span className="name">ElevateAI</span>
+        <nav className="rb-nav" id="rb-nav" role="navigation" aria-label="Main navigation">
+          <a href="/" className="rb-nav-logo">
+            <div className="rb-nav-logo-icon"><CanonicalLeaf size={36} /></div>
+            <span className="rb-nav-logo-text">Elevate<span>AI</span></span>
           </a>
-          <div className="right">
-            <a href="/brand-os" className="txt">Brand OS</a>
-            <a href={CAL_URL} className="cta-mini">Book the first call</a>
+          <div className="rb-nav-links">
+            <a href="https://elevateaisystem.com/quiz">Quiz</a>
+            <a href="/brand-os">Brand OS</a>
+            <a href="https://elevateaisystem.com/build-your-brand">Build Your Brand</a>
+            <a href="https://elevateaisystem.com/about">About</a>
+            <a href="https://elevateaisystem.com/blog">Blog</a>
+            <a href={CAL_URL} className="rb-nav-cta">Book the first call</a>
           </div>
-        </header>
+          <button className="rb-mobile-menu" aria-label="Menu" id="rb-mobile-btn">
+            <span></span><span></span><span></span>
+          </button>
+        </nav>
+        <div className="rb-mobile-nav" id="rb-mobile-nav">
+          <a href="/">Home</a>
+          <a href="https://elevateaisystem.com/quiz">Quiz</a>
+          <a href="/brand-os">Brand OS</a>
+          <a href="https://elevateaisystem.com/build-your-brand">Build Your Brand</a>
+          <a href="https://elevateaisystem.com/about">About</a>
+          <a href="https://elevateaisystem.com/blog">Blog</a>
+          <a href={CAL_URL} className="rb-nav-cta">Book the first call</a>
+        </div>
 
         <main>
 
@@ -650,6 +727,17 @@ function Leaf({ size = 34 }: { size?: number }) {
       <rect x="6" y="8" width="72" height="72" rx="18" fill="#0B6E23"/>
       <path d="M26 56C24.9 44.1 27.9 34.6 36.5 28.8C43 24.4 50.8 24.8 58.8 18.9C62.2 34.2 58 47.3 47.1 53.2C40.1 57 33 56.7 28.2 54.7L26 56Z" fill="#FAF8F3"/>
       <path d="M24.4 58.9C28.8 49.3 36.1 42.1 46.2 36.9" stroke="#FAF8F3" strokeWidth="5" strokeLinecap="round" fill="none"/>
+    </svg>
+  );
+}
+
+function CanonicalLeaf({ size = 36 }: { size?: number }) {
+  // Canonical brand mark used across elevateaisystem.com — matches navbar.js leafSVG.
+  return (
+    <svg viewBox="0 0 48 48" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="4" width="39" height="39" rx="9.8" fill="#00F33D"/>
+      <path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#071126"/>
+      <path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#071126" strokeWidth="2.7" strokeLinecap="round"/>
     </svg>
   );
 }
