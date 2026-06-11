@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SOP · Turn On the Deposit Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#FAF8F3; --accent:#0B6E23; --ink:#0A0F1C; --muted:#5A5A52;
+    --card:#FFFFFF; --line:#E5E1D8; --red:#B23A2E; --soft:#F0F5EE;
+    --f:"Plus Jakarta Sans",system-ui,sans-serif; --d:"Playfair Display",Georgia,serif; --m:"JetBrains Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--f);background:var(--bg);color:var(--ink);line-height:1.6;padding:40px 18px 100px}
+  .wrap{max-width:820px;margin:0 auto}
+  .eyebrow{font-family:var(--m);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  h1{font-family:var(--d);font-size:36px;font-weight:800;letter-spacing:-.02em;margin-top:8px;line-height:1.1}
+  .lede{color:var(--muted);font-size:16px;margin-top:12px;max-width:640px}
+  .meta{font-family:var(--m);font-size:11px;color:var(--muted);margin-top:14px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0;display:flex;gap:18px;flex-wrap:wrap}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-top:18px;box-shadow:0 6px 22px rgba(10,15,28,.04)}
+  .step h2{font-family:var(--d);font-size:21px;font-weight:700;display:flex;align-items:baseline;gap:12px}
+  .num{font-family:var(--m);font-size:13px;font-weight:600;color:#fff;background:var(--accent);border-radius:999px;min-width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;flex:none;align-self:center}
+  .step p{color:var(--muted);font-size:14.5px;margin-top:10px}
+  ol.sub,ul.sub{margin:10px 0 0 4px;padding-left:20px}
+  ol.sub li,ul.sub li{font-size:14.5px;margin-top:7px}
+  code,.kv{font-family:var(--m);font-size:12.5px;background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:2px 7px;color:var(--ink);white-space:nowrap}
+  .kv{display:inline-block}
+  pre{font-family:var(--m);font-size:12.5px;background:var(--ink);color:#E8EEE4;border-radius:10px;padding:13px 15px;margin-top:12px;overflow-x:auto;line-height:1.5}
+  pre .c{color:#8fb89a}
+  .why{background:var(--soft);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:11px 15px;margin-top:14px;font-size:13.5px;color:#2b3a2c}
+  .warn{background:#fbeeec;border-left:3px solid var(--red);border-radius:0 10px 10px 0;padding:11px 15px;margin-top:14px;font-size:13.5px;color:#5e211a}
+  .chk{margin-top:22px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 24px}
+  .chk h3{font-family:var(--d);font-size:18px;font-weight:700}
+  .chk ul{list-style:none;margin-top:10px}
+  .chk li{font-size:14.5px;padding:7px 0 7px 30px;position:relative;border-top:1px solid var(--line)}
+  .chk li:first-of-type{border-top:none}
+  .chk li::before{content:"";position:absolute;left:4px;top:12px;width:14px;height:14px;border:2px solid var(--accent);border-radius:4px}
+  .foot{font-family:var(--m);font-size:11px;color:var(--muted);margin-top:30px;text-align:center}
+  b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">ElevateAI · Internal SOP</div>
+  <h1>Turn On the Deposit Engine</h1>
+  <p class="lede">The engine is built and merged-ready, but dormant. It does nothing until two pieces of config exist. This is the 15-minute checklist to make sessions start depositing into memory and the coaching-prep card come alive.</p>
+  <div class="meta">
+    <span>Surface · app.elevateaisystem.com</span>
+    <span>PR · deveshbinjola/coach-app #28</span>
+    <span>Owner · Sunny</span>
+    <span>Time · ~15 min</span>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">1</span> Set the model key in Cloudflare</h2>
+    <p>The distiller calls a cheap model through OpenRouter. No key, no distill (it fails gracefully, nothing crashes, but no signals get saved).</p>
+    <ol class="sub">
+      <li>Get a key at <b>openrouter.ai</b> → Keys → Create key. Add a few dollars of credit.</li>
+      <li>Cloudflare dashboard → <b>Workers &amp; Pages</b> → the coach-app Pages project → <b>Settings</b> → <b>Variables and Secrets</b>.</li>
+      <li>Add a secret (Production): name <span class="kv">OPENROUTER_API_KEY</span>, value = your key. Encrypt it.</li>
+      <li>Redeploy (Deployments → Retry, or push any commit) so the new env is picked up.</li>
+    </ol>
+    <div class="why"><b>Optional model override:</b> defaults to <code>google/gemini-2.5-flash</code>. To try DeepSeek, add <span class="kv">LLM_MODEL_DISTILL</span> = <code>deepseek/deepseek-chat</code>. No code change.</div>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">2</span> Confirm the cron secret exists</h2>
+    <p>The backstop sweep is guarded by a shared secret, same as your other cron routes.</p>
+    <ul class="sub">
+      <li>In the same Cloudflare Variables screen, confirm <span class="kv">CRON_SECRET</span> is already set (your other crons use it). If not, add one (any long random string).</li>
+    </ul>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">3</span> Schedule the sweep</h2>
+    <p>On-demand distill runs the moment a session is saved. The sweep is the backstop that catches any that were missed or saved before this shipped. Hit it on your existing cron cadence (once or twice a day is plenty).</p>
+    <pre><span class="c"># GET, with the secret as ?key= or a Bearer header</span>
+https://app.elevateaisystem.com/api/cron/distill-signals?key=YOUR_CRON_SECRET</pre>
+    <ul class="sub">
+      <li>Add it wherever your other scheduled tasks live (the same place that triggers your morning brief / daily crons).</li>
+      <li>It distills up to 25 un-processed sessions per run and is idempotent, so running it often is safe.</li>
+    </ul>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">4</span> Verify it works</h2>
+    <p>Two-minute smoke test after the redeploy finishes.</p>
+    <ol class="sub">
+      <li>Sign in as a coach who has a client. Save a coaching session (a few real sentences of notes).</li>
+      <li>On the session page you should see <b>"Captured. Adding to [client]'s memory&hellip;"</b> then <b>"Remembered N things about [client]."</b></li>
+      <li>Open that client. The <b>Coaching prep</b> card should show topics / commitments. Tap an item to see the source quote. Dismiss one and reload to confirm it stays gone.</li>
+    </ol>
+    <div class="warn"><b>If the banner just disappears</b> and no signals show: the key is missing or wrong, or the redeploy did not pick it up. Re-check Step 1 and redeploy.</div>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">5</span> Make it trustworthy (before relying on it)</h2>
+    <p>The distiller is only as good as its eval. Hand-label real sessions so you can measure quality, not vibes.</p>
+    <ol class="sub">
+      <li>Open <code>eval/distill/golden.jsonl</code>. Add ~10 real sessions: the raw <code>notes</code> plus the <code>expected</code> signals you would want surfaced. Your <code>expected</code> set defines the taxonomy.</li>
+      <li>Run <code>OPENROUTER_API_KEY=... npm run eval:distill</code>.</li>
+      <li>Pick 5, rate the model output yourself, and tune the judge until its scores track yours. An uncalibrated judge is theater.</li>
+    </ol>
+  </div>
+
+  <div class="chk">
+    <h3>Done when</h3>
+    <ul>
+      <li><span class="kv">OPENROUTER_API_KEY</span> set in Cloudflare Pages, redeployed</li>
+      <li><span class="kv">CRON_SECRET</span> confirmed, sweep scheduled</li>
+      <li>Smoke test passed: save → "Remembered N things" → prep card → tap-to-source → dismiss persists</li>
+      <li>~10 golden sessions labeled, <code>npm run eval:distill</code> green, judge calibrated</li>
+    </ul>
+  </div>
+
+  <div class="foot">ElevateAI · Deposit Engine v1 (sessions → coaching prep) · sunny.binjola@gmail.com</div>
+</div>
+</body>
+</html>
