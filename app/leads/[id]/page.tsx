@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase-server";
 import { userAvatarUrl, userDisplayName } from "@/lib/user-display";
 import Header from "@/components/Header";
 import LeadDetail from "@/components/LeadDetail";
+import CoachingPrepCard from "@/components/coaching/CoachingPrepCard";
+import { getCoachingPrep } from "@/lib/coaching-prep";
 import type { Lead, LeadMessage } from "@/lib/types";
 import { notFound } from "next/navigation";
 
@@ -106,6 +108,11 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
       | "m-coach-m-aud" | "m-coach-w-aud" | "f-coach-w-aud" | "f-coach-m-aud" | "i-coach-single" | "i-coach-mixed"
       | undefined);
 
+  const leadName = typedLead.full_name ?? "your client";
+  const prep = user?.id
+    ? await getCoachingPrep(supabase, user.id, params.id)
+    : null;
+
   return (
     <div className="min-h-screen">
       <Header
@@ -120,6 +127,11 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
         >
           ← Back to inbox
         </a>
+        {prep && (
+          <div className="mb-5">
+            <CoachingPrepCard prep={prep} clientName={leadName} />
+          </div>
+        )}
         <LeadDetail
           lead={typedLead}
           initialMessages={(messages ?? []) as LeadMessage[]}
