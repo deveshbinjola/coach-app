@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
 };
 
-const CAL_URL = "https://cal.com/sunnybinjola/resonance-call";
+const CAL_URL = "https://cal.com/sunny-binjola/resonance-call";
 
 export default function ResonanceBuildPage() {
   return (
