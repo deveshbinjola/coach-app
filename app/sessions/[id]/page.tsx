@@ -9,6 +9,9 @@ import { loadNavUnlocks } from "@/lib/nav-unlocks";
 import { cookies } from "next/headers";
 import SessionDetailClient from "@/components/sessions/SessionDetailClient";
 import SessionBrief from "@/components/sessions/SessionBrief";
+import SessionDistillStatus from "@/components/sessions/SessionDistillStatus";
+import CoachingPrepCard from "@/components/coaching/CoachingPrepCard";
+import { getCoachingPrep } from "@/lib/coaching-prep";
 import type { CoachingSession } from "@/lib/session-intelligence";
 import type { Lead } from "@/lib/types";
 
@@ -62,6 +65,10 @@ export default async function SessionDetailPage({
 
   const clientName = (clientLead as Pick<Lead, "id" | "full_name"> | null)?.full_name ?? "Unknown client";
 
+  const prep = typedSession.client_id
+    ? await getCoachingPrep(supabase, user.id, typedSession.client_id)
+    : null;
+
   return (
     <div className="min-h-screen">
       <Header
@@ -85,6 +92,11 @@ export default async function SessionDetailPage({
             {clientName}
           </span>
         </nav>
+
+        <div className="mb-6 space-y-4">
+          <SessionDistillStatus sessionId={typedSession.id} clientName={clientName} />
+          {prep && <CoachingPrepCard prep={prep} clientName={clientName} />}
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
           {/* Main session detail */}
