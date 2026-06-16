@@ -5,6 +5,7 @@ import { userAvatarUrl, userDisplayName, userFirstName } from "@/lib/user-displa
 import Header from "@/components/Header";
 import ClaimVoiceProfile from "@/components/ClaimVoiceProfile";
 import CommandCenterView from "@/components/command-center/CommandCenterView";
+import MirrorCard from "@/components/MirrorCard";
 import { getBusinessPulse } from "@/lib/ambient";
 import { enforceOnboardingGate } from "@/lib/onboarding";
 import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
@@ -72,6 +73,9 @@ export default async function CommandCenterPage() {
       />
       <main className="max-w-6xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
         <ClaimVoiceProfile />
+        <section className="mx-auto mb-6 max-w-2xl">
+          <MirrorCard />
+        </section>
         <CommandCenterView
           pulse={pulse}
           coachFirstName={userFirstName(user.email, user.user_metadata)}

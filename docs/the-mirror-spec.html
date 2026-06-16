@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Mirror · Coach-App Spec · Elevate AI</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 12C30 28 22 46 28 66c4 14 14 22 22 22s18-8 22-22c6-20-2-38-22-54z' fill='%230B6E23'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF8F3; --ink:#0A0F1C; --muted:#5A5A52; --card:#FFFFFF; --border:#E5E1D8;
+    --green:#0B6E23; --green2:#1F9B47; --amber:#B58A1E; --blue:#2E5C8A; --red:#B23A2E;
+    --navy:#0A0F1C; --neon:#00F33D;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',system-ui,sans-serif;line-height:1.6;padding:48px 20px}
+  .wrap{max-width:920px;margin:0 auto}
+  h1,h2,h3,.serif{font-family:'Playfair Display',Georgia,serif}
+  .eyebrow{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--green);font-weight:700}
+  h1{font-size:2.7rem;line-height:1.1;margin:.4rem 0 .6rem}
+  .lede{font-size:1.12rem;color:var(--muted);max-width:700px}
+  .meta{font-size:.78rem;color:var(--muted);margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)}
+  section{margin-top:2.6rem}
+  h2{font-size:1.7rem;margin-bottom:.3rem}
+  h2 .n{color:var(--green2);font-size:1.1rem;font-weight:700;font-family:'Plus Jakarta Sans';vertical-align:middle;margin-right:.4rem}
+  .sub{color:var(--muted);font-size:.95rem;margin-bottom:1.1rem}
+  .rule{height:2px;width:48px;background:var(--green);margin:.5rem 0 1.1rem;border-radius:2px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px}
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  ul,ol{margin:.4rem 0 .4rem 1.2rem}
+  li{margin:.32rem 0}
+  .step{display:flex;gap:14px;margin:.6rem 0;align-items:flex-start}
+  .step .num{flex:0 0 28px;height:28px;border-radius:50%;background:var(--green);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem;margin-top:2px}
+  .step .body{font-size:.95rem}
+  .step .body b{font-weight:700}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:.9rem;margin-top:.4rem}
+  th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{background:#F2EEE4;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  tr:last-child td{border-bottom:none}
+  code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82rem;background:#F1EFE9;padding:1px 6px;border-radius:5px;color:#2A2A24}
+  .callout{background:#E6F4EA;border:1px solid #BFE3CC;border-radius:14px;padding:20px 22px}
+  .callout .q{font-family:'Playfair Display',serif;font-size:1.3rem;line-height:1.4}
+  .warn{background:#F7E7E4;border:1px solid #E6C3BD;border-radius:14px;padding:18px 20px}
+  .warn b{color:var(--red)}
+  /* dark product mockup */
+  .phone{background:var(--navy);border-radius:22px;padding:26px 22px;color:#E8EDE9;box-shadow:0 18px 50px rgba(10,15,28,.28);max-width:380px;margin:1rem auto}
+  .phone .mh{font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--neon);font-weight:700;margin-bottom:.3rem}
+  .phone .ask{font-family:'Playfair Display',serif;font-size:1.35rem;line-height:1.3;margin-bottom:1rem}
+  .phone .inputbox{background:#121826;border:1px solid #243049;border-radius:12px;padding:12px 14px;font-size:.9rem;color:#A9B4C4;font-style:italic}
+  .phone .resp{margin-top:1.1rem;border-top:1px solid #1C2638;padding-top:1rem}
+  .phone .typchip{display:inline-block;background:rgba(0,243,61,.12);color:var(--neon);font-weight:700;font-size:.78rem;padding:4px 11px;border-radius:20px;margin-bottom:.7rem}
+  .phone .lbl{font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:#6B7689;font-weight:700;margin:.8rem 0 .2rem}
+  .phone .mirror{font-family:'Playfair Display',serif;font-size:1.05rem;line-height:1.4;color:#fff}
+  .phone .move{font-size:.9rem;color:#C3CCD9}
+  .phone .taps{display:flex;gap:8px;margin-top:1rem}
+  .phone .tap{flex:1;text-align:center;font-size:.8rem;font-weight:700;padding:9px;border-radius:10px;border:1px solid #243049;color:#A9B4C4}
+  .phone .tap.yes{background:rgba(0,243,61,.12);color:var(--neon);border-color:transparent}
+  .tl{border-left:2px solid var(--border);margin-left:8px;padding-left:18px}
+  .tl .pt{position:relative;margin-bottom:1rem}
+  .tl .pt::before{content:'';position:absolute;left:-25px;top:5px;width:11px;height:11px;border-radius:50%;background:var(--green)}
+  .tl .pt .when{font-weight:800;font-size:.92rem}
+  .tl .pt .what{font-size:.92rem;color:var(--muted)}
+  .codeblk{background:#0E1320;border:1px solid #1E2740;border-radius:14px;padding:20px 22px;color:#C9D3E0;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.78rem;line-height:1.65;overflow-x:auto;white-space:pre-wrap}
+  .codeblk .c{color:#5E6B82}
+  .codeblk .k{color:var(--neon)}
+  .codeblk .s{color:#E2B96B}
+  .foot{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--border);font-size:.8rem;color:var(--muted)}
+  @media(max-width:680px){.grid2,.grid3{grid-template-columns:1fr}h1{font-size:2rem}body{padding:28px 14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Coach-App · Product Spec · v1</div>
+  <h1>The Mirror</h1>
+  <p class="lede">The first sticky surface. A coach brings what they are working through; the app names the <em>kind</em> of problem it is and the thinking-mistake they are about to make. Sticky on use #1, because day-one stickiness comes from the sharpness of one read, not the length of a history.</p>
+  <div class="meta">Elevate AI / Soma · Spec for build · 2026-06-16 · Engine: DART protocol (Recipe / Puzzle / Garden / Fire)</div>
+
+  <!-- THE BET -->
+  <section>
+    <h2>The bet</h2>
+    <div class="rule"></div>
+    <div class="grid2">
+      <div class="card">
+        <p style="font-size:.95rem;color:var(--muted)"><strong style="color:var(--ink)">Day-one stickiness = the called-out moment.</strong> One sharp read of the thing they are stuck on right now. "You are treating a Garden like a Recipe. That is why it will not move." No history needed. The misclassification is visible in a single input.</p>
+      </div>
+      <div class="card">
+        <p style="font-size:.95rem;color:var(--muted)"><strong style="color:var(--ink)">Week-3 stickiness = the moat.</strong> The same engine quietly accrues every read. By week three it reflects their pattern back: "you always bring a checklist to a Garden." A rival can copy the feature, never the history. Hook now, moat later.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE SURFACE -->
+  <section>
+    <h2><span class="n">1</span>The surface &amp; interaction</h2>
+    <p class="sub">A front-door card on the coach's home, never the word "Cynefin." One open prompt, one text box, no form.</p>
+    <div class="grid2" style="align-items:start">
+      <div>
+        <div class="step"><div class="num">1</div><div class="body">Coach types the stuck thing in their own words. <i>"I've been redoing my funnel for three weeks and nothing converts."</i> One to three sentences.</div></div>
+        <div class="step"><div class="num">2</div><div class="body"><b>Guardrail gate.</b> If the read is thin or could go two ways, the Mirror asks <b>one</b> clarifying question first. It never guesses.</div></div>
+        <div class="step"><div class="num">3</div><div class="body">The Mirror returns three things: the <b>kind of problem</b> (plain metaphor), the <b>mistake</b> they are making (the called-out line), and the <b>one move</b> that fits the right protocol.</div></div>
+        <div class="step"><div class="num">4</div><div class="body">Coach taps <b>"that's me"</b> or <b>"not quite."</b> That tap is the investment: it feeds the compounding mirror and trains precision.</div></div>
+        <p style="font-size:.86rem;color:var(--muted);margin-top:1rem">Return trigger: a daily/weekly nudge ("what are you working through?") plus the accumulating mirror they can scroll. The hook line lives in every single use; the pattern line arrives weekly.</p>
+      </div>
+      <!-- DARK MOCKUP -->
+      <div class="phone">
+        <div class="mh">◇ The Mirror</div>
+        <div class="ask">What are you working through right now?</div>
+        <div class="inputbox">I've been redoing my funnel for three weeks and nothing's converting...</div>
+        <div class="resp">
+          <span class="typchip">🌱 This is a Garden</span>
+          <div class="lbl">The mirror</div>
+          <div class="mirror">You're optimizing something that grows, not builds. Three weeks of tweaking a funnel is a checklist applied to a Garden. That's why it won't move.</div>
+          <div class="lbl">The move</div>
+          <div class="move">Stop polishing. Run one experiment this week: change a single variable (the offer, not the page), put it in front of 10 real people, read what happens.</div>
+          <div class="taps">
+            <div class="tap yes">✓ That's me</div>
+            <div class="tap">Not quite</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THREE READS OVER TIME -->
+  <section>
+    <h2><span class="n">2</span>The three reads over time</h2>
+    <p class="sub">Same engine. Stickiness deepens as data accrues, but it is never flat, because read one already lands.</p>
+    <div class="tl">
+      <div class="pt"><div class="when">Use #1 · minute one</div><div class="what">Single-shot mirror. Names the kind of problem + the mistake on the thing they brought today. The "how did it know that about me" jolt. <b>Zero history required.</b></div></div>
+      <div class="pt"><div class="when">End of week 1</div><div class="what">Within-week mirror. "This week you brought 4 fires and 1 garden. You tried to checklist the garden twice." Real with seven days of taps.</div></div>
+      <div class="pt"><div class="when">Week 3 and beyond</div><div class="what">Cross-week identity pattern. "You always reach for a checklist when you are scared of an emergent problem." The moat. No competitor has this on them.</div></div>
+    </div>
+  </section>
+
+  <!-- THE PROMPT -->
+  <section>
+    <h2><span class="n">3</span>The engine prompt</h2>
+    <p class="sub">The classify-and-name-the-mistake system prompt. Claude (latest), structured JSON out. Returning users also pass their recent classification history to sharpen the read; not required day one.</p>
+    <div class="codeblk"><span class="c"># SYSTEM</span>
+You are The Mirror, a thinking partner inside a coach's app. A coach brings
+you something they are working through. Your job is NOT to solve it. It is to
+name what KIND of problem it is and the thinking-mistake they are likely
+making, so they apply the right protocol.
+
+<span class="k">Four kinds</span> (use the plain names, never Clear/Complicated/Complex/Chaotic):
+• <span class="s">Recipe</span>  cause+effect obvious, linear, known steps exist.
+          → follow the recipe, ship, do not be clever.
+• <span class="s">Puzzle</span>  cause+effect hidden but knowable with expertise.
+          → slow down, get the exact specialist, diagnose.
+• <span class="s">Garden</span>  cause+effect emergent, clear only in hindsight, shifts
+          with human behavior. → small experiments, one variable,
+          measure, adjust. No checklist works.
+• <span class="s">Fire</span>    the link is broken, things move fast.
+          → stabilize first, contain, diagnose after.
+
+<span class="k">The mistake to catch</span> (the sharp part): people apply the wrong protocol
+to the right problem. Watch how they describe it:
+• optimizing / redoing / perfecting / "I keep tweaking" on a Garden
+  → they are checklisting a Garden. (most common)
+• researching / waiting for certainty on a Fire
+  → studying a fire instead of putting it out.
+• winging it / reinventing / over-thinking on a Recipe
+  → experimenting on something with a known recipe.
+• guessing / hiring a generalist on a Puzzle
+  → they need the exact specialist, not more effort.
+
+<span class="k">Rules</span>:
+• Be sharp, not dramatic. One clean read beats three hedges.
+• If input is thin or could be two kinds, DO NOT guess. Ask one question.
+• Only name a mistake if you SEE the mismatch signal. No signal → no
+  "gotcha." A wrong call destroys trust faster than a missed one.
+• If this reads as real personal crisis or distress, drop the framework.
+  Respond as a human, point to stabilize and to a person, not a protocol.
+• Grounded coach voice. No corporate tone. No em-dashes.
+
+<span class="c"># RETURN (JSON)</span>
+{ confidence, needs_clarification, clarifying_question, system_type,
+  type_reason, the_mirror_line, the_mistake, the_move, is_crisis }</div>
+  </section>
+
+  <!-- OUTPUT SCHEMA -->
+  <section>
+    <h2><span class="n">4</span>Output schema</h2>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Use</th></tr>
+      <tr><td><code>confidence</code></td><td>0–1</td><td>Gates the guardrail. Below 0.7 → ask, don't label.</td></tr>
+      <tr><td><code>needs_clarification</code></td><td>bool</td><td>True when confidence is low. Drives the one-question path.</td></tr>
+      <tr><td><code>clarifying_question</code></td><td>string</td><td>The single question shown instead of a read.</td></tr>
+      <tr><td><code>system_type</code></td><td>enum</td><td>recipe · puzzle · garden · fire. Drives the chip + protocol.</td></tr>
+      <tr><td><code>type_reason</code></td><td>string</td><td>One line, why this type. For the log, not always shown.</td></tr>
+      <tr><td><code>the_mirror_line</code></td><td>string</td><td>The single sharp sentence. The aha. The hook.</td></tr>
+      <tr><td><code>the_mistake</code></td><td>string · nullable</td><td>The called-out protocol-mismatch. <b>Null if none seen.</b></td></tr>
+      <tr><td><code>the_move</code></td><td>string</td><td>One concrete next action matching the protocol.</td></tr>
+      <tr><td><code>is_crisis</code></td><td>bool</td><td>True → suppress the framework, switch to human mode.</td></tr>
+    </table>
+  </section>
+
+  <!-- GUARDRAIL -->
+  <section>
+    <h2><span class="n">5</span>The guardrail · against confident-wrong</h2>
+    <p class="sub">Day-one stickiness is a knife. A sharp read that's wrong kills trust on use #1 and they never return. Five protections:</p>
+    <ol>
+      <li><b>Confidence gate.</b> Below 0.7, the Mirror asks one clarifying question instead of labelling. Never a verdict on thin input.</li>
+      <li><b>Hypothesis, not verdict.</b> The read is framed as something they confirm. The "that's me / not quite" tap is built into the UI, not an afterthought.</li>
+      <li><b>No invented mistakes.</b> <code>the_mistake</code> is null unless the mismatch signal is actually present. A forced gotcha that misses is worse than none.</li>
+      <li><b>Crisis override.</b> If it reads as real distress, not a business problem, drop the framework entirely. Respond human, route to stabilize and to a person. Never gamify a crisis. (Embodiment ethic, non-negotiable.)</li>
+      <li><b>Calibration loop.</b> "Not quite" taps are logged and reviewed. Low-precision patterns tighten the prompt. The guardrail trains the engine over time.</li>
+    </ol>
+  </section>
+
+  <!-- BUILD ORDER -->
+  <section>
+    <h2><span class="n">6</span>Build order</h2>
+    <div class="grid3">
+      <div class="card"><div class="eyebrow" style="color:var(--green2)">Phase 1 · ship first</div><h3 style="font-size:1.05rem;margin:.4rem 0">Instant mirror</h3><p style="font-size:.88rem;color:var(--muted)">Front-door card + text box → Claude endpoint → the read + taps. Log every read to Supabase. This alone is day-one sticky. Ship it as a standalone, test stickiness in a week.</p></div>
+      <div class="card"><div class="eyebrow" style="color:var(--amber)">Phase 2</div><h3 style="font-size:1.05rem;margin:.4rem 0">Within-week mirror</h3><p style="font-size:.88rem;color:var(--muted)">Weekly digest card + email: counts by type + the within-week catch ("checklisted the garden twice"). Runs off the logged reads. No new model work.</p></div>
+      <div class="card"><div class="eyebrow" style="color:var(--blue)">Phase 3</div><h3 style="font-size:1.05rem;margin:.4rem 0">The moat</h3><p style="font-size:.88rem;color:var(--muted)">Cross-week identity patterns. Feed history back into the prompt so each read is personalized. This is the switching cost; it only works once the log is deep.</p></div>
+    </div>
+    <p style="font-size:.86rem;color:var(--muted);margin-top:1rem"><b>Lean stack:</b> Next.js route in coach-app → Claude (latest) with the prompt above → JSON → render. One Supabase table <code>mirror_reads</code> (coach_id, input, system_type, the_mistake, confidence, tap, ts). No dependency on the dormant Deposit Engine. The same <code>mirror_reads</code> table is what Phases 2–3 read.</p>
+  </section>
+
+  <!-- ASSUMPTIONS -->
+  <section>
+    <h2>The one assumption + open questions</h2>
+    <div class="warn">
+      <p style="font-size:.95rem"><b>Assumption I made to keep this moving:</b> The Mirror is a <b>standalone front-door surface</b> with a <b>fresh lightweight Claude endpoint</b> — not woven into the Brand OS onboarding flow, not waiting on the Deposit Engine. Fastest path to a real day-one stickiness test. If you'd rather it live inside Brand OS or the weekly check-in ritual, the spec shifts.</p>
+    </div>
+    <ul style="margin-top:1rem">
+      <li>Trigger cadence: daily nudge, or only when they choose to open it? (Daily nudge = more shots at the hook, more risk of nag.)</li>
+      <li>Does it carry the Soma name/2-layer UX, or ship plain first and rebrand later?</li>
+      <li>Free (top-of-funnel, like Brand OS) or gated behind a tier? Day-one stickiness argues free.</li>
+    </ul>
+  </section>
+
+  <div class="callout" style="margin-top:2.4rem">
+    <div class="q">"Day-one stickiness comes from the sharpness of one read, not the length of a history. Build the hook now. Let the moat accrue underneath."</div>
+  </div>
+
+  <div class="foot">
+    Elevate AI Systems · The Mirror spec v1 · coach-app/docs · sunny.binjola@gmail.com<br>
+    Next: greenlight Phase 1 and I'll scaffold the route + Supabase table + the prompt as working code.
+  </div>
+
+</div>
+</body>
+</html>
