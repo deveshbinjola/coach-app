@@ -6,6 +6,8 @@ import Header from "@/components/Header";
 import ClaimVoiceProfile from "@/components/ClaimVoiceProfile";
 import CommandCenterView from "@/components/command-center/CommandCenterView";
 import { getBusinessPulse } from "@/lib/ambient";
+import { hasBeenInterviewed } from "@/lib/dhara/interview";
+import type { CoachMemory } from "@/lib/dhara/memory";
 import { enforceOnboardingGate } from "@/lib/onboarding";
 import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
 import { loadNavUnlocks } from "@/lib/nav-unlocks";
@@ -54,13 +56,21 @@ export default async function CommandCenterPage() {
     );
   }
 
-  const [pulse, leadCountRes, voiceRes] = await Promise.all([
+  const [pulse, leadCountRes, voiceRes, memRes] = await Promise.all([
     getBusinessPulse(user.id, now),
     supabase.from("cp_leads").select("id", { count: "exact", head: true }).eq("coach_id", user.id),
     supabase.from("cp_voice_profiles").select("id", { count: "exact", head: true }).eq("coach_id", user.id),
+    // Has the assistant actually met them? Coaches who joined before the
+    // interview existed have not been asked anything, so the command
+    // center offers the introduction rather than waiting for them to
+    // stumble into the chat panel.
+    supabase.from("cp_coach_memory").select("source, status").eq("coach_id", user.id).eq("status", "active"),
   ]);
   // Past first-run once they've actually started: any lead or a voice profile.
   const hasActivity = (leadCountRes.count ?? 0) > 0 || (voiceRes.count ?? 0) > 0;
+  const interviewed = hasBeenInterviewed(
+    (memRes.data ?? []) as Array<{ source: CoachMemory["source"]; status: CoachMemory["status"] }>,
+  );
   return (
     <div className="min-h-screen">
       <Header
@@ -77,6 +87,7 @@ export default async function CommandCenterPage() {
           coachFirstName={userFirstName(user.email, user.user_metadata)}
           toggle={toggle}
           hasActivity={hasActivity}
+          interviewed={interviewed}
         />
       </main>
     </div>

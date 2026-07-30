@@ -6,6 +6,7 @@ import RightNowList from "@/components/command-center/RightNowList";
 import BusinessPulseStrip from "@/components/command-center/BusinessPulseStrip";
 import FirstRunCommandCenter from "@/components/command-center/FirstRunCommandCenter";
 import MirrorCard from "@/components/MirrorCard";
+import MeetInvite from "@/components/command-center/MeetInvite";
 
 // ── Backward-compatible type export ─────────────────────────────────
 // lib/build-punch-list.ts still imports this type. Keep it exported
@@ -27,9 +28,12 @@ type Props = {
   toggle?: React.ReactNode;
   /** True once the coach has any lead or a voice profile — i.e. they've started. */
   hasActivity?: boolean;
+  /** False when the assistant has never actually asked this coach anything.
+   *  Shows the introduction invite instead of pretending to know them. */
+  interviewed?: boolean;
 };
 
-export default function CommandCenterView({ pulse, coachFirstName, toggle, hasActivity }: Props) {
+export default function CommandCenterView({ pulse, coachFirstName, toggle, hasActivity, interviewed = true }: Props) {
   // First-run: a brand-new coach who has not started yet. Once they have a
   // lead or a voice profile, they're past the setup hero even if no urgent
   // business signals exist yet. Rather than a dead-end, show the welcome hero
@@ -73,6 +77,7 @@ export default function CommandCenterView({ pulse, coachFirstName, toggle, hasAc
           <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">
             Take a breath before you start. &nbsp;In through the nose&hellip; slow exhale.
           </p>
+          {!interviewed && <MeetInvite />}
         </div>
         {toggle}
       </header>
