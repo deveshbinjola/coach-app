@@ -57,10 +57,13 @@ export default function DharaProvider({ children }: { children: React.ReactNode 
     setMessages((m) => [...m, { role: "user", content: msg }, { role: "assistant", content: "", streaming: true }]);
     try {
       const res = await fetch("/api/dhara/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: msg }) });
-      const data = await res.json().catch(() => ({}));
+      // A crashed Worker returns an HTML error page, so res.json() throws and
+      // every detail is lost. Keep the status code in that case: a bare
+      // "went quiet" is unactionable for the coach and undiagnosable for us.
+      const data = await res.json().catch(() => ({} as { reply?: string; error?: string; source?: "data" | "ai"; navigateTo?: string }));
       const reply = res.ok && typeof data.reply === "string" && data.reply.trim()
         ? data.reply
-        : (data.error ?? "Something went quiet on my end. Try again?");
+        : (data.error ?? `Something went quiet on my end (${res.status}). Try again?`);
       setMessages((m) => { const c = [...m]; c[c.length - 1] = { role: "assistant", content: reply, source: data.source }; return c; });
       // Deterministic navigation command — take the coach there.
       if (res.ok && data.navigateTo) { setOpen(false); router.push(data.navigateTo); }

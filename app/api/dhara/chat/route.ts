@@ -97,35 +97,57 @@ export async function POST(request: NextRequest) {
 
   await admin.from("cp_dhara_messages").insert({ coach_id: user.id, role: "user", content: message });
 
-  // ── Deterministic first: answer counts / revenue / pain points / navigation
-  //    straight from the database. No LLM, no API key, instant. ──
-  const intent = matchIntent(message);
-  if (intent) {
-    const { reply, navigateTo } = await answerIntent(intent, user.id, supabase, now);
-    await admin.from("cp_dhara_messages").insert({ coach_id: user.id, role: "assistant", content: reply });
-    return NextResponse.json({ reply, navigateTo: navigateTo ?? null, source: "data" });
+  // Everything below runs OUTSIDE the model call's try/catch, so any throw
+  // here used to take the whole Worker down and return an HTML error page.
+  // The client cannot parse that, so the coach saw a generic "went quiet"
+  // with no diagnostic and the reply was never persisted. `stage` names the
+  // step that failed so a bad request reports itself instead of vanishing.
+  let stage = "intent";
+  let apiKey: string | undefined;
+  let system: string;
+  let messages: Array<{ role: "user" | "assistant"; content: string }>;
+  try {
+    // ── Deterministic first: answer counts / revenue / pain points /
+    //    navigation straight from the database. No LLM, instant. ──
+    const intent = matchIntent(message);
+    if (intent) {
+      stage = "intent_answer";
+      const { reply, navigateTo } = await answerIntent(intent, user.id, supabase, now);
+      await admin.from("cp_dhara_messages").insert({ coach_id: user.id, role: "assistant", content: reply });
+      return NextResponse.json({ reply, navigateTo: navigateTo ?? null, source: "data" });
+    }
+
+    // ── Fallback: open-ended conversation needs the model. ──
+    stage = "api_key";
+    apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) return NextResponse.json({ error: "AI unavailable" }, { status: 503 });
+
+    stage = "grounding";
+    const [{ data: recent }, grounding] = await Promise.all([
+      supabase.from("cp_dhara_messages").select("role, content").eq("coach_id", user.id)
+        .order("created_at", { ascending: false }).limit(12),
+      getDharaContext(user.id, now),
+    ]);
+
+    stage = "system_prompt";
+    system = buildDharaSystemPrompt({
+      coachFirstName: userFirstName(user.email, user.user_metadata),
+      identityText: grounding.identityText,
+      snapshotText: grounding.snapshotText,
+      memories: grounding.memories.map((m) => ({ text: m.text, confidence: m.confidence })),
+      interviewMode: !grounding.interviewed,
+    });
+
+    stage = "messages";
+    const rows = ((recent ?? []) as Array<{ role: "user" | "assistant"; content: string }>).reverse();
+    messages = toAnthropicMessages(rows);
+    if (messages.length === 0) messages = [{ role: "user", content: message }];
+  } catch (err) {
+    return NextResponse.json(
+      { error: `Could not prepare the reply (${stage}). Try again?`, stage, detail: String(err).slice(0, 300) },
+      { status: 500 },
+    );
   }
-
-  // ── Fallback: open-ended conversation needs the model. ──
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return NextResponse.json({ error: "AI unavailable" }, { status: 503 });
-  const [{ data: recent }, grounding] = await Promise.all([
-    supabase.from("cp_dhara_messages").select("role, content").eq("coach_id", user.id)
-      .order("created_at", { ascending: false }).limit(12),
-    getDharaContext(user.id, now),
-  ]);
-
-  const system = buildDharaSystemPrompt({
-    coachFirstName: userFirstName(user.email, user.user_metadata),
-    identityText: grounding.identityText,
-    snapshotText: grounding.snapshotText,
-    memories: grounding.memories.map((m) => ({ text: m.text, confidence: m.confidence })),
-    interviewMode: !grounding.interviewed,
-  });
-
-  const rows = ((recent ?? []) as Array<{ role: "user" | "assistant"; content: string }>).reverse();
-  let messages = toAnthropicMessages(rows);
-  if (messages.length === 0) messages = [{ role: "user", content: message }];
 
   let reply = "";
   try {
