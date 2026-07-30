@@ -375,11 +375,54 @@ const HONEST_QUESTIONS = [
   "Where's the friction in your own pipeline, and is it yours to fix or theirs?",
 ];
 
-export function pickHonestQuestion(now: number): string {
+/** Small stable string hash (FNV-1a). Used to seed the per-coach shuffle. */
+function hashSeed(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/** Deterministic PRNG (mulberry32) so the shuffle is reproducible. */
+function seededRandom(seed: number): () => number {
+  let a = seed;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** The honest question is a variable reward, so it must be genuinely
+ *  unpredictable. The old version walked the list by day-of-year, which
+ *  meant a coach could work out tomorrow's question. That is a rerun
+ *  schedule, not variability.
+ *
+ *  Now: each coach gets their own seeded shuffle of the pool, walked by
+ *  day. That buys three things at once —
+ *    - unpredictable: the order is not guessable from the list
+ *    - no repeats: a full cycle before any question comes back
+ *    - stable + cacheable: same question all day, same for every render
+ *  Two coaches on the same day see different questions. Pure, so it is
+ *  unit-testable without mocking time. */
+export function pickHonestQuestion(now: number, coachId: string = ""): string {
   const d = new Date(now);
   const start = Date.UTC(d.getUTCFullYear(), 0, 0);
   const dayOfYear = Math.floor((d.getTime() - start) / 86_400_000);
-  return HONEST_QUESTIONS[dayOfYear % HONEST_QUESTIONS.length];
+
+  const n = HONEST_QUESTIONS.length;
+  const cycle = Math.floor(dayOfYear / n);
+  // Reshuffle each cycle so the order itself changes, not just the offset.
+  const rand = seededRandom(hashSeed(`${coachId}:${cycle}`));
+  const order = HONEST_QUESTIONS.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return HONEST_QUESTIONS[order[dayOfYear % n]];
 }
 
 // ── Content signal extraction ─────────────────────────────────────────
@@ -538,7 +581,7 @@ export async function getBusinessPulse(coachId: string, now: number): Promise<Bu
     quietList: items.slice(1, 6),
     daySummary,
     metrics,
-    honestQuestion: pickHonestQuestion(now),
+    honestQuestion: pickHonestQuestion(now, coachId),
   };
 }
 

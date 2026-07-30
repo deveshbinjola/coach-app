@@ -251,25 +251,51 @@ describe("computeDaySummary", () => {
 });
 
 describe("pickHonestQuestion", () => {
+  const DAY = 86_400_000;
+  const day = (n: number) => new Date("2026-01-01T12:00:00Z").getTime() + n * DAY;
+  const run = (coachId: string, days: number) =>
+    Array.from({ length: days }, (_, i) => pickHonestQuestion(day(i), coachId));
+
   it("returns a string", () => {
-    const q = pickHonestQuestion(Date.now());
+    const q = pickHonestQuestion(Date.now(), "coach-a");
     expect(typeof q).toBe("string");
     expect(q.length).toBeGreaterThan(0);
   });
 
-  it("returns the same question for the same day (deterministic)", () => {
-    const now = new Date("2026-06-15T09:00:00Z").getTime();
-    const later = new Date("2026-06-15T23:59:00Z").getTime();
-    expect(pickHonestQuestion(now)).toBe(pickHonestQuestion(later));
+  it("is stable within a day (cacheable, no flicker between renders)", () => {
+    const morning = new Date("2026-06-15T09:00:00Z").getTime();
+    const night = new Date("2026-06-15T23:59:00Z").getTime();
+    expect(pickHonestQuestion(morning, "coach-a")).toBe(pickHonestQuestion(night, "coach-a"));
   });
 
-  it("returns a different question for a different day", () => {
-    const day1 = new Date("2026-06-01T12:00:00Z").getTime();
-    const day2 = new Date("2026-06-02T12:00:00Z").getTime();
-    // Not guaranteed to differ for every pair, but these specific days map to different indices
-    const q1 = pickHonestQuestion(day1);
-    const q2 = pickHonestQuestion(day2);
-    expect(q1).not.toBe(q2);
+  it("never repeats on consecutive days", () => {
+    const seen = run("coach-a", 60);
+    for (let i = 1; i < seen.length; i++) {
+      expect(seen[i]).not.toBe(seen[i - 1]);
+    }
+  });
+
+  it("covers the whole pool (no question is starved)", () => {
+    // Two full cycles of any plausible pool size.
+    const seen = run("coach-a", 60);
+    const pool = new Set(seen);
+    // Every question seen in the first 30 days is also reachable later,
+    // i.e. the walk cycles the full set rather than favouring a subset.
+    const firstHalf = new Set(seen.slice(0, 30));
+    expect(firstHalf.size).toBe(pool.size);
+  });
+
+  it("differs between coaches on the same day (not a shared rerun schedule)", () => {
+    const a = run("coach-a", 20).join("|");
+    const b = run("coach-b", 20).join("|");
+    expect(a).not.toBe(b);
+  });
+
+  it("is not the old day-of-year walk (order is shuffled, not sequential)", () => {
+    // The old implementation produced the pool in fixed list order. If the
+    // sequence for 14 days is identical for two different coaches, the
+    // shuffle is not seeded per coach and the regression is back.
+    expect(run("coach-a", 14)).not.toEqual(run("coach-z", 14));
   });
 });
 

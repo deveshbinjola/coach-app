@@ -1,11 +1,16 @@
 // lib/dhara/persona.ts
 // Dhara's voice + grounding rules. Pure builder so it can be eval'd later.
 
+import { buildInterviewDirective } from "@/lib/dhara/interview";
+
 export type DharaContext = {
   coachFirstName: string;
   identityText: string;
   snapshotText: string;
   memories: Array<{ text: string; confidence: "candidate" | "repeated" | "confirmed" }>;
+  /** When true, the assistant has not met this coach yet and opens by
+   *  interviewing them. See lib/dhara/interview.ts. */
+  interviewMode?: boolean;
 };
 
 export function buildDharaSystemPrompt(ctx: DharaContext): string {
@@ -38,5 +43,6 @@ export function buildDharaSystemPrompt(ctx: DharaContext): string {
     "",
     "WHAT YOU SUSPECT (unconfirmed, flavor only):",
     candidates.length ? candidates.join("\n") : "- (nothing yet)",
+    ...(ctx.interviewMode ? ["", buildInterviewDirective()] : []),
   ].join("\n");
 }

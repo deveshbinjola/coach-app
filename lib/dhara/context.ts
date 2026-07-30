@@ -4,6 +4,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { getBusinessPulse } from "@/lib/ambient";
 import type { CoachMemory } from "@/lib/dhara/memory";
+import { hasBeenInterviewed } from "@/lib/dhara/interview";
 
 const usd = (cents: number) => `$${(cents / 100).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 
@@ -12,6 +13,9 @@ export type DharaGrounding = {
   snapshotText: string;
   memories: CoachMemory[];
   leads: Array<{ id: string; name: string }>;
+  /** False when the assistant has not been introduced to this coach yet;
+   *  turns on interview mode. See lib/dhara/interview.ts. */
+  interviewed: boolean;
 };
 
 export async function getDharaContext(coachId: string, now: number): Promise<DharaGrounding> {
@@ -57,5 +61,5 @@ export async function getDharaContext(coachId: string, now: number): Promise<Dha
 
   const leads = (leadRows ?? []).map((l) => ({ id: l.id as string, name: (l.full_name as string) ?? "" }));
 
-  return { identityText, snapshotText, memories, leads };
+  return { identityText, snapshotText, memories, leads, interviewed: hasBeenInterviewed(memories) };
 }

@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
     identityText: grounding.identityText,
     snapshotText: grounding.snapshotText,
     memories: grounding.memories.map((m) => ({ text: m.text, confidence: m.confidence })),
+    interviewMode: !grounding.interviewed,
   });
 
   const rows = ((recent ?? []) as Array<{ role: "user" | "assistant"; content: string }>).reverse();

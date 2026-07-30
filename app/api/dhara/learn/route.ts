@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { rateLimitByUser } from "@/lib/rate-limit";
 import { buildExtractionPrompt, parseExtraction, mergeOrInsert, type CoachMemory } from "@/lib/dhara/memory";
+import { hasBeenInterviewed } from "@/lib/dhara/interview";
 import { deriveSuggestions } from "@/lib/dhara/suggestions";
 
 export const runtime = "edge";
@@ -49,6 +50,15 @@ export async function POST(request: NextRequest) {
     sourceRef: r.source_ref, confidence: r.confidence, status: r.status,
   })) as CoachMemory[];
 
+  // While the assistant is still interviewing (see lib/dhara/interview.ts)
+  // the coach is answering direct questions about themselves, not
+  // mentioning things in passing. Those answers are as authoritative as
+  // the /welcome form, so they are stored the same way: explicit and
+  // confirmed. Decided server-side; the client does not get a say.
+  const interviewing = !hasBeenInterviewed(existing);
+  const source = interviewing ? "explicit" : "conversation";
+  const confidence = interviewing ? "confirmed" : "candidate";
+
   const newlyLearned: Array<{ id: string; text: string; kind: string; confidence: string }> = [];
   const nowIso = new Date().toISOString();
 
@@ -56,11 +66,11 @@ export async function POST(request: NextRequest) {
     const r = mergeOrInsert(existing, cand);
     if (r.action === "insert") {
       const { data: ins } = await admin.from("cp_coach_memory").insert({
-        coach_id: user.id, kind: cand.kind, text: cand.text, source: "conversation", confidence: "candidate",
+        coach_id: user.id, kind: cand.kind, text: cand.text, source, confidence,
       }).select("id, text, kind, confidence").single();
       if (ins) {
         newlyLearned.push(ins);
-        existing.push({ id: ins.id, coachId: user.id, kind: cand.kind, text: cand.text, source: "conversation", sourceRef: null, confidence: "candidate", status: "active" });
+        existing.push({ id: ins.id, coachId: user.id, kind: cand.kind, text: cand.text, source, sourceRef: null, confidence, status: "active" });
       }
     } else {
       await admin.from("cp_coach_memory").update({ confidence: r.confidence, last_seen_at: nowIso }).eq("id", r.targetId).eq("coach_id", user.id);

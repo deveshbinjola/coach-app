@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { getBusinessPulse } from "@/lib/ambient";
 import { buildStarterPrompts, tailoredGreeting, type DharaStats } from "@/lib/dhara/prompts";
+import { hasBeenInterviewed, interviewOpener } from "@/lib/dhara/interview";
+import type { CoachMemory } from "@/lib/dhara/memory";
+import { userFirstName } from "@/lib/user-display";
 
 export const runtime = "edge";
 
@@ -51,6 +54,25 @@ export async function GET() {
     topPainPoint,
     slipping,
   };
+
+  // A coach the assistant has never met gets interviewed instead of
+  // greeted. Starter prompts are suppressed so the one question on screen
+  // is the only thing to answer.
+  const { data: memRows } = await supabase
+    .from("cp_coach_memory")
+    .select("source, status")
+    .eq("coach_id", user.id)
+    .eq("status", "active");
+  const interviewed = hasBeenInterviewed(
+    (memRows ?? []) as Array<{ source: CoachMemory["source"]; status: CoachMemory["status"] }>,
+  );
+
+  if (!interviewed) {
+    return NextResponse.json({
+      prompts: [],
+      greeting: interviewOpener(userFirstName(user.email, user.user_metadata)),
+    });
+  }
 
   return NextResponse.json({ prompts: buildStarterPrompts(stats), greeting: tailoredGreeting(stats) });
 }
