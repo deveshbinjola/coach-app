@@ -27,8 +27,8 @@ type Screen = "intro" | "q1" | "q2" | "q3" | "result";
 const AssistantAvatar = () => (
   <span className="mq-reaction-av" aria-hidden>
     <svg viewBox="0 0 48 48" fill="none">
-      <path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#00FF41" />
-      <path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#00FF41" strokeWidth="2.7" strokeLinecap="round" />
+      <path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#FAF8F3" />
+      <path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#FAF8F3" strokeWidth="2.7" strokeLinecap="round" />
     </svg>
   </span>
 );
@@ -144,9 +144,9 @@ export default function MeetQuiz() {
       <div className="mq-inner">
         <a href="/login" className="mq-logo">
           <svg viewBox="0 0 48 48" fill="none" aria-hidden>
-            <rect x="3" y="4" width="39" height="39" rx="9.8" fill="#00F33D" />
-            <path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#071126" />
-            <path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#071126" strokeWidth="2.7" strokeLinecap="round" />
+            <rect x="3" y="4" width="39" height="39" rx="9.8" fill="#0B6E23" />
+            <path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#FAF8F3" />
+            <path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#FAF8F3" strokeWidth="2.7" strokeLinecap="round" />
           </svg>
           <span className="mq-logo-text">Coach <span>Assistant</span></span>
         </a>
@@ -306,7 +306,7 @@ export default function MeetQuiz() {
                 {leadError && <p className="mq-lead-error" role="alert">{leadError}</p>}
               </form>
             )}
-            <p className="mq-fine">FREE TO START · NO CREDIT CARD · YOUR ANSWERS TRAVEL WITH YOU</p>
+            <p className="mq-fine">Free to start. No credit card. Your answers travel with you.</p>
           </div>
         )}
       </div>

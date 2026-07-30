@@ -32,7 +32,7 @@ function readNavUnlocksCookie(): NavUnlocks | undefined {
 }
 
 // Public, no-auth surfaces that should not show the app nav (lead magnets etc.).
-const HIDDEN_PREFIXES = ["/win", "/meet"];
+const HIDDEN_PREFIXES = ["/win", "/meet", "/login"];
 
 export default function MobileTabBar() {
   const pathname = usePathname() ?? "";

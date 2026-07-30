@@ -62,7 +62,7 @@ export default function LoginPage() {
       <div className="lp-left">
         <div className="lp-left-inner">
           <div className="lp-logo" style={{ opacity: 0, animation: 'lp-rise 0.9s 0.1s cubic-bezier(.16,1,.3,1) both' }}>
-            <svg viewBox="0 0 100 100" style={{ width: 28, height: 28 }}><rect width="100" height="100" rx="24" fill="#00FF41"/><path d="M50 20 C35 20 25 35 25 55 C25 75 40 80 50 80 C60 80 75 75 75 55 C75 35 65 20 50 20 Z" fill="#020802"/><path d="M50 80 L50 85" stroke="#020802" strokeWidth="4" strokeLinecap="round"/></svg>
+            <svg viewBox="0 0 48 48" fill="none" style={{ width: 28, height: 28 }}><rect x="3" y="4" width="39" height="39" rx="9.8" fill="#0B6E23"/><path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#FAF8F3"/><path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#FAF8F3" strokeWidth="2.7" strokeLinecap="round"/></svg>
             <span className="lp-logo-text">Coach <span>Assistant</span></span>
           </div>
 
@@ -99,7 +99,7 @@ export default function LoginPage() {
                     <div className="lp-inbound">
                       <div className="lp-ma">M</div>
                       <div>
-                        <div className="lp-bubble">Been following your work. Curious about coaching — what does it look like to work with you?</div>
+                        <div className="lp-bubble">Been following your work. Curious about coaching. What does it look like to work with you?</div>
                         <div className="lp-ts">9:38 AM · IG DM</div>
                       </div>
                     </div>
@@ -145,7 +145,7 @@ export default function LoginPage() {
       <div className="lp-right">
         <div className="lp-auth-card">
           <div className="lp-mobile-logo">
-            <svg viewBox="0 0 100 100" style={{ width: 24, height: 24 }}><rect width="100" height="100" rx="24" fill="#00FF41"/><path d="M50 20 C35 20 25 35 25 55 C25 75 40 80 50 80 C60 80 75 75 75 55 C75 35 65 20 50 20 Z" fill="#020802"/><path d="M50 80 L50 85" stroke="#020802" strokeWidth="4" strokeLinecap="round"/></svg>
+            <svg viewBox="0 0 48 48" fill="none" style={{ width: 24, height: 24 }}><rect x="3" y="4" width="39" height="39" rx="9.8" fill="#0B6E23"/><path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#FAF8F3"/><path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#FAF8F3" strokeWidth="2.7" strokeLinecap="round"/></svg>
             Coach Assistant
           </div>
 
