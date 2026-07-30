@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "ElevateAI Coach Platform",
-    short_name: "ElevateAI",
+    name: "Coach Assistant",
+    short_name: "Coach Assistant",
     description: "Your leads, voice, and content in one coach operating system.",
     start_url: "/command-center",
     scope: "/",

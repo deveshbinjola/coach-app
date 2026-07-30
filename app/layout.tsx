@@ -7,7 +7,7 @@ import DharaBar from "@/components/dhara/DharaBar";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ElevateAI Coach Platform",
+  title: "Coach Assistant",
   description: "Your leads. Your voice. AI does the writing.",
   icons: {
     icon: "/favicon.svg",

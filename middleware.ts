@@ -92,6 +92,10 @@ export async function middleware(request: NextRequest) {
     "/snapshot",
     // Public referral page — coaches share Brand OS with friends
     "/refer",
+    // Positioned-to-Win Scorecard — public top-of-funnel lead magnet
+    "/win",
+    // Meet-your-assistant teaser quiz — public pre-signup interview
+    "/meet",
   ];
   const isApi = path.startsWith("/api/");
   const isPublic = isApi || publicPaths.some((p) => path.startsWith(p));

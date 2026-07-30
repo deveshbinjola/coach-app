@@ -5,7 +5,7 @@ export default function OfflinePage() {
     <main className="min-h-screen px-4 py-10 flex items-center justify-center">
       <section className="w-full max-w-md rounded-[var(--r-xl)] border border-[var(--border)] bg-[var(--surface-elevated)] p-6 text-center shadow-[var(--shadow-lg)]">
         <div className="flex justify-center">
-          <BrandLogo iconSize={40} productLabel="Coach" />
+          <BrandLogo iconSize={40} productLabel="Coach Assistant" />
         </div>
         <h1 className="mt-6 text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)]">
           You are offline.

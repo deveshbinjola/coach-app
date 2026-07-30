@@ -164,9 +164,9 @@ export default function Header({ email, name, avatarUrl, emphasis, navUnlocks }:
         <a
           href="/command-center"
           className="flex min-h-11 items-center gap-2.5 shrink-0 rounded-[var(--r-md)] px-1.5 -ml-1.5 transition hover:bg-[var(--surface-deep)] hover:opacity-90 focus-visible:shadow-[var(--shadow-glow)] min-w-0"
-          aria-label="Elevate AI Coach Home"
+          aria-label="Coach Assistant Home"
         >
-          <BrandLogo iconSize={32} productLabel="Coach" />
+          <BrandLogo iconSize={32} productLabel="Coach Assistant" />
         </a>
 
         {/* Desktop nav: pill buttons, route-aware active state */}

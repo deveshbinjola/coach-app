@@ -1,0 +1,246 @@
+"use client";
+
+// MeetQuiz — the public "assistant interview" teaser at /meet.
+//
+// Framing: the assistant is interviewing for the job of working for this
+// coach. Three taps, instant reactions, an archetype result, then signup.
+// Answers persist to localStorage so the /welcome interview step imports
+// them after account creation — the coach never answers twice.
+
+import { useState } from "react";
+import {
+  TIME_DRAIN_OPTIONS,
+  HAND_OFF_OPTIONS,
+  DESIRE_OPTIONS,
+  deriveArchetype,
+  saveInterviewAnswers,
+  type TimeDrain,
+  type HandOffFirst,
+  type Desire,
+  type Option,
+} from "@/lib/assistant-interview";
+import { renderArchetypeCard } from "@/lib/meet-share-card";
+import { shareOrDownload } from "@/lib/share-card";
+
+type Screen = "intro" | "q1" | "q2" | "q3" | "result";
+
+const AssistantAvatar = () => (
+  <span className="mq-reaction-av" aria-hidden>
+    <svg viewBox="0 0 48 48" fill="none">
+      <path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#00FF41" />
+      <path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#00FF41" strokeWidth="2.7" strokeLinecap="round" />
+    </svg>
+  </span>
+);
+
+function Reaction({ text }: { text: string }) {
+  return (
+    <div className="mq-reaction" role="status">
+      <AssistantAvatar />
+      <div className="mq-reaction-bubble">{text}</div>
+    </div>
+  );
+}
+
+function SingleChoice<V extends string>({
+  options,
+  picked,
+  onPick,
+}: {
+  options: Option<V>[];
+  picked: V | null;
+  onPick: (v: V) => void;
+}) {
+  return (
+    <div className="mq-options">
+      {options.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          className={`mq-opt${picked === o.value ? " picked" : ""}`}
+          onClick={() => onPick(o.value)}
+        >
+          <span className="mq-opt-check">{picked === o.value ? "✓" : ""}</span>
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export default function MeetQuiz() {
+  const [screen, setScreen] = useState<Screen>("intro");
+  const [timeDrain, setTimeDrain] = useState<TimeDrain | null>(null);
+  const [handOffFirst, setHandOffFirst] = useState<HandOffFirst | null>(null);
+  const [desires, setDesires] = useState<Desire[]>([]);
+  const [sharing, setSharing] = useState(false);
+
+  const stepIndex = { intro: 0, q1: 1, q2: 2, q3: 3, result: 4 }[screen];
+
+  const q1Reaction = TIME_DRAIN_OPTIONS.find((o) => o.value === timeDrain)?.reaction;
+  const q2Reaction = HAND_OFF_OPTIONS.find((o) => o.value === handOffFirst)?.reaction;
+
+  function toggleDesire(d: Desire) {
+    setDesires((cur) =>
+      cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d],
+    );
+  }
+
+  function finish() {
+    saveInterviewAnswers({ timeDrain, handOffFirst, desires });
+    setScreen("result");
+  }
+
+  const archetype = deriveArchetype({ timeDrain, handOffFirst });
+
+  async function share() {
+    setSharing(true);
+    try {
+      const blob = await renderArchetypeCard(archetype);
+      await shareOrDownload(blob, `my-assistant-${archetype.slug}.png`);
+    } catch {
+      /* canvas/share failure is non-fatal — button just does nothing */
+    } finally {
+      setSharing(false);
+    }
+  }
+
+  return (
+    <div className="mq">
+      <div className="mq-inner">
+        <a href="/login" className="mq-logo">
+          <svg viewBox="0 0 48 48" fill="none" aria-hidden>
+            <rect x="3" y="4" width="39" height="39" rx="9.8" fill="#00F33D" />
+            <path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#071126" />
+            <path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#071126" strokeWidth="2.7" strokeLinecap="round" />
+          </svg>
+          <span className="mq-logo-text">Coach <span>Assistant</span></span>
+        </a>
+
+        {screen !== "intro" && screen !== "result" && (
+          <div className="mq-progress" aria-hidden>
+            {[1, 2, 3].map((n) => (
+              <div key={n} className={`mq-dot${stepIndex >= n ? " on" : ""}`} />
+            ))}
+          </div>
+        )}
+
+        {screen === "intro" && (
+          <div>
+            <p className="mq-kicker">The 60-second interview</p>
+            <h1 className="mq-hero-title">
+              Your assistant is applying <em>for the job.</em>
+            </h1>
+            <p className="mq-sub">
+              Three questions. You&apos;re the boss, it&apos;s the interview.
+              By the end you&apos;ll know exactly what kind of assistant your
+              coaching business needs. And it&apos;ll know you.
+            </p>
+            <div className="mq-cta-row">
+              <a href="/login" className="mq-back">I already have an account</a>
+              <button type="button" className="mq-next" onClick={() => setScreen("q1")}>
+                Start the interview
+              </button>
+            </div>
+          </div>
+        )}
+
+        {screen === "q1" && (
+          <div>
+            <p className="mq-kicker">Question 1 of 3</p>
+            <h1 className="mq-q">What&apos;s eating most of your week?</h1>
+            <p className="mq-sub">Be honest. It stays between us.</p>
+            <SingleChoice options={TIME_DRAIN_OPTIONS} picked={timeDrain} onPick={setTimeDrain} />
+            {q1Reaction && <Reaction text={q1Reaction} />}
+            <div className="mq-cta-row">
+              <button type="button" className="mq-back" onClick={() => setScreen("intro")}>Back</button>
+              <button type="button" className="mq-next" disabled={!timeDrain} onClick={() => setScreen("q2")}>
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {screen === "q2" && (
+          <div>
+            <p className="mq-kicker">Question 2 of 3</p>
+            <h1 className="mq-q">You hire a great assistant tomorrow. What do you hand off first?</h1>
+            <p className="mq-sub">First thing off your plate, day one.</p>
+            <SingleChoice options={HAND_OFF_OPTIONS} picked={handOffFirst} onPick={setHandOffFirst} />
+            {q2Reaction && <Reaction text={q2Reaction} />}
+            <div className="mq-cta-row">
+              <button type="button" className="mq-back" onClick={() => setScreen("q1")}>Back</button>
+              <button type="button" className="mq-next" disabled={!handOffFirst} onClick={() => setScreen("q3")}>
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {screen === "q3" && (
+          <div>
+            <p className="mq-kicker">Question 3 of 3</p>
+            <h1 className="mq-q">What do you want from your ideal assistant?</h1>
+            <p className="mq-sub">Pick everything that&apos;s true. This becomes its job description.</p>
+            <div className="mq-options">
+              {DESIRE_OPTIONS.map((o) => (
+                <button
+                  key={o.value}
+                  type="button"
+                  className={`mq-opt${desires.includes(o.value) ? " picked" : ""}`}
+                  onClick={() => toggleDesire(o.value)}
+                >
+                  <span className="mq-opt-check">{desires.includes(o.value) ? "✓" : ""}</span>
+                  {o.label}
+                </button>
+              ))}
+            </div>
+            {desires.length > 0 && (
+              <Reaction text={desires.length >= 3 ? "High standards. Good. I work best for coaches who expect a lot." : "Noted. Anything else? Don't be shy."} />
+            )}
+            <div className="mq-cta-row">
+              <button type="button" className="mq-back" onClick={() => setScreen("q2")}>Back</button>
+              <button type="button" className="mq-next" disabled={desires.length === 0} onClick={finish}>
+                Show me my assistant
+              </button>
+            </div>
+          </div>
+        )}
+
+        {screen === "result" && (
+          <div>
+            <p className="mq-kicker">Interview complete</p>
+            <h1 className="mq-hero-title">You need <em>{archetype.name}.</em></h1>
+
+            <div className="mq-result-card">
+              <p className="mq-result-kicker">Your assistant archetype</p>
+              <p className="mq-result-name">{archetype.name}</p>
+              <p className="mq-result-tagline">{archetype.tagline}</p>
+              <p className="mq-week-label">In week one, your assistant will</p>
+              {archetype.weekOne.map((item) => (
+                <div key={item} className="mq-week-item">
+                  <span className="mq-week-dot" />
+                  {item}
+                </div>
+              ))}
+            </div>
+
+            <div className="mq-result-actions">
+              <a
+                href="/login"
+                className="mq-next"
+                style={{ width: "100%", textDecoration: "none", textAlign: "center", display: "block" }}
+              >
+                Meet your assistant. Create your account
+              </a>
+              <button type="button" className="mq-share" onClick={share} disabled={sharing}>
+                {sharing ? "Rendering…" : "Share my archetype"}
+              </button>
+            </div>
+            <p className="mq-fine">FREE TO START · NO CREDIT CARD · YOUR ANSWERS TRAVEL WITH YOU</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

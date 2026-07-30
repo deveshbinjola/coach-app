@@ -63,7 +63,7 @@ export default function LoginPage() {
         <div className="lp-left-inner">
           <div className="lp-logo" style={{ opacity: 0, animation: 'lp-rise 0.9s 0.1s cubic-bezier(.16,1,.3,1) both' }}>
             <svg viewBox="0 0 100 100" style={{ width: 28, height: 28 }}><rect width="100" height="100" rx="24" fill="#00FF41"/><path d="M50 20 C35 20 25 35 25 55 C25 75 40 80 50 80 C60 80 75 75 75 55 C75 35 65 20 50 20 Z" fill="#020802"/><path d="M50 80 L50 85" stroke="#020802" strokeWidth="4" strokeLinecap="round"/></svg>
-            <span className="lp-logo-text">Elevate AI <span>Coach</span></span>
+            <span className="lp-logo-text">Coach <span>Assistant</span></span>
           </div>
 
           <h1 className="lp-headline" style={{ opacity: 0, animation: 'lp-rise 0.9s 0.2s cubic-bezier(.16,1,.3,1) both' }}>
@@ -146,7 +146,7 @@ export default function LoginPage() {
         <div className="lp-auth-card">
           <div className="lp-mobile-logo">
             <svg viewBox="0 0 100 100" style={{ width: 24, height: 24 }}><rect width="100" height="100" rx="24" fill="#00FF41"/><path d="M50 20 C35 20 25 35 25 55 C25 75 40 80 50 80 C60 80 75 75 75 55 C75 35 65 20 50 20 Z" fill="#020802"/><path d="M50 80 L50 85" stroke="#020802" strokeWidth="4" strokeLinecap="round"/></svg>
-            Elevate AI Coach
+            Coach Assistant
           </div>
 
           {sent ? (
@@ -155,7 +155,7 @@ export default function LoginPage() {
               <p className="lp-sent-title">Check your email</p>
               <p className="lp-sent-body">
                 We sent a magic link to <strong>{email}</strong>.
-                <br />Click it to sign in — it expires in 10 minutes.
+                <br />Click it to sign in. It expires in 10 minutes.
               </p>
               <button className="lp-sent-retry" onClick={() => setSent(false)}>Use a different email →</button>
             </div>
@@ -163,7 +163,7 @@ export default function LoginPage() {
             <>
               <p className="lp-auth-label">Sign in</p>
               <h2 className="lp-auth-title">Welcome back.</h2>
-              <p className="lp-auth-sub">Or create your account — same button, we handle the rest.</p>
+              <p className="lp-auth-sub">Or create your account. Same button, we handle the rest.</p>
 
               <button type="button" onClick={handleGoogle} disabled={googleLoading} className="lp-google">
                 <svg viewBox="0 0 24 24">
@@ -197,6 +197,10 @@ export default function LoginPage() {
                 <span className="lp-trust-item"><span className="lp-trust-icon">✦</span> No credit card</span>
                 <span className="lp-trust-item"><span className="lp-trust-icon">∞</span> 500 leads free</span>
               </div>
+
+              <p className="lp-terms">
+                <a href="/meet">New here? Meet your assistant first (60-second interview) →</a>
+              </p>
 
               <p className="lp-terms">
                 <a href="/terms">Terms</a>

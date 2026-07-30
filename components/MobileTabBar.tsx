@@ -31,9 +31,15 @@ function readNavUnlocksCookie(): NavUnlocks | undefined {
   }
 }
 
+// Public, no-auth surfaces that should not show the app nav (lead magnets etc.).
+const HIDDEN_PREFIXES = ["/win", "/meet"];
+
 export default function MobileTabBar() {
   const pathname = usePathname() ?? "";
   const [navUnlocks] = useState<NavUnlocks | undefined>(readNavUnlocksCookie);
+
+  const hidden = HIDDEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  if (hidden) return null;
 
   const visibleTabs = TAB_ITEMS.filter((item) => {
     if (!navUnlocks) return true;

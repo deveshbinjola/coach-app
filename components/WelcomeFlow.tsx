@@ -24,7 +24,7 @@
 // The flow auto-skips Voice if the coach already has a profile (force=1
 // case where they came back to replay activation but already had voice).
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Share2 } from "lucide-react";
 import { Badge, Button, Card } from "@/components/ui";
@@ -40,8 +40,19 @@ import {
   type AudienceSelf,
   type AudienceServes,
 } from "@/lib/voice-profiles";
+import {
+  EMPTY_ANSWERS,
+  NICHE_OPTIONS,
+  STAGE_OPTIONS,
+  TONE_OPTIONS,
+  DESIRE_OPTIONS,
+  loadInterviewAnswers,
+  clearInterviewAnswers,
+  type InterviewAnswers,
+  type Desire,
+} from "@/lib/assistant-interview";
 
-type Step = "audience" | "hello" | "voice" | "magic" | "done";
+type Step = "audience" | "interview" | "hello" | "voice" | "magic" | "done";
 type OnboardingImportSource = "instagram" | "linkedin" | "newsletter";
 type ImportedVoiceSignal = {
   source: OnboardingImportSource;
@@ -76,13 +87,14 @@ export default function WelcomeFlow({
 
   // Step order:
   //   1. audience (if not answered yet) — sets voice_profile_slug
-  //   2. hello → voice → magic → done
+  //   2. interview — the assistant's getting-to-know-you questions
+  //   3. hello → voice → magic → done
   // If audience IS answered + voice profile exists (force=1 replay path),
   // skip straight to magic.
   const initialStep: Step =
     !hasAudienceAnswered ? "audience"
     : startingProfile  ? "magic"
-    : "hello";
+    : "interview";
   const [step, setStep] = useState<Step>(initialStep);
 
   // Audience-question state (only used during 'audience' step).
@@ -120,7 +132,7 @@ export default function WelcomeFlow({
     }
     setCurrentSlug(slug);
     // Advance to the rest of onboarding.
-    setStep(startingProfile ? "magic" : "hello");
+    setStep(startingProfile ? "magic" : "interview");
   }
 
   // Magic-moment state. Two drafts now — generic + voice — so the coach
@@ -212,6 +224,13 @@ export default function WelcomeFlow({
         />
       )}
 
+      {step === "interview" && (
+        <InterviewStep
+          firstName={coachFirstName}
+          onDone={() => setStep("hello")}
+        />
+      )}
+
       {step === "hello" && (
         <HelloStep
           firstName={coachFirstName}
@@ -222,7 +241,7 @@ export default function WelcomeFlow({
       {step === "voice" && (
         <div className="space-y-5">
           <Badge tone="brand" size="xs" uppercase>
-            Step 2 of 4 · Build your voice
+            Step 3 of 5 · Build your voice
           </Badge>
           <div>
             <h2 className="text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
@@ -403,6 +422,270 @@ function AudienceStep({
   );
 }
 
+// ── Step: Interview ────────────────────────────────────────────────────────
+//
+// The assistant's getting-to-know-you questions. One question per screen,
+// auto-advance on single-choice taps so it feels like a conversation, not a
+// form. Pre-filled from the /meet teaser (localStorage) when present, so a
+// coach who took the public quiz never answers the same thing twice.
+// Answers post to /api/onboarding/interview → confirmed Dhara memories +
+// nav emphasis flags.
+
+type InterviewSub = "niche" | "stage" | "tone" | "desires";
+const INTERVIEW_SUBS: InterviewSub[] = ["niche", "stage", "tone", "desires"];
+
+function InterviewStep({
+  firstName,
+  onDone,
+}: {
+  firstName: string;
+  onDone: () => void;
+}) {
+  const [answers, setAnswers] = useState<InterviewAnswers>(EMPTY_ANSWERS);
+  const [sub, setSub] = useState<InterviewSub>("niche");
+  const [cameFromTeaser, setCameFromTeaser] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Import the /meet teaser answers once, client-side.
+  useEffect(() => {
+    const stored = loadInterviewAnswers();
+    if (stored) {
+      setAnswers((cur) => ({ ...cur, ...stored }));
+      if (stored.timeDrain || stored.handOffFirst || stored.desires.length > 0) {
+        setCameFromTeaser(true);
+      }
+    }
+  }, []);
+
+  const subIdx = INTERVIEW_SUBS.indexOf(sub);
+
+  function advance() {
+    const next = INTERVIEW_SUBS[subIdx + 1];
+    if (next) setSub(next);
+  }
+
+  function pickAndAdvance<K extends "niche" | "stage" | "tone">(key: K, value: InterviewAnswers[K]) {
+    setAnswers((cur) => ({ ...cur, [key]: value }));
+    advance();
+  }
+
+  function toggleDesire(d: Desire) {
+    setAnswers((cur) => ({
+      ...cur,
+      desires: cur.desires.includes(d)
+        ? cur.desires.filter((x) => x !== d)
+        : [...cur.desires, d],
+    }));
+  }
+
+  async function submit() {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/onboarding/interview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(answers),
+      });
+      if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+        setError(body?.error ?? "Couldn't save your answers. Try again, or continue. You can redo this in Settings.");
+        setSaving(false);
+        return;
+      }
+      clearInterviewAnswers();
+      onDone();
+    } catch {
+      setError("Couldn't save your answers. Try again, or continue. You can redo this in Settings.");
+      setSaving(false);
+    }
+  }
+
+  const QUESTION: Record<InterviewSub, { kicker: string; title: string; sub: string }> = {
+    niche: {
+      kicker: "Getting to know you · 1 of 4",
+      title: "What kind of coach are you?",
+      sub: "Your assistant tunes everything it writes and suggests to your lane.",
+    },
+    stage: {
+      kicker: "Getting to know you · 2 of 4",
+      title: "Where's the business right now?",
+      sub: "No wrong answer. It just changes what your assistant pushes first.",
+    },
+    tone: {
+      kicker: "Getting to know you · 3 of 4",
+      title: "How should your assistant talk to you?",
+      sub: "It works for you. It should sound the way you want it to.",
+    },
+    desires: {
+      kicker: "Getting to know you · 4 of 4",
+      title: "What do you want from your ideal assistant?",
+      sub: cameFromTeaser
+        ? "You told us some of this already, it carried over. Adjust or confirm."
+        : "Pick everything that's true. This becomes its job description.",
+    },
+  };
+
+  const q = QUESTION[sub];
+
+  return (
+    <div className="space-y-8 max-w-2xl">
+      <div className="space-y-3">
+        <Badge tone="brand" size="xs" uppercase>Step 1 of 5 · The interview</Badge>
+        <h2 className="text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
+          {subIdx === 0 ? `${firstName ? `${firstName}, your` : "Your"} assistant has a few questions.` : q.title}
+        </h2>
+        {subIdx === 0 && (
+          <h3 className="text-[length:var(--t-h3)] font-bold text-[color:var(--text)] pt-2">{q.title}</h3>
+        )}
+        <p className="text-[length:var(--t-body)] text-[color:var(--text-muted)] leading-[var(--leading-relaxed)]">
+          {q.sub}
+        </p>
+        <p className="text-[length:var(--t-caption)] font-bold uppercase tracking-wider text-[color:var(--text-faint)]">
+          {q.kicker}
+        </p>
+      </div>
+
+      {sub === "niche" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {NICHE_OPTIONS.map((o) => (
+            <InterviewChoice
+              key={o.value}
+              label={o.label}
+              active={answers.niche === o.value}
+              onClick={() => pickAndAdvance("niche", o.value)}
+            />
+          ))}
+        </div>
+      )}
+
+      {sub === "stage" && (
+        <div className="grid grid-cols-1 gap-3">
+          {STAGE_OPTIONS.map((o) => (
+            <InterviewChoice
+              key={o.value}
+              label={o.label}
+              active={answers.stage === o.value}
+              onClick={() => pickAndAdvance("stage", o.value)}
+            />
+          ))}
+        </div>
+      )}
+
+      {sub === "tone" && (
+        <div className="grid grid-cols-1 gap-3">
+          {TONE_OPTIONS.map((o) => (
+            <InterviewChoice
+              key={o.value}
+              label={o.label}
+              active={answers.tone === o.value}
+              onClick={() => pickAndAdvance("tone", o.value)}
+            />
+          ))}
+        </div>
+      )}
+
+      {sub === "desires" && (
+        <>
+          <div className="grid grid-cols-1 gap-3">
+            {DESIRE_OPTIONS.map((o) => (
+              <InterviewChoice
+                key={o.value}
+                label={o.label}
+                active={answers.desires.includes(o.value)}
+                check
+                onClick={() => toggleDesire(o.value)}
+              />
+            ))}
+          </div>
+
+          {error && (
+            <p className="text-[length:var(--t-caption)] text-[color:var(--danger)]" role="alert">{error}</p>
+          )}
+
+          <div className="flex items-center justify-between gap-4">
+            <button
+              type="button"
+              onClick={onDone}
+              className="text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)] hover:text-[color:var(--text)] underline decoration-dotted underline-offset-4"
+            >
+              {error ? "Continue anyway" : "Skip this"}
+            </button>
+            <Button
+              onClick={submit}
+              disabled={saving || answers.desires.length === 0}
+              className="h-12 px-6"
+            >
+              {saving ? "Briefing your assistant…" : "Hand it the job →"}
+            </Button>
+          </div>
+        </>
+      )}
+
+      {sub !== "desires" && (
+        <div className="flex items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={subIdx === 0 ? onDone : () => setSub(INTERVIEW_SUBS[subIdx - 1])}
+            className="text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)] hover:text-[color:var(--text)] underline decoration-dotted underline-offset-4"
+          >
+            {subIdx === 0 ? "Skip this" : "← Back"}
+          </button>
+          <div className="flex items-center gap-1.5" aria-hidden>
+            {INTERVIEW_SUBS.map((s, i) => (
+              <div
+                key={s}
+                className={`h-1.5 rounded-full transition-all ${
+                  i < subIdx ? "w-5 bg-[var(--brand)]" : i === subIdx ? "w-8 bg-[var(--brand-strong)]" : "w-5 bg-[var(--border)]"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InterviewChoice({
+  label,
+  active,
+  check = false,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  check?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`text-left p-4 rounded-[var(--r-lg)] border transition font-bold text-[length:var(--t-body)] flex items-center gap-3 ${
+        active
+          ? "border-[var(--brand-strong)] bg-[var(--brand-soft)] ring-2 ring-[color-mix(in_srgb,var(--brand)_30%,transparent)] text-[color:var(--text)]"
+          : "border-[var(--border)] bg-[var(--surface-elevated)] hover:border-[var(--text-muted)] text-[color:var(--text)]"
+      }`}
+    >
+      {check && (
+        <span
+          className={`w-5 h-5 rounded-[var(--r-sm)] border flex items-center justify-center text-xs font-extrabold shrink-0 ${
+            active
+              ? "bg-[var(--brand)] border-[var(--brand-strong)] text-[color:var(--navy)]"
+              : "border-[var(--border)] text-transparent"
+          }`}
+          aria-hidden
+        >
+          ✓
+        </span>
+      )}
+      {label}
+    </button>
+  );
+}
+
 // ── Step 1: Hello ──────────────────────────────────────────────────────────
 
 function HelloStep({
@@ -417,7 +700,7 @@ function HelloStep({
       <section className="flex flex-col justify-between gap-8 min-h-[520px] py-4">
         <div>
           <Badge tone="brand" size="xs" uppercase>
-            Step 1 of 4 · Welcome
+            Step 2 of 5 · Welcome
           </Badge>
           <h1 className="font-display text-[length:var(--t-display)] font-bold tracking-tight text-[color:var(--text)] mt-3 leading-[var(--leading-tight)] max-w-2xl">
             No lead slips. No reply sounds fake.
@@ -1143,7 +1426,7 @@ function MagicStep({
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <Badge tone="brand" size="xs" uppercase>
-              Step 3 of 4 · The proof
+              Step 4 of 5 · The proof
             </Badge>
             <h2 className="text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] mt-2 leading-[var(--leading-tight)]">
               This is the share moment.
@@ -1293,7 +1576,7 @@ function MagicStep({
     <div className="space-y-6">
       <div>
         <Badge tone="brand" size="xs" uppercase>
-          Step 3 of 4 · Watch your voice work
+          Step 4 of 5 · Watch your voice work
         </Badge>
         {importedSignal && (
           <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--brand)_32%,var(--border))] bg-[var(--brand-soft)] px-3 py-1 text-[length:var(--t-caption)] font-extrabold text-[color:var(--text)]">
@@ -1390,7 +1673,7 @@ function DoneStep({ firstName }: { firstName: string }) {
     <div className="space-y-6">
       <div>
         <Badge tone="brand" size="xs" uppercase>
-          Step 4 of 4 · You're set up
+          Step 5 of 5 · You're set up
         </Badge>
         <h1 className="font-display text-[length:var(--t-display)] font-bold tracking-tight text-[color:var(--text)] mt-2 leading-[var(--leading-tight)]">
           That's it{firstName ? `, ${firstName}` : ""}.
@@ -1461,7 +1744,7 @@ function Bullet() {
 // ── Progress dots ──────────────────────────────────────────────────────────
 
 function ProgressDots({ step }: { step: Step }) {
-  const order: Step[] = ["hello", "voice", "magic", "done"];
+  const order: Step[] = ["interview", "hello", "voice", "magic", "done"];
   const idx = order.indexOf(step);
   return (
     <div className="flex items-center gap-1.5" aria-label="Onboarding progress">

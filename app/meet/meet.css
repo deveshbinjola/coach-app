@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,100..900,0..100;1,9..144,100..900,0..100&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+.mq {
+  min-height: 100vh;
+  background: #060a14;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #FAFAF8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem 4rem;
+  position: relative;
+  overflow-x: hidden;
+}
+.mq *, .mq *::before, .mq *::after { box-sizing: border-box; }
+.mq ::selection { background: #00FF41; color: #0A0F1C; }
+.mq::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% -5%, rgba(0,255,65,0.10), transparent 65%),
+    radial-gradient(ellipse 40% 30% at 85% 100%, rgba(0,255,65,0.05), transparent 60%);
+  pointer-events: none;
+}
+
+.mq-inner { position: relative; z-index: 1; width: 100%; max-width: 560px; display: flex; flex-direction: column; }
+
+/* ── Header ── */
+.mq-logo { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 2.5rem; }
+.mq-logo svg { width: 26px; height: 26px; filter: drop-shadow(0 0 8px rgba(0,255,65,0.4)); }
+.mq-logo-text { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 1.05rem; letter-spacing: -0.02em; font-variation-settings: "SOFT" 30, "opsz" 144; color: #FAFAF8; text-decoration: none; }
+.mq-logo-text span { color: #00CC34; }
+
+/* ── Progress ── */
+.mq-progress { display: flex; gap: 6px; margin-bottom: 2rem; }
+.mq-dot { height: 4px; flex: 1; border-radius: 100px; background: rgba(250,250,248,0.12); transition: background 0.3s; }
+.mq-dot.on { background: #00FF41; box-shadow: 0 0 12px rgba(0,255,65,0.4); }
+
+/* ── Question card ── */
+.mq-kicker { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: #00FF41; margin-bottom: 0.85rem; }
+.mq-q {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 800;
+  font-size: clamp(1.55rem, 4.5vw, 2.1rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  font-variation-settings: "SOFT" 30, "opsz" 144;
+  margin: 0 0 0.6rem;
+}
+.mq-sub { color: rgba(250,250,248,0.55); font-size: 0.9rem; line-height: 1.55; margin: 0 0 1.75rem; }
+
+.mq-options { display: flex; flex-direction: column; gap: 0.65rem; }
+.mq-opt {
+  text-align: left;
+  padding: 1rem 1.15rem;
+  border-radius: 14px;
+  border: 1px solid rgba(250,250,248,0.12);
+  background: rgba(250,250,248,0.03);
+  color: #FAFAF8;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.mq-opt:hover { border-color: rgba(0,255,65,0.45); background: rgba(0,255,65,0.05); }
+.mq-opt:active { transform: scale(0.985); }
+.mq-opt.picked { border-color: #00FF41; background: rgba(0,255,65,0.09); box-shadow: 0 0 24px rgba(0,255,65,0.10); }
+.mq-opt-check {
+  width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+  border: 1.5px solid rgba(250,250,248,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; color: #0A0F1C; font-weight: 800;
+  transition: background 0.15s, border-color 0.15s;
+}
+.mq-opt.picked .mq-opt-check { background: #00FF41; border-color: #00FF41; }
+
+/* ── Assistant reaction bubble ── */
+.mq-reaction {
+  display: flex; gap: 0.6rem; align-items: flex-start;
+  margin-top: 1.4rem;
+  animation: mq-rise 0.45s cubic-bezier(.16,1,.3,1) both;
+}
+.mq-reaction-av {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  background: radial-gradient(circle at 30% 30%, #0d3320, #071126);
+  border: 1px solid rgba(0,255,65,0.35);
+  display: flex; align-items: center; justify-content: center;
+}
+.mq-reaction-av svg { width: 16px; height: 16px; }
+.mq-reaction-bubble {
+  background: rgba(0,255,65,0.07);
+  border: 1px solid rgba(0,255,65,0.18);
+  border-radius: 4px 14px 14px 14px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: rgba(250,250,248,0.88);
+}
+
+/* ── CTA row ── */
+.mq-cta-row { display: flex; align-items: center; justify-content: space-between; margin-top: 2rem; gap: 1rem; }
+.mq-next {
+  padding: 0.85rem 1.6rem;
+  border-radius: 100px;
+  border: none;
+  background: #00FF41;
+  color: #0A0F1C;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 0 32px rgba(0,255,65,0.25);
+}
+.mq-next:hover { box-shadow: 0 0 48px rgba(0,255,65,0.4); }
+.mq-next:active { transform: scale(0.97); }
+.mq-next:disabled { opacity: 0.35; cursor: default; box-shadow: none; }
+.mq-back {
+  background: none; border: none; color: rgba(250,250,248,0.45);
+  font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 4px; text-decoration-style: dotted;
+}
+.mq-back:hover { color: rgba(250,250,248,0.8); }
+
+/* ── Intro / result ── */
+.mq-hero-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 800;
+  font-size: clamp(1.9rem, 6vw, 2.7rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  font-variation-settings: "SOFT" 30, "opsz" 144;
+  margin: 0 0 1rem;
+}
+.mq-hero-title em { font-style: normal; color: #00FF41; text-shadow: 0 0 40px rgba(0,255,65,0.25); }
+
+.mq-result-card {
+  border: 1px solid rgba(0,255,65,0.25);
+  background: linear-gradient(160deg, rgba(0,255,65,0.08), rgba(0,255,65,0.02) 55%);
+  border-radius: 20px;
+  padding: 1.75rem 1.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 0 60px rgba(0,255,65,0.07);
+  animation: mq-rise 0.6s cubic-bezier(.16,1,.3,1) both;
+}
+.mq-result-kicker { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: #00FF41; margin-bottom: 0.5rem; }
+.mq-result-name {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 800;
+  font-size: clamp(1.8rem, 5.5vw, 2.4rem);
+  letter-spacing: -0.02em;
+  font-variation-settings: "SOFT" 60, "opsz" 144;
+  color: #00FF41;
+  margin: 0 0 0.5rem;
+}
+.mq-result-tagline { color: rgba(250,250,248,0.8); font-size: 0.95rem; line-height: 1.55; margin: 0 0 1.4rem; }
+.mq-week-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(250,250,248,0.5); margin-bottom: 0.65rem; }
+.mq-week-item { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.88rem; line-height: 1.5; color: rgba(250,250,248,0.85); margin-bottom: 0.55rem; }
+.mq-week-dot { width: 6px; height: 6px; border-radius: 50%; background: #00FF41; margin-top: 0.5em; flex-shrink: 0; box-shadow: 0 0 8px rgba(0,255,65,0.6); }
+
+.mq-result-actions { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.mq-share {
+  padding: 0.8rem 1.4rem; border-radius: 100px;
+  border: 1px solid rgba(250,250,248,0.2); background: rgba(250,250,248,0.04);
+  color: #FAFAF8; font-family: inherit; font-weight: 700; font-size: 0.88rem; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.mq-share:hover { border-color: rgba(0,255,65,0.5); background: rgba(0,255,65,0.06); }
+.mq-fine { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.06em; color: rgba(250,250,248,0.35); text-align: center; margin-top: 1.1rem; }
+
+@keyframes mq-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .mq { padding: 1.5rem 1.1rem 3rem; }
+  .mq-logo { margin-bottom: 1.75rem; }
+}

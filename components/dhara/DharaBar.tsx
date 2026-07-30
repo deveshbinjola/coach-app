@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useDhara } from "@/components/dhara/DharaProvider";
 import DharaConversation from "@/components/dhara/DharaConversation";
 
-const HIDDEN_PREFIXES = ["/login", "/q/", "/welcome", "/brand-os/trial"];
+const HIDDEN_PREFIXES = ["/login", "/q/", "/welcome", "/brand-os/trial", "/win", "/meet"];
 
 export default function DharaBar() {
   const { open, setOpen } = useDhara();
