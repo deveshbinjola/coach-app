@@ -2,6 +2,7 @@
 // Dhara's voice + grounding rules. Pure builder so it can be eval'd later.
 
 import { buildInterviewDirective } from "@/lib/dhara/interview";
+import { buildClarifyDirective } from "@/lib/assistant/clarify";
 
 export type DharaContext = {
   coachFirstName: string;
@@ -43,6 +44,8 @@ export function buildDharaSystemPrompt(ctx: DharaContext): string {
     "",
     "WHAT YOU SUSPECT (unconfirmed, flavor only):",
     candidates.length ? candidates.join("\n") : "- (nothing yet)",
+    "",
+    buildClarifyDirective(),
     ...(ctx.interviewMode ? ["", buildInterviewDirective()] : []),
   ].join("\n");
 }
