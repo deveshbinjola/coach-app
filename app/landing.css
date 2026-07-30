@@ -1,0 +1,169 @@
+/* Landing page. Warm-light system, same tokens as /meet and /login.
+   One theme, one accent (forest), one radius scale, zero neon. */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,100..900,0..100;1,9..144,100..900,0..100&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+.ln {
+  --paper: #FAF8F3;
+  --card: #FFFFFF;
+  --ink: #0A0F1C;
+  --muted: #5A5A52;
+  --faint: #9A9A95;
+  --line: #E5E1D8;
+  --forest: #0B6E23;
+  --forest-deep: #085119;
+  --forest-tint: rgba(11, 110, 35, 0.07);
+  --pain: #B23A2E;
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+.ln *, .ln *::before, .ln *::after { box-sizing: border-box; }
+.ln ::selection { background: var(--forest); color: var(--paper); }
+
+.ln-wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; }
+.ln-narrow { max-width: 680px; }
+
+/* ── Nav ── */
+.ln-nav { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.ln-nav-in { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+.ln-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+.ln-logo svg { width: 28px; height: 28px; }
+.ln-logo-text { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; color: var(--ink); }
+.ln-logo-text span { color: var(--forest); }
+.ln-nav-actions { display: flex; align-items: center; gap: 1.25rem; }
+.ln-signin { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+.ln-signin:hover { color: var(--ink); }
+
+/* ── Buttons ── */
+.ln-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.85rem 1.6rem; border-radius: 100px;
+  background: var(--forest); color: var(--paper);
+  font-weight: 700; font-size: 0.95rem; text-decoration: none; border: none; cursor: pointer;
+  transition: background 0.15s, transform 0.1s; white-space: nowrap;
+}
+.ln-btn:hover { background: var(--forest-deep); }
+.ln-btn:active { transform: scale(0.98); }
+.ln-btn-lg { padding: 1rem 2rem; font-size: 1.02rem; }
+.ln-btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.ln-btn-ghost:hover { background: var(--card); border-color: var(--forest); }
+
+/* ── Section rhythm ── */
+.ln-sec { padding: 5.5rem 0; }
+.ln-sec-tight { padding: 4rem 0; }
+.ln-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--forest); margin: 0 0 1rem; }
+.ln-h2 {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 800;
+  font-size: clamp(1.8rem, 3.6vw, 2.6rem); line-height: 1.12; letter-spacing: -0.02em;
+  margin: 0 0 1rem; color: var(--ink);
+}
+.ln-lead { font-size: 1.05rem; line-height: 1.65; color: var(--muted); margin: 0; max-width: 54ch; }
+
+/* ── Hero: asymmetric split ── */
+.ln-hero { position: relative; padding: 4rem 0 5rem; }
+.ln-hero::before {
+  content: ''; position: absolute; top: -68px; left: 0; right: 0; height: 420px;
+  background: radial-gradient(ellipse 70% 100% at 50% 0%, rgba(11,110,35,0.10), transparent 70%);
+  pointer-events: none;
+}
+.ln-hero-grid { position: relative; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 4rem; align-items: center; }
+.ln-h1 {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 800;
+  font-size: clamp(2.4rem, 5vw, 3.7rem); line-height: 1.06; letter-spacing: -0.025em;
+  margin: 0 0 1.25rem; color: var(--ink); padding-bottom: 0.08em;
+}
+.ln-h1 em { font-style: italic; color: var(--forest); }
+.ln-hero-sub { font-size: 1.12rem; line-height: 1.6; color: var(--muted); margin: 0 0 2rem; max-width: 40ch; }
+.ln-hero-cta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+/* ── Phone demo ── */
+.ln-phone { width: 100%; max-width: 340px; margin: 0 auto; background: linear-gradient(150deg, #101725, #0A0F1C); border-radius: 38px; padding: 9px; box-shadow: 0 30px 60px rgba(10,15,28,0.18), 0 60px 120px rgba(10,15,28,0.10); }
+.ln-screen { background: var(--paper); border-radius: 30px; overflow: hidden; }
+.ln-thread { padding: 1rem 0.85rem 0.6rem; }
+.ln-from { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin-bottom: 0.5rem; }
+.ln-bubble-in { background: var(--card); border: 1px solid var(--line); border-radius: 16px 16px 16px 4px; padding: 0.7rem 0.85rem; font-size: 0.8rem; line-height: 1.5; color: var(--ink); }
+.ln-divider { display: flex; align-items: center; gap: 0.5rem; margin: 0.9rem 0 0.6rem; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+.ln-divider::before, .ln-divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.ln-draft { border-radius: 14px; padding: 0.7rem 0.85rem; margin-bottom: 0.55rem; font-size: 0.78rem; line-height: 1.5; }
+.ln-draft-label { font-size: 0.55rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.35rem; }
+.ln-draft-bad { background: #F2F2EE; color: var(--muted); }
+.ln-draft-bad .ln-draft-label { color: var(--pain); }
+.ln-draft-good { background: var(--card); border: 2px solid var(--forest); color: var(--ink); }
+.ln-draft-good .ln-draft-label { color: var(--forest); }
+.ln-phone-foot { padding: 0.5rem 0.85rem 1rem; }
+.ln-send { height: 34px; border-radius: 100px; background: var(--forest); color: var(--paper); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; }
+
+/* ── Problem: editorial stack with hairlines ── */
+.ln-problem { background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.ln-pains { margin: 2.5rem 0 0; padding: 0; list-style: none; }
+.ln-pain { display: flex; gap: 1.25rem; align-items: baseline; padding: 1.15rem 0; border-bottom: 1px solid var(--line); font-size: clamp(1.05rem, 2vw, 1.28rem); line-height: 1.45; color: var(--ink); }
+.ln-pain:last-child { border-bottom: none; }
+.ln-pain-when { flex: 0 0 auto; width: 5.5rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+
+/* ── Manifesto block ── */
+.ln-manifesto { text-align: center; }
+.ln-manifesto-line {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 800;
+  font-size: clamp(1.9rem, 4.4vw, 3rem); line-height: 1.14; letter-spacing: -0.02em;
+  margin: 0 auto 1.5rem; max-width: 20ch;
+}
+.ln-manifesto-line em { font-style: italic; color: var(--forest); }
+.ln-manifesto-sub { font-size: 1.08rem; line-height: 1.7; color: var(--muted); max-width: 46ch; margin: 0 auto; }
+
+/* ── How it works: sequence ── */
+.ln-steps { margin-top: 3rem; display: flex; flex-direction: column; gap: 2.5rem; }
+.ln-step { display: grid; grid-template-columns: 3.5rem 1fr; gap: 1.5rem; align-items: start; }
+.ln-step-n { font-family: 'Fraunces', Georgia, serif; font-size: 2.4rem; font-weight: 800; color: var(--forest); line-height: 1; opacity: 0.35; }
+.ln-step-h { font-size: 1.32rem; font-weight: 700; margin: 0 0 0.4rem; color: var(--ink); }
+.ln-step-b { font-size: 1rem; line-height: 1.65; color: var(--muted); margin: 0; max-width: 48ch; }
+
+/* ── Promise block (the one bold colour moment) ── */
+.ln-promise { background: var(--forest); color: var(--paper); border-radius: 24px; padding: 3rem 2.5rem; }
+.ln-promise h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: clamp(1.7rem, 3.2vw, 2.3rem); line-height: 1.15; margin: 0 0 1.75rem; color: var(--paper); }
+.ln-nots { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+.ln-not { display: flex; gap: 0.85rem; align-items: flex-start; font-size: 1.02rem; line-height: 1.55; color: rgba(250,248,243,0.92); }
+.ln-not-mark { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid rgba(250,248,243,0.5); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-top: 0.15rem; }
+
+/* ── Close ── */
+.ln-close { text-align: center; }
+.ln-fine { font-size: 0.86rem; color: var(--faint); margin-top: 1.25rem; }
+.ln-foot { border-top: 1px solid var(--line); padding: 2rem 0; font-size: 0.82rem; color: var(--faint); display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.ln-foot a { color: var(--muted); text-decoration: none; }
+.ln-foot a:hover { color: var(--ink); }
+
+/* ── Motion ── */
+.ln-rise { animation: ln-rise 0.7s cubic-bezier(.16,1,.3,1) both; }
+.ln-rise-2 { animation-delay: 0.08s; }
+.ln-rise-3 { animation-delay: 0.16s; }
+@keyframes ln-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ln-rise, .ln-rise-2, .ln-rise-3 { animation: none; }
+  .ln-btn { transition: none; }
+}
+
+/* ── Mobile ── */
+@media (max-width: 900px) {
+  .ln-hero-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .ln-hero-sub { max-width: none; }
+  .ln-sec { padding: 4rem 0; }
+}
+@media (max-width: 560px) {
+  .ln-wrap { padding: 0 1.15rem; }
+  /* Nav must stay on one line. The text sign-in link is what breaks it, and
+     it is redundant on mobile: the hero and the footer both carry one. */
+  .ln-nav-in { height: 60px; }
+  .ln-signin { display: none; }
+  .ln-logo-text { font-size: 1rem; }
+  .ln-nav-in .ln-btn { padding: 0.7rem 1.15rem; font-size: 0.88rem; }
+  .ln-pain { flex-direction: column; gap: 0.3rem; }
+  .ln-pain-when { width: auto; }
+  .ln-promise { padding: 2.25rem 1.5rem; border-radius: 20px; }
+  .ln-step { grid-template-columns: 2.5rem 1fr; gap: 1rem; }
+  .ln-hero-cta { flex-direction: column; align-items: stretch; }
+  .ln-hero-cta .ln-btn { justify-content: center; }
+}

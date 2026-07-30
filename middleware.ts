@@ -98,7 +98,9 @@ export async function middleware(request: NextRequest) {
     "/meet",
   ];
   const isApi = path.startsWith("/api/");
-  const isPublic = isApi || publicPaths.some((p) => path.startsWith(p));
+  // Root is the public landing page. Matched exactly, never by prefix, or it
+  // would make every route in the app public.
+  const isPublic = isApi || path === "/" || publicPaths.some((p) => path.startsWith(p));
 
   if (!user && !isPublic) {
     return redirectWithCookies("/login", request, response);

@@ -38,7 +38,8 @@ export default function MobileTabBar() {
   const pathname = usePathname() ?? "";
   const [navUnlocks] = useState<NavUnlocks | undefined>(readNavUnlocksCookie);
 
-  const hidden = HIDDEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  // Root is the public landing page: no app chrome for signed-out visitors.
+  const hidden = pathname === "/" || HIDDEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
   if (hidden) return null;
 
   const visibleTabs = TAB_ITEMS.filter((item) => {
