@@ -13,7 +13,13 @@ const TYPE_META: Record<SystemType, { emoji: string; label: string; tint: string
 
 type Phase = "idle" | "loading" | "result" | "error";
 
-export default function MirrorCard() {
+/** "card" is the standalone /mirror page. "inline" is the command center,
+ *  where the Mirror must not compete with the day's actual work: it starts
+ *  as a single quiet line and only becomes an input when asked for. */
+type MirrorVariant = "card" | "inline";
+
+export default function MirrorCard({ variant = "card" }: { variant?: MirrorVariant } = {}) {
+  const [expanded, setExpanded] = useState(variant === "card");
   const [input, setInput] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [read, setRead] = useState<MirrorRead | null>(null);
@@ -163,6 +169,24 @@ export default function MirrorCard() {
           </button>
         </div>
       </div>
+    );
+  }
+
+  // ── Collapsed (inline) ──────────────────────────────────────────────
+  // One quiet line. No textarea sitting open, no second CTA shouting at
+  // the same time as the day's work.
+  if (!expanded) {
+    return (
+      <button
+        type="button"
+        onClick={() => setExpanded(true)}
+        className="group flex w-full items-center justify-between gap-4 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 text-left transition hover:border-[var(--brand)]"
+      >
+        <span className="text-[length:var(--t-body)] text-[color:var(--text-muted)]">
+          Something you&apos;re working through? Hold it up to the mirror.
+        </span>
+        <ArrowRight className="h-4 w-4 shrink-0 text-[color:var(--text-faint)] transition group-hover:translate-x-0.5 group-hover:text-[color:var(--brand)]" />
+      </button>
     );
   }
 

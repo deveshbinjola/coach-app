@@ -11,26 +11,23 @@ export default function BrandLogo({
   iconSize = 32,
   className = "",
 }: BrandLogoProps) {
+  // One product, one name. The ElevateAI wordmark used to sit here with
+  // "Coach Assistant" hung off a divider, which read as two brands stacked
+  // in the corner. The product is the brand now: leaf plus the name.
   if (showWordmark) {
-    const width = Math.round(iconSize * (312 / 88));
+    const [first, ...rest] = (productLabel ?? "Coach Assistant").split(" ");
     return (
       <span className={`inline-flex items-center gap-2.5 shrink-0 ${className}`}>
-        <img
-          src="/logo.svg"
-          alt="ElevateAI"
-          width={width}
-          height={iconSize}
-          className="block h-auto shrink-0"
-        />
-        {productLabel ? (
-          <span
-            className="shrink-0 border-l border-[var(--border-strong)] pl-2.5 font-semibold tracking-normal text-[color:var(--text-muted)]"
-            style={{ fontSize: Math.max(13, Math.round(iconSize * 0.38)) }}
-            aria-hidden
-          >
-            {productLabel}
-          </span>
-        ) : null}
+        <BrandIcon size={iconSize} />
+        <span
+          className="shrink-0 font-display font-extrabold tracking-tight text-[color:var(--text)]"
+          style={{ fontSize: Math.max(15, Math.round(iconSize * 0.55)) }}
+        >
+          {first}
+          {rest.length ? (
+            <span className="text-[color:var(--brand)]">{` ${rest.join(" ")}`}</span>
+          ) : null}
+        </span>
       </span>
     );
   }

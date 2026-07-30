@@ -5,6 +5,7 @@ import type { BusinessPulse } from "@/lib/ambient";
 import RightNowList from "@/components/command-center/RightNowList";
 import BusinessPulseStrip from "@/components/command-center/BusinessPulseStrip";
 import FirstRunCommandCenter from "@/components/command-center/FirstRunCommandCenter";
+import MirrorCard from "@/components/MirrorCard";
 
 // ── Backward-compatible type export ─────────────────────────────────
 // lib/build-punch-list.ts still imports this type. Keep it exported
@@ -84,17 +85,27 @@ export default function CommandCenterView({ pulse, coachFirstName, toggle, hasAc
 
       <BusinessPulseStrip metrics={pulse.metrics} />
 
-      {/* Honest Question — keep this LAST so it reads as a closing thought, not a to-do */}
+      {/* One reflective moment, and it closes the page rather than opening
+          it. The Mirror used to sit above the greeting with its own open
+          textarea while this prompt asked a second question below, so the
+          screen posed two reflective questions before showing any work.
+          Now: the prompt is the thought, the Mirror is the quiet door out
+          of it, and neither competes with the day's actual list. */}
       <section
-        className="border-l-2 border-[var(--brand)] pl-5 py-1"
+        className="space-y-3 border-l-2 border-[var(--brand)] pl-5 py-1"
         aria-label="Today's coaching prompt"
       >
-        <div className="text-[length:var(--t-caption)] font-bold text-[color:var(--text-faint)]">
-          Today&apos;s prompt
+        <div>
+          <div className="text-[length:var(--t-caption)] font-bold text-[color:var(--text-faint)]">
+            Today&apos;s prompt
+          </div>
+          <p className="text-[length:var(--t-h3)] italic text-[color:var(--text)] mt-1.5 leading-[var(--leading-relaxed)] max-w-2xl">
+            {pulse.honestQuestion}
+          </p>
         </div>
-        <p className="text-[length:var(--t-h3)] italic text-[color:var(--text)] mt-1.5 leading-[var(--leading-relaxed)] max-w-2xl">
-          {pulse.honestQuestion}
-        </p>
+        <div className="max-w-2xl">
+          <MirrorCard variant="inline" />
+        </div>
       </section>
     </div>
   );
