@@ -264,6 +264,32 @@ export function interviewToMemories(a: InterviewAnswers): InterviewMemory[] {
   return out;
 }
 
+/** The proof moment after the interview: reflect their answers straight
+ *  back so the personalization lands in the first 30 seconds. Returns null
+ *  when there is nothing concrete to reflect (skipped interview). */
+export function reflectionLine(a: InterviewAnswers): string | null {
+  const start: Record<HandOffFirst, string> = {
+    followups: "You said lead follow-up is the first thing off your plate, so that's where we start.",
+    drafting: "You said drafting content in your voice comes off your plate first, so that's where we start.",
+    clients: "You said keeping clients on track comes off your plate first, so that's where we start.",
+    briefing: "You asked for one clear brief of what matters each morning, so that's where we start.",
+  };
+  const drain: Record<TimeDrain, string> = {
+    leads_dms: "You said chasing leads in the DMs is eating your week, so that's what your assistant takes first.",
+    content: "You said writing content that isn't landing is eating your week, so that's what your assistant takes first.",
+    client_admin: "You said client admin is eating your week, so that's what your assistant takes first.",
+    everything: "You said everything is eating your week, so your assistant starts with one clear brief a day.",
+  };
+  const base = a.handOffFirst ? start[a.handOffFirst] : a.timeDrain ? drain[a.timeDrain] : null;
+  if (!base) return null;
+  const tone: Record<Tone, string> = {
+    direct: " No fluff, as requested.",
+    warm: " At your pace, like you asked.",
+    playful: " And we'll keep it fun.",
+  };
+  return base + (a.tone ? tone[a.tone] : "");
+}
+
 export type EmphasisFlags = {
   emphasize_leads: boolean;
   emphasize_content: boolean;

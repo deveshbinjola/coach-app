@@ -74,6 +74,9 @@ export default function MeetQuiz() {
   const [handOffFirst, setHandOffFirst] = useState<HandOffFirst | null>(null);
   const [desires, setDesires] = useState<Desire[]>([]);
   const [sharing, setSharing] = useState(false);
+  const [leadEmail, setLeadEmail] = useState("");
+  const [leadState, setLeadState] = useState<"idle" | "sending" | "sent" | "saved">("idle");
+  const [leadError, setLeadError] = useState<string | null>(null);
 
   const stepIndex = { intro: 0, q1: 1, q2: 2, q3: 3, result: 4 }[screen];
 
@@ -102,6 +105,37 @@ export default function MeetQuiz() {
       /* canvas/share failure is non-fatal — button just does nothing */
     } finally {
       setSharing(false);
+    }
+  }
+
+  async function submitLead(e: React.FormEvent) {
+    e.preventDefault();
+    if (leadState === "sending") return;
+    setLeadError(null);
+    setLeadState("sending");
+    try {
+      const res = await fetch("/api/meet/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: leadEmail,
+          archetype: archetype.slug,
+          answers: { timeDrain, handOffFirst, desires },
+          referrer: document.referrer || undefined,
+        }),
+      });
+      const data = (await res.json().catch(() => null)) as { ok?: boolean; emailed?: boolean; error?: string } | null;
+      if (!res.ok || !data?.ok) {
+        setLeadError(data?.error ?? "Couldn't send that. Try again.");
+        setLeadState("idle");
+        return;
+      }
+      // emailed=false means the lead saved but delivery didn't happen
+      // (e.g. no key in dev) — say "saved", never claim a send that didn't.
+      setLeadState(data.emailed ? "sent" : "saved");
+    } catch {
+      setLeadError("Couldn't send that. Try again.");
+      setLeadState("idle");
     }
   }
 
@@ -237,6 +271,41 @@ export default function MeetQuiz() {
                 {sharing ? "Rendering…" : "Share my archetype"}
               </button>
             </div>
+
+            {leadState === "sent" ? (
+              <div className="mq-reaction" role="status">
+                <AssistantAvatar />
+                <div className="mq-reaction-bubble">
+                  Sent. Check your inbox for {archetype.name} and its week-one plan.
+                </div>
+              </div>
+            ) : leadState === "saved" ? (
+              <div className="mq-reaction" role="status">
+                <AssistantAvatar />
+                <div className="mq-reaction-bubble">
+                  Saved. Your archetype is waiting for you when you sign up with this email.
+                </div>
+              </div>
+            ) : (
+              <form className="mq-lead" onSubmit={submitLead}>
+                <p className="mq-lead-label">Not ready yet? Email yourself the result.</p>
+                <div className="mq-lead-row">
+                  <input
+                    type="email"
+                    className="mq-lead-input"
+                    placeholder="you@yourcoachingbiz.com"
+                    value={leadEmail}
+                    onChange={(e) => setLeadEmail(e.target.value)}
+                    required
+                    aria-label="Email address"
+                  />
+                  <button type="submit" className="mq-share" disabled={leadState === "sending" || !leadEmail}>
+                    {leadState === "sending" ? "Sending…" : "Email me my archetype"}
+                  </button>
+                </div>
+                {leadError && <p className="mq-lead-error" role="alert">{leadError}</p>}
+              </form>
+            )}
             <p className="mq-fine">FREE TO START · NO CREDIT CARD · YOUR ANSWERS TRAVEL WITH YOU</p>
           </div>
         )}

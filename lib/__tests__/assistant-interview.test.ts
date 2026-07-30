@@ -3,6 +3,7 @@ import {
   deriveArchetype,
   interviewToMemories,
   interviewToEmphasis,
+  reflectionLine,
   optionValues,
   EMPTY_ANSWERS,
   TIME_DRAIN_OPTIONS,
@@ -71,6 +72,29 @@ describe("interviewToEmphasis", () => {
   it("never de-emphasizes everything at once", () => {
     const e = interviewToEmphasis(EMPTY_ANSWERS);
     expect(e.emphasize_leads || e.emphasize_content || e.emphasize_clients).toBe(true);
+  });
+});
+
+describe("reflectionLine", () => {
+  it("leads with handOffFirst and appends the tone", () => {
+    const line = reflectionLine(full);
+    expect(line).toContain("drafting content in your voice");
+    expect(line).toContain("No fluff");
+  });
+
+  it("falls back to timeDrain when handOffFirst is missing", () => {
+    const line = reflectionLine({ ...EMPTY_ANSWERS, timeDrain: "leads_dms" });
+    expect(line).toContain("chasing leads in the DMs");
+  });
+
+  it("returns null when there is nothing to reflect", () => {
+    expect(reflectionLine(EMPTY_ANSWERS)).toBeNull();
+    expect(reflectionLine({ ...EMPTY_ANSWERS, tone: "warm" })).toBeNull();
+  });
+
+  it("never contains an em dash", () => {
+    const line = reflectionLine(full);
+    expect(line).not.toContain("—");
   });
 });
 

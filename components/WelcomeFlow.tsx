@@ -48,6 +48,7 @@ import {
   DESIRE_OPTIONS,
   loadInterviewAnswers,
   clearInterviewAnswers,
+  reflectionLine,
   type InterviewAnswers,
   type Desire,
 } from "@/lib/assistant-interview";
@@ -96,6 +97,10 @@ export default function WelcomeFlow({
     : startingProfile  ? "magic"
     : "interview";
   const [step, setStep] = useState<Step>(initialStep);
+
+  // Set when the interview completes — the Hello step reflects the coach's
+  // own answers back so personalization is felt immediately, not claimed.
+  const [reflection, setReflection] = useState<string | null>(null);
 
   // Audience-question state (only used during 'audience' step).
   const [audienceSelf, setAudienceSelf] = useState<AudienceSelf | null>(null);
@@ -227,13 +232,17 @@ export default function WelcomeFlow({
       {step === "interview" && (
         <InterviewStep
           firstName={coachFirstName}
-          onDone={() => setStep("hello")}
+          onDone={(answers) => {
+            setReflection(answers ? reflectionLine(answers) : null);
+            setStep("hello");
+          }}
         />
       )}
 
       {step === "hello" && (
         <HelloStep
           firstName={coachFirstName}
+          reflection={reflection}
           onContinue={() => setStep("voice")}
         />
       )}
@@ -439,7 +448,8 @@ function InterviewStep({
   onDone,
 }: {
   firstName: string;
-  onDone: () => void;
+  /** null = skipped; answers = completed (drives the Hello reflection). */
+  onDone: (answers: InterviewAnswers | null) => void;
 }) {
   const [answers, setAnswers] = useState<InterviewAnswers>(EMPTY_ANSWERS);
   const [sub, setSub] = useState<InterviewSub>("niche");
@@ -495,7 +505,7 @@ function InterviewStep({
         return;
       }
       clearInterviewAnswers();
-      onDone();
+      onDone(answers);
     } catch {
       setError("Couldn't save your answers. Try again, or continue. You can redo this in Settings.");
       setSaving(false);
@@ -607,7 +617,7 @@ function InterviewStep({
           <div className="flex items-center justify-between gap-4">
             <button
               type="button"
-              onClick={onDone}
+              onClick={() => onDone(error ? answers : null)}
               className="text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)] hover:text-[color:var(--text)] underline decoration-dotted underline-offset-4"
             >
               {error ? "Continue anyway" : "Skip this"}
@@ -627,7 +637,7 @@ function InterviewStep({
         <div className="flex items-center justify-between gap-4">
           <button
             type="button"
-            onClick={subIdx === 0 ? onDone : () => setSub(INTERVIEW_SUBS[subIdx - 1])}
+            onClick={subIdx === 0 ? () => onDone(null) : () => setSub(INTERVIEW_SUBS[subIdx - 1])}
             className="text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)] hover:text-[color:var(--text)] underline decoration-dotted underline-offset-4"
           >
             {subIdx === 0 ? "Skip this" : "← Back"}
@@ -690,9 +700,12 @@ function InterviewChoice({
 
 function HelloStep({
   firstName,
+  reflection,
   onContinue,
 }: {
   firstName: string;
+  /** The interview echoed back ("You said X, so that's where we start"). */
+  reflection: string | null;
   onContinue: () => void;
 }) {
   return (
@@ -710,6 +723,11 @@ function HelloStep({
             learns your voice and turns new conversations into clean next
             messages you would actually send.
           </p>
+          {reflection && (
+            <p className="mt-4 max-w-xl rounded-[var(--r-md)] border border-[var(--brand-strong)] bg-[var(--brand-soft)] px-4 py-3 text-[length:var(--t-body)] font-bold text-[color:var(--text)] leading-[var(--leading-relaxed)]">
+              {reflection}
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
