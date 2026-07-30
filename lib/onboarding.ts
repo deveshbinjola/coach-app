@@ -1,9 +1,11 @@
 // Onboarding state — shared read/write helpers.
 //
-// Drives the post-signup gate sequence:
-//   1. Brand OS MVP run (resolved via lib/brand-os/run-state.ts)
-//   2. /onboarding reality questions (this module)
-//   3. Land on platform with surfaces emphasized per their answers
+// Post-login path since the one-product decision (2026-07-29):
+//   1. enforceOnboardingGate never redirects (bookkeeping only — see
+//      lib/onboarding-gate.ts for the history of retired gates)
+//   2. Middleware activation gate: no voice profile + no leads → /welcome
+//      (the assistant interview + voice + magic-draft flow)
+//   3. Land on /command-center with surfaces emphasized per their answers
 //
 // The "emphasize_*" booleans control nav prominence — never visibility.
 // Coaches who answer "no" to a question see that surface de-emphasized
@@ -13,7 +15,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logFunnelEvent } from "@/lib/funnel-log";
 import { decideGatePath } from "@/lib/onboarding-gate";
-import type { BrandOsRunState } from "@/lib/brand-os/run-state";
 
 export type OnboardingAnswers = {
   has_past_content: boolean | null;
@@ -133,9 +134,11 @@ export async function resolveOnboardingGate(
  *  they should be, otherwise null. Pages call this at the top of their
  *  loader and `redirect()` if a path comes back.
  *
- *  Also enforces the trial-tier scope: $7 trip-wire buyers (plan='trial')
- *  can only access Brand OS routes. Any non-Brand-OS surface (Content,
- *  Leads, Clients, Command Center) bounces them to a soft upgrade page.
+ *  Since the one-product decision (2026-07-29) this never redirects — see
+ *  lib/onboarding-gate.ts. It still does the per-open bookkeeping:
+ *  lazy-downgrades expired free trials to plan='trial' (upsell surfaces
+ *  and the digest cron read that), stamps onboarding_completed_at, and
+ *  logs app_opened.
  *
  *  Usage:
  *    const redirectTo = await enforceOnboardingGate(supabase, user.id);
@@ -145,8 +148,6 @@ export async function enforceOnboardingGate(
   supabase: SupabaseClient,
   coachId: string,
 ): Promise<string | null> {
-  // Plan / trial state first. An expired 10-day free trial gets lazily
-  // downgraded back to trial-tier on this page load.
   const { data: planRow } = await supabase
     .from("cp_coaches")
     .select("plan, trial_ends_at, onboarding_completed_at")
@@ -161,43 +162,24 @@ export async function enforceOnboardingGate(
     new Date(planRow.trial_ends_at as string).getTime() < Date.now();
 
   if (trialExpired) {
-    // Fire-and-forget downgrade; we treat the coach as trial-tier for
-    // this request either way.
+    // Billing semantics only: plan='trial' drives upsell views + the
+    // Brand OS digest cron. It no longer affects routing.
     void supabase
       .from("cp_coaches")
       .update({ plan: "trial", updated_at: new Date().toISOString() })
       .eq("id", coachId);
   }
 
-  const isTrialScoped = (plan === "trial" || trialExpired) && !onboardingCompletedAt;
+  const path = decideGatePath({ plan, trialExpired, onboardingCompletedAt });
 
-  // Only the trial-scoped branch needs the Brand OS run state (to choose
-  // the right Brand OS URL). Standard coaches skip that query.
-  let brandOsRunState: BrandOsRunState = { kind: "none" };
-  if (isTrialScoped) {
-    const { resolveBrandOsRunState } = await import("@/lib/brand-os/run-state");
-    brandOsRunState = await resolveBrandOsRunState(supabase, coachId);
-  }
-
-  const path = decideGatePath({
-    plan,
-    trialExpired,
-    onboardingCompletedAt,
-    brandOsRunState,
-  });
-
-  if (path === null) {
-    void logFunnelEvent(coachId, "app_opened");
-    // Reality-questions replacement (Plan 5b): the welcome flow is now the
-    // only onboarding. The first time a coach is allowed to proceed, stamp
-    // onboarding_completed_at so a later trial-expiry doesn't re-scope them
-    // to Brand OS. Fire-and-forget; idempotent (guarded on null).
-    if (!onboardingCompletedAt) {
-      void supabase
-        .from("cp_coaches")
-        .update({ onboarding_completed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-        .eq("id", coachId);
-    }
+  void logFunnelEvent(coachId, "app_opened");
+  // First allowed open stamps onboarding_completed_at. Fire-and-forget;
+  // idempotent (guarded on null).
+  if (!onboardingCompletedAt) {
+    void supabase
+      .from("cp_coaches")
+      .update({ onboarding_completed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .eq("id", coachId);
   }
   return path;
 }

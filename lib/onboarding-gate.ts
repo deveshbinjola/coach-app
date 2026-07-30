@@ -3,35 +3,29 @@
 // Pure gate-decision logic for enforceOnboardingGate. No I/O — the async
 // wrapper in lib/onboarding.ts loads the data and calls this.
 //
-// Plan 2: Brand OS is no longer a gate for standard coaches.
-// Plan 5b: the reality-questions step is no longer a gate either — the
-// welcome flow (voice + magic) is the single onboarding. Standard coaches
-// proceed straight through. Trial ($7) buyers remain scoped to Brand OS
-// surfaces until they complete onboarding (or upgrade).
-
-import type { BrandOsRunState } from "@/lib/brand-os/run-state";
+// History of this gate:
+//   Plan 2:  Brand OS stopped gating standard coaches.
+//   Plan 5b: reality questions stopped gating; the welcome flow became
+//            the single onboarding.
+//   2026-07-29 (one-product decision): the trial ($7) Brand OS scoping is
+//            retired too. Coach Assistant is the one product — Brand OS is
+//            a capability inside it, not a walled garden. Every signed-in
+//            coach takes the same path: /welcome if not activated (the
+//            middleware handles that), /command-center otherwise. Plan
+//            still means something for UPSELL surfaces (e.g. the Brand OS
+//            output page shows trial buyers the upgrade view), but it no
+//            longer decides where a coach is allowed to go.
 
 export type GateDecisionInput = {
   plan: string | null;
   trialExpired: boolean;
   onboardingCompletedAt: string | null;
-  /** Only consulted for trial-scoped coaches (to pick the Brand OS URL). */
-  brandOsRunState: BrandOsRunState;
 };
 
-/** Returns the path to redirect to, or null if the coach may proceed. */
-export function decideGatePath(input: GateDecisionInput): string | null {
-  const isTrialScoped =
-    (input.plan === "trial" || input.trialExpired) && !input.onboardingCompletedAt;
-
-  if (isTrialScoped) {
-    const rs = input.brandOsRunState;
-    if (rs.kind === "complete")              return `/brand-os/run/${rs.runId}/output`;
-    if (rs.kind === "complete_no_synthesis") return `/brand-os/run/${rs.runId}/output`;
-    if (rs.kind === "in_progress")           return `/brand-os/run/${rs.runId}`;
-    return "/brand-os";
-  }
-
-  // Standard / full coach. Neither Brand OS nor reality questions gate.
+/** Returns the path to redirect to, or null if the coach may proceed.
+ *  Since the one-product decision, every coach proceeds. The function is
+ *  kept (rather than deleted) so the decision stays visible, pinned by
+ *  tests, and easy to reverse deliberately rather than accidentally. */
+export function decideGatePath(_input: GateDecisionInput): string | null {
   return null;
 }
