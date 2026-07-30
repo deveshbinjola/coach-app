@@ -16,11 +16,11 @@ import { ArrowRight } from "lucide-react";
 import { useDhara } from "@/components/dhara/DharaProvider";
 
 export default function MeetInvite() {
-  const { setOpen } = useDhara();
+  const { startInterview } = useDhara();
   return (
     <button
       type="button"
-      onClick={() => setOpen(true)}
+      onClick={() => void startInterview()}
       className="group mt-3 flex w-full max-w-2xl items-center justify-between gap-4 rounded-[var(--r-md)] border border-[var(--brand)] bg-[var(--brand-soft)] px-4 py-3 text-left transition hover:bg-[color-mix(in_srgb,var(--brand)_14%,transparent)]"
     >
       <span className="text-[length:var(--t-body)] text-[color:var(--text)]">

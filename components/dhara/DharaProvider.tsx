@@ -15,6 +15,9 @@ type DharaCtx = {
   starterPrompts: StarterPrompt[]; greeting: string;
   send: (text: string) => Promise<void>;
   runSuggestion: (s: DharaSuggestion) => void;
+  /** Open the panel AND have the assistant ask its first question. The only
+   *  path where Dhara speaks first. See app/api/dhara/interview/start. */
+  startInterview: () => Promise<void>;
 };
 
 const Ctx = createContext<DharaCtx | null>(null);
@@ -33,7 +36,9 @@ export default function DharaProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     if (!open || messages.length) return;
     fetch("/api/dhara/messages").then((r) => r.ok ? r.json() : { messages: [] })
-      .then((d) => setMessages((d.messages ?? []).map((m: Msg) => ({ role: m.role, content: m.content }))))
+      // Functional guard: startInterview may have populated the thread while
+      // this was in flight. Never clobber a populated thread.
+      .then((d) => setMessages((cur) => cur.length ? cur : (d.messages ?? []).map((m: Msg) => ({ role: m.role, content: m.content }))))
       .catch(() => {});
   }, [open, messages.length]);
 
@@ -69,10 +74,27 @@ export default function DharaProvider({ children }: { children: React.ReactNode 
     } finally { setSending(false); }
   }, [sending]);
 
+  // Opens the panel and puts the assistant's first question in the thread.
+  // Loads history in the same pass so the question lands at the bottom of
+  // an existing conversation rather than racing the history fetch.
+  const startInterview = useCallback(async () => {
+    setOpen(true);
+    try {
+      const [hist, started] = await Promise.all([
+        fetch("/api/dhara/messages").then((r) => (r.ok ? r.json() : { messages: [] })).catch(() => ({ messages: [] })),
+        fetch("/api/dhara/interview/start", { method: "POST" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      ]);
+      const prior: Msg[] = ((hist.messages ?? []) as Msg[]).map((m) => ({ role: m.role, content: m.content }));
+      setMessages(started?.message ? [...prior, { role: "assistant", content: started.message }] : prior);
+    } catch {
+      /* panel is open either way; the coach can still type */
+    }
+  }, []);
+
   const runSuggestion = useCallback((s: DharaSuggestion) => {
     const r = executeSuggestion(s);
     if (r) { setOpen(false); router.push(r.navigateTo); }
   }, [router]);
 
-  return <Ctx.Provider value={{ open, setOpen, messages, sending, suggestions, lastLearned, starterPrompts, greeting, send, runSuggestion }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ open, setOpen, messages, sending, suggestions, lastLearned, starterPrompts, greeting, send, runSuggestion, startInterview }}>{children}</Ctx.Provider>;
 }
