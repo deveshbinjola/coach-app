@@ -7,7 +7,7 @@
 // Answers persist to localStorage so the /welcome interview step imports
 // them after account creation — the coach never answers twice.
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   TIME_DRAIN_OPTIONS,
   HAND_OFF_OPTIONS,
@@ -33,11 +33,27 @@ const AssistantAvatar = () => (
   </span>
 );
 
+// The assistant "types" for a beat before the reaction lands. Makes the
+// auto-advance rhythm legible: tap, watch it think, read, move on.
 function Reaction({ text }: { text: string }) {
+  const [typing, setTyping] = useState(true);
+  useEffect(() => {
+    setTyping(true);
+    const t = setTimeout(() => setTyping(false), 450);
+    return () => clearTimeout(t);
+  }, [text]);
   return (
     <div className="mq-reaction" role="status">
       <AssistantAvatar />
-      <div className="mq-reaction-bubble">{text}</div>
+      <div className="mq-reaction-bubble">
+        {typing ? (
+          <span className="mq-typing" aria-label="Assistant is typing">
+            <span /><span /><span />
+          </span>
+        ) : (
+          text
+        )}
+      </div>
     </div>
   );
 }
@@ -83,6 +99,35 @@ export default function MeetQuiz() {
   const q1Reaction = TIME_DRAIN_OPTIONS.find((o) => o.value === timeDrain)?.reaction;
   const q2Reaction = HAND_OFF_OPTIONS.find((o) => o.value === handOffFirst)?.reaction;
 
+  // Auto-advance: tap an answer, the reaction lands, and after a beat long
+  // enough to read it the next question arrives on its own. Re-tapping a
+  // different answer restarts the beat. Back/finish cancel it.
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  function clearAdvance() {
+    if (advanceTimer.current) {
+      clearTimeout(advanceTimer.current);
+      advanceTimer.current = null;
+    }
+  }
+  useEffect(() => clearAdvance, []);
+
+  function go(next: Screen) {
+    clearAdvance();
+    setScreen(next);
+  }
+
+  function pickTimeDrain(v: TimeDrain) {
+    setTimeDrain(v);
+    clearAdvance();
+    advanceTimer.current = setTimeout(() => setScreen("q2"), 2400);
+  }
+
+  function pickHandOff(v: HandOffFirst) {
+    setHandOffFirst(v);
+    clearAdvance();
+    advanceTimer.current = setTimeout(() => setScreen("q3"), 2400);
+  }
+
   function toggleDesire(d: Desire) {
     setDesires((cur) =>
       cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d],
@@ -90,6 +135,7 @@ export default function MeetQuiz() {
   }
 
   function finish() {
+    clearAdvance();
     saveInterviewAnswers({ timeDrain, handOffFirst, desires });
     setScreen("result");
   }
@@ -151,6 +197,7 @@ export default function MeetQuiz() {
           <span className="mq-logo-text">Coach <span>Assistant</span></span>
         </a>
 
+        <div className="mq-body">
         {screen !== "intro" && screen !== "result" && (
           <div className="mq-progress" aria-hidden>
             {[1, 2, 3].map((n) => (
@@ -172,7 +219,7 @@ export default function MeetQuiz() {
             </p>
             <div className="mq-cta-row">
               <a href="/login" className="mq-back">I already have an account</a>
-              <button type="button" className="mq-next" onClick={() => setScreen("q1")}>
+              <button type="button" className="mq-next" onClick={() => go("q1")}>
                 Start the interview
               </button>
             </div>
@@ -183,14 +230,11 @@ export default function MeetQuiz() {
           <div>
             <p className="mq-kicker">Question 1 of 3</p>
             <h1 className="mq-q">What&apos;s eating most of your week?</h1>
-            <p className="mq-sub">Be honest. It stays between us.</p>
-            <SingleChoice options={TIME_DRAIN_OPTIONS} picked={timeDrain} onPick={setTimeDrain} />
+            <p className="mq-sub">Tap one. Be honest, it stays between us.</p>
+            <SingleChoice options={TIME_DRAIN_OPTIONS} picked={timeDrain} onPick={pickTimeDrain} />
             {q1Reaction && <Reaction text={q1Reaction} />}
             <div className="mq-cta-row">
-              <button type="button" className="mq-back" onClick={() => setScreen("intro")}>Back</button>
-              <button type="button" className="mq-next" disabled={!timeDrain} onClick={() => setScreen("q2")}>
-                Next
-              </button>
+              <button type="button" className="mq-back" onClick={() => go("intro")}>Back</button>
             </div>
           </div>
         )}
@@ -200,13 +244,10 @@ export default function MeetQuiz() {
             <p className="mq-kicker">Question 2 of 3</p>
             <h1 className="mq-q">You hire a great assistant tomorrow. What do you hand off first?</h1>
             <p className="mq-sub">First thing off your plate, day one.</p>
-            <SingleChoice options={HAND_OFF_OPTIONS} picked={handOffFirst} onPick={setHandOffFirst} />
+            <SingleChoice options={HAND_OFF_OPTIONS} picked={handOffFirst} onPick={pickHandOff} />
             {q2Reaction && <Reaction text={q2Reaction} />}
             <div className="mq-cta-row">
-              <button type="button" className="mq-back" onClick={() => setScreen("q1")}>Back</button>
-              <button type="button" className="mq-next" disabled={!handOffFirst} onClick={() => setScreen("q3")}>
-                Next
-              </button>
+              <button type="button" className="mq-back" onClick={() => go("q1")}>Back</button>
             </div>
           </div>
         )}
@@ -233,7 +274,7 @@ export default function MeetQuiz() {
               <Reaction text={desires.length >= 3 ? "High standards. Good. I work best for coaches who expect a lot." : "Noted. Anything else? Don't be shy."} />
             )}
             <div className="mq-cta-row">
-              <button type="button" className="mq-back" onClick={() => setScreen("q2")}>Back</button>
+              <button type="button" className="mq-back" onClick={() => go("q2")}>Back</button>
               <button type="button" className="mq-next" disabled={desires.length === 0} onClick={finish}>
                 Show me my assistant
               </button>
@@ -309,6 +350,7 @@ export default function MeetQuiz() {
             <p className="mq-fine">Free to start. No credit card. Your answers travel with you.</p>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

@@ -42,7 +42,12 @@
   pointer-events: none;
 }
 
-.mq-inner { position: relative; z-index: 1; width: 100%; max-width: 620px; display: flex; flex-direction: column; }
+.mq-inner { position: relative; z-index: 1; width: 100%; max-width: 620px; display: flex; flex-direction: column; min-height: calc(100dvh - 6.75rem); }
+
+/* Content sits at the optical center of the viewport (margin-auto trick
+   centers when there is room, top-aligns without clipping when the screen
+   content is taller, e.g. the result). */
+.mq-body { margin-top: auto; margin-bottom: auto; padding: 1.5rem 0 8vh; }
 
 /* ── Header ── */
 .mq-logo { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 3rem; text-decoration: none; }
@@ -120,6 +125,18 @@
   line-height: 1.55;
   color: var(--ink);
 }
+
+/* Typing dots while the assistant "thinks" before its reaction lands. */
+.mq-typing { display: inline-flex; gap: 4px; align-items: center; height: 1.4em; }
+.mq-typing span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--forest);
+  opacity: 0.35;
+  animation: mq-blink 1s ease-in-out infinite;
+}
+.mq-typing span:nth-child(2) { animation-delay: 0.15s; }
+.mq-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes mq-blink { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
 
 /* ── CTA row ── */
 .mq-cta-row { display: flex; align-items: center; justify-content: space-between; margin-top: 2.25rem; gap: 1rem; }
@@ -222,6 +239,7 @@
 @media (prefers-reduced-motion: reduce) {
   .mq-reaction, .mq-result-card { animation: none; }
   .mq-opt, .mq-next { transition: none; }
+  .mq-typing span { animation: none; opacity: 0.6; }
 }
 
 @media (max-width: 480px) {
