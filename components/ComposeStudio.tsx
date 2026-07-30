@@ -369,7 +369,7 @@ export default function ComposeStudio({
       <section className="rounded-[var(--r-lg)] bg-[var(--navy)] text-[color:var(--text-inverse)] p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-5">
           <div>
-            <div className="text-[length:var(--t-caption)] font-bold text-[color:var(--brand)]">
+            <div className="text-[length:var(--t-caption)] font-bold text-[color:var(--brand-bright)]">
               {rescueMode ? "Action set" : "Message studio"}
             </div>
             <h2 className="text-2xl font-bold tracking-tight mt-1 leading-[var(--leading-tight)]">
@@ -411,7 +411,7 @@ export default function ComposeStudio({
             className="mb-4 p-3 rounded-[var(--r-md)] border border-[color-mix(in_srgb,var(--brand)_35%,transparent)] bg-[var(--brand-soft)] text-[length:var(--t-caption)] flex items-center gap-2"
           >
             <span
-              className="px-1.5 py-0.5 rounded-[var(--r-sm)] bg-[var(--navy)] text-[color:var(--brand)] font-extrabold text-[10px]"
+              className="px-1.5 py-0.5 rounded-[var(--r-sm)] bg-[var(--navy)] text-[color:var(--brand-bright)] font-extrabold text-[10px]"
             >
               {rescueMode ? "ACTION" : "PINNED"}
             </span>
@@ -681,8 +681,8 @@ export default function ComposeStudio({
                     disabled={!template.trim() || sent || isLogging}
                     className={`text-[11px] px-2 py-1 rounded-[var(--r-sm)] font-bold transition ${
                       sent
-                        ? "bg-[var(--brand)] text-[color:var(--navy)]"
-                        : "bg-[var(--navy)] text-[color:var(--brand)] hover:opacity-90 disabled:opacity-40"
+                        ? "bg-[var(--brand)] text-[color:var(--text-inverse)]"
+                        : "bg-[var(--navy)] text-[color:var(--brand-bright)] hover:opacity-90 disabled:opacity-40"
                     }`}
                   >
                     {sent ? "Logged" : isLogging ? "..." : "Log"}

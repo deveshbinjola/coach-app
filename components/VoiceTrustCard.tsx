@@ -110,7 +110,7 @@ export default function VoiceTrustCard({
       }`}
     >
       <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div className="text-[length:var(--t-label)] uppercase tracking-widest font-bold text-[color:var(--brand)]">
+        <div className="text-[length:var(--t-label)] uppercase tracking-widest font-bold text-[color:var(--brand-bright)]">
           Voice trust · last 28 days
         </div>
         {isPreliminary ? (
@@ -118,7 +118,7 @@ export default function VoiceTrustCard({
             Preliminary · {knownSample} sends
           </span>
         ) : (
-          <span className="text-[length:var(--t-label)] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full bg-[var(--brand)] text-[color:var(--navy)]">
+          <span className="text-[length:var(--t-label)] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full bg-[var(--brand)] text-[color:var(--text-inverse)]">
             {knownSample} sends · real signal
           </span>
         )}
@@ -165,7 +165,7 @@ export default function VoiceTrustCard({
 
       {/* Auto-send threshold affordance: only when actually unlocked. */}
       {trust.autoSendReady && (
-        <div className="mt-6 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
+        <div className="mt-6 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
           <div>
             <div className="font-extrabold text-[length:var(--t-caption)] uppercase tracking-widest">
               Threshold reached
@@ -179,7 +179,7 @@ export default function VoiceTrustCard({
             type="button"
             disabled
             title="Coming next ship: turn on auto-send for high-confidence drafts"
-            className="inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] bg-[var(--navy)] text-[color:var(--brand)] text-[length:var(--t-caption)] font-extrabold disabled:opacity-50 whitespace-nowrap"
+            className="inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] bg-[var(--navy)] text-[color:var(--brand-bright)] text-[length:var(--t-caption)] font-extrabold disabled:opacity-50 whitespace-nowrap"
           >
             Configure auto-send
           </button>
@@ -253,9 +253,9 @@ function Gauge({ pct, size = 160 }: { pct: number; size?: number }) {
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className="font-display text-5xl font-bold tabular-nums leading-none text-[color:var(--text-inverse)]">
           {clamped}
-          <span className="text-2xl text-[color:var(--brand)] font-bold ml-0.5">%</span>
+          <span className="text-2xl text-[color:var(--brand-bright)] font-bold ml-0.5">%</span>
         </div>
-        <div className="mt-2 text-[10px] font-extrabold uppercase tracking-widest text-[color:var(--brand)]">
+        <div className="mt-2 text-[10px] font-extrabold uppercase tracking-widest text-[color:var(--brand-bright)]">
           Voice trust
         </div>
       </div>

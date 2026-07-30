@@ -134,7 +134,7 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
               <a
                 href="/leads/capture"
                 title="Paste text, speak, or drop a screenshot. AI parses each lead."
-                className="inline-flex items-center justify-center h-8 px-3 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
+                className="inline-flex items-center justify-center h-8 px-3 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
               >
                 Capture
               </a>
@@ -159,7 +159,7 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
         {rescueStack.length > 0 && (
           <div className="flex items-center gap-2 overflow-x-auto">
             <div className="shrink-0 rounded-[var(--r-md)] bg-[var(--navy)] px-3 py-2 text-[color:var(--text-inverse)]">
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand)]">Rescue</div>
+              <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand-bright)]">Rescue</div>
               <div className="text-[length:var(--t-caption)] font-extrabold">{sessionMinutes} min</div>
             </div>
             {rescueStack.map((lead) => (

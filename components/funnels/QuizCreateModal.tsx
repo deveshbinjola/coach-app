@@ -135,7 +135,7 @@ export default function QuizCreateModal({
               <button onClick={generate} className="text-[length:var(--t-caption)] font-semibold text-[color:var(--text-muted)] hover:text-[color:var(--text)] border-b border-dashed border-[var(--border)]">
                 Draft from my brand instead
               </button>
-              <button onClick={generate} disabled={!brief.trim()} className="rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] font-extrabold text-[14px] px-5 py-3 hover:bg-[var(--brand-strong)] disabled:opacity-40 transition">
+              <button onClick={generate} disabled={!brief.trim()} className="rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] font-extrabold text-[14px] px-5 py-3 hover:bg-[var(--brand-strong)] disabled:opacity-40 transition">
                 Generate quiz
               </button>
             </div>
@@ -195,7 +195,7 @@ export default function QuizCreateModal({
               <button onClick={() => setPhase("ask")} className="text-[13px] font-bold text-[color:var(--text-muted)] hover:text-[color:var(--text)]">↻ Regenerate</button>
               <div className="flex-1" />
               <button onClick={onClose} className="rounded-[var(--r-md)] border border-[var(--border)] px-4 py-2.5 text-[14px] font-bold text-[color:var(--text)] hover:bg-[var(--surface-deep)]">Discard</button>
-              <button onClick={save} disabled={saving} className="rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] px-5 py-2.5 text-[14px] font-extrabold hover:bg-[var(--brand-strong)] disabled:opacity-50">{saving ? "Saving…" : "Save quiz"}</button>
+              <button onClick={save} disabled={saving} className="rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] px-5 py-2.5 text-[14px] font-extrabold hover:bg-[var(--brand-strong)] disabled:opacity-50">{saving ? "Saving…" : "Save quiz"}</button>
             </div>
           </div>
         )}
@@ -206,7 +206,7 @@ export default function QuizCreateModal({
               <>
                 <h2 className="font-display text-[20px] font-bold text-[color:var(--text)]">Finish your Brand OS first</h2>
                 <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-2">It powers your quiz&apos;s voice and archetypes.</p>
-                <a href="/brand-os" className="inline-block mt-5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] px-5 py-3 text-[14px] font-extrabold">Build my Brand OS</a>
+                <a href="/brand-os" className="inline-block mt-5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] px-5 py-3 text-[14px] font-extrabold">Build my Brand OS</a>
               </>
             ) : (
               <>
@@ -214,7 +214,7 @@ export default function QuizCreateModal({
                 <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-2">{errorMsg ?? "Try again or tweak your brief."}</p>
                 <div className="flex items-center justify-center gap-3 mt-5">
                   <button onClick={() => setPhase("ask")} className="rounded-[var(--r-md)] border border-[var(--border)] px-4 py-2.5 text-[14px] font-bold">Back</button>
-                  <button onClick={generate} className="rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] px-5 py-2.5 text-[14px] font-extrabold">Try again</button>
+                  <button onClick={generate} className="rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] px-5 py-2.5 text-[14px] font-extrabold">Try again</button>
                 </div>
               </>
             )}

@@ -21,7 +21,7 @@ export type BrandKit = {
 /** Brand kit when none configured — neutral, prints anywhere. */
 export const DEFAULT_BRAND_KIT: BrandKit = {
   primaryHex:    "#0A0F1C",
-  accentHex:     "#00FF41",
+  accentHex:     "#0B6E23",
   backgroundHex: "#FAFAF8",
   textHex:       "#0A0F1C",
   fontFamily:    "Plus Jakarta Sans",

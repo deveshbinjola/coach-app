@@ -1155,7 +1155,7 @@ export default function ContentWorkspace({
                 <button
                   type="button"
                   onClick={() => handleTabChange("create")}
-                  className="inline-flex items-center gap-1.5 rounded-[var(--r-md)] bg-[var(--brand)] px-4 py-2 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[var(--brand-strong)]"
+                  className="inline-flex items-center gap-1.5 rounded-[var(--r-md)] bg-[var(--brand)] px-4 py-2 text-[length:var(--t-caption)] font-extrabold text-[color:var(--text-inverse)] transition hover:bg-[var(--brand-strong)]"
                 >
                   <ArrowRight size={14} className="rotate-[-90deg]" aria-hidden />
                   Go to Create
@@ -1718,7 +1718,7 @@ function RecommendationCard({
         </p>
       </div>
       <p className="mt-1 text-[length:var(--t-caption)] leading-[var(--leading-base)] text-[color:var(--text-muted)]">{recommendation.reason}</p>
-      <button type="button" onClick={onUse} className="mt-3 min-h-9 rounded-[var(--r-md)] bg-[var(--navy)] px-3 text-[length:var(--t-caption)] font-extrabold text-[color:var(--brand)] transition hover:opacity-90">
+      <button type="button" onClick={onUse} className="mt-3 min-h-9 rounded-[var(--r-md)] bg-[var(--navy)] px-3 text-[length:var(--t-caption)] font-extrabold text-[color:var(--brand-bright)] transition hover:opacity-90">
         Use recommendation
       </button>
     </div>
@@ -2079,7 +2079,7 @@ function CarouselBuilderControls({
             onFrameworkChange(recommendation.framework);
             onStyleChange(recommendation.style);
           }}
-          className="mt-3 min-h-9 rounded-[var(--r-md)] bg-[var(--navy)] px-3 text-[length:var(--t-caption)] font-extrabold text-[color:var(--brand)] transition hover:opacity-90"
+          className="mt-3 min-h-9 rounded-[var(--r-md)] bg-[var(--navy)] px-3 text-[length:var(--t-caption)] font-extrabold text-[color:var(--brand-bright)] transition hover:opacity-90"
         >
           Use recommendation
         </button>

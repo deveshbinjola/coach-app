@@ -100,7 +100,7 @@ export function useConfirm(): UseConfirmReturn {
               className={
                 state.options.destructive
                   ? "inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] bg-[var(--danger)] text-white text-[length:var(--t-caption)] font-extrabold hover:bg-[color-mix(in_srgb,var(--danger)_85%,black)] transition"
-                  : "inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-extrabold hover:bg-[var(--brand-strong)] transition"
+                  : "inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-caption)] font-extrabold hover:bg-[var(--brand-strong)] transition"
               }
             >
               {state.options.confirmLabel ?? "Confirm"}

@@ -194,7 +194,7 @@ export default function SequenceBuilder({ sequence: initialSeq, initialSteps }: 
             className={`flex items-center gap-1.5 px-4 h-10 rounded-[var(--r-md)] text-[length:var(--t-caption)] font-bold transition disabled:opacity-50 ${
               isActive
                 ? "border border-[var(--danger)] text-[color:var(--danger)] hover:bg-[var(--danger-soft)]"
-                : "bg-[var(--brand)] text-[color:var(--navy)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]"
+                : "bg-[var(--brand)] text-[color:var(--text-inverse)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]"
             }`}
           >
             <Zap size={14} strokeWidth={2.5} />

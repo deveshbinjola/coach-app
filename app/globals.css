@@ -36,9 +36,11 @@
   --text-inverse:      #FAFAF8;  /* On dark surfaces */
 
   /* ---------- Brand ---------- */
-  --brand:             #00FF41;  /* Primary accent */
-  --brand-strong:      #00CC34;  /* Hover/active states */
-  --brand-soft:        rgba(0, 255, 65, 0.12);  /* Tinted backgrounds */
+  --brand:             #0B6E23;  /* Primary accent — forest (warm-light brand) */
+  --brand-strong:      #085119;  /* Hover/active states */
+  --brand-soft:        rgba(11, 110, 35, 0.10);  /* Tinted backgrounds */
+  --brand-bright:      #4ADE80;  /* Green accents ON dark surfaces only —
+                                    forest is unreadable on navy */
   --navy:              #0A0F1C;
   --navy-soft:         #1A1F2C;
 
@@ -200,8 +202,8 @@ body {
   align-items: center;
   justify-content: center;
   gap: var(--s2);
-  background: var(--navy);
-  color: var(--brand);
+  background: var(--brand);
+  color: var(--text-inverse);
   padding: var(--s3) var(--s5);
   border-radius: var(--r-md);
   font-weight: 700;
@@ -212,7 +214,7 @@ body {
 }
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-1px);
-  background: var(--navy-soft);
+  background: var(--brand-strong);
 }
 .btn-primary:disabled {
   opacity: 0.5;
@@ -282,6 +284,16 @@ body {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Screen-enter rise. Pair with a changing React `key` so each step of a
+   flow (e.g. the welcome interview) slides in fresh. */
+.rise-in {
+  animation: rise-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Reduce motion — respect users' system preference. Disables all

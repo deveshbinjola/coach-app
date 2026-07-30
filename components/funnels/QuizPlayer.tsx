@@ -190,7 +190,7 @@ export default function QuizPlayer({ funnelId, config }: Props) {
   // ── Adaptive palette from branding ────────────────────────
 
   const bgColor = branding.background_hex || "#FAFAF8";
-  const primaryColor = branding.primary_hex || "#00FF41";
+  const primaryColor = branding.primary_hex || "#0B6E23";
   const fontFamily = branding.font_family || "Plus Jakarta Sans, sans-serif";
 
   const light = isLightColor(bgColor);

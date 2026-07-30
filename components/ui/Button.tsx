@@ -32,7 +32,7 @@ const VARIANT_CLASSES: Record<Variant, string> = {
   // Was navy + green text before; that combo strained to read at the
   // lighter font weights from the polish pass and never felt confident.
   primary:
-    "bg-[var(--brand)] text-[color:var(--navy)] font-bold hover:enabled:bg-[var(--brand-strong)] hover:enabled:-translate-y-px transition disabled:opacity-50 disabled:cursor-not-allowed",
+    "bg-[var(--brand)] text-[color:var(--text-inverse)] font-bold hover:enabled:bg-[var(--brand-strong)] hover:enabled:-translate-y-px transition disabled:opacity-50 disabled:cursor-not-allowed",
   ghost:
     "bg-[var(--surface-elevated)] text-[color:var(--text)] font-semibold border border-[var(--border)] hover:enabled:border-[var(--border-strong)] hover:enabled:bg-[var(--surface-deep)] transition disabled:opacity-50 disabled:cursor-not-allowed",
   danger:

@@ -203,7 +203,7 @@ export default function SettingsForm({
               type="button"
               onClick={startCheckout}
               disabled={checkingOut}
-              className="inline-flex h-11 items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-5 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] hover:bg-[var(--brand-strong)] transition disabled:opacity-50"
+              className="inline-flex h-11 items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-5 text-[length:var(--t-caption)] font-extrabold text-[color:var(--text-inverse)] hover:bg-[var(--brand-strong)] transition disabled:opacity-50"
             >
               {checkingOut ? "Opening checkout..." : "Upgrade"}
             </button>
@@ -445,7 +445,7 @@ export default function SettingsForm({
                 href="/api/docs"
                 target="_blank"
                 rel="noopener"
-                className="mt-3 inline-flex h-9 items-center justify-center rounded-[var(--r-md)] bg-[var(--navy)] px-3 text-[length:var(--t-caption)] font-bold text-[color:var(--brand)] hover:opacity-90 transition"
+                className="mt-3 inline-flex h-9 items-center justify-center rounded-[var(--r-md)] bg-[var(--navy)] px-3 text-[length:var(--t-caption)] font-bold text-[color:var(--brand-bright)] hover:opacity-90 transition"
               >
                 Open API docs
               </a>

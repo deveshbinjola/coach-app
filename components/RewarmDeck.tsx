@@ -78,7 +78,7 @@ export default function RewarmDeck({ lead, onUseTemplate }: Props) {
               <span className="text-sm font-extrabold">{primary.label}</span>
               <span
                 className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
-                style={{ backgroundColor: "#00FF41", color: "#0A0F1C" }}
+                style={{ backgroundColor: "#4ADE80", color: "#06210D" }}
               >
                 Try this
               </span>
@@ -88,7 +88,7 @@ export default function RewarmDeck({ lead, onUseTemplate }: Props) {
           <button
             onClick={() => use(primary)}
             className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 font-extrabold text-xs transition-all hover:opacity-90 whitespace-nowrap"
-            style={{ backgroundColor: "#00FF41", color: "#0A0F1C" }}
+            style={{ backgroundColor: "#4ADE80", color: "#06210D" }}
           >
             Use this →
           </button>
@@ -114,8 +114,8 @@ export default function RewarmDeck({ lead, onUseTemplate }: Props) {
                 onClick={() => setExpanded(expanded === p.id ? null : p.id)}
                 className="text-[11px] font-semibold px-2.5 py-1 rounded-full border transition"
                 style={{
-                  borderColor: expanded === p.id ? "#00FF41" : "rgba(255,255,255,0.25)",
-                  color: expanded === p.id ? "#00FF41" : "rgba(255,255,255,0.85)",
+                  borderColor: expanded === p.id ? "#4ADE80" : "rgba(255,255,255,0.25)",
+                  color: expanded === p.id ? "#4ADE80" : "rgba(255,255,255,0.85)",
                   backgroundColor: "transparent",
                 }}
               >
@@ -137,7 +137,7 @@ export default function RewarmDeck({ lead, onUseTemplate }: Props) {
                   <button
                     onClick={() => use(p)}
                     className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 font-bold text-[11px] hover:opacity-90 whitespace-nowrap"
-                    style={{ backgroundColor: "#00FF41", color: "#0A0F1C" }}
+                    style={{ backgroundColor: "#4ADE80", color: "#06210D" }}
                   >
                     Use this →
                   </button>

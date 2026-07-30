@@ -500,7 +500,7 @@ export default function LeadDetail({
           {status === "client" && (
             <a
               href="/clients"
-              className="inline-flex min-h-10 w-full items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-3 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[var(--brand-strong)]"
+              className="inline-flex min-h-10 w-full items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-3 text-[length:var(--t-caption)] font-extrabold text-[color:var(--text-inverse)] transition hover:bg-[var(--brand-strong)]"
             >
               {clientRoomReady ? "Open client room" : "Create client room"}
             </a>
@@ -753,7 +753,7 @@ export default function LeadDetail({
                         the lead. */}
                     {m.ai_drafted && m.was_edited === false && (
                       <span
-                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-label)] uppercase tracking-widest font-extrabold"
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-label)] uppercase tracking-widest font-extrabold"
                         title="Sent without editing the AI draft"
                       >
                         ✓ In your voice
@@ -802,7 +802,7 @@ export default function LeadDetail({
             </div>
             <a
               href={`/content?lead=${lead.id}`}
-              className="inline-flex min-h-10 items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-4 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[var(--brand-strong)]"
+              className="inline-flex min-h-10 items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-4 text-[length:var(--t-caption)] font-extrabold text-[color:var(--text-inverse)] transition hover:bg-[var(--brand-strong)]"
             >
               Create content
             </a>
@@ -861,7 +861,7 @@ export default function LeadDetail({
           <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center gap-2">
             <a
               href={`/inbox?compose=open&ids=${lead.id}&autoDraft=true`}
-              className="inline-flex h-11 flex-1 sm:flex-none items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-5 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[color-mix(in_srgb,var(--brand)_85%,black)]"
+              className="inline-flex h-11 flex-1 sm:flex-none items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-5 text-[length:var(--t-caption)] font-extrabold text-[color:var(--text-inverse)] transition hover:bg-[color-mix(in_srgb,var(--brand)_85%,black)]"
             >
               Draft Message
             </a>
@@ -978,7 +978,7 @@ function LeadMemoryCard({
                   size="sm"
                   onClick={() => approve(memory)}
                   disabled={savingId === memory.id}
-                  className="bg-[var(--navy)] text-[color:var(--brand)] uppercase tracking-wider hover:enabled:bg-[var(--navy-soft)]"
+                  className="bg-[var(--navy)] text-[color:var(--brand-bright)] uppercase tracking-wider hover:enabled:bg-[var(--navy-soft)]"
                 >
                   {savingId === memory.id ? "Saving..." : "Approve"}
                 </Button>

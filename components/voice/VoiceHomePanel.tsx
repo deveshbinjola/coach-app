@@ -627,7 +627,7 @@ function VoiceMemoryPanel({
                       type="button"
                       onClick={() => approveRule(rule, editText)}
                       disabled={savingId === rule.id || !editText.trim()}
-                      className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--brand)] hover:opacity-90 disabled:opacity-50 transition"
+                      className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--brand-bright)] hover:opacity-90 disabled:opacity-50 transition"
                     >
                       {savingId === rule.id ? "Saving..." : "Save"}
                     </button>
@@ -655,7 +655,7 @@ function VoiceMemoryPanel({
                         type="button"
                         onClick={() => approveRule(rule)}
                         disabled={savingId === rule.id}
-                        className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--brand)] hover:opacity-90 disabled:opacity-50 transition"
+                        className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--brand-bright)] hover:opacity-90 disabled:opacity-50 transition"
                       >
                         {savingId === rule.id ? "Saving..." : "Approve"}
                       </button>
@@ -1511,7 +1511,7 @@ function TrainingHistoryPanel({
                             type="button"
                             disabled={approved || approvingId === `${source.id}:${rule.id}`}
                             onClick={() => approveRule(source, rule)}
-                            className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--brand)] hover:opacity-90 disabled:opacity-50 transition"
+                            className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--brand-bright)] hover:opacity-90 disabled:opacity-50 transition"
                           >
                             {approved
                               ? "Approved"
@@ -1623,7 +1623,7 @@ function IntegrationRow({
       <span
         className={`shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full text-[length:var(--t-caption)] font-extrabold ${
           done
-            ? "bg-[var(--brand)] text-[color:var(--navy)]"
+            ? "bg-[var(--brand)] text-[color:var(--text-inverse)]"
             : "bg-[var(--surface-elevated)] text-[color:var(--text-faint)] border border-[var(--border)]"
         }`}
       >

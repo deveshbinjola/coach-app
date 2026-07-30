@@ -72,7 +72,7 @@ export default function EmbedClient({ slug }: { slug: string }) {
         className="flex items-center justify-center"
         style={{ backgroundColor: "#FAFAF8", minHeight: "400px" }}
       >
-        <div className="inline-block w-8 h-8 border-2 border-[#00FF41] border-t-transparent rounded-full animate-spin" />
+        <div className="inline-block w-8 h-8 border-2 border-[#0B6E23] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }

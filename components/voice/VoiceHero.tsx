@@ -208,7 +208,7 @@ export function VoiceAssetPanel({
             <div className="text-[length:var(--t-caption)] font-extrabold text-[color:var(--text)]">{sessionTitle}</div>
             <div className="text-[10px] text-[color:var(--text-muted)]">{sessionMeta}</div>
           </div>
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--brand)] text-[color:var(--navy)] transition group-hover:scale-105">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--brand)] text-[color:var(--text-inverse)] transition group-hover:scale-105">
             &rarr;
           </span>
         </div>

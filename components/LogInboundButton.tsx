@@ -77,14 +77,14 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
         className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold transition hover:opacity-90"
         style={{
           backgroundColor: "#FFFFFF",
-          borderColor: "#00FF41",
+          borderColor: "#0B6E23",
           color: "#0A0F1C",
         }}
         title="Log that they replied — resets the SLA clock"
       >
         <span
           className="inline-block w-1.5 h-1.5 rounded-full"
-          style={{ backgroundColor: "#00FF41" }}
+          style={{ backgroundColor: "#0B6E23" }}
         />
         Log reply received
       </button>
@@ -95,8 +95,8 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
     <div
       className="rounded-xl border p-4 mb-4"
       style={{
-        backgroundColor: "rgba(0,255,65,0.06)",
-        borderColor: "#00FF41",
+        backgroundColor: "rgba(11,110,35,0.07)",
+        borderColor: "#0B6E23",
       }}
     >
       <div className="flex items-center justify-between mb-3">
@@ -163,7 +163,7 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
           onClick={save}
           disabled={saving}
           className="inline-flex items-center gap-1 rounded-lg px-4 py-2 font-extrabold text-xs transition hover:opacity-90 disabled:opacity-50"
-          style={{ backgroundColor: "#00FF41", color: "#0A0F1C" }}
+          style={{ backgroundColor: "#0B6E23", color: "#FAF8F3" }}
         >
           {saving ? "Logging..." : "Log reply →"}
         </button>

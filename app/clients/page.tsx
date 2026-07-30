@@ -220,7 +220,7 @@ async function SessionsTab({ coachId }: { coachId: string }) {
         </div>
         <Link
           href="/sessions/new"
-          className="inline-flex items-center gap-2 bg-[var(--brand)] text-[color:var(--navy)] font-bold text-sm px-5 py-2.5 rounded-[var(--r-md)] hover:bg-[var(--brand-strong)] hover:-translate-y-px transition"
+          className="inline-flex items-center gap-2 bg-[var(--brand)] text-[color:var(--text-inverse)] font-bold text-sm px-5 py-2.5 rounded-[var(--r-md)] hover:bg-[var(--brand-strong)] hover:-translate-y-px transition"
         >
           + New session
         </Link>

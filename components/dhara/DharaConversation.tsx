@@ -87,7 +87,7 @@ export default function DharaConversation({ onClose }: { onClose: () => void }) 
           <div className="border-t border-[var(--border-faint)] p-3">
             <SpeakOrType value={draft} onChange={setDraft} onSubmit={submit} placeholder="Talk to Dhara, or just say it&hellip;" minRows={2} maxLength={4000} disabled={sending} />
             <button onClick={submit} disabled={sending || !draft.trim()}
-              className="mt-2 w-full rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] font-extrabold text-[14px] py-2.5 disabled:opacity-40">
+              className="mt-2 w-full rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] font-extrabold text-[14px] py-2.5 disabled:opacity-40">
               {sending ? "…" : "Send"}
             </button>
           </div>

@@ -124,7 +124,7 @@ export default function CommandHero({
           className="flex items-center justify-between gap-3 rounded-[var(--r-lg)] bg-[var(--navy)] px-4 py-3 text-[color:var(--text-inverse)] shadow-[var(--shadow-md)] transition hover:-translate-y-px hover:shadow-[var(--shadow-lg)]"
         >
           <div className="min-w-0">
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand)]">
+            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand-bright)]">
               {sessionLabel}
             </div>
             <div className="mt-0.5 text-[length:var(--t-caption)] font-extrabold">
@@ -134,7 +134,7 @@ export default function CommandHero({
               {sessionMinutes} min · {rescueCount > 0 ? `${rescueCount} leads` : bookedCount < bookedGoal ? `${bookedCount}/${bookedGoal} calls` : "board clean"}
             </div>
           </div>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand)] text-[color:var(--navy)] font-bold">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand)] text-[color:var(--text-inverse)] font-bold">
             &rarr;
           </span>
         </a>
@@ -170,8 +170,8 @@ function SessionCard({
         <span
           className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[length:var(--t-caption)] transition ${
             active
-              ? "bg-[var(--brand)] text-[color:var(--navy)]"
-              : "bg-[var(--surface-deep)] text-[color:var(--text-muted)] group-hover:bg-[var(--brand)] group-hover:text-[color:var(--navy)]"
+              ? "bg-[var(--brand)] text-[color:var(--text-inverse)]"
+              : "bg-[var(--surface-deep)] text-[color:var(--text-muted)] group-hover:bg-[var(--brand)] group-hover:text-[color:var(--text-inverse)]"
           }`}
         >
           &rarr;

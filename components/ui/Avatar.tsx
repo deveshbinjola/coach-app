@@ -33,8 +33,8 @@ export default function Avatar({
       .join("") || "•";
 
   const colors = inverse
-    ? "bg-[var(--brand)] text-[color:var(--navy)]"
-    : "bg-[var(--navy)] text-[color:var(--brand)]";
+    ? "bg-[var(--brand)] text-[color:var(--text-inverse)]"
+    : "bg-[var(--navy)] text-[color:var(--brand-bright)]";
 
   return (
     <span

@@ -160,7 +160,7 @@ export default function HomeworkCard({
             onClick={() => toggleTask(task)}
             className="flex w-full items-start gap-2 rounded-[var(--r-md)] bg-[var(--surface-deep)] px-3 py-2 text-left opacity-70"
           >
-            <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--r-sm)] bg-[var(--brand)] text-[color:var(--navy)]">
+            <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--r-sm)] bg-[var(--brand)] text-[color:var(--text-inverse)]">
               <Check size={13} aria-hidden />
             </span>
             <span className="text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)] line-through">

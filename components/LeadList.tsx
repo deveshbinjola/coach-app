@@ -386,7 +386,7 @@ export default function LeadList({
               onClick={() => setStageFilter(stage)}
               className={`h-8 px-3 rounded-[var(--r-pill)] text-[length:var(--t-caption)] font-bold transition ${
                 active
-                  ? "bg-[var(--brand)] text-[color:var(--navy)]"
+                  ? "bg-[var(--brand)] text-[color:var(--text-inverse)]"
                   : "bg-[var(--surface-deep)] text-[color:var(--text-muted)] hover:text-[color:var(--text)] hover:bg-[var(--surface-elevated)]"
               }`}
             >
@@ -451,7 +451,7 @@ export default function LeadList({
                 setPickerMode("replace");
                 setPainPickerOpen(true);
               }}
-              className="inline-flex items-center justify-center h-10 px-3 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] disabled:opacity-50 transition"
+              className="inline-flex items-center justify-center h-10 px-3 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] disabled:opacity-50 transition"
             >
               Set pain signal
             </button>
@@ -769,7 +769,7 @@ function StartHereSection({ items }: { items: StartHereItem[] }) {
         </div>
         <a
           href={`/inbox?compose=open&source=start-here&ids=${encodeURIComponent(ids)}`}
-          className="inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
+          className="inline-flex items-center justify-center h-10 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
         >
           Draft this set
         </a>
@@ -1517,7 +1517,7 @@ function PainView({
           <div className="mt-3 pt-3 border-t border-[var(--border-faint)]">
             <a
               href={`/compose?pain=${painFilter.join(",")}`}
-              className="inline-flex items-center justify-center h-9 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
+              className="inline-flex items-center justify-center h-9 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
             >
               Compose message to these {filteredLeads.length}
             </a>

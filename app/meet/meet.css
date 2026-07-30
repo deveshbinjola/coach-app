@@ -49,6 +49,13 @@
    content is taller, e.g. the result). */
 .mq-body { margin-top: auto; margin-bottom: auto; padding: 1.5rem 0 8vh; }
 
+/* Each question slides in as a fresh screen (remounted via key). */
+.mq-screen { animation: mq-screen-in 0.5s cubic-bezier(.16,1,.3,1) both; }
+@keyframes mq-screen-in {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Header ── */
 .mq-logo { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 3rem; text-decoration: none; }
 .mq-logo svg { width: 28px; height: 28px; }
@@ -175,15 +182,24 @@
 }
 .mq-hero-title em { font-style: italic; color: var(--forest); font-variation-settings: "SOFT" 100, "opsz" 144; }
 
-/* The one bold color moment: the result arrives as a full forest card. */
+/* The one bold color moment: the result arrives as a full forest card.
+   Reveal choreography: headline first, card rises, week-one items land
+   one by one, then the actions. The assistant presenting its case. */
 .mq-result-card {
   background: var(--forest);
   border-radius: 20px;
   padding: 2rem 1.75rem;
   margin: 1.75rem 0;
   color: var(--paper);
-  animation: mq-rise 0.6s cubic-bezier(.16,1,.3,1) both;
+  animation: mq-rise 0.6s 0.35s cubic-bezier(.16,1,.3,1) both;
 }
+/* Week items are divs 2-4 inside the card (div 1 is the head row). */
+.mq-week-item { animation: mq-rise 0.5s cubic-bezier(.16,1,.3,1) both; }
+.mq-week-item:nth-of-type(2) { animation-delay: 0.8s; }
+.mq-week-item:nth-of-type(3) { animation-delay: 1.05s; }
+.mq-week-item:nth-of-type(4) { animation-delay: 1.3s; }
+.mq-result-actions, .mq-lead, .mq-fine { animation: mq-rise 0.5s 1.6s cubic-bezier(.16,1,.3,1) both; }
+.mq-result-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 .mq-result-kicker { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(250, 248, 243, 0.7); margin-bottom: 0.6rem; }
 .mq-result-name {
   font-family: 'Fraunces', Georgia, serif;
@@ -237,7 +253,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mq-reaction, .mq-result-card { animation: none; }
+  .mq-reaction, .mq-result-card, .mq-screen, .mq-week-item,
+  .mq-result-actions, .mq-lead, .mq-fine { animation: none; }
   .mq-opt, .mq-next { transition: none; }
   .mq-typing span { animation: none; opacity: 0.6; }
 }

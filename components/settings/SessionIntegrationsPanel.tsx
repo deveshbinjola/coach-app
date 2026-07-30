@@ -302,7 +302,7 @@ export default function SessionIntegrationsPanel() {
             <Button
               size="sm"
               onClick={() => navigator.clipboard.writeText(urlFor(revealed))}
-              className="bg-[var(--navy)] text-[color:var(--brand)] hover:enabled:bg-[var(--navy-soft)]"
+              className="bg-[var(--navy)] text-[color:var(--brand-bright)] hover:enabled:bg-[var(--navy-soft)]"
             >
               Copy URL
             </Button>
@@ -405,7 +405,7 @@ function ProviderConnectCard({
       </p>
       <a
         href={connectHref}
-        className="mt-3 inline-flex min-h-9 w-full items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-3 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[var(--brand-strong)]"
+        className="mt-3 inline-flex min-h-9 w-full items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-3 text-[length:var(--t-caption)] font-extrabold text-[color:var(--text-inverse)] transition hover:bg-[var(--brand-strong)]"
       >
         {integration?.status === "active" ? "Reconnect" : `Connect ${labelFor(provider)}`}
       </a>

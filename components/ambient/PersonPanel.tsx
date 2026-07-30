@@ -165,7 +165,7 @@ export default function PersonPanel({ leadId, onClose }: Props) {
               <div className="flex items-center gap-2 mt-6 pt-4 border-t border-[var(--border-faint)]">
                 <a
                   href={`/inbox?compose=open&ids=${leadId}`}
-                  className="inline-flex items-center justify-center h-9 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
+                  className="inline-flex items-center justify-center h-9 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
                 >
                   Message
                 </a>

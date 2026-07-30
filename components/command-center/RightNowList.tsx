@@ -114,7 +114,7 @@ function ActionButton({ action }: { action: RightNowItem["action"] }) {
     return (
       <a
         href={action.href}
-        className="shrink-0 inline-flex items-center justify-center h-9 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
+        className="shrink-0 inline-flex items-center justify-center h-9 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
       >
         {action.label}
       </a>

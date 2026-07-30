@@ -17,8 +17,8 @@ export default function QuizNotFound() {
           href="https://elevateaisystem.com"
           className="inline-block mt-6 px-6 py-3 rounded-xl font-bold text-sm"
           style={{
-            backgroundColor: "#00FF41",
-            color: "#0A0F1C",
+            backgroundColor: "#0B6E23",
+            color: "#FAF8F3",
           }}
         >
           Visit ElevateAI

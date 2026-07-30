@@ -28,8 +28,8 @@ const COLORS = {
   bg: "#FAFAF8",          // --surface
   bgSoft: "#F0F0EB",      // --surface-deep
   navy: "#0A0F1C",        // --navy
-  brand: "#00FF41",       // --brand
-  brandSoft: "#E5FFE5",   // --brand-soft (approx)
+  brand: "#0B6E23",       // --brand (forest, warm-light system)
+  brandSoft: "#E7F0E6",   // --brand-soft (approx)
   border: "#D6D6D0",      // --border
   text: "#0A0F1C",
   textMuted: "#5C5C5C",

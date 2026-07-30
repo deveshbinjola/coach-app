@@ -418,7 +418,7 @@ export default function FrameworkGenerator({
             {fw.acronym.split("").map((letter, i) => (
               <span
                 key={i}
-                className="w-12 h-12 rounded-[var(--r-lg)] bg-[var(--navy,#0A0F1C)] text-[color:var(--brand,#00FF41)] font-display font-extrabold text-xl flex items-center justify-center"
+                className="w-12 h-12 rounded-[var(--r-lg)] bg-[var(--navy,#0A0F1C)] text-[color:var(--brand-bright,#4ADE80)] font-display font-extrabold text-xl flex items-center justify-center"
               >
                 {letter}
               </span>

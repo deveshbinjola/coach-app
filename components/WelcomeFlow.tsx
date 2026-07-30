@@ -540,7 +540,9 @@ function InterviewStep({
   const q = QUESTION[sub];
 
   return (
-    <div className="space-y-8 max-w-2xl">
+    // Same rhythm as /meet: one question, optically centered, each sub-step
+    // rising in fresh (key remount). Single-choice taps auto-advance.
+    <div key={sub} className="rise-in space-y-8 max-w-2xl mx-auto flex flex-col justify-center min-h-[calc(100dvh-320px)] w-full">
       <div className="space-y-3">
         <Badge tone="brand" size="xs" uppercase>Step 1 of 5 · The interview</Badge>
         <h2 className="text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
@@ -683,7 +685,7 @@ function InterviewChoice({
         <span
           className={`w-5 h-5 rounded-[var(--r-sm)] border flex items-center justify-center text-xs font-extrabold shrink-0 ${
             active
-              ? "bg-[var(--brand)] border-[var(--brand-strong)] text-[color:var(--navy)]"
+              ? "bg-[var(--brand)] border-[var(--brand-strong)] text-[color:var(--text-inverse)]"
               : "border-[var(--border)] text-transparent"
           }`}
           aria-hidden
@@ -739,7 +741,7 @@ function HelloStep({
         <button
           type="button"
           onClick={onContinue}
-          className="self-start inline-flex items-center justify-center h-12 px-6 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-body)] font-extrabold hover:bg-[var(--brand-strong)] transition"
+          className="self-start inline-flex items-center justify-center h-12 px-6 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-body)] font-extrabold hover:bg-[var(--brand-strong)] transition"
         >
           Let's go →
         </button>
@@ -752,7 +754,7 @@ function HelloStep({
           </div>
           <div className="mt-8 space-y-4">
             <div className="rounded-[var(--r-md)] bg-white/[0.06] border border-white/10 p-4">
-              <div className="text-[length:var(--t-caption)] font-bold text-[color:var(--brand)]">
+              <div className="text-[length:var(--t-caption)] font-bold text-[color:var(--brand-bright)]">
                 Lead Rescue
               </div>
               <div className="text-3xl font-bold tracking-tight mt-2">
@@ -764,7 +766,7 @@ function HelloStep({
               </p>
             </div>
 
-            <div className="rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] p-4">
+            <div className="rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] p-4">
               <div className="text-[length:var(--t-caption)] font-extrabold">
                 Draft ready
               </div>
@@ -1222,7 +1224,7 @@ function OnboardingInstagramImport({
 
         <div className="rounded-[var(--r-lg)] bg-[var(--navy)] p-4 text-[color:var(--text-inverse)] flex flex-col justify-between gap-5">
           <div>
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand)]">
+            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand-bright)]">
               Why this is first
             </div>
             <div className="mt-3 space-y-2">
@@ -1306,7 +1308,7 @@ function OnboardingImportRow({ label, value }: { label: string; value: string })
       <span className="text-[length:var(--t-caption)] font-bold text-white/60">
         {label}
       </span>
-      <span className="text-[length:var(--t-caption)] font-extrabold text-[color:var(--brand)] tabular-nums">
+      <span className="text-[length:var(--t-caption)] font-extrabold text-[color:var(--brand-bright)] tabular-nums">
         {value}
       </span>
     </div>
@@ -1482,7 +1484,7 @@ function MagicStep({
           <section className="rounded-[var(--r-lg)] bg-[var(--navy)] text-[color:var(--text-inverse)] p-4 sm:p-6 shadow-[var(--shadow-lg)]">
             <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
               <div>
-                <div className="text-[length:var(--t-caption)] font-bold text-[color:var(--brand)]">
+                <div className="text-[length:var(--t-caption)] font-bold text-[color:var(--brand-bright)]">
                   Inbound message
                 </div>
                 <p className="text-[length:var(--t-body)] text-white/78 leading-[var(--leading-relaxed)] italic mt-1 max-w-3xl">
@@ -1513,7 +1515,7 @@ function MagicStep({
                 </span>
               </div>
 
-              <div className="rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] p-5 flex flex-col shadow-[var(--shadow-md)]">
+              <div className="rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] p-5 flex flex-col shadow-[var(--shadow-md)]">
                 <div className="text-[length:var(--t-caption)] font-extrabold mb-3 flex items-center gap-1.5">
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--navy)]" />
                   Your voice
@@ -1559,7 +1561,7 @@ function MagicStep({
             <button
               type="button"
               onClick={onContinue}
-              className="inline-flex items-center justify-center h-12 px-6 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-body)] font-extrabold hover:bg-[var(--brand-strong)] transition"
+              className="inline-flex items-center justify-center h-12 px-6 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-body)] font-extrabold hover:bg-[var(--brand-strong)] transition"
             >
               That&rsquo;s me. Continue →
             </button>
@@ -1665,7 +1667,7 @@ function MagicStep({
           type="button"
           onClick={onGenerate}
           disabled={drafting || inbound.trim().length < 10}
-          className="inline-flex items-center gap-2 justify-center h-12 px-6 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-body)] font-extrabold hover:bg-[var(--brand-strong)] transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 justify-center h-12 px-6 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-body)] font-extrabold hover:bg-[var(--brand-strong)] transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {drafting ? (
             <>
@@ -1741,7 +1743,7 @@ function DoneStep({ firstName }: { firstName: string }) {
         </a>
         <a
           href="/leads/capture"
-          className="inline-flex items-center justify-center h-12 px-6 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-body)] font-extrabold hover:bg-[var(--brand-strong)] transition"
+          className="inline-flex items-center justify-center h-12 px-6 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-body)] font-extrabold hover:bg-[var(--brand-strong)] transition"
         >
           Add my first lead →
         </a>

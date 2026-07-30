@@ -75,7 +75,7 @@ export default function LeadCaptureWorkspace({
                 onClick={() => setMode(item.id)}
                 className={`h-9 rounded-[var(--r-sm)] px-3 text-[length:var(--t-caption)] font-extrabold transition ${
                   mode === item.id
-                    ? "bg-[var(--brand)] text-[color:var(--navy)]"
+                    ? "bg-[var(--brand)] text-[color:var(--text-inverse)]"
                     : "text-white/65 hover:text-white"
                 }`}
               >

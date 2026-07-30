@@ -143,7 +143,7 @@ export default function ObjectionDeck({ lead, onUseTemplate, voiceProfileSlug }:
                       className="text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border hover:opacity-90"
                       style={{
                         backgroundColor: "#0A0F1C",
-                        color: "#00FF41",
+                        color: "#4ADE80",
                         borderColor: "#0A0F1C",
                       }}
                     >

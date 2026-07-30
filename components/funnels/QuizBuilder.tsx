@@ -260,7 +260,7 @@ export default function QuizBuilder({ funnel: initial }: Props) {
 
   function buildPreviewHtml(): string {
     const bg = branding.background_hex || "#FAFAF8";
-    const primary = branding.primary_hex || "#00FF41";
+    const primary = branding.primary_hex || "#0B6E23";
     const font = branding.font_family || "Plus Jakarta Sans";
     const light = isLightColor(bg);
     const textColor = light ? "#0A0F1C" : "#FFFFFF";

@@ -2,7 +2,7 @@
 // Warm-light brand canvas: paper background, forest green accent, navy ink.
 // Serif fallback since canvas can't rely on webfont load timing.
 
-import type { Archetype } from "@/lib/assistant-interview";
+import type { Archetype, ArchetypeSlug } from "@/lib/assistant-interview";
 
 const W = 1080;
 const H = 1350;
@@ -14,6 +14,46 @@ const MUTED = "#5A5A52";
 
 const SERIF = "Georgia, 'Times New Roman', serif";
 const SANS = "'Plus Jakarta Sans', -apple-system, sans-serif";
+
+/** Canvas mirror of components/meet/ArchetypeMark.tsx. Draws at (x, y) in a
+ *  `size`-square box, single color. */
+function drawMark(
+  ctx: CanvasRenderingContext2D,
+  slug: ArchetypeSlug,
+  x: number,
+  y: number,
+  size: number,
+  color: string,
+): void {
+  const u = size / 44;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 3 * u;
+  ctx.lineJoin = "round";
+  if (slug === "closer") {
+    ctx.beginPath(); ctx.arc(22 * u, 22 * u, 17 * u, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(22 * u, 22 * u, 9 * u, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(22 * u, 22 * u, 3 * u, 0, Math.PI * 2); ctx.fill();
+  } else if (slug === "ghostwriter") {
+    ctx.beginPath(); ctx.roundRect(6 * u, 10 * u, 32 * u, 4.5 * u, 2.25 * u); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(6 * u, 20 * u, 24 * u, 4.5 * u, 2.25 * u); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(6 * u, 30 * u, 13 * u, 4.5 * u, 2.25 * u); ctx.fill();
+    ctx.beginPath(); ctx.arc(35 * u, 32.25 * u, 3 * u, 0, Math.PI * 2); ctx.fill();
+  } else if (slug === "operator") {
+    ctx.beginPath(); ctx.roundRect(7 * u, 7 * u, 13 * u, 13 * u, 3.5 * u); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(24 * u, 7 * u, 13 * u, 13 * u, 3.5 * u); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(7 * u, 24 * u, 13 * u, 13 * u, 3.5 * u); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(24 * u, 24 * u, 13 * u, 13 * u, 3.5 * u); ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(22 * u, 8 * u); ctx.lineTo(36 * u, 28 * u); ctx.lineTo(8 * u, 28 * u);
+    ctx.closePath(); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(6 * u, 33 * u, 32 * u, 4 * u, 2 * u); ctx.fill();
+  }
+  ctx.restore();
+}
 
 function wrapText(
   ctx: CanvasRenderingContext2D,
@@ -57,10 +97,11 @@ export async function renderArchetypeCard(archetype: Archetype): Promise<Blob> {
 
   const PAD = 90;
 
-  // Eyebrow.
+  // Eyebrow + the archetype's mark, top-right.
   ctx.font = `700 26px ${SANS}`;
   ctx.fillStyle = FOREST;
   ctx.fillText("M Y  A S S I S T A N T  A R C H E T Y P E", PAD, 110);
+  drawMark(ctx, archetype.slug, W - PAD - 110, 85, 110, FOREST);
 
   // Archetype name.
   ctx.font = `800 110px ${SERIF}`;

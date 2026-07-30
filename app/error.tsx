@@ -60,7 +60,7 @@ export default function GlobalError({ error, reset }: Props) {
             <button
               type="button"
               onClick={reset}
-              className="inline-flex items-center justify-center h-11 px-5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-extrabold hover:bg-[var(--brand-strong)] transition"
+              className="inline-flex items-center justify-center h-11 px-5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-caption)] font-extrabold hover:bg-[var(--brand-strong)] transition"
             >
               Try again
             </button>

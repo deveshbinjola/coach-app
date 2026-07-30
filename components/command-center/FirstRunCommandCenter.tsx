@@ -17,7 +17,7 @@ export default function FirstRunCommandCenter() {
           <div className="mt-6 flex flex-wrap gap-2">
             <a
               href="/leads/capture"
-              className="inline-flex h-11 items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-4 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] hover:bg-[var(--brand-strong)] transition"
+              className="inline-flex h-11 items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-4 text-[length:var(--t-caption)] font-extrabold text-[color:var(--text-inverse)] hover:bg-[var(--brand-strong)] transition"
             >
               Capture first lead
             </a>
@@ -31,7 +31,7 @@ export default function FirstRunCommandCenter() {
         </div>
 
         <div className="rounded-[var(--r-lg)] bg-[var(--navy)] p-4 text-[color:var(--text-inverse)] shadow-[var(--shadow-md)]">
-          <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand)]">
+          <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand-bright)]">
             Activation path
           </div>
           <div className="mt-4 space-y-3">

@@ -98,7 +98,7 @@ const CSS = `
   font-family:var(--fb);
 }
 .rb-page .rb-nav-logo-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.rb-page .rb-nav-logo-text span{color:#00CC34}
+.rb-page .rb-nav-logo-text span{color:#0B6E23}
 .rb-page .rb-nav-links{display:flex;gap:2rem;align-items:center}
 .rb-page .rb-nav-links a{
   font-size:.85rem;font-weight:700;
@@ -109,16 +109,16 @@ const CSS = `
 .rb-page .rb-nav-links a:hover{color:#0A0F1C}
 .rb-page .rb-nav-links a::after{
   content:'';position:absolute;bottom:-2px;left:0;
-  width:0;height:2px;background:#00FF41;transition:width .3s;
+  width:0;height:2px;background:#0B6E23;transition:width .3s;
 }
 .rb-page .rb-nav-links a:hover::after{width:100%}
 .rb-page .rb-nav-cta{
-  background:#00FF41;color:#0A0F1C !important;
+  background:#0B6E23;color:#FAF8F3 !important;
   padding:.65rem 1.6rem;border-radius:50px;
   font-size:.85rem;font-weight:800;
   transition:all .3s;letter-spacing:.02em;
 }
-.rb-page .rb-nav-cta:hover{background:#00CC34;transform:translateY(-1px);box-shadow:0 4px 15px rgba(0,255,65,.25)}
+.rb-page .rb-nav-cta:hover{background:#085119;transform:translateY(-1px);box-shadow:0 4px 15px rgba(11,110,35,.25)}
 .rb-page .rb-nav-cta::after{display:none !important}
 .rb-page .rb-mobile-menu{
   display:none;flex-direction:column;gap:5px;cursor:pointer;
@@ -735,9 +735,9 @@ function CanonicalLeaf({ size = 36 }: { size?: number }) {
   // Canonical brand mark used across elevateaisystem.com — matches navbar.js leafSVG.
   return (
     <svg viewBox="0 0 48 48" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="3" y="4" width="39" height="39" rx="9.8" fill="#00F33D"/>
-      <path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#071126"/>
-      <path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#071126" strokeWidth="2.7" strokeLinecap="round"/>
+      <rect x="3" y="4" width="39" height="39" rx="9.8" fill="#0B6E23"/>
+      <path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#FAF8F3"/>
+      <path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#FAF8F3" strokeWidth="2.7" strokeLinecap="round"/>
     </svg>
   );
 }

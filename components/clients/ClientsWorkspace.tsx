@@ -302,7 +302,7 @@ function EmptyClients() {
       </p>
       <a
         href="/inbox"
-        className="mt-5 inline-flex min-h-11 items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-5 text-[length:var(--t-caption)] font-extrabold text-[color:var(--navy)] transition hover:bg-[var(--brand-strong)]"
+        className="mt-5 inline-flex min-h-11 items-center justify-center rounded-[var(--r-md)] bg-[var(--brand)] px-5 text-[length:var(--t-caption)] font-extrabold text-[color:var(--text-inverse)] transition hover:bg-[var(--brand-strong)]"
       >
         Go to leads
       </a>

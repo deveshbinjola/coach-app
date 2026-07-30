@@ -263,7 +263,7 @@ export default function VoiceLeadsPanel() {
         {savedIds.length > 0 && (
           <a
             href={`/inbox?compose=open&source=start-here&ids=${encodeURIComponent(savedIds.join(","))}`}
-            className="inline-flex items-center justify-center mt-5 h-10 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
+            className="inline-flex items-center justify-center mt-5 h-10 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
           >
             Open Compose now
           </a>
@@ -334,7 +334,7 @@ export default function VoiceLeadsPanel() {
                   type="button"
                   onClick={parse}
                   disabled={parsing || transcript.trim().length < 10}
-                  className="inline-flex items-center gap-2 h-11 px-5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] font-bold text-[length:var(--t-caption)] hover:bg-[var(--brand-strong)] transition disabled:opacity-50"
+                  className="inline-flex items-center gap-2 h-11 px-5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] font-bold text-[length:var(--t-caption)] hover:bg-[var(--brand-strong)] transition disabled:opacity-50"
                 >
                   {parsing ? (
                     <>
@@ -407,7 +407,7 @@ export default function VoiceLeadsPanel() {
                   type="button"
                   onClick={parse}
                   disabled={parsing || !imageBase64}
-                  className="inline-flex items-center gap-2 h-11 px-5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] font-bold text-[length:var(--t-caption)] hover:bg-[var(--brand-strong)] transition disabled:opacity-50"
+                  className="inline-flex items-center gap-2 h-11 px-5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] font-bold text-[length:var(--t-caption)] hover:bg-[var(--brand-strong)] transition disabled:opacity-50"
                 >
                   {parsing ? (
                     <>

@@ -221,8 +221,8 @@ export default function Header({ email, name, avatarUrl, emphasis, navUnlocks }:
                 <span
                   className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-[length:var(--t-label)] font-bold ${
                     menuOpen
-                      ? "bg-[var(--brand)] text-[color:var(--navy)]"
-                      : "bg-[var(--navy)] text-[color:var(--brand)]"
+                      ? "bg-[var(--brand)] text-[color:var(--text-inverse)]"
+                      : "bg-[var(--navy)] text-[color:var(--brand-bright)]"
                   }`}
                 >
                   {initials || "•"}
@@ -262,7 +262,7 @@ export default function Header({ email, name, avatarUrl, emphasis, navUnlocks }:
                       onError={() => setAvatarFailed(true)}
                     />
                   ) : (
-                    <span className="inline-flex h-[42px] w-[42px] items-center justify-center rounded-full bg-[var(--navy)] text-[color:var(--brand)] text-[length:var(--t-caption)] font-extrabold">
+                    <span className="inline-flex h-[42px] w-[42px] items-center justify-center rounded-full bg-[var(--navy)] text-[color:var(--brand-bright)] text-[length:var(--t-caption)] font-extrabold">
                       {initials || "•"}
                     </span>
                   )}

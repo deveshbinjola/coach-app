@@ -95,7 +95,7 @@ export default function PolishPanel({ hasVoice, weakVoice }: { hasVoice: boolean
         <p className="mt-2 text-[length:var(--t-caption)] text-[color:var(--text-muted)] max-w-md mx-auto">
           Polish rewrites your rough drafts in your voice. Set your voice up once and this comes alive.
         </p>
-        <a href="/voice" className="inline-flex items-center justify-center h-11 px-5 mt-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] font-extrabold">
+        <a href="/voice" className="inline-flex items-center justify-center h-11 px-5 mt-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] font-extrabold">
           Build my voice
         </a>
       </Card>

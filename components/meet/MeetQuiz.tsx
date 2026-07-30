@@ -21,6 +21,7 @@ import {
 } from "@/lib/assistant-interview";
 import { renderArchetypeCard } from "@/lib/meet-share-card";
 import { shareOrDownload } from "@/lib/share-card";
+import ArchetypeMark from "@/components/meet/ArchetypeMark";
 
 type Screen = "intro" | "q1" | "q2" | "q3" | "result";
 
@@ -197,7 +198,8 @@ export default function MeetQuiz() {
           <span className="mq-logo-text">Coach <span>Assistant</span></span>
         </a>
 
-        <div className="mq-body">
+        {/* key={screen} remounts the block so each question slides in fresh. */}
+        <div className="mq-body mq-screen" key={screen}>
         {screen !== "intro" && screen !== "result" && (
           <div className="mq-progress" aria-hidden>
             {[1, 2, 3].map((n) => (
@@ -288,7 +290,10 @@ export default function MeetQuiz() {
             <h1 className="mq-hero-title">You need <em>{archetype.name}.</em></h1>
 
             <div className="mq-result-card">
-              <p className="mq-result-kicker">Your assistant archetype</p>
+              <div className="mq-result-head">
+                <p className="mq-result-kicker">Your assistant archetype</p>
+                <ArchetypeMark slug={archetype.slug} size={40} />
+              </div>
               <p className="mq-result-name">{archetype.name}</p>
               <p className="mq-result-tagline">{archetype.tagline}</p>
               <p className="mq-week-label">In week one, your assistant will</p>

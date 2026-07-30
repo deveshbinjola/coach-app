@@ -21,7 +21,7 @@ export default function VoiceFitPanel({
       ? {
           label: "Ready",
           bar: "bg-[var(--brand)]",
-          chip: "bg-[var(--brand)] text-[color:var(--navy)]",
+          chip: "bg-[var(--brand)] text-[color:var(--text-inverse)]",
         }
       : fit.label === "needs_edit"
         ? {
@@ -121,7 +121,7 @@ export default function VoiceFitPanel({
             type="button"
             onClick={onImprove}
             disabled={improving}
-            className="inline-flex items-center justify-center h-8 px-3 rounded-[var(--r-sm)] bg-[var(--navy)] text-[color:var(--brand)] text-[11px] font-extrabold uppercase tracking-wider hover:opacity-90 disabled:opacity-50 transition"
+            className="inline-flex items-center justify-center h-8 px-3 rounded-[var(--r-sm)] bg-[var(--navy)] text-[color:var(--brand-bright)] text-[11px] font-extrabold uppercase tracking-wider hover:opacity-90 disabled:opacity-50 transition"
           >
             {improving ? "Fixing..." : "Fix voice"}
           </button>

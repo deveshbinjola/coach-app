@@ -97,7 +97,7 @@ export default function FitCard({ lead, onChange }: Props) {
 
   const bandStyle =
     fit.band === "strong"
-      ? { backgroundColor: "#0A0F1C", color: "#00FF41", borderColor: "#0A0F1C" }
+      ? { backgroundColor: "#0A0F1C", color: "#4ADE80", borderColor: "#0A0F1C" }
       : fit.band === "decent"
       ? { backgroundColor: "#FFFBEB", color: "#78350F", borderColor: "#FCD34D" }
       : fit.band === "weak"

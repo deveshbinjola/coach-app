@@ -77,7 +77,7 @@ export default function SequenceList({ sequences: initial }: Props) {
           type="button"
           onClick={handleCreate}
           disabled={creating}
-          className="flex items-center gap-2 px-4 h-10 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--navy)] text-[length:var(--t-caption)] font-bold shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition disabled:opacity-50"
+          className="flex items-center gap-2 px-4 h-10 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-caption)] font-bold shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition disabled:opacity-50"
         >
           <Plus size={16} strokeWidth={2.5} />
           New Sequence
