@@ -135,6 +135,63 @@
 .ln-foot a { color: var(--muted); text-decoration: none; }
 .ln-foot a:hover { color: var(--ink); }
 
+/* ── Rotating headline tail ──
+   Four real jobs instead of one weak word. Stacked in a grid so the box is
+   as wide as the longest line and nothing reflows as they cycle. */
+.ln-rot { display: inline-grid; vertical-align: bottom; }
+.ln-rot > span {
+  grid-area: 1 / 1;
+  color: var(--forest);
+  font-style: italic;
+  line-height: inherit;
+  opacity: 0;
+  white-space: nowrap;
+  animation: ln-rot 13s infinite;
+}
+.ln-rot > span:nth-child(1) { animation-delay: 0s; }
+.ln-rot > span:nth-child(2) { animation-delay: 3.25s; }
+.ln-rot > span:nth-child(3) { animation-delay: 6.5s; }
+.ln-rot > span:nth-child(4) { animation-delay: 9.75s; }
+/* Fade-out runs past the next word's fade-in (24-28% against a 25% step)
+   so the words cross over. Ending exactly on the step left the headline
+   reading "you did not become a coach to" with nothing after it. */
+@keyframes ln-rot {
+  0%   { opacity: 0; transform: translateY(0.22em); }
+  3%   { opacity: 1; transform: translateY(0); }
+  24%  { opacity: 1; transform: translateY(0); }
+  28%  { opacity: 0; transform: translateY(-0.22em); }
+  100% { opacity: 0; transform: translateY(-0.22em); }
+}
+
+/* ── Hero visual slot ──
+   Holds a real photograph when there is one. Until then it carries the
+   question, which is the one claim on this page nobody can argue with. */
+.ln-ask {
+  background: var(--card); border: 1px solid var(--line); border-radius: 24px;
+  padding: 3rem 2.5rem; text-align: center;
+  box-shadow: 0 24px 60px rgba(10, 15, 28, 0.06);
+}
+.ln-ask-q {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 800;
+  font-size: clamp(1.5rem, 2.6vw, 2rem); line-height: 1.2; letter-spacing: -0.02em;
+  margin: 0 0 1rem; color: var(--ink);
+}
+.ln-ask-a { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0; }
+.ln-ask-a strong { color: var(--forest); font-weight: 700; }
+
+/* ── What you get back: asymmetric pair grid, not three equal cards ── */
+.ln-back { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1rem; margin-top: 2.5rem; }
+.ln-back-item { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 1.75rem; }
+.ln-back-item:nth-child(1) { grid-column: 1 / -1; background: var(--forest-tint); border-color: rgba(11,110,35,0.25); }
+.ln-back-h { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 1.35rem; line-height: 1.2; margin: 0 0 0.5rem; color: var(--ink); }
+.ln-back-item:nth-child(1) .ln-back-h { font-size: clamp(1.5rem, 2.4vw, 1.9rem); }
+.ln-back-b { font-size: 0.98rem; line-height: 1.6; color: var(--muted); margin: 0; }
+
+/* ── Who this is for ── */
+.ln-forwho { border-left: 3px solid var(--forest); padding: 0.35rem 0 0.35rem 1.5rem; }
+.ln-forwho p { margin: 0; font-size: 1.05rem; line-height: 1.7; color: var(--muted); }
+.ln-forwho strong { color: var(--ink); font-weight: 700; }
+
 /* ── Motion ── */
 .ln-rise { animation: ln-rise 0.7s cubic-bezier(.16,1,.3,1) both; }
 .ln-rise-2 { animation-delay: 0.08s; }
@@ -144,6 +201,9 @@
 @media (prefers-reduced-motion: reduce) {
   .ln-rise, .ln-rise-2, .ln-rise-3 { animation: none; }
   .ln-btn { transition: none; }
+  /* The rotator must not leave an empty headline when animation is off. */
+  .ln-rot > span { animation: none; opacity: 0; }
+  .ln-rot > span:first-child { opacity: 1; }
 }
 
 /* ── Mobile ── */
@@ -152,8 +212,13 @@
   .ln-hero-sub { max-width: none; }
   .ln-sec { padding: 4rem 0; }
 }
+@media (max-width: 760px) {
+  .ln-back { grid-template-columns: 1fr; }
+}
 @media (max-width: 560px) {
   .ln-wrap { padding: 0 1.15rem; }
+  .ln-ask { padding: 2.25rem 1.5rem; }
+  .ln-rot > span { white-space: normal; }
   /* Nav must stay on one line. The text sign-in link is what breaks it, and
      it is redundant on mobile: the hero and the footer both carry one. */
   .ln-nav-in { height: 60px; }

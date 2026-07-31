@@ -1,17 +1,23 @@
 // The public front door at app.elevateaisystem.com.
 //
-// Copy rule for this page: a five year old could read it out loud and know
-// what the thing does. No jargon, no "leverage", no "seamless", no
-// "AI-powered". Short words, true sentences, and the boundary stated in
-// public so the promise is checkable.
+// Copy rules for this page:
+//   - A five year old could read it aloud and know what the thing does.
+//   - Every pain named here is one Sunny heard in real coach interviews:
+//     admin is the whole problem, and inside admin it is leads first,
+//     then content, then marketing. Session prep is deliberately absent
+//     because coaches did not raise it.
+//   - No invented statistics. Where a number would go, ask a question the
+//     coach answers from their own week instead.
 //
-// Structure (each section a different layout family, per the design rules):
-//   1. Hero            asymmetric split, copy + the demo
-//   2. The week        editorial stack with hairlines
-//   3. What it is      centred manifesto
-//   4. How it works    numbered sequence
-//   5. What it will not do   the one bold colour block
-//   6. Close           centred CTA
+// Structure (each section a different layout family):
+//   1. Hero              split: rotating headline + the question / photo slot
+//   2. Your week         editorial stack, dated and specific
+//   3. Chief of staff    centred manifesto
+//   4. How it works      numbered sequence
+//   5. What it feels like  the demo, moved down from the hero
+//   6. What you get back asymmetric pair grid
+//   7. Never do          the one bold colour block
+//   8. Who it is for + close
 
 export default function LandingPage() {
   return (
@@ -34,11 +40,17 @@ export default function LandingPage() {
         <div className="ln-wrap ln-hero-grid">
           <div className="ln-rise">
             <h1 className="ln-h1">
-              You did not become a coach <em>to type.</em>
+              You did not become a coach to{" "}
+              <span className="ln-rot" aria-label="chase leads, write posts, do marketing, run admin">
+                <span>chase leads.</span>
+                <span>write posts.</span>
+                <span>do marketing.</span>
+                <span>run admin.</span>
+              </span>
             </h1>
             <p className="ln-hero-sub">
-              Coach Assistant writes your messages in your own words, so you can
-              be with people instead of your inbox.
+              Coach Assistant runs the admin in your own words, so your week
+              goes back to the work only you can do.
             </p>
             <div className="ln-hero-cta">
               <a href="/meet" className="ln-btn ln-btn-lg">Meet your assistant</a>
@@ -47,47 +59,51 @@ export default function LandingPage() {
           </div>
 
           <div className="ln-rise ln-rise-2">
-            <PhoneDemo />
+            <HeroVisual />
           </div>
         </div>
       </header>
 
-      {/* 2. The week */}
+      {/* 2. Your week */}
       <section className="ln-sec ln-problem">
         <div className="ln-wrap ln-narrow">
           <p className="ln-eyebrow">Right now</p>
           <h2 className="ln-h2">This is your week.</h2>
           <ul className="ln-pains">
             <li className="ln-pain">
-              <span className="ln-pain-when">Monday</span>
-              Someone asks about coaching. You mean to reply properly, so you do not reply at all.
+              <span className="ln-pain-when">Leads</span>
+              Someone asked about coaching eleven days ago. The message is still
+              sitting there, going cold.
             </li>
             <li className="ln-pain">
-              <span className="ln-pain-when">Wednesday</span>
-              You write a post. It sounds like a stranger wearing your name.
+              <span className="ln-pain-when">Content</span>
+              The post you finished three weeks ago is still in drafts. You know
+              it is good. You still have not put it up.
             </li>
             <li className="ln-pain">
-              <span className="ln-pain-when">Friday</span>
-              A client has gone quiet. You will notice next week.
+              <span className="ln-pain-when">Marketing</span>
+              The thing you keep meaning to launch is a note on your phone, and
+              has been for a month.
             </li>
             <li className="ln-pain">
-              <span className="ln-pain-when">Sunday</span>
-              It is eleven at night and you are still answering messages.
+              <span className="ln-pain-when">You</span>
+              Your own practice got skipped again, because the inbox came first.
+              It is eleven at night.
             </li>
           </ul>
         </div>
       </section>
 
-      {/* 3. What it is */}
+      {/* 3. Chief of staff */}
       <section className="ln-sec">
         <div className="ln-wrap ln-narrow ln-manifesto">
           <p className="ln-manifesto-line">
-            So we built you <em>an assistant.</em>
+            So we built you <em>a chief of staff.</em>
           </p>
           <p className="ln-manifesto-sub">
             Not a chatbot. Not a course. Someone who works for you all day,
             knows your people, and writes the way you write. You stay the coach.
-            It does the typing.
+            It runs everything else.
           </p>
         </div>
       </section>
@@ -106,7 +122,7 @@ export default function LandingPage() {
                 <p className="ln-step-b">
                   A few questions, one at a time. What kind of coach you are, who
                   you work with, what you want off your plate first. It listens
-                  and remembers.
+                  and it remembers.
                 </p>
               </div>
             </div>
@@ -117,8 +133,8 @@ export default function LandingPage() {
                 <h3 className="ln-step-h">It learns how you talk</h3>
                 <p className="ln-step-b">
                   Show it something you already wrote. It picks up your rhythm,
-                  your words, the things you would never say. Now it sounds like
-                  you and not like a robot.
+                  your words, and the things you would never say. Now it sounds
+                  like you and not like a robot.
                 </p>
               </div>
             </div>
@@ -128,9 +144,9 @@ export default function LandingPage() {
               <div>
                 <h3 className="ln-step-h">It gets to work</h3>
                 <p className="ln-step-b">
-                  A message comes in and the reply is already written, waiting
-                  for you to say yes. Someone goes quiet and you hear about it
-                  the same day, not next month.
+                  Leads get answered while they are still warm. Posts get
+                  written. You get one short note each morning telling you what
+                  actually needs you today, and nothing when nothing does.
                 </p>
               </div>
             </div>
@@ -138,7 +154,62 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 5. What it will not do */}
+      {/* 5. What it feels like */}
+      <section className="ln-sec">
+        <div className="ln-wrap ln-hero-grid">
+          <div>
+            <p className="ln-eyebrow">What it feels like</p>
+            <h2 className="ln-h2">Same lead. Two replies.</h2>
+            <p className="ln-lead">
+              Every other tool writes the one on top. Polite, smooth, and clearly
+              not you. Yours writes the one underneath, because it learned how
+              you actually talk to people.
+            </p>
+            <p className="ln-lead" style={{ marginTop: "1rem" }}>
+              You read it, you change a word if you want, you send it. That is
+              the whole job.
+            </p>
+          </div>
+          <PhoneDemo />
+        </div>
+      </section>
+
+      {/* 6. What you get back */}
+      <section className="ln-sec ln-problem">
+        <div className="ln-wrap ln-narrow">
+          <h2 className="ln-h2">What you get back.</h2>
+          <p className="ln-lead">
+            The point was never to answer messages faster. It was to stop losing
+            your week to them.
+          </p>
+
+          <div className="ln-back">
+            <div className="ln-back-item">
+              <h3 className="ln-back-h">The work you are actually here for</h3>
+              <p className="ln-back-b">
+                More hours in the room with people, fewer hours in tabs. The
+                thing you are gifted at is the thing you spend your time on.
+              </p>
+            </div>
+            <div className="ln-back-item">
+              <h3 className="ln-back-h">Your own practice</h3>
+              <p className="ln-back-b">
+                The training, the breath, the reading. The work that made you
+                worth hiring, done before the inbox opens.
+              </p>
+            </div>
+            <div className="ln-back-item">
+              <h3 className="ln-back-h">Your evenings</h3>
+              <p className="ln-back-b">
+                Dinner without a phone on the table. The people you live with
+                get you back.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Never do */}
       <section className="ln-sec">
         <div className="ln-wrap ln-narrow">
           <div className="ln-promise">
@@ -146,11 +217,17 @@ export default function LandingPage() {
             <ul className="ln-nots">
               <li className="ln-not">
                 <span className="ln-not-mark" aria-hidden>✕</span>
-                Send anything to anyone without you reading it first.
+                Send anything to anyone without you reading it first. Nothing
+                leaves without your yes.
               </li>
               <li className="ln-not">
                 <span className="ln-not-mark" aria-hidden>✕</span>
-                Sit in a session pretending to be you. That room is yours.
+                Sit in a session pretending to be you. That room is yours and it
+                always will be.
+              </li>
+              <li className="ln-not">
+                <span className="ln-not-mark" aria-hidden>✕</span>
+                Post as you on your own accounts. It writes, you publish.
               </li>
               <li className="ln-not">
                 <span className="ln-not-mark" aria-hidden>✕</span>
@@ -158,16 +235,33 @@ export default function LandingPage() {
               </li>
               <li className="ln-not">
                 <span className="ln-not-mark" aria-hidden>✕</span>
-                Use anything your clients told you to sell anything to anyone.
+                Touch what your clients told you. Their words are not training
+                data and never will be.
+              </li>
+              <li className="ln-not">
+                <span className="ln-not-mark" aria-hidden>✕</span>
+                Lock your work in. Export everything, delete everything, any
+                time you want.
               </li>
             </ul>
           </div>
         </div>
       </section>
 
-      {/* 6. Close */}
+      {/* 8. Who it is for, and the close */}
       <section className="ln-sec-tight">
-        <div className="ln-wrap ln-narrow ln-close">
+        <div className="ln-wrap ln-narrow">
+          <div className="ln-forwho">
+            <p>
+              Built for <strong>coaches who do real inner work</strong>. Men&apos;s
+              work, embodiment, somatic, depth. People whose whole value is being
+              fully present in a room, which is exactly what admin steals. If you
+              want a bot to blast strangers, this is the wrong tool.
+            </p>
+          </div>
+        </div>
+
+        <div className="ln-wrap ln-narrow ln-close" style={{ marginTop: "4rem" }}>
           <h2 className="ln-h2">Two minutes and it knows you.</h2>
           <p className="ln-lead" style={{ margin: "0 auto 2rem" }}>
             Answer three questions. See what kind of assistant your practice
@@ -200,8 +294,34 @@ function BrandLeaf() {
   );
 }
 
-/** The demo. A real message thread, which is what the product actually is:
- *  the same lead, answered twice, so the difference is the whole pitch. */
+/** HERO VISUAL SLOT.
+ *
+ *  Replace this whole block with a real photograph when there is one. The
+ *  strongest option is a real coaching moment: two people in a room, mid
+ *  session, no screens. The hero should sell what the coach gets back
+ *  (presence), which is why the product demo now lives further down.
+ *
+ *    <img src="/hero-session.jpg" alt="Sunny mid session with a client"
+ *         width={720} height={880} className="ln-hero-photo" />
+ *
+ *  Until then this carries the one claim on the page that cannot be argued
+ *  with, because the visitor answers it themselves. */
+function HeroVisual() {
+  return (
+    <div className="ln-ask">
+      <p className="ln-ask-q">
+        How much of last week did you actually spend coaching?
+      </p>
+      <p className="ln-ask-a">
+        Count it honestly. Everything else is <strong>admin</strong>, and it is
+        not why you started.
+      </p>
+    </div>
+  );
+}
+
+/** The demo. One real lead, answered twice, because the difference between
+ *  those two replies is the entire pitch. */
 function PhoneDemo() {
   return (
     <div className="ln-phone">
