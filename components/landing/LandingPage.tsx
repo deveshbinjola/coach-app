@@ -86,11 +86,20 @@ export default function LandingPage() {
               has been for a month.
             </li>
             <li className="ln-pain">
+              <span className="ln-pain-when">Home</span>
+              You were at the table but not really there. Your kid asked twice.
+              You were still writing the reply in your head.
+            </li>
+            <li className="ln-pain">
               <span className="ln-pain-when">You</span>
               Your own practice got skipped again, because the inbox came first.
               It is eleven at night.
             </li>
           </ul>
+          <p className="ln-lead" style={{ marginTop: "2rem" }}>
+            None of that is coaching. All of it is admin. And admin is what you
+            are giving your best hours to.
+          </p>
         </div>
       </section>
 
@@ -101,9 +110,11 @@ export default function LandingPage() {
             So we built you <em>a chief of staff.</em>
           </p>
           <p className="ln-manifesto-sub">
-            Not a chatbot. Not a course. Someone who works for you all day,
-            knows your people, and writes the way you write. You stay the coach.
-            It runs everything else.
+            Think of the person a busy leader cannot work without. The one who
+            knows every name, catches what is slipping, and has the reply
+            already written before you ask. That is what this is. It works while
+            you are in session, it sounds exactly like you, and it hands you
+            your day already sorted. You stay the coach. It runs the rest.
           </p>
         </div>
       </section>
@@ -185,26 +196,59 @@ export default function LandingPage() {
 
           <div className="ln-back">
             <div className="ln-back-item">
-              <h3 className="ln-back-h">The work you are actually here for</h3>
+              <h3 className="ln-back-h">The hours you are actually good at</h3>
               <p className="ln-back-b">
-                More hours in the room with people, fewer hours in tabs. The
-                thing you are gifted at is the thing you spend your time on.
+                You walk into the session having thought about the person, not
+                about your inbox. You finish and you are not behind. The gift
+                you built your life around gets your best hours instead of
+                whatever is left at the end of the day.
               </p>
             </div>
             <div className="ln-back-item">
               <h3 className="ln-back-h">Your own practice</h3>
               <p className="ln-back-b">
-                The training, the breath, the reading. The work that made you
-                worth hiring, done before the inbox opens.
+                The mat gets rolled out. The breath work happens before the
+                phone, not instead of sleep. You keep doing the work that made
+                you worth hiring in the first place.
               </p>
             </div>
             <div className="ln-back-item">
-              <h3 className="ln-back-h">Your evenings</h3>
+              <h3 className="ln-back-h">The people at your table</h3>
               <p className="ln-back-b">
-                Dinner without a phone on the table. The people you live with
-                get you back.
+                Your partner gets you present, not typing. Your kid asks once
+                and you are already listening. You are home when you are home.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6b. Why I built it. The believability slot. */}
+      <section className="ln-sec">
+        <div className="ln-wrap ln-narrow ln-founder">
+          {/* TODO: swap for a real photo.
+              <img src="/sunny.jpg" alt="Sunny Binjola" className="ln-founder-photo" /> */}
+          <div className="ln-founder-photo" aria-hidden>SB</div>
+          <div>
+            <p className="ln-founder-quote">
+              I built this because it was my week too.
+            </p>
+            <p className="ln-founder-body">
+              I coach men. Breath, body, purpose, the hard conversations. And I
+              kept watching my week fill up with everything except that. Leads I
+              meant to answer. Posts I never put up. Marketing I kept moving to
+              tomorrow.
+            </p>
+            <p className="ln-founder-body">
+              I did not want another tool. I wanted someone who could hold the
+              admin the way a good chief of staff does, in my voice, without me
+              checking it every five minutes. So I built one, and then I built
+              it for the rest of us.
+            </p>
+            <p className="ln-founder-name">Sunny Binjola</p>
+            <p className="ln-founder-role">
+              Men&apos;s embodiment coach. Founder, Coach Assistant.
+            </p>
           </div>
         </div>
       </section>

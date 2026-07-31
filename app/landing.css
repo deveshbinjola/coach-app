@@ -187,6 +187,26 @@
 .ln-back-item:nth-child(1) .ln-back-h { font-size: clamp(1.5rem, 2.4vw, 1.9rem); }
 .ln-back-b { font-size: 0.98rem; line-height: 1.6; color: var(--muted); margin: 0; }
 
+/* ── Founder note: the believability slot ──
+   Harry Dry's above-the-fold formula has five parts and we had four. This
+   is the missing one, and it is not a logo wall or a borrowed testimonial.
+   It is the seam: the person who built it has the problem it solves. */
+.ln-founder { display: grid; grid-template-columns: 92px 1fr; gap: 1.75rem; align-items: start; }
+.ln-founder-photo {
+  width: 92px; height: 92px; border-radius: 50%; object-fit: cover;
+  background: var(--forest-tint); border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', Georgia, serif; font-size: 1.8rem; font-weight: 800; color: var(--forest);
+}
+.ln-founder-quote {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 700;
+  font-size: clamp(1.25rem, 2.3vw, 1.7rem); line-height: 1.35; letter-spacing: -0.01em;
+  margin: 0 0 1rem; color: var(--ink);
+}
+.ln-founder-body { font-size: 1rem; line-height: 1.7; color: var(--muted); margin: 0 0 1rem; max-width: 52ch; }
+.ln-founder-name { font-size: 0.92rem; color: var(--ink); font-weight: 700; margin: 0; }
+.ln-founder-role { font-size: 0.88rem; color: var(--faint); margin: 0.15rem 0 0; }
+
 /* ── Who this is for ── */
 .ln-forwho { border-left: 3px solid var(--forest); padding: 0.35rem 0 0.35rem 1.5rem; }
 .ln-forwho p { margin: 0; font-size: 1.05rem; line-height: 1.7; color: var(--muted); }
@@ -214,6 +234,7 @@
 }
 @media (max-width: 760px) {
   .ln-back { grid-template-columns: 1fr; }
+  .ln-founder { grid-template-columns: 1fr; gap: 1.25rem; }
 }
 @media (max-width: 560px) {
   .ln-wrap { padding: 0 1.15rem; }
