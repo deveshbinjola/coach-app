@@ -14,10 +14,12 @@
 //   2. Your week         editorial stack, dated and specific
 //   3. Chief of staff    centred manifesto
 //   4. How it works      numbered sequence
-//   5. What it feels like  the demo, moved down from the hero
+//   5. The demo         the live one: they type, the product answers
 //   6. What you get back asymmetric pair grid
 //   7. Never do          the one bold colour block
 //   8. Who it is for + close
+
+import LiveDemo from "./LiveDemo";
 
 export default function LandingPage() {
   return (
@@ -170,23 +172,23 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 5. What it feels like */}
+      {/* 5. The demo. Not a picture of the product, the product. */}
       <section className="ln-sec">
         <div className="ln-wrap ln-hero-grid">
           <div>
-            <p className="ln-eyebrow">What it feels like</p>
+            <p className="ln-eyebrow">Try it on a real message</p>
             <h2 className="ln-h2">Same lead. Two replies.</h2>
             <p className="ln-lead">
-              Every other tool writes the one on top. Polite, smooth, and clearly
-              not you. Yours writes the one underneath, because it learned how
-              you actually talk to people.
+              Paste a message someone actually sent you, and a few lines you
+              actually wrote. The same model answers it twice. One draft gets
+              your words. One does not.
             </p>
             <p className="ln-lead" style={{ marginTop: "1rem" }}>
-              You read it, you change a word if you want, you send it. That is
-              the whole job.
+              You will know which one you would have sent. That is the whole
+              product, and you do not have to take our word for it.
             </p>
           </div>
-          <PhoneDemo />
+          <LiveDemo />
         </div>
       </section>
 
@@ -387,44 +389,3 @@ function HeroVisual() {
   );
 }
 
-/** The demo. One real lead, answered twice, because the difference between
- *  those two replies is the entire pitch. */
-function PhoneDemo() {
-  return (
-    <div className="ln-phone">
-      <div className="ln-screen">
-        <div className="ln-thread">
-          <p className="ln-from ln-demo-step ln-demo-1">New message</p>
-          <div className="ln-bubble-in ln-demo-step ln-demo-1">
-            Been following your work for a while. Curious about coaching. What
-            does it look like to work with you?
-          </div>
-
-          <div className="ln-divider ln-demo-step ln-demo-2">Two replies</div>
-
-          <div className="ln-draft ln-draft-bad ln-demo-step ln-demo-3">
-            <div className="ln-draft-label">Any other AI</div>
-            Hi there! Thanks so much for reaching out. Would you like to schedule
-            a discovery call to see if working together is a good fit?
-          </div>
-
-          {/* Holds the beat between the generic reply and yours, so the
-              second one reads as considered rather than simultaneous. */}
-          <div className="ln-demo-typing" aria-hidden>
-            <span className="ln-typing"><span /><span /><span /></span>
-          </div>
-
-          <div className="ln-draft ln-draft-good ln-demo-step ln-demo-4">
-            <div className="ln-draft-label">Yours</div>
-            Good to hear from you. Before logistics, what is the real reason you
-            are reaching out? Not the tidy version. Tell me that and I will tell
-            you if I am the right person.
-          </div>
-        </div>
-        <div className="ln-phone-foot ln-demo-step ln-demo-4">
-          <div className="ln-send">Send it</div>
-        </div>
-      </div>
-    </div>
-  );
-}

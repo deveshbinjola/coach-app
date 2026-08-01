@@ -83,24 +83,68 @@
 .ln-hero-sub { font-size: 1.12rem; line-height: 1.6; color: var(--muted); margin: 0 0 2rem; max-width: 40ch; }
 .ln-hero-cta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 
-/* ── Phone demo ── */
-.ln-phone { width: 100%; max-width: 340px; margin: 0 auto; background: linear-gradient(150deg, #101725, #0A0F1C); border-radius: 38px; padding: 9px; box-shadow: 0 30px 60px rgba(10,15,28,0.18), 0 60px 120px rgba(10,15,28,0.10); }
-/* Rounded with clip-path rather than overflow, for the same reason: overflow
-   would make the phone screen its own scroll container and freeze the demo. */
-.ln-screen { background: var(--paper); border-radius: 30px; clip-path: inset(0 round 30px); }
-.ln-thread { padding: 1rem 0.85rem 0.6rem; }
-.ln-from { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin-bottom: 0.5rem; }
-.ln-bubble-in { background: var(--card); border: 1px solid var(--line); border-radius: 16px 16px 16px 4px; padding: 0.7rem 0.85rem; font-size: 0.8rem; line-height: 1.5; color: var(--ink); }
-.ln-divider { display: flex; align-items: center; gap: 0.5rem; margin: 0.9rem 0 0.6rem; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
-.ln-divider::before, .ln-divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
-.ln-draft { border-radius: 14px; padding: 0.7rem 0.85rem; margin-bottom: 0.55rem; font-size: 0.78rem; line-height: 1.5; }
-.ln-draft-label { font-size: 0.55rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.35rem; }
+/* ── Live demo ──
+   The two drafts keep the shape the scripted demo used, because the contrast
+   (flat grey vs the one with a forest border) is what the eye reads first. */
+.ln-draft { border-radius: 14px; padding: 0.9rem 1rem; margin-bottom: 0.6rem; font-size: 0.86rem; line-height: 1.6; }
+.ln-draft-label { font-size: 0.55rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.4rem; }
 .ln-draft-bad { background: #F2F2EE; color: var(--muted); }
 .ln-draft-bad .ln-draft-label { color: var(--pain); }
 .ln-draft-good { background: var(--card); border: 2px solid var(--forest); color: var(--ink); }
 .ln-draft-good .ln-draft-label { color: var(--forest); }
-.ln-phone-foot { padding: 0.5rem 0.85rem 1rem; }
-.ln-send { height: 34px; border-radius: 100px; background: var(--forest); color: var(--paper); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; }
+
+.ln-live {
+  background: var(--card); border: 1px solid var(--line); border-radius: 22px;
+  padding: 1.4rem; box-shadow: 0 20px 50px rgba(10,15,28,0.07);
+}
+.ln-live-label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--ink); margin-bottom: 0.5rem; }
+.ln-live-label-2 { margin-top: 1.4rem; }
+.ln-live-hint { font-size: 0.78rem; line-height: 1.5; color: var(--muted); margin: 0 0 0.55rem; }
+.ln-live-input {
+  width: 100%; resize: vertical; font: inherit; font-size: 0.86rem; line-height: 1.55;
+  color: var(--ink); background: var(--paper); border: 1px solid var(--line);
+  border-radius: 12px; padding: 0.75rem 0.85rem;
+}
+.ln-live-input::placeholder { color: var(--faint); }
+.ln-live-input:focus-visible { outline: 2px solid var(--forest); outline-offset: 1px; border-color: transparent; }
+
+.ln-live-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: 0.6rem; }
+.ln-live-chips-lead { font-size: 0.74rem; color: var(--faint); margin-right: 0.1rem; }
+.ln-live-chip {
+  font: inherit; font-size: 0.74rem; font-weight: 600; cursor: pointer;
+  color: var(--forest); background: var(--forest-tint); border: none;
+  border-radius: 100px; padding: 0.3rem 0.7rem;
+}
+.ln-live-chip:hover { background: color-mix(in srgb, var(--forest) 16%, transparent); }
+
+.ln-live-go { width: 100%; margin-top: 1.2rem; justify-content: center; }
+.ln-live-go:disabled { opacity: 0.4; cursor: not-allowed; }
+.ln-live-error { font-size: 0.8rem; color: var(--pain); margin: 0.8rem 0 0; }
+.ln-live-fine { font-size: 0.72rem; line-height: 1.5; color: var(--faint); margin: 0.9rem 0 0; }
+
+.ln-live-working { display: flex; align-items: center; gap: 0.3rem; margin-top: 0.8rem; }
+.ln-live-working-text { font-size: 0.78rem; color: var(--muted); }
+.ln-live-beat { display: flex; justify-content: center; margin: 0.1rem 0 0.5rem; }
+
+/* Each part of the answer fades up as its turn comes. The content is already
+   loaded; the stagger is pacing, not loading. */
+.ln-live-reveal { opacity: 0; transform: translateY(8px); transition: opacity 0.45s ease, transform 0.45s ease; }
+.ln-live-reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .ln-live-reveal { opacity: 1; transform: none; transition: none; }
+  .ln-live-beat { display: none; }
+}
+
+.ln-live-noticed {
+  background: var(--forest-tint); border-radius: 14px; padding: 0.85rem 1rem; margin-top: 0.9rem;
+}
+.ln-live-noticed-h { font-size: 0.55rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--forest); margin: 0 0 0.4rem; }
+.ln-live-noticed-b { font-size: 0.82rem; line-height: 1.55; color: var(--ink); margin: 0 0 0.35rem; }
+.ln-live-noticed-b:last-child { margin-bottom: 0; }
+
+.ln-live-after { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.2rem; }
+.ln-live-again { font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.ln-live-again:hover { color: var(--ink); }
 
 /* ── Problem: editorial stack with hairlines ── */
 .ln-problem { background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -203,43 +247,10 @@
 .ln-back-item:nth-child(1) .ln-back-h { font-size: clamp(1.5rem, 2.4vw, 1.9rem); }
 .ln-back-b { font-size: 0.98rem; line-height: 1.6; color: var(--muted); margin: 0; }
 
-/* ── The demo, played rather than displayed ──
-   It used to be a static side-by-side, which reads as a claim. Playing it
-   in order (message lands, the generic reply appears, a pause, then yours
-   writes itself) reads as evidence. Driven by scroll position, so it plays
-   when the coach arrives at it and never loops at them. */
-/* Replayed on a slow cycle rather than tied to scroll position. Scroll-driven
-   ranges do not resolve for these elements (they sit inside the clipped phone
-   screen), and a demo the coach might scroll past mid-reveal is worse than one
-   that always plays. 13s is long enough that it reads as a conversation
-   rather than a blinking banner. */
-@media (prefers-reduced-motion: no-preference) {
-  .ln-demo-step { opacity: 0; animation: ln-demo-cycle 13s ease-in-out infinite; }
-  .ln-demo-1 { animation-delay: 0s; }
-  .ln-demo-2 { animation-delay: 0.9s; }
-  .ln-demo-3 { animation-delay: 1.8s; }
-  .ln-demo-4 { animation-delay: 3.4s; }
-  .ln-demo-typing { animation: ln-demo-typing 13s ease-in-out infinite; animation-delay: 2.3s; opacity: 0; }
-}
-@keyframes ln-demo-cycle {
-  0%   { opacity: 0; transform: translateY(9px); }
-  4%   { opacity: 1; transform: translateY(0); }
-  88%  { opacity: 1; transform: translateY(0); }
-  94%  { opacity: 0; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(9px); }
-}
-/* The beat between the two replies: appears, then clears as yours lands. */
-@keyframes ln-demo-typing {
-  0%  { opacity: 0; }
-  4%  { opacity: 1; }
-  8%  { opacity: 1; }
-  12% { opacity: 0; }
-  100% { opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ln-demo-step { opacity: 1; animation: none; }
-  .ln-demo-typing { display: none; }
-}
+/* The scripted 13s demo loop lived here. It is gone because the demo is real
+   now: the coach types, the model answers, and the reveal is paced in the
+   component instead. A looping animation of a conversation that never happened
+   was always a claim wearing a demo's clothes. */
 
 .ln-typing { display: inline-flex; gap: 4px; align-items: center; padding: 0.55rem 0.85rem; }
 .ln-typing span {
