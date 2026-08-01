@@ -231,19 +231,29 @@ export default function LandingPage() {
           <div className="ln-founder-photo" aria-hidden>SB</div>
           <div>
             <p className="ln-founder-quote">
-              I built this because it was my week too.
+              I was already doing this by hand, one coach at a time.
             </p>
             <p className="ln-founder-body">
-              I coach men. Breath, body, purpose, the hard conversations. And I
-              kept watching my week fill up with everything except that. Leads I
-              meant to answer. Posts I never put up. Marketing I kept moving to
-              tomorrow.
+              I coach men. I also run an agency that cleans up marketing and
+              admin for other coaches. Funnels, follow up, all the unglamorous
+              machinery behind a practice.
             </p>
             <p className="ln-founder-body">
-              I did not want another tool. I wanted someone who could hold the
-              admin the way a good chief of staff does, in my voice, without me
-              checking it every five minutes. So I built one, and then I built
-              it for the rest of us.
+              After enough of them I stopped seeing different problems. It was
+              the same week every time. Leads going cold. Posts that never got
+              published. Marketing moved to tomorrow again. Their best hours
+              going to work nobody would ever thank them for.
+            </p>
+            <p className="ln-founder-body">
+              Almost none of them could fix it by hiring. A good assistant costs
+              more than they had, takes months to find, and longer to be useful.
+              Some tried AI and got generic mush back, because nobody had shown
+              them how to make it sound like them. So they did it all
+              themselves, at eleven at night.
+            </p>
+            <p className="ln-founder-body">
+              This is the work my agency does, built into software, at a price a
+              working coach can actually pay.
             </p>
             <p className="ln-founder-name">Sunny Binjola</p>
             <p className="ln-founder-role">
