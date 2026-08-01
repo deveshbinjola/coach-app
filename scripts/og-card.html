@@ -1,0 +1,55 @@
+<!doctype html>
+<!--
+  Source of public/og.jpg, the share card for the landing page.
+  Kept as HTML rather than a binary-only asset so the copy can be edited.
+
+  Regenerate after any change here:
+
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new \
+      --disable-gpu --hide-scrollbars --virtual-time-budget=6000 \
+      --window-size=1200,630 --screenshot=/tmp/og.png \
+      "file://$PWD/scripts/og-card.html"
+    sips -s format jpeg -s formatOptions 88 /tmp/og.png --out public/og.jpg
+
+  The virtual-time budget is what waits for the Google Fonts load. Drop it and
+  the card renders in a fallback serif.
+-->
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1200px; height:630px; }
+  body {
+    background:#FAF8F3; color:#0A0F1C;
+    font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:64px 72px; display:flex; flex-direction:column; position:relative; overflow:hidden;
+  }
+  /* Same warm bloom the hero uses, so the share card and the page feel like one surface. */
+  .bloom { position:absolute; top:-260px; right:-200px; width:760px; height:760px; border-radius:50%;
+           background:radial-gradient(circle, rgba(11,110,35,0.10) 0%, rgba(11,110,35,0) 68%); }
+  .lock { display:flex; align-items:center; gap:14px; position:relative; }
+  .lock svg { width:42px; height:42px; }
+  .lock span { font-family:'Fraunces',Georgia,serif; font-weight:800; font-size:26px; letter-spacing:-0.02em; }
+  .lock span i { font-style:normal; color:#0B6E23; }
+  h1 { font-family:'Fraunces',Georgia,serif; font-weight:800; font-size:66px; line-height:1.06;
+       letter-spacing:-0.028em; margin:auto 0; max-width:16ch; position:relative; }
+  h1 em { font-style:italic; color:#0B6E23; }
+  .rule { width:64px; height:5px; border-radius:3px; background:#0B6E23; margin:0 0 22px; position:relative; }
+  .sub { font-size:26px; line-height:1.5; color:#5A5A52; max-width:34ch; position:relative; }
+  .sub b { color:#0A0F1C; font-weight:700; }
+</style></head>
+<body>
+  <div class="bloom"></div>
+  <div class="lock">
+    <svg viewBox="0 0 48 48" fill="none">
+      <rect x="3" y="4" width="39" height="39" rx="9.8" fill="#0B6E23"/>
+      <path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#FAF8F3"/>
+      <path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#FAF8F3" stroke-width="2.7" stroke-linecap="round"/>
+    </svg>
+    <span>Coach <i>Assistant</i></span>
+  </div>
+  <h1>Great coaches are not great admins.<br><em>You were never supposed to be both.</em></h1>
+  <div class="rule"></div>
+  <p class="sub">An assistant that runs the admin <b>in your own words</b>, so your week goes back to the work only you can do.</p>
+</body></html>
