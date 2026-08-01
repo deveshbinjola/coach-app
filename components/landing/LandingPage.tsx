@@ -231,9 +231,16 @@ export default function LandingPage() {
       {/* 6b. Why I built it. The believability slot. */}
       <section className="ln-sec">
         <div className="ln-wrap ln-narrow ln-founder">
-          {/* TODO: swap for a real photo.
-              <img src="/sunny.jpg" alt="Sunny Binjola" className="ln-founder-photo" /> */}
-          <div className="ln-founder-photo" aria-hidden>SB</div>
+          {/* object-position pulls the crop up to the face, since the source
+              is a full portrait rather than a headshot. */}
+          <img
+            src="/sunny.jpg"
+            alt="Sunny Binjola"
+            width={92}
+            height={92}
+            className="ln-founder-photo"
+            loading="lazy"
+          />
           <div>
             <p className="ln-founder-quote">
               I was already doing this by hand, one coach at a time.
@@ -387,28 +394,34 @@ function PhoneDemo() {
     <div className="ln-phone">
       <div className="ln-screen">
         <div className="ln-thread">
-          <p className="ln-from">New message</p>
-          <div className="ln-bubble-in">
+          <p className="ln-from ln-demo-step ln-demo-1">New message</p>
+          <div className="ln-bubble-in ln-demo-step ln-demo-1">
             Been following your work for a while. Curious about coaching. What
             does it look like to work with you?
           </div>
 
-          <div className="ln-divider">Two replies</div>
+          <div className="ln-divider ln-demo-step ln-demo-2">Two replies</div>
 
-          <div className="ln-draft ln-draft-bad">
+          <div className="ln-draft ln-draft-bad ln-demo-step ln-demo-3">
             <div className="ln-draft-label">Any other AI</div>
             Hi there! Thanks so much for reaching out. Would you like to schedule
             a discovery call to see if working together is a good fit?
           </div>
 
-          <div className="ln-draft ln-draft-good">
+          {/* Holds the beat between the generic reply and yours, so the
+              second one reads as considered rather than simultaneous. */}
+          <div className="ln-demo-typing" aria-hidden>
+            <span className="ln-typing"><span /><span /><span /></span>
+          </div>
+
+          <div className="ln-draft ln-draft-good ln-demo-step ln-demo-4">
             <div className="ln-draft-label">Yours</div>
             Good to hear from you. Before logistics, what is the real reason you
             are reaching out? Not the tidy version. Tell me that and I will tell
             you if I am the right person.
           </div>
         </div>
-        <div className="ln-phone-foot">
+        <div className="ln-phone-foot ln-demo-step ln-demo-4">
           <div className="ln-send">Send it</div>
         </div>
       </div>

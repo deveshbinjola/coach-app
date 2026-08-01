@@ -19,7 +19,10 @@
   color: var(--ink);
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* No overflow clipping here. `overflow-x: hidden` turns this into a scroll
+     container, which makes every `animation-timeline: view()` below measure
+     against it instead of the page, and nothing ever reveals. Layout is
+     verified to fit, so the clip is not needed. */
 }
 .ln *, .ln *::before, .ln *::after { box-sizing: border-box; }
 .ln ::selection { background: var(--forest); color: var(--paper); }
@@ -82,7 +85,9 @@
 
 /* ── Phone demo ── */
 .ln-phone { width: 100%; max-width: 340px; margin: 0 auto; background: linear-gradient(150deg, #101725, #0A0F1C); border-radius: 38px; padding: 9px; box-shadow: 0 30px 60px rgba(10,15,28,0.18), 0 60px 120px rgba(10,15,28,0.10); }
-.ln-screen { background: var(--paper); border-radius: 30px; overflow: hidden; }
+/* Rounded with clip-path rather than overflow, for the same reason: overflow
+   would make the phone screen its own scroll container and freeze the demo. */
+.ln-screen { background: var(--paper); border-radius: 30px; clip-path: inset(0 round 30px); }
 .ln-thread { padding: 1rem 0.85rem 0.6rem; }
 .ln-from { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin-bottom: 0.5rem; }
 .ln-bubble-in { background: var(--card); border: 1px solid var(--line); border-radius: 16px 16px 16px 4px; padding: 0.7rem 0.85rem; font-size: 0.8rem; line-height: 1.5; color: var(--ink); }
@@ -198,16 +203,63 @@
 .ln-back-item:nth-child(1) .ln-back-h { font-size: clamp(1.5rem, 2.4vw, 1.9rem); }
 .ln-back-b { font-size: 0.98rem; line-height: 1.6; color: var(--muted); margin: 0; }
 
+/* ── The demo, played rather than displayed ──
+   It used to be a static side-by-side, which reads as a claim. Playing it
+   in order (message lands, the generic reply appears, a pause, then yours
+   writes itself) reads as evidence. Driven by scroll position, so it plays
+   when the coach arrives at it and never loops at them. */
+/* Replayed on a slow cycle rather than tied to scroll position. Scroll-driven
+   ranges do not resolve for these elements (they sit inside the clipped phone
+   screen), and a demo the coach might scroll past mid-reveal is worse than one
+   that always plays. 13s is long enough that it reads as a conversation
+   rather than a blinking banner. */
+@media (prefers-reduced-motion: no-preference) {
+  .ln-demo-step { opacity: 0; animation: ln-demo-cycle 13s ease-in-out infinite; }
+  .ln-demo-1 { animation-delay: 0s; }
+  .ln-demo-2 { animation-delay: 0.9s; }
+  .ln-demo-3 { animation-delay: 1.8s; }
+  .ln-demo-4 { animation-delay: 3.4s; }
+  .ln-demo-typing { animation: ln-demo-typing 13s ease-in-out infinite; animation-delay: 2.3s; opacity: 0; }
+}
+@keyframes ln-demo-cycle {
+  0%   { opacity: 0; transform: translateY(9px); }
+  4%   { opacity: 1; transform: translateY(0); }
+  88%  { opacity: 1; transform: translateY(0); }
+  94%  { opacity: 0; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(9px); }
+}
+/* The beat between the two replies: appears, then clears as yours lands. */
+@keyframes ln-demo-typing {
+  0%  { opacity: 0; }
+  4%  { opacity: 1; }
+  8%  { opacity: 1; }
+  12% { opacity: 0; }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ln-demo-step { opacity: 1; animation: none; }
+  .ln-demo-typing { display: none; }
+}
+
+.ln-typing { display: inline-flex; gap: 4px; align-items: center; padding: 0.55rem 0.85rem; }
+.ln-typing span {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--forest); opacity: 0.35;
+  animation: ln-blink 1s ease-in-out infinite;
+}
+.ln-typing span:nth-child(2) { animation-delay: 0.15s; }
+.ln-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes ln-blink { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
+
 /* ── Founder note: the believability slot ──
    Harry Dry's above-the-fold formula has five parts and we had four. This
    is the missing one, and it is not a logo wall or a borrowed testimonial.
    It is the seam: the person who built it has the problem it solves. */
 .ln-founder { display: grid; grid-template-columns: 92px 1fr; gap: 1.75rem; align-items: start; }
 .ln-founder-photo {
-  width: 92px; height: 92px; border-radius: 50%; object-fit: cover;
+  width: 92px; height: 92px; border-radius: 50%;
+  object-fit: cover; object-position: 50% 18%;
   background: var(--forest-tint); border: 1px solid var(--line);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Fraunces', Georgia, serif; font-size: 1.8rem; font-weight: 800; color: var(--forest);
+  display: block; flex-shrink: 0;
 }
 .ln-founder-quote {
   font-family: 'Fraunces', Georgia, serif; font-weight: 700;
