@@ -69,6 +69,11 @@ export default function LandingPage() {
         <div className="ln-wrap ln-narrow">
           <p className="ln-eyebrow">Right now</p>
           <h2 className="ln-h2">This is your week.</h2>
+          {/* The question sets up the list rather than standing alone. The
+              four rows below are the answer, which is the whole point. */}
+          <p className="ln-askline">
+            How much of last week did you actually spend coaching?
+          </p>
           <ul className="ln-pains">
             <li className="ln-pain">
               <span className="ln-pain-when">Leads</span>
@@ -350,25 +355,26 @@ function BrandLeaf() {
 
 /** HERO VISUAL SLOT.
  *
- *  Replace this whole block with a real photograph when there is one. The
- *  strongest option is a real coaching moment: two people in a room, mid
- *  session, no screens. The hero should sell what the coach gets back
- *  (presence), which is why the product demo now lives further down.
+ *  Holds the identity line: the belief the reader already has and has never
+ *  seen written down. It gives permission before the page asks for anything,
+ *  which is why it sits above the fold rather than in the body.
+ *
+ *  WHEN THE PHOTO ARRIVES: replace this block with the image, and move this
+ *  card down to open the "chief of staff" section, where it reads as the
+ *  reframe that sets up the solution.
  *
  *    <img src="/hero-session.jpg" alt="Sunny mid session with a client"
- *         width={720} height={880} className="ln-hero-photo" />
- *
- *  Until then this carries the one claim on the page that cannot be argued
- *  with, because the visitor answers it themselves. */
+ *         width={720} height={880} className="ln-hero-photo" /> */
 function HeroVisual() {
   return (
     <div className="ln-ask">
       <p className="ln-ask-q">
-        How much of last week did you actually spend coaching?
+        Great coaches are not great admins. You were never supposed to be both.
       </p>
-      <p className="ln-ask-a">
-        Count it honestly. Everything else is <strong>admin</strong>, and it is
-        not why you started.
+      <div className="ln-ask-rule" aria-hidden />
+      <p className="ln-ask-resolve">
+        Coach Assistant is great at the second one, so you can stay great at{" "}
+        <strong>the first</strong>.
       </p>
     </div>
   );

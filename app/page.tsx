@@ -16,10 +16,26 @@ import "./landing.css";
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
+const TITLE = "Coach Assistant · Great coaches are not great admins";
+const DESCRIPTION =
+  "An assistant that writes your messages in your own words, answers leads while they are warm, and hands you your day already sorted. Built for coaches who do real inner work.";
+
 export const metadata: Metadata = {
-  title: "Coach Assistant · Your words, your people, handled",
-  description:
-    "An assistant that writes your messages in your own words, watches your leads, and remembers your people. Built for coaches.",
+  title: TITLE,
+  description: DESCRIPTION,
+  // Without these, every share of this link renders as a bare URL.
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    type: "website",
+    siteName: "Coach Assistant",
+    url: "https://app.elevateaisystem.com/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 export default async function Home() {

@@ -178,6 +178,17 @@
 }
 .ln-ask-a { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0; }
 .ln-ask-a strong { color: var(--forest); font-weight: 700; }
+.ln-ask-rule { width: 44px; height: 3px; background: var(--forest); border-radius: 3px; margin: 1.5rem auto; }
+.ln-ask-resolve { font-size: 1.02rem; line-height: 1.6; color: var(--muted); margin: 0; }
+.ln-ask-resolve strong { color: var(--ink); font-weight: 700; }
+
+/* The question, now setting up the week list instead of standing alone. */
+.ln-askline {
+  font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 600;
+  font-size: clamp(1.05rem, 1.9vw, 1.25rem); line-height: 1.5;
+  color: var(--muted); margin: 0 0 2rem; padding-left: 1.25rem;
+  border-left: 2px solid var(--forest);
+}
 
 /* ── What you get back: asymmetric pair grid, not three equal cards ── */
 .ln-back { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1rem; margin-top: 2.5rem; }
@@ -217,6 +228,25 @@
 .ln-rise-2 { animation-delay: 0.08s; }
 .ln-rise-3 { animation-delay: 0.16s; }
 @keyframes ln-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Scroll reveal, done with CSS scroll-driven animation so there is no
+   observer, no client component, and no chance of content being stuck
+   invisible if JS fails. Browsers without support simply show everything,
+   which is the correct fallback. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .ln-sec > .ln-wrap,
+    .ln-sec-tight > .ln-wrap {
+      animation: ln-enter linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 50%;
+    }
+  }
+}
+@keyframes ln-enter {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .ln-rise, .ln-rise-2, .ln-rise-3 { animation: none; }
