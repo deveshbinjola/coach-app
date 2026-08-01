@@ -50,7 +50,7 @@ export function assessSla(lead: Lead, now: number = Date.now()): SlaAssessment {
       hoursElapsed: null,
       clockAnchor: null,
       label: lead.status === "client" ? "Client" : "Closed",
-      tip: "Not in the active pipeline — SLA doesn't apply.",
+      tip: "Not in the active pipeline, so the SLA doesn't apply.",
     };
   }
 
@@ -99,7 +99,7 @@ function neutral(): SlaAssessment {
     state: "on_pace",
     hoursElapsed: null,
     clockAnchor: null,
-    label: "—",
+    label: "No timestamp",
     tip: "No timestamp available.",
   };
 }

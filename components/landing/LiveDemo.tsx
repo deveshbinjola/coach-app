@@ -204,7 +204,7 @@ export default function LiveDemo() {
             <button type="button" className="ln-live-again" onClick={reset}>
               Try another message
             </button>
-            <a href="/meet" className="ln-btn">Get this for your inbox</a>
+            <a href="/meet" className="ln-btn">Meet your assistant</a>
           </div>
         </div>
       )}

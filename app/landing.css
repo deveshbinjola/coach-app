@@ -8,7 +8,11 @@
   --card: #FFFFFF;
   --ink: #0A0F1C;
   --muted: #5A5A52;
-  --faint: #9A9A95;
+  /* Was #9A9A95, which measured 2.83:1 on the card and 2.66:1 on paper. Both
+     fail WCAG AA, and this token carries real content: timestamps on the
+     triage rows, the privacy line under the demo. Darkened until it clears
+     4.5:1 against both surfaces while still reading as the quiet tier. */
+  --faint: #74746C;
   --line: #E5E1D8;
   --forest: #0B6E23;
   --forest-deep: #085119;
@@ -27,8 +31,12 @@
 .ln *, .ln *::before, .ln *::after { box-sizing: border-box; }
 .ln ::selection { background: var(--forest); color: var(--paper); }
 
-.ln-wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; }
+/* Three measures, not one. Six sections at an identical 680px was the single
+   biggest thing making this page feel ordinary: everything arrived at the same
+   width, in the same rhythm, so nothing felt like a moment. */
+.ln-wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 1.5rem; }
 .ln-narrow { max-width: 680px; }
+.ln-mid { max-width: 880px; }
 
 /* ── Nav ── */
 .ln-nav { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
@@ -55,15 +63,34 @@
 .ln-btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
 .ln-btn-ghost:hover { background: var(--card); border-color: var(--forest); }
 
-/* ── Section rhythm ── */
-.ln-sec { padding: 5.5rem 0; }
-.ln-sec-tight { padding: 4rem 0; }
+/* ── Section rhythm ──
+   Uneven on purpose. Every section at the same padding reads as a list of
+   blocks; giving the demo more air than the copy sections is what makes it
+   land as the centre of the page rather than the fifth item down. */
+.ln-sec { padding: 6.5rem 0; }
+.ln-sec-major { padding: 9rem 0; }
+.ln-sec-tight { padding: 4.5rem 0; }
 .ln-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--forest); margin: 0 0 1rem; }
+
+/* Fraunces carries an optical-size axis and we were loading it without ever
+   setting it, so display type was rendering with letterforms drawn for body
+   copy: too much contrast, spacing too loose. Setting opsz per size is most of
+   the difference between this looking typeset and looking merely styled. */
+.ln-h1, .ln-h2, .ln-manifesto-line, .ln-triage-verdict, .ln-logo-text {
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 144, 'SOFT' 0;
+}
 .ln-h2 {
-  font-family: 'Fraunces', Georgia, serif; font-weight: 800;
-  font-size: clamp(1.8rem, 3.6vw, 2.6rem); line-height: 1.12; letter-spacing: -0.02em;
+  font-weight: 800;
+  font-size: clamp(1.9rem, 3.6vw, 2.7rem); line-height: 1.12; letter-spacing: -0.022em;
   margin: 0 0 1rem; color: var(--ink);
 }
+.ln-h2-major {
+  font-size: clamp(2.2rem, 4.6vw, 3.5rem); line-height: 1.08; letter-spacing: -0.03em;
+  margin-bottom: 1.4rem;
+}
+/* Italic with a descender ('morning goes') clips at tight leading. */
+.ln-h2-major em { font-style: italic; color: var(--forest); line-height: 1.14; }
 .ln-lead { font-size: 1.05rem; line-height: 1.65; color: var(--muted); margin: 0; max-width: 54ch; }
 
 /* ── Hero: asymmetric split ── */
@@ -141,6 +168,57 @@
 .ln-live-noticed-h { font-size: 0.55rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--forest); margin: 0 0 0.4rem; }
 .ln-live-noticed-b { font-size: 0.82rem; line-height: 1.55; color: var(--ink); margin: 0 0 0.35rem; }
 .ln-live-noticed-b:last-child { margin-bottom: 0; }
+
+/* ── Inbox triage: the main demo ──
+   Deliberately not a dashboard. The engine produces a score and we do not
+   print it: "start here, and this is why" is the useful output, a number
+   out of 150 is trivia the coach cannot act on. */
+.ln-stage-head { max-width: 720px; margin: 0 auto 3.5rem; text-align: center; }
+.ln-stage-lead { margin: 0 auto; max-width: 52ch; }
+.ln-stage {
+  max-width: 900px; margin: 0 auto;
+  background: var(--card); border: 1px solid var(--line); border-radius: 22px;
+  padding: 2.25rem; box-shadow: 0 26px 70px rgba(10,15,28,0.08);
+}
+.ln-triage-input { font-size: 0.9rem; line-height: 1.6; min-height: 220px; }
+
+.ln-triage-kicker { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--forest); margin: 0 0 0.5rem; }
+.ln-triage-verdict {
+  font-weight: 800; font-size: clamp(2rem, 4vw, 2.9rem); line-height: 1.05;
+  letter-spacing: -0.03em; color: var(--ink); margin: 0 0 0.9rem;
+}
+.ln-triage-quote {
+  font-size: 1.05rem; line-height: 1.6; color: var(--ink); margin: 0 0 0.7rem;
+  padding-left: 1rem; border-left: 2px solid var(--forest);
+}
+.ln-triage-under { font-size: 0.95rem; line-height: 1.6; color: var(--muted); margin: 0 0 1.1rem; }
+.ln-triage-because { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; margin: 0; padding: 0; }
+.ln-triage-because li {
+  font-size: 0.74rem; font-weight: 600; color: var(--forest);
+  background: var(--forest-tint); border-radius: 100px; padding: 0.3rem 0.7rem;
+}
+
+/* Hairlines, not cards. Boxing every person turns a note into a table. */
+.ln-triage-block { margin-top: 2.5rem; padding-top: 1.6rem; border-top: 1px solid var(--line); }
+.ln-triage-h {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.8rem; font-weight: 700; color: var(--muted); margin: 0 0 1.1rem;
+}
+.ln-triage-row { margin-bottom: 1.3rem; }
+.ln-triage-row:last-of-type { margin-bottom: 0; }
+.ln-triage-row-head { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.3rem; }
+.ln-triage-name { font-weight: 700; font-size: 1rem; color: var(--ink); }
+.ln-triage-when { font-size: 0.76rem; color: var(--faint); }
+.ln-triage-row-quote { font-size: 0.9rem; line-height: 1.55; color: var(--muted); margin: 0 0 0.35rem; }
+.ln-triage-row-note {
+  display: flex; align-items: flex-start; gap: 0.35rem;
+  font-size: 0.82rem; line-height: 1.5; color: var(--ink); margin: 0;
+}
+.ln-triage-row-note svg { flex: none; margin-top: 0.28rem; color: var(--forest); }
+.ln-triage-aside { font-size: 0.84rem; line-height: 1.55; color: var(--faint); margin: 1.2rem 0 0; font-style: italic; }
+.ln-triage-foot { margin-top: 2.5rem; padding-top: 1.6rem; border-top: 1px solid var(--line); }
+.ln-triage-count { font-size: 0.9rem; line-height: 1.55; color: var(--muted); margin: 0 0 1.2rem; }
+.ln-triage-foot .ln-live-after { margin-top: 0; }
 
 .ln-live-after { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.2rem; }
 .ln-live-again { font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
@@ -323,7 +401,13 @@
 @media (max-width: 900px) {
   .ln-hero-grid { grid-template-columns: 1fr; gap: 3rem; }
   .ln-hero-sub { max-width: none; }
-  .ln-sec { padding: 4rem 0; }
+  .ln-sec { padding: 4.5rem 0; }
+  .ln-sec-major { padding: 5.5rem 0; }
+  /* The stage loses its frame on small screens: a bordered card inside a
+     narrow viewport is just a second, pointless margin. */
+  .ln-stage { padding: 0; background: none; border: none; box-shadow: none; }
+  .ln-stage-head { margin-bottom: 2.25rem; text-align: left; }
+  .ln-stage-lead { margin-left: 0; }
 }
 @media (max-width: 760px) {
   .ln-back { grid-template-columns: 1fr; }
@@ -331,6 +415,10 @@
 }
 @media (max-width: 560px) {
   .ln-wrap { padding: 0 1.15rem; }
+  .ln-triage-input { min-height: 190px; }
+  .ln-triage-row-head { flex-direction: column; gap: 0.1rem; }
+  .ln-live-after { flex-direction: column; align-items: stretch; }
+  .ln-live-after .ln-btn { justify-content: center; }
   .ln-ask { padding: 2.25rem 1.5rem; }
   .ln-rot > span { white-space: normal; }
   /* Nav must stay on one line. The text sign-in link is what breaks it, and

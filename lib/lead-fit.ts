@@ -79,7 +79,7 @@ export function assessFit(lead: Lead): FitAssessment {
     score += w;
     if (lead.income_band === "30k_plus_mo") reasons.push("Income fits $12K flagship");
     else if (lead.income_band === "10k_30k_mo") reasons.push("Income fits $2K cohort");
-    else if (lead.income_band === "under_10k_mo") reasons.push("Below the $2K floor — may need lower offer");
+    else if (lead.income_band === "under_10k_mo") reasons.push("Below the $2K floor, may need a lower offer");
   } else {
     missingSignals.push("Income band not set");
   }
@@ -91,7 +91,7 @@ export function assessFit(lead: Lead): FitAssessment {
     if (lead.readiness_signal === "ready_now") reasons.push("Wants to move in <30 days");
     else if (lead.readiness_signal === "comparing") reasons.push("Actively comparing options");
     else if (lead.readiness_signal === "tire_kicker") reasons.push("Pattern of asking but not committing");
-    else if (lead.readiness_signal === "dormant_explorer") reasons.push("Long-game — not a 30-day close");
+    else if (lead.readiness_signal === "dormant_explorer") reasons.push("Long game, not a 30-day close");
   } else {
     missingSignals.push("Readiness not set");
   }
@@ -140,7 +140,7 @@ export const FIT_BAND_CLASS: Record<FitBand, string> = {
 
 export const FIT_BAND_TIP: Record<FitBand, string> = {
   strong: "Book the call. This is the lead you should be moving.",
-  decent: "Worth a conversation. Qualify harder on the call — don't assume.",
+  decent: "Worth a conversation. Qualify harder on the call, don't assume.",
   weak: "Don't force it. Send one value-first touch, or move them to dormant.",
   disqualified: "Closed the loop. Archive or move to dormant.",
 };

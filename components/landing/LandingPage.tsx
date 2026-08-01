@@ -14,11 +14,17 @@
 //   2. Your week         editorial stack, dated and specific
 //   3. Chief of staff    centred manifesto
 //   4. How it works      numbered sequence
-//   5. The demo         the live one: they type, the product answers
+//   5. Inbox triage      the main demo, full width: they paste, it judges
+//   5b. Reply demo       act two, mid measure: it writes, in their words
 //   6. What you get back asymmetric pair grid
 //   7. Never do          the one bold colour block
 //   8. Who it is for + close
+//
+// One label per CTA intent across the whole page: "Meet your assistant" for
+// signup, "Sign in" for returning. Two labels for one intent reads as two
+// different offers.
 
+import InboxTriage from "./InboxTriage";
 import LiveDemo from "./LiveDemo";
 
 export default function LandingPage() {
@@ -56,7 +62,7 @@ export default function LandingPage() {
             </p>
             <div className="ln-hero-cta">
               <a href="/meet" className="ln-btn ln-btn-lg">Meet your assistant</a>
-              <a href="/login" className="ln-btn ln-btn-lg ln-btn-ghost">I have an account</a>
+              <a href="/login" className="ln-btn ln-btn-lg ln-btn-ghost">Sign in</a>
             </div>
           </div>
 
@@ -172,22 +178,36 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 5. The demo. Not a picture of the product, the product. */}
-      <section className="ln-sec">
-        <div className="ln-wrap ln-hero-grid">
-          <div>
-            <p className="ln-eyebrow">Try it on a real message</p>
-            <h2 className="ln-h2">Same lead. Two replies.</h2>
-            <p className="ln-lead">
-              Paste a message someone actually sent you, and a few lines you
-              actually wrote. The same model answers it twice. One draft gets
-              your words. One does not.
-            </p>
-            <p className="ln-lead" style={{ marginTop: "1rem" }}>
-              You will know which one you would have sent. That is the whole
-              product, and you do not have to take our word for it.
+      {/* 5. The demo, act one: judgement. Full width and centred, because this
+          is the moment the page is built around. */}
+      <section className="ln-sec ln-sec-major">
+        <div className="ln-wrap">
+          <div className="ln-stage-head">
+            <h2 className="ln-h2 ln-h2-major">
+              Paste your inbox.<br />
+              <em>It will tell you where your morning goes.</em>
+            </h2>
+            <p className="ln-lead ln-stage-lead">
+              A week of messages, as they came in. You get back who to answer,
+              who is quietly going cold, and who is not worth the hour.
             </p>
           </div>
+          <div className="ln-stage">
+            <InboxTriage />
+          </div>
+        </div>
+      </section>
+
+      {/* 5b. Act two: execution. Narrower measure so it reads as a follow-on
+          beat rather than a second competing demo. */}
+      <section className="ln-sec ln-problem">
+        <div className="ln-wrap ln-mid">
+          <h2 className="ln-h2">Then it writes the reply.</h2>
+          <p className="ln-lead">
+            Deciding who matters is half of it. Paste a message someone actually
+            sent you, and a few lines you actually wrote. The same model answers
+            it twice. One draft gets your words. One does not.
+          </p>
           <LiveDemo />
         </div>
       </section>

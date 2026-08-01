@@ -133,19 +133,19 @@ describe("assessSla — active lead thresholds", () => {
 });
 
 describe("assessSla — defensive guards", () => {
-  // The neutral helper returns state: "on_pace" + label "—". Choice is
+  // The neutral helper returns state: "on_pace" + label "No timestamp". Choice is
   // intentional: unknown leads shouldn't alarm the rescue queue.
   it("returns neutral state when given undefined", () => {
     const r = assessSla(undefined as unknown as never, TEST_NOW);
     expect(r.state).toBe("on_pace");
-    expect(r.label).toBe("—");
+    expect(r.label).toBe("No timestamp");
     expect(r.hoursElapsed).toBeNull();
   });
 
   it("returns neutral state when status field missing", () => {
     const r = assessSla({ id: "x" } as unknown as never, TEST_NOW);
     expect(r.state).toBe("on_pace");
-    expect(r.label).toBe("—");
+    expect(r.label).toBe("No timestamp");
   });
 });
 
