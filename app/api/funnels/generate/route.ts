@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase-server";
 import { rateLimitByUser } from "@/lib/rate-limit";
 import { buildBriefBlock } from "@/lib/funnel-config";
 import type { BrandOsSynthesis } from "@/app/api/brand-os/synthesize/route";
+import { DEFAULT_ACCENT_HEX } from "@/lib/brand-kit";
 
 export const runtime = "edge";
 
@@ -141,8 +142,8 @@ export async function POST(request: NextRequest) {
     .single();
 
   const branding = {
-    primary_hex: coachRow?.brand_primary_hex || "#00FF41",
-    accent_hex: darkenHex(coachRow?.brand_primary_hex || "#00FF41", 20),
+    primary_hex: coachRow?.brand_primary_hex || DEFAULT_ACCENT_HEX,
+    accent_hex: darkenHex(coachRow?.brand_primary_hex || DEFAULT_ACCENT_HEX, 20),
     background_hex: "#FAFAF8",
     font_family: coachRow?.brand_font || "Plus Jakarta Sans",
   };

@@ -18,6 +18,20 @@ export type BrandKit = {
   logoUrl:       string | null;
 };
 
+/**
+ * The accent a coach gets when they have not chosen one.
+ *
+ * This existed as a "#00FF41" literal in seven places (carousel rendering
+ * client and server, funnel generation, the colour picker's own fallback).
+ * Neon was the old agency brand and has not been the product's colour since
+ * the warm-light system landed, so any coach who never opened the picker was
+ * generating carousels and funnels in a colour we abandoned. That is wrong
+ * output, not a stale style.
+ *
+ * One constant now, so the default cannot drift per call site again.
+ */
+export const DEFAULT_ACCENT_HEX = "#0B6E23";
+
 /** Brand kit when none configured — neutral, prints anywhere. */
 export const DEFAULT_BRAND_KIT: BrandKit = {
   primaryHex:    "#0A0F1C",

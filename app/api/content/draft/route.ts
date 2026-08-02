@@ -15,6 +15,7 @@ import {
 import { loadBrandVoiceOverlay, renderOverlayPromptBlock, type BrandVoiceOverlay } from "@/lib/brand-os/voice-overlay";
 import { loadSacredZones, checkSacred } from "@/lib/brand-os/sacred-zones";
 import { logFunnelEvent } from "@/lib/funnel-log";
+import { DEFAULT_ACCENT_HEX } from "@/lib/brand-kit";
 
 export const runtime = 'edge';
 
@@ -768,9 +769,9 @@ function cleanText(value: unknown, maxLength: number): string {
 }
 
 function normalizeHex(value: unknown): string {
-  if (typeof value !== "string") return "#00FF41";
+  if (typeof value !== "string") return DEFAULT_ACCENT_HEX;
   const trimmed = value.trim();
-  return /^#[0-9A-Fa-f]{6}$/.test(trimmed) ? trimmed : "#00FF41";
+  return /^#[0-9A-Fa-f]{6}$/.test(trimmed) ? trimmed : DEFAULT_ACCENT_HEX;
 }
 
 function stripEmDash(value: string): string {

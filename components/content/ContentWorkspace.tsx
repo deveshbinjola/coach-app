@@ -35,7 +35,7 @@ import {
   type VoiceTrainingSource,
 } from "@/lib/types";
 import { getVoiceAssetStats } from "@/lib/voice-asset";
-import { brandKitFromSettings, fontFamilyStack, googleFontsHref, readableTextOn, type BrandKit } from "@/lib/brand-kit";
+import { DEFAULT_ACCENT_HEX, brandKitFromSettings, fontFamilyStack, googleFontsHref, readableTextOn, type BrandKit } from "@/lib/brand-kit";
 import BrandOsPillarStrip, { type ResonanceHook, type StripPillar } from "@/components/content/BrandOsPillarStrip";
 import BuyerMirrorBanner, { type BuyerMirror } from "@/components/content/BuyerMirrorBanner";
 import VoiceRetuneBanner from "@/components/content/VoiceRetuneBanner";
@@ -333,7 +333,7 @@ export default function ContentWorkspace({
     settings?.carousel_handle || "@yourhandle"
   );
   const [carouselAccentColor, setCarouselAccentColor] = useState(
-    settings?.carousel_accent_color || "#00FF41"
+    settings?.carousel_accent_color || DEFAULT_ACCENT_HEX
   );
   const [carouselCustomStyle, setCarouselCustomStyle] = useState<CarouselCustomStyle | null>(() =>
     parseCarouselCustomStyle(settings?.carousel_custom_style)
@@ -504,7 +504,7 @@ export default function ContentWorkspace({
           carousel_brand_name: carouselBrandName.trim() || null,
           carousel_handle: carouselHandle.trim() || null,
           carousel_default_style: carouselStyle,
-          carousel_accent_color: isValidHex(carouselAccentColor) ? carouselAccentColor : "#00FF41",
+          carousel_accent_color: isValidHex(carouselAccentColor) ? carouselAccentColor : DEFAULT_ACCENT_HEX,
           carousel_custom_style: carouselCustomStyle,
         })
         .eq("coach_id", settings.coach_id);
@@ -1580,7 +1580,7 @@ function CarouselWizardStep({
           </label>
           <label className="space-y-1">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">Accent</span>
-            <input type="color" value={isValidHex(accentColor) ? accentColor : "#00FF41"} onChange={(event) => onAccentColorChange(event.target.value)} className="min-h-11 w-full rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-1" />
+            <input type="color" value={isValidHex(accentColor) ? accentColor : DEFAULT_ACCENT_HEX} onChange={(event) => onAccentColorChange(event.target.value)} className="min-h-11 w-full rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-1" />
           </label>
         </div>
         <Button variant="ghost" className="mt-4 w-full sm:w-auto" onClick={onSavePreferences} disabled={savingPreferences}>
@@ -2137,7 +2137,7 @@ function CarouselBuilderControls({
             </span>
             <input
               type="color"
-              value={isValidHex(accentColor) ? accentColor : "#00FF41"}
+              value={isValidHex(accentColor) ? accentColor : DEFAULT_ACCENT_HEX}
               onChange={(event) => onAccentColorChange(event.target.value)}
               className="min-h-10 w-full rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-1"
               aria-label="Carousel accent color"
@@ -2681,7 +2681,7 @@ function carouselPreviewAccent(
   if (style === "editorial_gold") return "#151515";
   if (style === "hard_facts") return "#C8A16A";
   if (style === "onyx_gold") return "#D4A24C";
-  return isValidHex(accentColor) ? accentColor : "#00FF41";
+  return isValidHex(accentColor) ? accentColor : DEFAULT_ACCENT_HEX;
 }
 
 function getCarouselChecks(slides: CarouselSlide[]): Array<{ label: string; pass: boolean }> {
@@ -3978,7 +3978,7 @@ function carouselCanvasTheme(
   customStyle: CarouselCustomStyle | null,
   kitTemplate?: CarouselKitTemplate | null
 ) {
-  const accent = isValidHex(accentColor) ? accentColor : "#00FF41";
+  const accent = isValidHex(accentColor) ? accentColor : DEFAULT_ACCENT_HEX;
   if (kitTemplate) {
     return {
       bg: kitTemplate.background,
