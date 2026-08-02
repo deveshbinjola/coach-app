@@ -108,7 +108,9 @@ export default function VoiceMicInput({ onTranscript, disabled = false, classNam
         disabled={disabled || state === "processing"}
         title={state === "recording" ? "Stop recording" : "Dictate with voice"}
         className={`
-          inline-flex items-center justify-center w-8 h-8 rounded-full transition
+          relative inline-flex items-center justify-center w-8 h-8 rounded-full transition
+          after:absolute after:left-1/2 after:top-1/2 after:h-11 after:w-11
+          after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']
           ${state === "recording"
             ? "bg-[var(--danger)] text-white animate-pulse"
             : state === "processing"

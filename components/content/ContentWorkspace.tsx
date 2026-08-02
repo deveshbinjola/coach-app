@@ -1322,7 +1322,7 @@ function VoiceLearnedToast({
           </p>
           <div className="flex flex-wrap gap-1">
             {toast.no.map((v, i) => (
-              <span key={i} className="font-mono text-[length:var(--t-caption)] px-2 py-0.5 rounded-[var(--r-sm)] bg-[var(--danger-soft)] text-[#B42318] line-through">{v}</span>
+              <span key={i} className="font-mono text-[length:var(--t-caption)] px-2 py-0.5 rounded-[var(--r-sm)] bg-[var(--danger-soft)] text-[color:var(--danger)] line-through">{v}</span>
             ))}
           </div>
         </div>
@@ -2604,6 +2604,13 @@ function visualSystemSwatches(
   if (style === "brand_kit" && brandKit) {
     return [brandKit.backgroundHex, brandKit.textHex, brandKit.primaryHex, brandKit.accentHex];
   }
+  // ── Carousel artwork, NOT app chrome ────────────────────────────────
+  // Every hex below this line describes a slide a coach publishes to
+  // Instagram, not a surface in this app. They are deliberately outside the
+  // token system: a carousel in "onyx gold" has to stay onyx gold when the
+  // product's own paper changes. A design sweep should leave them alone.
+  // The audit that flagged this file as the worst drift offender was
+  // counting these; the file's actual UI is fully tokenised.
   if (style === "forest_sand") return ["#F6F1E8", "#172116", "#386641", "#D7C5A5"];
   if (style === "editorial_gold") return ["#B8892E", "#FFF8E8", "#151515", "#F7C46C"];
   if (style === "hard_facts") return ["#B1B5BE", "#111111", "#F8F8F8", "#C8A16A"];

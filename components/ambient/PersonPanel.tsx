@@ -76,7 +76,7 @@ export default function PersonPanel({ leadId, onClose }: Props) {
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full hover:bg-[var(--surface-deep)] transition text-[color:var(--text-muted)]"
+          className="absolute top-3 right-3 w-8 h-8 after:absolute after:left-1/2 after:top-1/2 after:h-11 after:w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] flex items-center justify-center rounded-full hover:bg-[var(--surface-deep)] transition text-[color:var(--text-muted)]"
           aria-label="Close"
         >
           <X size={16} />

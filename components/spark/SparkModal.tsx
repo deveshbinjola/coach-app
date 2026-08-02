@@ -90,7 +90,7 @@ export default function SparkModal({ text, brandKit, onClose }: Props) {
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-faint)] text-[color:var(--text-muted)] transition hover:border-[var(--border-strong)] hover:text-[color:var(--text)]"
+            className="relative flex h-8 after:absolute after:left-1/2 after:top-1/2 after:h-11 after:w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] w-8 items-center justify-center rounded-full border border-[var(--border-faint)] text-[color:var(--text-muted)] transition hover:border-[var(--border-strong)] hover:text-[color:var(--text)]"
           >
             <X size={16} />
           </button>

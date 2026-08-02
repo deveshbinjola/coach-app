@@ -147,7 +147,7 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
                     ? "Add at least one lead before composing"
                     : "Draft a personalized message to a slice of your book"
                 }
-                className="inline-flex items-center justify-center h-8 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--surface-deep)] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center h-8 min-h-11 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--surface-deep)] transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Draft next move
               </button>

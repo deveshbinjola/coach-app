@@ -66,7 +66,7 @@ export default function NavigationSettingsPanel({ showAll: initialShowAll, hasLe
           aria-checked={showAll}
           onClick={toggleShowAll}
           disabled={saving}
-          className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors ${
+          className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors after:absolute after:left-1/2 after:top-1/2 after:h-11 after:w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] ${
             showAll ? "bg-[var(--brand-strong)]" : "bg-[var(--border)]"
           }`}
         >

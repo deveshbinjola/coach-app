@@ -903,7 +903,7 @@ function LeadSearchBox({
           <button
             type="button"
             onClick={onClear}
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--r-sm)] text-[color:var(--text-muted)] transition hover:bg-[var(--surface-deep)] hover:text-[color:var(--text)]"
+            className="inline-flex h-8 min-h-11 w-8 shrink-0 items-center justify-center rounded-[var(--r-sm)] text-[color:var(--text-muted)] transition hover:bg-[var(--surface-deep)] hover:text-[color:var(--text)]"
             aria-label="Clear lead search"
           >
             <X size={15} aria-hidden />
