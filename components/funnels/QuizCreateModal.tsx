@@ -122,7 +122,7 @@ export default function QuizCreateModal({
             <span className="inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)] bg-[var(--surface-deep)] rounded-full px-3 py-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" /> New quiz
             </span>
-            <h1 className="font-display text-[26px] font-bold tracking-tight leading-tight mt-4 text-[color:var(--text)]">
+            <h1 className="font-display text-[length:var(--t-h1)] font-bold tracking-tight leading-tight mt-4 text-[color:var(--text)]">
               What do you want this quiz to do?
             </h1>
             <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1.5">
@@ -145,7 +145,7 @@ export default function QuizCreateModal({
         {phase === "generating" && (
           <div className="p-14 text-center">
             <div className="mx-auto mb-6 h-16 w-16 rounded-full bg-[radial-gradient(circle_at_50%_40%,var(--brand),var(--brand-strong)_70%)] motion-safe:animate-pulse" />
-            <h2 className="font-display text-[20px] font-bold text-[color:var(--text)]">Building your quiz…</h2>
+            <h2 className="font-display text-[length:var(--t-h2)] font-bold text-[color:var(--text)]">Building your quiz…</h2>
             <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1.5">Shaping 5 questions and 3 results around your brief, in your voice.</p>
           </div>
         )}
@@ -204,13 +204,13 @@ export default function QuizCreateModal({
           <div className="p-8 text-center">
             {!hasBrandOs ? (
               <>
-                <h2 className="font-display text-[20px] font-bold text-[color:var(--text)]">Finish your Brand OS first</h2>
+                <h2 className="font-display text-[length:var(--t-h2)] font-bold text-[color:var(--text)]">Finish your Brand OS first</h2>
                 <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-2">It powers your quiz&apos;s voice and archetypes.</p>
                 <a href="/brand-os" className="inline-block mt-5 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] px-5 py-3 text-[14px] font-extrabold">Build my Brand OS</a>
               </>
             ) : (
               <>
-                <h2 className="font-display text-[20px] font-bold text-[color:var(--text)]">That didn&apos;t come together</h2>
+                <h2 className="font-display text-[length:var(--t-h2)] font-bold text-[color:var(--text)]">That didn&apos;t come together</h2>
                 <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-2">{errorMsg ?? "Try again or tweak your brief."}</p>
                 <div className="flex items-center justify-center gap-3 mt-5">
                   <button onClick={() => setPhase("ask")} className="rounded-[var(--r-md)] border border-[var(--border)] px-4 py-2.5 text-[14px] font-bold">Back</button>

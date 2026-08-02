@@ -8,15 +8,21 @@ import ContentPipeline from "@/components/command-center/admin/ContentPipeline";
 import RevenueByOffering from "@/components/command-center/admin/RevenueByOffering";
 import LeadPipeline from "@/components/command-center/admin/LeadPipeline";
 import ThisWeek from "@/components/command-center/admin/ThisWeek";
+import { PageHeader } from "@/components/ui";
 
 const usd = (cents: number) => `$${(cents / 100).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 
 function Eyebrow({ children, count, alert }: { children: React.ReactNode; count?: number; alert?: boolean }) {
   return (
-    <div className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.08em] text-[color:var(--text-faint)] mb-3 mt-[34px] first:mt-0">
+    // Same size and tracking as the shared SectionLabel, kept as its own
+    // component only because it carries a count badge. It used to run at
+    // 0.08em tracking and extrabold against the shared 0.12em semibold, which
+    // read as sloppiness rather than as a distinction. mt-[34px] was a magic
+    // number; mt-8 is on the spacing scale.
+    <div className="flex items-center gap-2 text-[length:var(--t-eyebrow)] font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] mb-3 mt-8 first:mt-0">
       {children}
       {count != null && (
-        <span className={`rounded-full px-2 py-px text-[11px] tracking-normal ${alert ? "bg-[var(--danger-soft)] text-[color:var(--danger)]" : "bg-[var(--surface-deep)] text-[color:var(--text-muted)]"}`}>{count}</span>
+        <span className={`rounded-full px-2 py-px text-[length:var(--t-eyebrow)] tracking-normal ${alert ? "bg-[var(--danger-soft)] text-[color:var(--danger)]" : "bg-[var(--surface-deep)] text-[color:var(--text-muted)]"}`}>{count}</span>
       )}
     </div>
   );
@@ -30,13 +36,16 @@ export default function AdminDashboardView({ data, toggle }: { data: AdminDashbo
     data.leadPipeline.new + data.leadPipeline.contacted + data.leadPipeline.qualified + data.leadPipeline.booked + data.leadPipeline.won === 0;
 
   return (
-    <div className="max-w-5xl">
-      <div className="flex items-start justify-between gap-4 mb-2">
-        <div>
-          <h1 className="font-display text-[34px] font-bold tracking-[-0.02em] leading-[1.1] text-[color:var(--text)]">Your business.</h1>
-          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-1">{data.monthLabel} · updated moments ago</p>
-        </div>
-        {toggle}
+    // No inner max-width. This dashboard is 4-column tile grids, so it should
+    // fill the max-w-6xl frame; the old max-w-5xl had no mx-auto either, so it
+    // sat left with a dead gutter, the same defect coach mode had.
+    <div>
+      <div className="mb-2">
+        <PageHeader
+          title="Your business."
+          meta={`${data.monthLabel} · updated moments ago`}
+          actions={toggle}
+        />
       </div>
 
       {isEmptyBusiness ? (
