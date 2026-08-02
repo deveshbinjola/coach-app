@@ -1,436 +1,773 @@
-/* Landing page. Warm-light system, same tokens as /meet and /login.
-   One theme, one accent (forest), one radius scale, zero neon. */
+/* Landing page. Built as a broadsheet: paper bands and ink bands alternating,
+ * a numbered rail down the margin, mono labels against serif display type.
+ * The demo sits on ink so the white card reads as the lit stage rather than
+ * the sixth card down.
+ *
+ * Namespace is `.lx`. Every rule is scoped under it, including the styles for
+ * the two demo components, which carry `.ln-*` class names. Scoping those as
+ * `.lx .ln-*` keeps this stylesheet self-contained: nothing here depends on
+ * source order, and nothing here can leak into the app surfaces.
+ *
+ * Palette is the same warm-light system as /meet and /login, extended with an
+ * ink surface and the two tones that stay readable on it. No neon: the reader
+ * is a somatic coach, not a growth hacker.
+ */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,100..900,0..100;1,9..144,100..900,0..100&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,100..900,0..100;1,9..144,100..900,0..100&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-.ln {
+.lx {
   --paper: #FAF8F3;
+  --paper-2: #F3F0E8;
   --card: #FFFFFF;
   --ink: #0A0F1C;
+  --ink-2: #121A2B;
   --muted: #5A5A52;
-  /* Was #9A9A95, which measured 2.83:1 on the card and 2.66:1 on paper. Both
-     fail WCAG AA, and this token carries real content: timestamps on the
-     triage rows, the privacy line under the demo. Darkened until it clears
-     4.5:1 against both surfaces while still reading as the quiet tier. */
-  --faint: #74746C;
+  /* Measured, not guessed. The quiet tier has to clear 4.5:1 against all three
+     light surfaces, and the darkest of those is --paper-2 at #F3F0E8, which is
+     what the band behind the window chrome uses. #74746C cleared paper and
+     card but only reached 4.14 on paper-2. */
+  --faint: #64645C;
   --line: #E5E1D8;
+  --line-2: #D8D3C6;
   --forest: #0B6E23;
   --forest-deep: #085119;
   --forest-tint: rgba(11, 110, 35, 0.07);
   --pain: #B23A2E;
 
+  /* On ink. Both measured against #0A0F1C: sprout 11.4:1, sand 10.1:1. */
+  --sprout: #7FD394;
+  --sand: #D9CBA6;
+  --on-ink: rgba(250, 248, 243, 0.74);
+
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
+
   background: var(--paper);
   color: var(--ink);
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  /* No overflow clipping here. `overflow-x: hidden` turns this into a scroll
-     container, which makes every `animation-timeline: view()` below measure
-     against it instead of the page, and nothing ever reveals. Layout is
-     verified to fit, so the clip is not needed. */
+  text-rendering: optimizeLegibility;
 }
-.ln *, .ln *::before, .ln *::after { box-sizing: border-box; }
-.ln ::selection { background: var(--forest); color: var(--paper); }
+.lx *, .lx *::before, .lx *::after { box-sizing: border-box; }
+.lx ::selection { background: var(--forest); color: var(--paper); }
 
-/* Three measures, not one. Six sections at an identical 680px was the single
-   biggest thing making this page feel ordinary: everything arrived at the same
-   width, in the same rhythm, so nothing felt like a moment. */
-.ln-wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 1.5rem; }
-.ln-narrow { max-width: 680px; }
-.ln-mid { max-width: 880px; }
-
-/* ── Nav ── */
-.ln-nav { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
-.ln-nav-in { display: flex; align-items: center; justify-content: space-between; height: 68px; }
-.ln-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
-.ln-logo svg { width: 28px; height: 28px; }
-.ln-logo-text { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; color: var(--ink); }
-.ln-logo-text span { color: var(--forest); }
-.ln-nav-actions { display: flex; align-items: center; gap: 1.25rem; }
-.ln-signin { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
-.ln-signin:hover { color: var(--ink); }
-
-/* ── Buttons ── */
-.ln-btn {
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  padding: 0.85rem 1.6rem; border-radius: 100px;
-  background: var(--forest); color: var(--paper);
-  font-weight: 700; font-size: 0.95rem; text-decoration: none; border: none; cursor: pointer;
-  transition: background 0.15s, transform 0.1s; white-space: nowrap;
+/* One visible focus treatment for the whole page, so nothing keyboard-driven
+   can end up invisible on either surface. */
+.lx a:focus-visible,
+.lx button:focus-visible,
+.lx summary:focus-visible,
+.lx input:focus-visible,
+.lx textarea:focus-visible {
+  outline: 2px solid var(--forest);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
-.ln-btn:hover { background: var(--forest-deep); }
-.ln-btn:active { transform: scale(0.98); }
-.ln-btn-lg { padding: 1rem 2rem; font-size: 1.02rem; }
-.ln-btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
-.ln-btn-ghost:hover { background: var(--card); border-color: var(--forest); }
+.lx-band-ink a:focus-visible,
+.lx-band-ink button:focus-visible,
+.lx-band-ink summary:focus-visible { outline-color: var(--sprout); }
 
-/* ── Section rhythm ──
-   Uneven on purpose. Every section at the same padding reads as a list of
-   blocks; giving the demo more air than the copy sections is what makes it
-   land as the centre of the page rather than the fifth item down. */
-.ln-sec { padding: 6.5rem 0; }
-.ln-sec-major { padding: 9rem 0; }
-.ln-sec-tight { padding: 4.5rem 0; }
-.ln-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--forest); margin: 0 0 1rem; }
+.lx-skip {
+  position: absolute; left: 1rem; top: -100px; z-index: 60;
+  background: var(--ink); color: var(--paper);
+  padding: 0.7rem 1.1rem; border-radius: var(--r-sm);
+  font-size: 0.9rem; font-weight: 700; text-decoration: none;
+  transition: top 0.15s;
+}
+.lx-skip:focus { top: 1rem; }
 
-/* Fraunces carries an optical-size axis and we were loading it without ever
-   setting it, so display type was rendering with letterforms drawn for body
-   copy: too much contrast, spacing too loose. Setting opsz per size is most of
-   the difference between this looking typeset and looking merely styled. */
-.ln-h1, .ln-h2, .ln-manifesto-line, .ln-triage-verdict, .ln-logo-text {
+/* ── Measures ──
+   Four, not one. The rhythm of the page is largely made of which measure a
+   section arrives at. */
+.lx-wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 1.75rem; }
+.lx-narrow { max-width: 660px; }
+.lx-mid { max-width: 860px; }
+.lx-wide { max-width: 1200px; }
+
+/* ── Bands ──
+   Full-bleed surfaces. Alternating them is what turns a scroll into a
+   sequence of rooms. */
+.lx-band { position: relative; padding: 7rem 0; }
+.lx-band-tight { padding: 4.5rem 0; }
+.lx-band-major { padding: 9rem 0; }
+.lx-band-paper2 { background: var(--paper-2); }
+.lx-band-card { background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.lx-band-ink { background: var(--ink); color: rgba(250, 248, 243, 0.92); }
+.lx-band-ink .lx-lead { color: var(--on-ink); }
+.lx-band-forest { background: var(--forest); color: var(--paper); }
+
+/* Fine grain on the ink bands. Flat #0A0F1C over 900px of height reads as a
+   dead rectangle on a good screen; the noise gives it a surface. */
+.lx-band-ink::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.5;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 0%, rgba(127, 211, 148, 0.10), transparent 70%),
+    radial-gradient(ellipse 50% 60% at 90% 100%, rgba(217, 203, 166, 0.07), transparent 70%);
+}
+.lx-band-ink > * { position: relative; z-index: 1; }
+
+/* ── Type ── */
+.lx-display,
+.lx-h1, .lx-h2, .lx-h3-serif {
   font-family: 'Fraunces', Georgia, serif;
   font-variation-settings: 'opsz' 144, 'SOFT' 0;
-}
-.ln-h2 {
   font-weight: 800;
-  font-size: clamp(1.9rem, 3.6vw, 2.7rem); line-height: 1.12; letter-spacing: -0.022em;
-  margin: 0 0 1rem; color: var(--ink);
+  letter-spacing: -0.025em;
 }
-.ln-h2-major {
-  font-size: clamp(2.2rem, 4.6vw, 3.5rem); line-height: 1.08; letter-spacing: -0.03em;
-  margin-bottom: 1.4rem;
-}
-/* Italic with a descender ('morning goes') clips at tight leading. */
-.ln-h2-major em { font-style: italic; color: var(--forest); line-height: 1.14; }
-.ln-lead { font-size: 1.05rem; line-height: 1.65; color: var(--muted); margin: 0; max-width: 54ch; }
+.lx-h1 { font-size: clamp(2.6rem, 6vw, 4.6rem); line-height: 1.02; margin: 0 0 1.4rem; padding-bottom: 0.06em; }
+.lx-h2 { font-size: clamp(2rem, 4.2vw, 3.1rem); line-height: 1.08; margin: 0 0 1.1rem; }
+.lx-h2-major { font-size: clamp(2.3rem, 5.4vw, 4rem); line-height: 1.04; margin-bottom: 1.4rem; }
+.lx-h1 em, .lx-h2 em { font-style: italic; color: var(--forest); line-height: 1.12; }
+.lx-band-ink .lx-h1 em, .lx-band-ink .lx-h2 em { color: var(--sprout); }
 
-/* ── Hero: asymmetric split ── */
-.ln-hero { position: relative; padding: 4rem 0 5rem; }
-.ln-hero::before {
-  content: ''; position: absolute; top: -68px; left: 0; right: 0; height: 420px;
-  background: radial-gradient(ellipse 70% 100% at 50% 0%, rgba(11,110,35,0.10), transparent 70%);
-  pointer-events: none;
-}
-.ln-hero-grid { position: relative; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 4rem; align-items: center; }
-.ln-h1 {
-  font-family: 'Fraunces', Georgia, serif; font-weight: 800;
-  font-size: clamp(2.4rem, 5vw, 3.7rem); line-height: 1.06; letter-spacing: -0.025em;
-  margin: 0 0 1.25rem; color: var(--ink); padding-bottom: 0.08em;
-}
-.ln-h1 em { font-style: italic; color: var(--forest); }
-.ln-hero-sub { font-size: 1.12rem; line-height: 1.6; color: var(--muted); margin: 0 0 2rem; max-width: 40ch; }
-.ln-hero-cta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.lx-lead { font-size: 1.08rem; line-height: 1.7; color: var(--muted); margin: 0; max-width: 56ch; }
+.lx-lead-lg { font-size: 1.22rem; line-height: 1.62; }
 
-/* ── Live demo ──
-   The two drafts keep the shape the scripted demo used, because the contrast
-   (flat grey vs the one with a forest border) is what the eye reads first. */
-.ln-draft { border-radius: 14px; padding: 0.9rem 1rem; margin-bottom: 0.6rem; font-size: 0.86rem; line-height: 1.6; }
-.ln-draft-label { font-size: 0.55rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.4rem; }
-.ln-draft-bad { background: #F2F2EE; color: var(--muted); }
-.ln-draft-bad .ln-draft-label { color: var(--pain); }
-.ln-draft-good { background: var(--card); border: 2px solid var(--forest); color: var(--ink); }
-.ln-draft-good .ln-draft-label { color: var(--forest); }
-
-.ln-live {
-  background: var(--card); border: 1px solid var(--line); border-radius: 22px;
-  padding: 1.4rem; box-shadow: 0 20px 50px rgba(10,15,28,0.07);
+/* Mono labels. The one texture the first design does not use, and the reason
+   a section header here does not read like a section header there. */
+.lx-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--forest); margin: 0 0 1.25rem;
+  display: flex; align-items: center; gap: 0.7rem;
 }
-.ln-live-label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--ink); margin-bottom: 0.5rem; }
-.ln-live-label-2 { margin-top: 1.4rem; }
-.ln-live-hint { font-size: 0.78rem; line-height: 1.5; color: var(--muted); margin: 0 0 0.55rem; }
-.ln-live-input {
-  width: 100%; resize: vertical; font: inherit; font-size: 0.86rem; line-height: 1.55;
-  color: var(--ink); background: var(--paper); border: 1px solid var(--line);
-  border-radius: 12px; padding: 0.75rem 0.85rem;
-}
-.ln-live-input::placeholder { color: var(--faint); }
-.ln-live-input:focus-visible { outline: 2px solid var(--forest); outline-offset: 1px; border-color: transparent; }
+.lx-label::after { content: ''; flex: 1; height: 1px; background: var(--line-2); max-width: 120px; }
+.lx-band-ink .lx-label { color: var(--sand); }
+.lx-band-ink .lx-label::after { background: rgba(217, 203, 166, 0.28); }
+.lx-band-forest .lx-label { color: rgba(250, 248, 243, 0.8); }
+.lx-band-forest .lx-label::after { background: rgba(250, 248, 243, 0.3); }
 
-.ln-live-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: 0.6rem; }
-.ln-live-chips-lead { font-size: 0.74rem; color: var(--faint); margin-right: 0.1rem; }
-.ln-live-chip {
-  font: inherit; font-size: 0.74rem; font-weight: 600; cursor: pointer;
-  color: var(--forest); background: var(--forest-tint); border: none;
-  border-radius: 100px; padding: 0.3rem 0.7rem;
+/* ── Buttons ──
+   44px minimum height on every one of them, including the small nav variant. */
+.lx-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 46px; padding: 0.8rem 1.5rem;
+  border-radius: 100px; border: 1px solid transparent;
+  background: var(--forest); color: var(--paper);
+  font: inherit; font-weight: 700; font-size: 0.95rem; line-height: 1.2;
+  text-decoration: none; cursor: pointer; white-space: nowrap;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.08s ease;
 }
-.ln-live-chip:hover { background: color-mix(in srgb, var(--forest) 16%, transparent); }
+.lx-btn:hover { background: var(--forest-deep); }
+.lx-btn:active { transform: scale(0.985); }
+.lx-btn-lg { min-height: 54px; padding: 1rem 2rem; font-size: 1.03rem; }
+.lx-btn-ghost { background: transparent; color: var(--ink); border-color: var(--line-2); }
+.lx-btn-ghost:hover { background: var(--card); border-color: var(--forest); color: var(--forest); }
+.lx-btn-light { background: var(--paper); color: var(--ink); }
+.lx-btn-light:hover { background: #fff; color: var(--forest); }
+.lx-btn-onink { background: var(--sprout); color: var(--ink); }
+.lx-btn-onink:hover { background: #9BE2AC; }
+.lx-btn-onink-ghost { background: transparent; color: var(--paper); border-color: rgba(250, 248, 243, 0.32); }
+.lx-btn-onink-ghost:hover { background: rgba(250, 248, 243, 0.08); border-color: var(--sprout); color: var(--sprout); }
 
-.ln-live-go { width: 100%; margin-top: 1.2rem; justify-content: center; }
-.ln-live-go:disabled { opacity: 0.4; cursor: not-allowed; }
-.ln-live-error { font-size: 0.8rem; color: var(--pain); margin: 0.8rem 0 0; }
-.ln-live-fine { font-size: 0.72rem; line-height: 1.5; color: var(--faint); margin: 0.9rem 0 0; }
-
-.ln-live-working { display: flex; align-items: center; gap: 0.3rem; margin-top: 0.8rem; }
-.ln-live-working-text { font-size: 0.78rem; color: var(--muted); }
-.ln-live-beat { display: flex; justify-content: center; margin: 0.1rem 0 0.5rem; }
-
-/* Each part of the answer fades up as its turn comes. The content is already
-   loaded; the stagger is pacing, not loading. */
-.ln-live-reveal { opacity: 0; transform: translateY(8px); transition: opacity 0.45s ease, transform 0.45s ease; }
-.ln-live-reveal.is-in { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: reduce) {
-  .ln-live-reveal { opacity: 1; transform: none; transition: none; }
-  .ln-live-beat { display: none; }
+/* ── Nav: floating, inset from the edges ── */
+.lx-nav { position: sticky; top: 0; z-index: 40; padding: 0.75rem 0; }
+.lx-nav-in {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  height: 62px; padding: 0 0.7rem 0 1.1rem;
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid var(--line); border-radius: 100px;
+  box-shadow: 0 10px 30px rgba(10, 15, 28, 0.05);
 }
+.lx-logo { display: inline-flex; align-items: center; gap: 0.6rem; min-height: 44px; text-decoration: none; }
+.lx-logo svg { width: 28px; height: 28px; flex: none; }
+.lx-logo-text {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 1.08rem;
+  letter-spacing: -0.02em; color: var(--ink);
+}
+.lx-logo-text span { color: var(--forest); }
+.lx-nav-actions { display: flex; align-items: center; gap: 0.5rem; }
+.lx-signin {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.9rem;
+  color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 600;
+  border-radius: 100px; transition: color 0.15s, background 0.15s;
+}
+.lx-signin:hover { color: var(--ink); background: rgba(10, 15, 28, 0.04); }
 
-.ln-live-noticed {
-  background: var(--forest-tint); border-radius: 14px; padding: 0.85rem 1rem; margin-top: 0.9rem;
-}
-.ln-live-noticed-h { font-size: 0.55rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--forest); margin: 0 0 0.4rem; }
-.ln-live-noticed-b { font-size: 0.82rem; line-height: 1.55; color: var(--ink); margin: 0 0 0.35rem; }
-.ln-live-noticed-b:last-child { margin-bottom: 0; }
-
-/* ── Inbox triage: the main demo ──
-   Deliberately not a dashboard. The engine produces a score and we do not
-   print it: "start here, and this is why" is the useful output, a number
-   out of 150 is trivia the coach cannot act on. */
-.ln-stage-head { max-width: 720px; margin: 0 auto 3.5rem; text-align: center; }
-.ln-stage-lead { margin: 0 auto; max-width: 52ch; }
-.ln-stage {
-  max-width: 900px; margin: 0 auto;
-  background: var(--card); border: 1px solid var(--line); border-radius: 22px;
-  padding: 2.25rem; box-shadow: 0 26px 70px rgba(10,15,28,0.08);
-}
-.ln-triage-input { font-size: 0.9rem; line-height: 1.6; min-height: 220px; }
-
-.ln-triage-kicker { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--forest); margin: 0 0 0.5rem; }
-.ln-triage-verdict {
-  font-weight: 800; font-size: clamp(2rem, 4vw, 2.9rem); line-height: 1.05;
-  letter-spacing: -0.03em; color: var(--ink); margin: 0 0 0.9rem;
-}
-.ln-triage-quote {
-  font-size: 1.05rem; line-height: 1.6; color: var(--ink); margin: 0 0 0.7rem;
-  padding-left: 1rem; border-left: 2px solid var(--forest);
-}
-.ln-triage-under { font-size: 0.95rem; line-height: 1.6; color: var(--muted); margin: 0 0 1.1rem; }
-.ln-triage-because { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; margin: 0; padding: 0; }
-.ln-triage-because li {
-  font-size: 0.74rem; font-weight: 600; color: var(--forest);
-  background: var(--forest-tint); border-radius: 100px; padding: 0.3rem 0.7rem;
+/* ── Margin rail ──
+   Section numerals down the left gutter. Decorative, hidden from assistive
+   tech, and only present when there is genuinely a gutter to put it in. */
+.lx-rail { display: none; }
+@media (min-width: 1400px) {
+  .lx-rail {
+    /* Sits in the gutter, tracking the container rather than the window edge,
+       so it stays a fixed distance outside the content column at any width.
+       Aligning it to the content edge instead put it underneath the copy. */
+    display: block; position: absolute; top: 7rem; left: max(1.75rem, calc(50% - 600px - 2.75rem));
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em;
+    color: var(--faint);
+  }
+  .lx-band-ink .lx-rail { color: rgba(250, 248, 243, 0.4); }
+  .lx-band-forest .lx-rail { color: rgba(250, 248, 243, 0.55); }
+  .lx-rail::after {
+    content: ''; display: block; width: 1px; height: 56px;
+    background: currentColor; opacity: 0.3; margin: 0.6rem auto 0;
+  }
 }
 
-/* Hairlines, not cards. Boxing every person turns a note into a table. */
-.ln-triage-block { margin-top: 2.5rem; padding-top: 1.6rem; border-top: 1px solid var(--line); }
-.ln-triage-h {
-  display: flex; align-items: center; gap: 0.5rem;
-  font-size: 0.8rem; font-weight: 700; color: var(--muted); margin: 0 0 1.1rem;
+/* ══ 1. Hero ══
+   Asymmetric two-up. Headline gets the long column; the identity claim sits
+   in the short one as a card that overlaps the band edge. */
+.lx-hero { position: relative; padding: 4.5rem 0 6rem; overflow: hidden; }
+.lx-hero::before {
+  content: ''; position: absolute; top: -180px; left: 50%; transform: translateX(-50%);
+  width: 1100px; height: 620px; pointer-events: none;
+  background: radial-gradient(ellipse 55% 60% at 50% 50%, rgba(11, 110, 35, 0.13), transparent 68%);
 }
-.ln-triage-row { margin-bottom: 1.3rem; }
-.ln-triage-row:last-of-type { margin-bottom: 0; }
-.ln-triage-row-head { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.3rem; }
-.ln-triage-name { font-weight: 700; font-size: 1rem; color: var(--ink); }
-.ln-triage-when { font-size: 0.76rem; color: var(--faint); }
-.ln-triage-row-quote { font-size: 0.9rem; line-height: 1.55; color: var(--muted); margin: 0 0 0.35rem; }
-.ln-triage-row-note {
-  display: flex; align-items: flex-start; gap: 0.35rem;
-  font-size: 0.82rem; line-height: 1.5; color: var(--ink); margin: 0;
+.lx-hero-grid {
+  position: relative; display: grid; grid-template-columns: 1.15fr 0.85fr;
+  gap: 4.5rem; align-items: center;
 }
-.ln-triage-row-note svg { flex: none; margin-top: 0.28rem; color: var(--forest); }
-.ln-triage-aside { font-size: 0.84rem; line-height: 1.55; color: var(--faint); margin: 1.2rem 0 0; font-style: italic; }
-.ln-triage-foot { margin-top: 2.5rem; padding-top: 1.6rem; border-top: 1px solid var(--line); }
-.ln-triage-count { font-size: 0.9rem; line-height: 1.55; color: var(--muted); margin: 0 0 1.2rem; }
-.ln-triage-foot .ln-live-after { margin-top: 0; }
-
-.ln-live-after { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.2rem; }
-.ln-live-again { font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.ln-live-again:hover { color: var(--ink); }
-
-/* ── Problem: editorial stack with hairlines ── */
-.ln-problem { background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.ln-pains { margin: 2.5rem 0 0; padding: 0; list-style: none; }
-.ln-pain { display: flex; gap: 1.25rem; align-items: baseline; padding: 1.15rem 0; border-bottom: 1px solid var(--line); font-size: clamp(1.05rem, 2vw, 1.28rem); line-height: 1.45; color: var(--ink); }
-.ln-pain:last-child { border-bottom: none; }
-.ln-pain-when { flex: 0 0 auto; width: 5.5rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
-
-/* ── Manifesto block ── */
-.ln-manifesto { text-align: center; }
-.ln-manifesto-line {
-  font-family: 'Fraunces', Georgia, serif; font-weight: 800;
-  font-size: clamp(1.9rem, 4.4vw, 3rem); line-height: 1.14; letter-spacing: -0.02em;
-  margin: 0 auto 1.5rem; max-width: 20ch;
+.lx-hero-sub { font-size: 1.16rem; line-height: 1.62; color: var(--muted); margin: 0 0 2.25rem; max-width: 42ch; }
+.lx-hero-cta { display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; }
+.lx-hero-fine {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem; letter-spacing: 0.06em; color: var(--faint); margin: 1.5rem 0 0;
 }
-.ln-manifesto-line em { font-style: italic; color: var(--forest); }
-.ln-manifesto-sub { font-size: 1.08rem; line-height: 1.7; color: var(--muted); max-width: 46ch; margin: 0 auto; }
 
-/* ── How it works: sequence ── */
-.ln-steps { margin-top: 3rem; display: flex; flex-direction: column; gap: 2.5rem; }
-.ln-step { display: grid; grid-template-columns: 3.5rem 1fr; gap: 1.5rem; align-items: start; }
-.ln-step-n { font-family: 'Fraunces', Georgia, serif; font-size: 2.4rem; font-weight: 800; color: var(--forest); line-height: 1; opacity: 0.35; }
-.ln-step-h { font-size: 1.32rem; font-weight: 700; margin: 0 0 0.4rem; color: var(--ink); }
-.ln-step-b { font-size: 1rem; line-height: 1.65; color: var(--muted); margin: 0; max-width: 48ch; }
-
-/* ── Promise block (the one bold colour moment) ── */
-.ln-promise { background: var(--forest); color: var(--paper); border-radius: 24px; padding: 3rem 2.5rem; }
-.ln-promise h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: clamp(1.7rem, 3.2vw, 2.3rem); line-height: 1.15; margin: 0 0 1.75rem; color: var(--paper); }
-.ln-nots { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 1rem; }
-.ln-not { display: flex; gap: 0.85rem; align-items: flex-start; font-size: 1.02rem; line-height: 1.55; color: rgba(250,248,243,0.92); }
-.ln-not-mark { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid rgba(250,248,243,0.5); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-top: 0.15rem; }
-
-/* ── Close ── */
-.ln-close { text-align: center; }
-.ln-fine { font-size: 0.86rem; color: var(--faint); margin-top: 1.25rem; }
-.ln-foot { border-top: 1px solid var(--line); padding: 2rem 0; font-size: 0.82rem; color: var(--faint); display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-.ln-foot a { color: var(--muted); text-decoration: none; }
-.ln-foot a:hover { color: var(--ink); }
-
-/* ── Rotating headline tail ──
-   Four real jobs instead of one weak word. Stacked in a grid so the box is
-   as wide as the longest line and nothing reflows as they cycle. */
-.ln-rot { display: inline-grid; vertical-align: bottom; }
-.ln-rot > span {
-  grid-area: 1 / 1;
-  color: var(--forest);
-  font-style: italic;
-  line-height: inherit;
-  opacity: 0;
-  white-space: nowrap;
-  animation: ln-rot 13s infinite;
+/* Rotating tail. Grid-stacked so the box holds the longest line and the
+   headline never reflows mid-cycle. */
+.lx-rot { display: inline-grid; vertical-align: bottom; }
+.lx-rot > span {
+  grid-area: 1 / 1; color: var(--forest); font-style: italic; line-height: inherit;
+  opacity: 0; white-space: nowrap; animation: lx-rot 13s infinite;
 }
-.ln-rot > span:nth-child(1) { animation-delay: 0s; }
-.ln-rot > span:nth-child(2) { animation-delay: 3.25s; }
-.ln-rot > span:nth-child(3) { animation-delay: 6.5s; }
-.ln-rot > span:nth-child(4) { animation-delay: 9.75s; }
-/* Fade-out runs past the next word's fade-in (24-28% against a 25% step)
-   so the words cross over. Ending exactly on the step left the headline
-   reading "you did not become a coach to" with nothing after it. */
-@keyframes ln-rot {
-  0%   { opacity: 0; transform: translateY(0.22em); }
+.lx-rot > span:nth-child(2) { animation-delay: 3.25s; }
+.lx-rot > span:nth-child(3) { animation-delay: 6.5s; }
+.lx-rot > span:nth-child(4) { animation-delay: 9.75s; }
+@keyframes lx-rot {
+  0%   { opacity: 0; transform: translateY(0.2em); }
   3%   { opacity: 1; transform: translateY(0); }
   24%  { opacity: 1; transform: translateY(0); }
-  28%  { opacity: 0; transform: translateY(-0.22em); }
-  100% { opacity: 0; transform: translateY(-0.22em); }
+  28%  { opacity: 0; transform: translateY(-0.2em); }
+  100% { opacity: 0; transform: translateY(-0.2em); }
 }
 
-/* ── Hero visual slot ──
-   Holds a real photograph when there is one. Until then it carries the
-   question, which is the one claim on this page nobody can argue with. */
-.ln-ask {
-  background: var(--card); border: 1px solid var(--line); border-radius: 24px;
-  padding: 3rem 2.5rem; text-align: center;
-  box-shadow: 0 24px 60px rgba(10, 15, 28, 0.06);
+/* The identity claim. Ink, because it is the one thing on this screen that
+   should feel spoken rather than marketed. */
+.lx-claim {
+  background: var(--ink); color: var(--paper);
+  border-radius: var(--r-lg); padding: 2.75rem 2.25rem;
+  box-shadow: 0 30px 70px rgba(10, 15, 28, 0.22);
+  position: relative; overflow: hidden;
 }
-.ln-ask-q {
+.lx-claim::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 70% 60% at 20% 0%, rgba(127, 211, 148, 0.16), transparent 70%);
+}
+.lx-claim > * { position: relative; }
+.lx-claim-mark {
+  font-family: 'Fraunces', Georgia, serif; font-size: 3.4rem; line-height: 0.6;
+  color: var(--sprout); display: block; margin-bottom: 0.6rem;
+}
+.lx-claim-q {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-style: italic;
+  font-size: clamp(1.35rem, 2.3vw, 1.75rem); line-height: 1.3; letter-spacing: -0.015em;
+  margin: 0 0 1.5rem;
+}
+.lx-claim-rule { width: 40px; height: 2px; background: var(--sprout); border-radius: 2px; margin: 0 0 1.4rem; }
+.lx-claim-a { font-size: 1rem; line-height: 1.65; color: var(--on-ink); margin: 0; }
+.lx-claim-a strong { color: var(--paper); font-weight: 700; }
+
+/* ══ 2. Your week ══
+   A dated spine rather than a bordered list. The rule and the nodes are what
+   make five sentences read as one week instead of five bullets. */
+.lx-spine { margin: 3rem 0 0; padding: 0; list-style: none; position: relative; }
+.lx-spine::before {
+  /* Centred in the gutter, not on the label's right edge. At 6.5rem the rule
+     and the nodes landed exactly where the labels end, so every label read as
+     touching the timeline. */
+  content: ''; position: absolute; left: 7.5rem; top: 0.9rem; bottom: 0.9rem;
+  width: 1px; background: var(--line-2);
+}
+.lx-spine-row {
+  display: grid; grid-template-columns: 6.5rem 1fr; gap: 2rem;
+  padding: 1.15rem 0; align-items: start;
+}
+.lx-spine-when {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--faint); text-align: right; padding-top: 0.42rem;
+}
+.lx-spine-body {
+  position: relative; font-size: clamp(1.06rem, 1.8vw, 1.26rem); line-height: 1.5; color: var(--ink);
+}
+.lx-spine-body::before {
+  content: ''; position: absolute; left: -1rem; top: 0.62rem; transform: translateX(-50%);
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--paper); border: 2px solid var(--line-2);
+}
+.lx-spine-row:last-child .lx-spine-body::before { background: var(--pain); border-color: var(--pain); }
+.lx-band-card .lx-spine-body::before { background: var(--card); }
+.lx-band-card .lx-spine-row:last-child .lx-spine-body::before { background: var(--pain); }
+
+.lx-verdict {
+  margin: 2.75rem 0 0; padding: 1.5rem 1.75rem;
+  border-left: 3px solid var(--pain); background: rgba(178, 58, 46, 0.05);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  font-size: 1.12rem; line-height: 1.6; color: var(--ink);
+}
+
+/* ── Week ring: the reader's own number ── */
+.lx-ring-card {
+  margin-top: 3rem; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-lg); padding: 2rem;
+  display: grid; grid-template-columns: 200px 1fr; gap: 2.5rem; align-items: center;
+  box-shadow: 0 20px 50px rgba(10, 15, 28, 0.05);
+}
+.lx-band-card .lx-ring-card { background: var(--paper); }
+.lx-ring-figure { position: relative; width: 200px; height: 200px; }
+.lx-ring-figure svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.lx-ring-track { fill: none; stroke: var(--line); stroke-width: 14; }
+.lx-ring-arc {
+  fill: none; stroke: var(--forest); stroke-width: 14; stroke-linecap: round;
+  transition: stroke-dashoffset 0.45s cubic-bezier(.16,1,.3,1);
+}
+.lx-ring-centre {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+}
+.lx-ring-pct {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 2.6rem;
+  line-height: 1; letter-spacing: -0.03em; color: var(--ink);
+}
+.lx-ring-pct-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.62rem; letter-spacing: 0.13em; text-transform: uppercase;
+  color: var(--faint); margin-top: 0.45rem;
+}
+.lx-ring-q {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 1.28rem;
+  line-height: 1.32; margin: 0 0 1.5rem; color: var(--ink);
+}
+.lx-ring-field { margin-bottom: 1.1rem; }
+.lx-ring-field-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.lx-ring-field-label { font-size: 0.9rem; font-weight: 600; color: var(--muted); }
+.lx-ring-field-val {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.92rem; font-weight: 600; color: var(--forest);
+}
+.lx-range {
+  -webkit-appearance: none; appearance: none; width: 100%;
+  height: 44px; background: transparent; cursor: pointer; display: block; margin: 0;
+}
+.lx-range::-webkit-slider-runnable-track { height: 6px; border-radius: 100px; background: var(--line); }
+.lx-range::-moz-range-track { height: 6px; border-radius: 100px; background: var(--line); }
+.lx-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 26px; height: 26px; border-radius: 50%; margin-top: -10px;
+  background: var(--forest); border: 3px solid var(--card);
+  box-shadow: 0 2px 8px rgba(10, 15, 28, 0.2);
+  transition: transform 0.12s ease;
+}
+.lx-range::-moz-range-thumb {
+  width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--card);
+  background: var(--forest); box-shadow: 0 2px 8px rgba(10, 15, 28, 0.2);
+}
+.lx-range:hover::-webkit-slider-thumb { transform: scale(1.08); }
+.lx-ring-read { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 1.1rem 0 0; }
+.lx-ring-read strong { color: var(--ink); font-weight: 700; }
+.lx-ring-read em { font-style: normal; color: var(--pain); font-weight: 700; }
+
+/* ══ 3. Manifesto ══ */
+.lx-manifesto { text-align: center; }
+.lx-manifesto-line {
   font-family: 'Fraunces', Georgia, serif; font-weight: 800;
-  font-size: clamp(1.5rem, 2.6vw, 2rem); line-height: 1.2; letter-spacing: -0.02em;
-  margin: 0 0 1rem; color: var(--ink);
+  font-size: clamp(2.1rem, 5.2vw, 3.6rem); line-height: 1.1; letter-spacing: -0.03em;
+  margin: 0 auto 1.75rem; max-width: 18ch;
 }
-.ln-ask-a { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0; }
-.ln-ask-a strong { color: var(--forest); font-weight: 700; }
-.ln-ask-rule { width: 44px; height: 3px; background: var(--forest); border-radius: 3px; margin: 1.5rem auto; }
-.ln-ask-resolve { font-size: 1.02rem; line-height: 1.6; color: var(--muted); margin: 0; }
-.ln-ask-resolve strong { color: var(--ink); font-weight: 700; }
+.lx-manifesto-line em { font-style: italic; color: var(--sprout); }
+.lx-manifesto-sub { font-size: 1.14rem; line-height: 1.75; color: var(--on-ink); max-width: 50ch; margin: 0 auto; }
 
-/* The question, now setting up the week list instead of standing alone. */
-.ln-askline {
-  font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 600;
-  font-size: clamp(1.05rem, 1.9vw, 1.25rem); line-height: 1.5;
-  color: var(--muted); margin: 0 0 2rem; padding-left: 1.25rem;
-  border-left: 2px solid var(--forest);
+/* ══ 4. How it works ══
+   Three across with a connecting rule, so the eye reads a sequence rather
+   than a stack of equal cards. */
+.lx-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; margin-top: 3.5rem; position: relative; }
+.lx-steps::before {
+  content: ''; position: absolute; top: 1.35rem; left: 12%; right: 12%;
+  height: 1px; background: var(--line-2);
+}
+.lx-step { position: relative; }
+.lx-step-n {
+  position: relative; z-index: 1;
+  width: 2.7rem; height: 2.7rem; border-radius: 50%;
+  background: var(--forest); color: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.86rem; font-weight: 600; margin-bottom: 1.4rem;
+}
+.lx-step-h { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 1.34rem; line-height: 1.25; margin: 0 0 0.55rem; color: var(--ink); }
+.lx-step-b { font-size: 0.99rem; line-height: 1.68; color: var(--muted); margin: 0; }
+
+/* ══ 5. The demo stage ══
+   White card on ink. The one place on the page where the product itself is
+   the thing being looked at, so it gets a lit surface and the most air. */
+.lx-stage-head { max-width: 700px; margin: 0 auto 3.25rem; text-align: center; }
+.lx-stage-head .lx-label { justify-content: center; }
+.lx-stage-head .lx-label::after { display: none; }
+.lx-stage-lead { margin: 0 auto; max-width: 52ch; }
+.lx-stage {
+  max-width: 900px; margin: 0 auto; background: var(--card); color: var(--ink);
+  border-radius: var(--r-lg); overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.45);
+}
+/* Window chrome. Cheap signal, but it is the difference between "a form on a
+   marketing page" and "the actual thing, running". */
+.lx-chrome {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.85rem 1.25rem; background: var(--paper-2); border-bottom: 1px solid var(--line);
+}
+.lx-chrome-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line-2); flex: none; }
+.lx-chrome-title {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem; letter-spacing: 0.08em; color: var(--muted);
+  margin-left: 0.6rem;
+}
+.lx-stage-body { padding: 2.5rem; }
+
+/* ══ 6. What you get back: bento ══ */
+.lx-bento { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.1rem; margin-top: 3rem; }
+.lx-tile {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: 2rem; transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.lx-tile:hover { border-color: var(--line-2); }
+.lx-tile-wide { grid-column: 1 / -1; background: var(--ink); color: var(--paper); border-color: var(--ink); position: relative; overflow: hidden; }
+.lx-tile-wide::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 60% 70% at 85% 10%, rgba(127, 211, 148, 0.14), transparent 70%);
+}
+.lx-tile-wide > * { position: relative; }
+.lx-tile-icon {
+  width: 40px; height: 40px; border-radius: 12px; background: var(--forest-tint);
+  color: var(--forest); display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.1rem;
+}
+.lx-tile-wide .lx-tile-icon { background: rgba(127, 211, 148, 0.16); color: var(--sprout); }
+.lx-tile-h { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 1.36rem; line-height: 1.25; margin: 0 0 0.6rem; }
+.lx-tile-wide .lx-tile-h { font-size: clamp(1.5rem, 2.6vw, 2rem); }
+.lx-tile-b { font-size: 0.99rem; line-height: 1.68; color: var(--muted); margin: 0; }
+.lx-tile-wide .lx-tile-b { color: var(--on-ink); max-width: 54ch; }
+
+/* ══ 7. Founder ══ */
+.lx-founder { display: grid; grid-template-columns: 300px 1fr; gap: 3.5rem; align-items: start; }
+.lx-founder-aside { position: sticky; top: 6rem; }
+.lx-founder-photo {
+  width: 100%; max-width: 260px; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 22%;
+  border-radius: var(--r-lg); background: var(--forest-tint); display: block;
+  box-shadow: 0 24px 60px rgba(10, 15, 28, 0.14);
+}
+.lx-founder-name { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 1.05rem; color: var(--ink); margin: 1.25rem 0 0; }
+.lx-founder-role { font-size: 0.88rem; line-height: 1.5; color: var(--faint); margin: 0.2rem 0 0; }
+.lx-founder-quote {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-style: italic;
+  font-size: clamp(1.5rem, 3vw, 2.15rem); line-height: 1.28; letter-spacing: -0.02em;
+  margin: 0 0 1.75rem; color: var(--ink);
+}
+.lx-founder-body { font-size: 1.04rem; line-height: 1.78; color: var(--muted); margin: 0 0 1.15rem; max-width: 58ch; }
+/* Drop cap on the opening paragraph only. It is the one place on the page
+   where the voice changes from product to person, and the cap says so.
+   Marked with a class rather than :first-of-type, because the first <p> in
+   this column is the mono label, so :first-of-type never matched. */
+.lx-dropcap::first-letter {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 3.4rem;
+  line-height: 0.82; float: left; margin: 0.14em 0.11em 0 0; color: var(--forest);
 }
 
-/* ── What you get back: asymmetric pair grid, not three equal cards ── */
-.ln-back { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1rem; margin-top: 2.5rem; }
-.ln-back-item { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 1.75rem; }
-.ln-back-item:nth-child(1) { grid-column: 1 / -1; background: var(--forest-tint); border-color: rgba(11,110,35,0.25); }
-.ln-back-h { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 1.35rem; line-height: 1.2; margin: 0 0 0.5rem; color: var(--ink); }
-.ln-back-item:nth-child(1) .ln-back-h { font-size: clamp(1.5rem, 2.4vw, 1.9rem); }
-.ln-back-b { font-size: 0.98rem; line-height: 1.6; color: var(--muted); margin: 0; }
+/* ══ 8. Never do ══ */
+.lx-nots { list-style: none; margin: 3rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem 2.5rem; }
+.lx-not { display: grid; grid-template-columns: 26px 1fr; gap: 0.9rem; align-items: start; font-size: 1.03rem; line-height: 1.6; color: rgba(250, 248, 243, 0.9); }
+.lx-not-mark {
+  width: 26px; height: 26px; border-radius: 50%; margin-top: 0.1rem;
+  border: 1.5px solid rgba(250, 248, 243, 0.42); color: var(--paper);
+  display: flex; align-items: center; justify-content: center; flex: none;
+}
 
-/* The scripted 13s demo loop lived here. It is gone because the demo is real
-   now: the coach types, the model answers, and the reveal is paced in the
-   component instead. A looping animation of a conversation that never happened
-   was always a claim wearing a demo's clothes. */
+/* ══ 9. For whom ══ */
+.lx-forwho {
+  border-left: 3px solid var(--forest); padding: 0.4rem 0 0.4rem 1.75rem;
+  font-size: 1.1rem; line-height: 1.75; color: var(--muted); margin: 0;
+}
+.lx-forwho strong { color: var(--ink); font-weight: 700; }
 
-.ln-typing { display: inline-flex; gap: 4px; align-items: center; padding: 0.55rem 0.85rem; }
-.ln-typing span {
+/* ══ 10. FAQ ══
+   Native details/summary. No state, no JS, keyboard-operable for free, and
+   it degrades to plain visible text if anything at all goes wrong. */
+.lx-faq { margin-top: 2.5rem; border-top: 1px solid var(--line); }
+.lx-faq-item { border-bottom: 1px solid var(--line); }
+.lx-faq-q {
+  display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+  padding: 1.4rem 0; cursor: pointer; list-style: none;
+  font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 1.12rem;
+  line-height: 1.4; color: var(--ink);
+}
+.lx-faq-q::-webkit-details-marker { display: none; }
+.lx-faq-q:hover { color: var(--forest); }
+.lx-faq-sign { flex: none; width: 22px; height: 22px; position: relative; color: var(--forest); }
+.lx-faq-sign::before, .lx-faq-sign::after {
+  content: ''; position: absolute; left: 50%; top: 50%; background: currentColor;
+  transform: translate(-50%, -50%); transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.lx-faq-sign::before { width: 14px; height: 2px; }
+.lx-faq-sign::after { width: 2px; height: 14px; }
+.lx-faq-item[open] .lx-faq-sign::after { transform: translate(-50%, -50%) rotate(90deg); opacity: 0; }
+.lx-faq-a { font-size: 1rem; line-height: 1.72; color: var(--muted); margin: 0 0 1.5rem; max-width: 62ch; }
+
+/* ══ 11. Close ══ */
+.lx-close { text-align: center; }
+.lx-close .lx-h2 { max-width: 16ch; margin-left: auto; margin-right: auto; }
+.lx-close-lead { margin: 0 auto 2.25rem; max-width: 44ch; color: rgba(250, 248, 243, 0.82); font-size: 1.1rem; line-height: 1.65; }
+.lx-close-fine {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.74rem; letter-spacing: 0.06em; color: rgba(250, 248, 243, 0.6); margin: 1.4rem 0 0;
+}
+
+.lx-foot {
+  padding: 2.25rem 0; border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  font-size: 0.84rem; color: var(--faint);
+}
+/* Padded to a 44px hit area. A 17px-tall text link in a footer is the one
+   target on this page a thumb reliably misses. */
+.lx-foot a { display: inline-block; padding: 0.85rem 0; color: var(--muted); text-decoration: none; }
+.lx-foot a:hover { color: var(--ink); text-decoration: underline; }
+
+/* ── Sticky mobile CTA ──
+   Appears only where the nav button has been shrunk out of comfortable reach.
+   Padded for the home indicator so it is not sitting under the gesture bar. */
+.lx-dock { display: none; }
+@media (max-width: 720px) {
+  .lx-dock {
+    display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    padding: 0.7rem 1rem calc(0.7rem + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: blur(14px); border-top: 1px solid var(--line);
+  }
+  .lx-dock .lx-btn { width: 100%; }
+  .lx-foot { padding-bottom: 6rem; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Shared demo components.
+   InboxTriage and LiveDemo carry `.ln-*` class names from the first design.
+   Everything they need is defined here under `.lx`, so this route never
+   depends on the other stylesheet being loaded or on source order.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.lx .ln-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 46px; padding: 0.8rem 1.5rem; border-radius: 100px; border: none;
+  background: var(--forest); color: var(--paper);
+  font: inherit; font-weight: 700; font-size: 0.95rem; line-height: 1.2;
+  text-decoration: none; cursor: pointer; white-space: nowrap;
+  transition: background 0.18s ease, transform 0.08s ease;
+}
+.lx .ln-btn:hover { background: var(--forest-deep); }
+.lx .ln-btn:active { transform: scale(0.985); }
+.lx .ln-btn-lg { min-height: 54px; padding: 1rem 2rem; font-size: 1.02rem; }
+
+.lx .ln-live-label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--ink); margin-bottom: 0.4rem; }
+.lx .ln-live-label-2 { margin-top: 1.6rem; }
+.lx .ln-live-hint { font-size: 0.85rem; line-height: 1.55; color: var(--muted); margin: 0 0 0.7rem; }
+.lx .ln-live-input {
+  width: 100%; resize: vertical; font: inherit; font-size: 0.9rem; line-height: 1.6;
+  color: var(--ink); background: var(--paper); border: 1px solid var(--line);
+  border-radius: var(--r-md); padding: 0.85rem 0.95rem;
+  transition: border-color 0.15s ease;
+}
+.lx .ln-live-input::placeholder { color: var(--faint); }
+.lx .ln-live-input:hover { border-color: var(--line-2); }
+.lx .ln-triage-input { min-height: 230px; }
+
+.lx .ln-live-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: 0.7rem; }
+.lx .ln-live-chips-lead { font-size: 0.76rem; color: var(--faint); margin-right: 0.1rem; }
+.lx .ln-live-chip {
+  font: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+  color: var(--forest); background: var(--forest-tint); border: 1px solid transparent;
+  border-radius: 100px; padding: 0.5rem 0.95rem; min-height: 44px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.lx .ln-live-chip:hover { background: color-mix(in srgb, var(--forest) 14%, transparent); border-color: rgba(11, 110, 35, 0.3); }
+
+.lx .ln-live-go { width: 100%; margin-top: 1.4rem; }
+.lx .ln-live-go:disabled { opacity: 0.38; cursor: not-allowed; }
+.lx .ln-live-go:disabled:hover { background: var(--forest); }
+.lx .ln-live-error { font-size: 0.85rem; color: var(--pain); margin: 0.9rem 0 0; }
+.lx .ln-live-fine { font-size: 0.76rem; line-height: 1.55; color: var(--faint); margin: 1rem 0 0; }
+.lx .ln-live-working { display: flex; align-items: center; gap: 0.35rem; margin-top: 0.9rem; }
+.lx .ln-live-working-text { font-size: 0.82rem; color: var(--muted); }
+.lx .ln-live-beat { display: flex; justify-content: center; margin: 0.1rem 0 0.5rem; }
+
+.lx .ln-typing { display: inline-flex; gap: 4px; align-items: center; padding: 0.5rem 0.7rem; }
+.lx .ln-typing span {
   width: 6px; height: 6px; border-radius: 50%; background: var(--forest); opacity: 0.35;
-  animation: ln-blink 1s ease-in-out infinite;
+  animation: lx-blink 1s ease-in-out infinite;
 }
-.ln-typing span:nth-child(2) { animation-delay: 0.15s; }
-.ln-typing span:nth-child(3) { animation-delay: 0.3s; }
-@keyframes ln-blink { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
+.lx .ln-typing span:nth-child(2) { animation-delay: 0.15s; }
+.lx .ln-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes lx-blink { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
 
-/* ── Founder note: the believability slot ──
-   Harry Dry's above-the-fold formula has five parts and we had four. This
-   is the missing one, and it is not a logo wall or a borrowed testimonial.
-   It is the seam: the person who built it has the problem it solves. */
-.ln-founder { display: grid; grid-template-columns: 92px 1fr; gap: 1.75rem; align-items: start; }
-.ln-founder-photo {
-  width: 92px; height: 92px; border-radius: 50%;
-  object-fit: cover; object-position: 50% 18%;
-  background: var(--forest-tint); border: 1px solid var(--line);
-  display: block; flex-shrink: 0;
-}
-.ln-founder-quote {
-  font-family: 'Fraunces', Georgia, serif; font-weight: 700;
-  font-size: clamp(1.25rem, 2.3vw, 1.7rem); line-height: 1.35; letter-spacing: -0.01em;
-  margin: 0 0 1rem; color: var(--ink);
-}
-.ln-founder-body { font-size: 1rem; line-height: 1.7; color: var(--muted); margin: 0 0 1rem; max-width: 52ch; }
-.ln-founder-name { font-size: 0.92rem; color: var(--ink); font-weight: 700; margin: 0; }
-.ln-founder-role { font-size: 0.88rem; color: var(--faint); margin: 0.15rem 0 0; }
+.lx .ln-live-reveal { opacity: 0; transform: translateY(8px); transition: opacity 0.45s ease, transform 0.45s ease; }
+.lx .ln-live-reveal.is-in { opacity: 1; transform: none; }
 
-/* ── Who this is for ── */
-.ln-forwho { border-left: 3px solid var(--forest); padding: 0.35rem 0 0.35rem 1.5rem; }
-.ln-forwho p { margin: 0; font-size: 1.05rem; line-height: 1.7; color: var(--muted); }
-.ln-forwho strong { color: var(--ink); font-weight: 700; }
+.lx .ln-draft { border-radius: var(--r-md); padding: 1rem 1.1rem; margin-bottom: 0.7rem; font-size: 0.89rem; line-height: 1.62; }
+.lx .ln-draft-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.6rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.45rem;
+}
+.lx .ln-draft-bad { background: var(--paper-2); color: var(--muted); }
+.lx .ln-draft-bad .ln-draft-label { color: var(--pain); }
+.lx .ln-draft-good { background: var(--card); border: 2px solid var(--forest); color: var(--ink); box-shadow: 0 10px 30px rgba(11, 110, 35, 0.1); }
+.lx .ln-draft-good .ln-draft-label { color: var(--forest); }
+
+.lx .ln-live-noticed { background: var(--forest-tint); border-radius: var(--r-md); padding: 1rem 1.1rem; margin-top: 1rem; }
+.lx .ln-live-noticed-h {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.6rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--forest); margin: 0 0 0.45rem;
+}
+.lx .ln-live-noticed-b { font-size: 0.86rem; line-height: 1.6; color: var(--ink); margin: 0 0 0.35rem; }
+.lx .ln-live-noticed-b:last-child { margin-bottom: 0; }
+
+.lx .ln-triage-kicker {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.66rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--forest); margin: 0 0 0.6rem;
+}
+.lx .ln-triage-verdict {
+  font-family: 'Fraunces', Georgia, serif; font-variation-settings: 'opsz' 144;
+  font-weight: 800; font-size: clamp(2rem, 4vw, 2.9rem); line-height: 1.04;
+  letter-spacing: -0.03em; color: var(--ink); margin: 0 0 1rem;
+}
+.lx .ln-triage-quote {
+  font-size: 1.06rem; line-height: 1.6; color: var(--ink); margin: 0 0 0.8rem;
+  padding-left: 1.1rem; border-left: 2px solid var(--forest);
+}
+.lx .ln-triage-under { font-size: 0.97rem; line-height: 1.62; color: var(--muted); margin: 0 0 1.2rem; }
+.lx .ln-triage-because { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; margin: 0; padding: 0; }
+.lx .ln-triage-because li {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem; font-weight: 500; color: var(--forest);
+  background: var(--forest-tint); border-radius: 100px; padding: 0.35rem 0.75rem;
+}
+.lx .ln-triage-block { margin-top: 2.5rem; padding-top: 1.7rem; border-top: 1px solid var(--line); }
+.lx .ln-triage-h {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 1.2rem;
+}
+.lx .ln-triage-row { margin-bottom: 1.4rem; }
+.lx .ln-triage-row:last-of-type { margin-bottom: 0; }
+.lx .ln-triage-row-head { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.3rem; }
+.lx .ln-triage-name { font-weight: 700; font-size: 1.02rem; color: var(--ink); }
+.lx .ln-triage-when { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.72rem; color: var(--faint); }
+.lx .ln-triage-row-quote { font-size: 0.92rem; line-height: 1.58; color: var(--muted); margin: 0 0 0.4rem; }
+.lx .ln-triage-row-note { display: flex; align-items: flex-start; gap: 0.4rem; font-size: 0.86rem; line-height: 1.52; color: var(--ink); margin: 0; }
+.lx .ln-triage-row-note svg { flex: none; margin-top: 0.28rem; color: var(--forest); }
+.lx .ln-triage-aside { font-size: 0.86rem; line-height: 1.55; color: var(--faint); margin: 1.3rem 0 0; font-style: italic; }
+.lx .ln-triage-foot { margin-top: 2.5rem; padding-top: 1.7rem; border-top: 1px solid var(--line); }
+.lx .ln-triage-count { font-size: 0.94rem; line-height: 1.55; color: var(--muted); margin: 0 0 1.3rem; }
+.lx .ln-live-after { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.2rem; }
+.lx .ln-triage-foot .ln-live-after { margin-top: 0; }
+.lx .ln-live-again {
+  font: inherit; font-size: 0.88rem; font-weight: 600; color: var(--muted);
+  background: none; border: none; cursor: pointer; min-height: 44px; padding: 0 0.2rem;
+  text-decoration: underline; text-underline-offset: 4px;
+}
+.lx .ln-live-again:hover { color: var(--ink); }
+
+/* The second demo sits on paper rather than on the lit stage, so it reads as
+   act two rather than a competing centrepiece. */
+.lx .ln-live {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: 1.75rem; margin-top: 2.25rem; box-shadow: 0 20px 50px rgba(10, 15, 28, 0.06);
+}
 
 /* ── Motion ── */
-.ln-rise { animation: ln-rise 0.7s cubic-bezier(.16,1,.3,1) both; }
-.ln-rise-2 { animation-delay: 0.08s; }
-.ln-rise-3 { animation-delay: 0.16s; }
-@keyframes ln-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+.lx-rise { animation: lx-rise 0.75s cubic-bezier(.16,1,.3,1) both; }
+.lx-rise-2 { animation-delay: 0.1s; }
+@keyframes lx-rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 
-/* Scroll reveal, done with CSS scroll-driven animation so there is no
-   observer, no client component, and no chance of content being stuck
-   invisible if JS fails. Browsers without support simply show everything,
-   which is the correct fallback. */
+/* Scroll reveal via scroll-driven animation: no observer, no client component,
+   and browsers without support simply show everything, which is correct. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .ln-sec > .ln-wrap,
-    .ln-sec-tight > .ln-wrap {
-      animation: ln-enter linear both;
+    .lx-reveal {
+      animation: lx-enter linear both;
       animation-timeline: view();
-      animation-range: entry 5% entry 50%;
+      animation-range: entry 5% entry 45%;
     }
   }
 }
-@keyframes ln-enter {
-  from { opacity: 0; transform: translateY(26px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+@keyframes lx-enter { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .ln-rise, .ln-rise-2, .ln-rise-3 { animation: none; }
-  .ln-btn { transition: none; }
-  /* The rotator must not leave an empty headline when animation is off. */
-  .ln-rot > span { animation: none; opacity: 0; }
-  .ln-rot > span:first-child { opacity: 1; }
+  .lx-rise, .lx-rise-2 { animation: none; }
+  .lx-rot > span { animation: none; opacity: 0; }
+  .lx-rot > span:first-child { opacity: 1; }
+  .lx .ln-live-reveal { opacity: 1; transform: none; transition: none; }
+  .lx .ln-live-beat { display: none; }
+  .lx .ln-typing span { animation: none; opacity: 0.6; }
+  .lx-ring-arc { transition: none; }
+  .lx *, .lx *::before, .lx *::after { scroll-behavior: auto; }
 }
 
-/* ── Mobile ── */
+/* ── Responsive ── */
+@media (max-width: 1080px) {
+  .lx-hero-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .lx-hero-sub { max-width: none; }
+  .lx-founder { grid-template-columns: 1fr; gap: 2rem; }
+  .lx-founder-aside { position: static; display: flex; align-items: center; gap: 1.5rem; }
+  .lx-founder-photo { width: 120px; aspect-ratio: 1; border-radius: var(--r-md); }
+  .lx-founder-name { margin-top: 0; }
+}
 @media (max-width: 900px) {
-  .ln-hero-grid { grid-template-columns: 1fr; gap: 3rem; }
-  .ln-hero-sub { max-width: none; }
-  .ln-sec { padding: 4.5rem 0; }
-  .ln-sec-major { padding: 5.5rem 0; }
-  /* The stage loses its frame on small screens: a bordered card inside a
-     narrow viewport is just a second, pointless margin. */
-  .ln-stage { padding: 0; background: none; border: none; box-shadow: none; }
-  .ln-stage-head { margin-bottom: 2.25rem; text-align: left; }
-  .ln-stage-lead { margin-left: 0; }
+  .lx-band { padding: 5rem 0; }
+  .lx-band-major { padding: 5.5rem 0; }
+  .lx-steps { grid-template-columns: 1fr; gap: 2rem; }
+  .lx-steps::before { display: none; }
+  .lx-nots { grid-template-columns: 1fr; }
+  .lx-ring-card { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 1.75rem; }
+  .lx-ring-q { text-align: center; }
+  .lx-ring-body { width: 100%; }
+  .lx-stage-body { padding: 1.75rem; }
 }
 @media (max-width: 760px) {
-  .ln-back { grid-template-columns: 1fr; }
-  .ln-founder { grid-template-columns: 1fr; gap: 1.25rem; }
+  .lx-bento { grid-template-columns: 1fr; }
+  .lx-stage-head { text-align: left; margin-bottom: 2.25rem; }
+  .lx-stage-head .lx-label { justify-content: flex-start; }
+  .lx-stage-lead { margin-left: 0; }
 }
 @media (max-width: 560px) {
-  .ln-wrap { padding: 0 1.15rem; }
-  .ln-triage-input { min-height: 190px; }
-  .ln-triage-row-head { flex-direction: column; gap: 0.1rem; }
-  .ln-live-after { flex-direction: column; align-items: stretch; }
-  .ln-live-after .ln-btn { justify-content: center; }
-  .ln-ask { padding: 2.25rem 1.5rem; }
-  .ln-rot > span { white-space: normal; }
-  /* Nav must stay on one line. The text sign-in link is what breaks it, and
-     it is redundant on mobile: the hero and the footer both carry one. */
-  .ln-nav-in { height: 60px; }
-  .ln-signin { display: none; }
-  .ln-logo-text { font-size: 1rem; }
-  .ln-nav-in .ln-btn { padding: 0.7rem 1.15rem; font-size: 0.88rem; }
-  .ln-pain { flex-direction: column; gap: 0.3rem; }
-  .ln-pain-when { width: auto; }
-  .ln-promise { padding: 2.25rem 1.5rem; border-radius: 20px; }
-  .ln-step { grid-template-columns: 2.5rem 1fr; gap: 1rem; }
-  .ln-hero-cta { flex-direction: column; align-items: stretch; }
-  .ln-hero-cta .ln-btn { justify-content: center; }
+  .lx-wrap { padding: 0 1.15rem; }
+  .lx-nav-in { height: 58px; padding: 0 0.55rem 0 0.9rem; }
+  .lx-signin { display: none; }
+  .lx-logo-text { font-size: 1rem; }
+  .lx-nav-in .lx-btn { min-height: 42px; padding: 0.6rem 1.1rem; font-size: 0.88rem; }
+  .lx-hero { padding: 3rem 0 4rem; }
+  .lx-hero-cta { flex-direction: column; align-items: stretch; }
+  .lx-hero-cta .lx-btn { width: 100%; }
+  .lx-claim { padding: 2rem 1.5rem; }
+  /* The spine collapses to a stacked label because a 6.5rem gutter plus a
+     rule leaves no measure for the sentence at this width. */
+  .lx-spine::before { display: none; }
+  .lx-spine-row { grid-template-columns: 1fr; gap: 0.3rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
+  .lx-spine-row:last-child { border-bottom: none; }
+  .lx-spine-when { text-align: left; padding-top: 0; }
+  .lx-spine-body::before { display: none; }
+  .lx-verdict { padding: 1.15rem 1.25rem; font-size: 1.04rem; }
+  .lx-stage { border-radius: var(--r-md); }
+  .lx-stage-body { padding: 1.25rem; }
+  .lx .ln-triage-row-head { flex-direction: column; gap: 0.1rem; }
+  .lx .ln-live-after { flex-direction: column; align-items: stretch; }
+  .lx .ln-live { padding: 1.25rem; }
+  .lx-tile { padding: 1.5rem; }
+  .lx-founder-aside { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .lx-foot { flex-direction: column; gap: 0.5rem; }
 }
