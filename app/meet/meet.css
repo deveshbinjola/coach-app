@@ -47,10 +47,16 @@
 
 .mq-inner { position: relative; z-index: 1; width: 100%; max-width: 620px; display: flex; flex-direction: column; min-height: calc(100dvh - 6.75rem); }
 
-/* Content sits at the optical center of the viewport (margin-auto trick
-   centers when there is room, top-aligns without clipping when the screen
-   content is taller, e.g. the result). */
-.mq-body { margin-top: auto; margin-bottom: auto; padding: 1.5rem 0 8vh; }
+/* Top-aligned, not centred.
+   This used `margin-top: auto; margin-bottom: auto`, which optically centres
+   the screen when there is room. On a tall display that pushed the first
+   question 476px down a 1234px viewport, so nearly 40% of the screen was
+   empty before the reader hit anything. A quiz is a sequence of short
+   screens, and short content centred in a tall window reads as a page that
+   has not finished loading.
+   Only the bottom margin stays auto, so the CTA row still sits away from the
+   fold on short screens without the top drifting. */
+.mq-body { margin-top: 0; margin-bottom: auto; padding: 0.5rem 0 8vh; }
 
 /* Each question slides in as a fresh screen (remounted via key). */
 .mq-screen { animation: mq-screen-in 0.5s cubic-bezier(.16,1,.3,1) both; }

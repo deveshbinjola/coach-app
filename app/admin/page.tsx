@@ -627,7 +627,7 @@ export default function AdminPage() {
 
   return (
     <>
-      <style>{adminStyles}</style>
+      <style dangerouslySetInnerHTML={{ __html: adminStyles }} />
       <div className={`adm-page ${theme === "light" ? "adm-light" : ""}`}>
         <header className="adm-header">
           <div className="adm-header-inner">

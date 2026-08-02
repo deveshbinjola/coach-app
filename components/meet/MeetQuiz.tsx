@@ -220,7 +220,7 @@ export default function MeetQuiz() {
               coaching business needs. And it&apos;ll know you.
             </p>
             <div className="mq-cta-row">
-              <a href="/login" className="mq-back">I already have an account</a>
+              <a href="/login" className="mq-back">Sign in</a>
               <button type="button" className="mq-next" onClick={() => go("q1")}>
                 Start the interview
               </button>
