@@ -68,27 +68,27 @@ export default function ReferPage() {
   }, [busy, effectiveFromEmail, friendEmail, friendName]);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#FAF8F3", color: "#0A0F1C", padding: "48px 16px 96px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "var(--surface)", color: "var(--text)", padding: "48px 16px 96px", fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       <div style={{ maxWidth: 520, margin: "0 auto" }}>
 
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <svg viewBox="0 0 88 88" width="40" height="40">
-            <rect x="6" y="8" width="72" height="72" rx="18" fill="#0B6E23"/>
-            <path d="M26 56C24.9 44.1 27.9 34.6 36.5 28.8C43 24.4 50.8 24.8 58.8 18.9C62.2 34.2 58 47.3 47.1 53.2C40.1 57 33 56.7 28.2 54.7L26 56Z" fill="#FAF8F3"/>
-            <path d="M24.4 58.9C28.8 49.3 36.1 42.1 46.2 36.9" stroke="#FAF8F3" strokeWidth="5" strokeLinecap="round" fill="none"/>
+            <rect x="6" y="8" width="72" height="72" rx="18" fill="var(--brand)"/>
+            <path d="M26 56C24.9 44.1 27.9 34.6 36.5 28.8C43 24.4 50.8 24.8 58.8 18.9C62.2 34.2 58 47.3 47.1 53.2C40.1 57 33 56.7 28.2 54.7L26 56Z" fill="var(--surface)"/>
+            <path d="M24.4 58.9C28.8 49.3 36.1 42.1 46.2 36.9" stroke="var(--surface)" strokeWidth="5" strokeLinecap="round" fill="none"/>
           </svg>
         </div>
 
         {/* Hero · stripped down */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <h1 style={{ margin: 0, fontSize: 36, fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.1, fontFamily: "'Playfair Display', Georgia, serif" }}>
-            Send Brand OS to <em style={{ fontStyle: "italic", color: "#0B6E23" }}>a friend.</em>
+            Send Brand OS to <em style={{ fontStyle: "italic", color: "var(--brand)" }}>a friend.</em>
           </h1>
         </div>
 
         {/* Form · minimal */}
-        <form onSubmit={handleSubmit} style={{ background: "#FFFFFF", border: "1px solid #E5E1D8", borderRadius: 14, padding: 28 }}>
+        <form onSubmit={handleSubmit} style={{ background: "var(--surface-elevated)", border: "1px solid var(--border)", borderRadius: 14, padding: 28 }}>
 
           {directVisit && (
             <div style={{ marginBottom: 18 }}>
@@ -145,8 +145,8 @@ export default function ReferPage() {
               padding: "14px 24px",
               borderRadius: 100,
               border: "none",
-              background: busy ? "#5A5A52" : "#0B6E23",
-              color: "#FAF8F3",
+              background: busy ? "var(--text-muted)" : "var(--brand)",
+              color: "var(--surface)",
               fontSize: 16,
               fontWeight: 700,
               fontFamily: "inherit",
@@ -160,7 +160,7 @@ export default function ReferPage() {
 
         {/* Result */}
         {result && (
-          <div style={{ marginTop: 20, padding: 18, borderRadius: 10, background: result.ok ? "#0B6E23" : "#B23A2E", color: "#FAF8F3" }}>
+          <div style={{ marginTop: 20, padding: 18, borderRadius: 10, background: result.ok ? "var(--brand)" : "var(--danger)", color: "var(--surface)" }}>
             {result.ok ? (
               <>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, marginBottom: 6, opacity: 0.9 }}>Sent ✓</div>
@@ -173,7 +173,7 @@ export default function ReferPage() {
         )}
 
         {sentCount > 0 && (
-          <p style={{ marginTop: 18, textAlign: "center", color: "#5A5A52", fontSize: 13 }}>
+          <p style={{ marginTop: 18, textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>
             {sentCount === 1 ? "1 invite sent" : `${sentCount} invites sent`} so far.
           </p>
         )}
@@ -187,10 +187,10 @@ const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "12px 16px",
   borderRadius: 8,
-  border: "1px solid #E5E1D8",
+  border: "1px solid var(--border)",
   fontSize: 15,
-  color: "#0A0F1C",
-  background: "#FFFFFF",
+  color: "var(--text)",
+  background: "var(--surface-elevated)",
   boxSizing: "border-box",
   fontFamily: "inherit",
 };

@@ -268,7 +268,7 @@ export default async function SettingsPage({
 
         {error || !settings ? (
           <div className="rounded-[var(--r-lg)] border border-[var(--danger)] bg-[var(--danger-soft)] p-6">
-            <p className="text-[length:var(--t-caption)] text-[#B42318]">
+            <p className="text-[length:var(--t-caption)] text-[color:var(--danger)]">
               Could not load settings: {error?.message ?? "Unknown error"}
             </p>
           </div>

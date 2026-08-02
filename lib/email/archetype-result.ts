@@ -59,7 +59,7 @@ export function renderArchetypeEmail(archetype: Archetype): RenderedArchetypeEma
           It already knows this much about you from three questions. Imagine what it does with your voice, your leads, and your content.
         </td></tr>
         <tr><td align="center" style="padding-bottom:30px;">${pillButton(`${APP_ORIGIN}/login`, "Meet your assistant")}</td></tr>
-        <tr><td align="center" style="font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;font-size:12px;color:#9A9A95;line-height:1.6;">
+        <tr><td align="center" style="font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;font-size:12px;color:#6A6A60;line-height:1.6;">
           Free to start. No credit card. Your answers travel with you.<br/>
           ElevateAI Systems · sunny.binjola@gmail.com
         </td></tr>

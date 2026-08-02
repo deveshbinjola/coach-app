@@ -203,7 +203,7 @@ export async function GET(request: NextRequest) {
     <tr>
       <td style="padding:6px 0;border-bottom:1px solid #f0f0f0">
         <strong>${escapeHtml(p.name)}</strong>
-        <span style="color:#9CA3AF;font-size:12px"> · ${escapeHtml(p.email)}</span>
+        <span style="color:#6A6A60;font-size:12px"> · ${escapeHtml(p.email)}</span>
         ${extra ? `<br><span style="color:#6B7280;font-size:12px">${escapeHtml(extra)}</span>` : ""}
       </td>
       <td style="padding:6px 0;border-bottom:1px solid #f0f0f0;text-align:right;color:#6B7280;font-size:12px;white-space:nowrap">
@@ -216,7 +216,7 @@ export async function GET(request: NextRequest) {
       ? `<h2 style="font-size:14px;margin:22px 0 6px;text-transform:uppercase;letter-spacing:.05em;color:#6B7280">${title}</h2>
          <table style="width:100%;border-collapse:collapse;font-size:14px">${rows}</table>`
       : `<h2 style="font-size:14px;margin:22px 0 6px;text-transform:uppercase;letter-spacing:.05em;color:#6B7280">${title}</h2>
-         <p style="color:#9CA3AF;font-size:13px;margin:0">None.</p>`;
+         <p style="color:#6A6A60;font-size:13px;margin:0">None.</p>`;
 
   const html = `
     <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;margin:0 auto;color:#0A0F1C">
@@ -266,7 +266,7 @@ export async function GET(request: NextRequest) {
           .join("")
       )}
 
-      <p style="color:#9CA3AF;font-size:12px;margin-top:24px">
+      <p style="color:#6A6A60;font-size:12px;margin-top:24px">
         Notion sync: ${
           notion.ok
             ? `${notion.created} created, ${notion.updated} updated`

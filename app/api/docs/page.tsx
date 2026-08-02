@@ -17,7 +17,7 @@ export default function ApiDocsPage() {
     <div className="min-h-screen bg-[var(--surface)] text-[color:var(--text)]">
       <div className="max-w-4xl mx-auto p-8">
         <header className="mb-10 pb-6 border-b border-[var(--border)]">
-          <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#00CC34]">
+          <p className="text-[10px] font-extrabold uppercase tracking-widest text-[color:var(--success)]">
             Coach Platform API · v1
           </p>
           <h1 className="text-4xl font-extrabold tracking-tight mt-2">
@@ -36,13 +36,13 @@ export default function ApiDocsPage() {
             Generate an API key at{" "}
             <a
               href="/settings"
-              className="text-[#00CC34] font-bold underline decoration-dotted"
+              className="text-[color:var(--success)] font-bold underline decoration-dotted"
             >
               /settings → API keys
             </a>
             . Pass it as a Bearer token on every request:
           </p>
-          <pre className="p-4 rounded-[var(--r-md)] bg-[var(--navy)] text-[#E5E7EB] text-xs font-mono overflow-x-auto">
+          <pre className="p-4 rounded-[var(--r-md)] bg-[var(--navy)] text-[color:var(--text-inverse)] text-xs font-mono overflow-x-auto">
 {`curl https://app.elevateaisystem.com/api/v1/focus \\
   -H "Authorization: Bearer cp_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxx"`}
           </pre>
@@ -79,14 +79,14 @@ export default function ApiDocsPage() {
           Coach Platform v1 · Built by{" "}
           <a
             href="https://www.elevateaisystem.com"
-            className="text-[#00CC34] underline"
+            className="text-[color:var(--success)] underline"
           >
             ElevateAI System
           </a>
           . Questions:{" "}
           <a
             href="mailto:sunny.binjola@gmail.com"
-            className="text-[#00CC34] underline"
+            className="text-[color:var(--success)] underline"
           >
             sunny.binjola@gmail.com
           </a>
@@ -152,7 +152,7 @@ function EndpointCard({ endpoint }: { endpoint: Endpoint }) {
         <h3 className="text-[10px] uppercase tracking-wider font-extrabold text-[color:var(--text-faint)] mb-2">
           Response (200)
         </h3>
-        <pre className="p-3 rounded bg-[var(--navy)] text-[#E5E7EB] text-[11px] font-mono overflow-x-auto leading-relaxed">
+        <pre className="p-3 rounded bg-[var(--navy)] text-[color:var(--text-inverse)] text-[11px] font-mono overflow-x-auto leading-relaxed">
           {endpoint.response}
         </pre>
       </div>

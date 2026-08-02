@@ -33,7 +33,7 @@ const COLORS = {
   border: "#D6D6D0",      // --border
   text: "#0A0F1C",
   textMuted: "#5C5C5C",
-  textFaint: "#9A9A95",
+  textFaint: "#6A6A60",
 };
 
 const FONT_FAMILY = "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";

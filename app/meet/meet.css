@@ -10,7 +10,10 @@
   --card: #FFFFFF;
   --ink: #0A0F1C;
   --muted: #5A5A52;
-  --faint: #9A9A95;
+  /* Was #9A9A95, which measures 2.66:1 on paper and 2.83:1 on card. Both
+     fail WCAG AA, on a page any stranger can reach. Same value and same fix
+     as globals.css: 5.15:1 on paper, 5.46:1 on card. */
+  --faint: #6A6A60;
   --line: #E5E1D8;
   --forest: #0B6E23;
   --forest-deep: #085119;

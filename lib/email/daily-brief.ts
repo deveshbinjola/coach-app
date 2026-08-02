@@ -133,7 +133,7 @@ export function renderBrief(input: BriefInput): RenderedBrief {
     ${restHtml}
     <tr><td align="center" style="padding:6px 0 26px;">${pillButton(`${APP_ORIGIN}/command-center`, "Open the app")}</td></tr>
     <tr><td style="border-top:1px solid #E5E1D8;padding-top:18px;font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#0A0F1C;font-style:italic;">${escape(pulse.honestQuestion)}</td></tr>
-    <tr><td align="center" style="padding-top:26px;font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;font-size:12px;color:#9A9A95;line-height:1.6;">
+    <tr><td align="center" style="padding-top:26px;font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;font-size:12px;color:#6A6A60;line-height:1.6;">
       You only get this when something needs you.<br/>
       <a href="${APP_ORIGIN}/settings" style="color:#5A5A52;">Turn the brief off</a> · ElevateAI Systems
     </td></tr>

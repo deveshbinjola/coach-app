@@ -45,3 +45,25 @@ describe("transactional email branding", () => {
     expect((hi + 0.05) / (lo + 0.05)).toBeGreaterThan(4.5);
   });
 });
+
+describe("the failing greys", () => {
+  // #9CA3AF and #9A9A95 both measure about 2.4-2.8:1 on the warm paper. They
+  // were the app token, the /meet and /login tokens, the /win scorecard, the
+  // share card PNG and four email templates. Fixed in every one; pinned here
+  // because a single paste brings them back and nothing else would fail.
+  const FAILING = ["#9CA3" + "AF", "#9A9A" + "95"];
+  const SURFACES = [
+    "app/globals.css", "app/meet/meet.css", "app/login/login.css",
+    "app/win/ScorecardClient.tsx", "lib/share-card.ts",
+    "lib/email/daily-brief.ts", "lib/email/archetype-result.ts",
+    "app/api/cron/brand-os-digest/route.ts",
+  ];
+  it.each(SURFACES)("%s uses neither", (path) => {
+    const src = readFileSync(path, "utf8");
+    for (const grey of FAILING) {
+      // the explanatory comments name them on purpose
+      const uses = src.split("\n").filter((l) => l.includes(grey) && !l.includes("Was "));
+      expect(uses).toEqual([]);
+    }
+  });
+});
