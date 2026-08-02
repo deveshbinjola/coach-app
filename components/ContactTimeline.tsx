@@ -150,7 +150,7 @@ function EventCard({ event }: { event: TimelineEvent }) {
 
   return (
     <div className={`flex gap-3 items-start p-3 rounded-[var(--r-md)] ${ACCENT_BORDER[accent]}`}>
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[15px] shrink-0 ${ICON_BG[accent]}`}>
+      <div className={`w-8 h-8 rounded-[var(--r-md)] flex items-center justify-center text-[15px] shrink-0 ${ICON_BG[accent]}`}>
         <Icon size={15} strokeWidth={1.9} aria-hidden />
       </div>
       <div className="flex-1 min-w-0">

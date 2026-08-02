@@ -104,7 +104,7 @@ export default async function PublicSnapshotReveal({
         </div>
 
         {/* Card 01 · Archetype */}
-        <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] p-8">
+        <section className="mb-6 rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] p-8">
           <div className="mb-3 font-mono text-xs uppercase tracking-widest text-[color:var(--brand-strong)]">
             01 · Your Brand Archetype
           </div>
@@ -115,7 +115,7 @@ export default async function PublicSnapshotReveal({
         </section>
 
         {/* Card 02 · Voice Texture */}
-        <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] p-8">
+        <section className="mb-6 rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] p-8">
           <div className="mb-3 font-mono text-xs uppercase tracking-widest text-[color:var(--brand-strong)]">
             02 · Your Voice Texture
           </div>
@@ -135,7 +135,7 @@ export default async function PublicSnapshotReveal({
         </section>
 
         {/* Card 03 · The Move */}
-        <section className="mb-10 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] p-8">
+        <section className="mb-10 rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] p-8">
           <div className="mb-3 font-mono text-xs uppercase tracking-widest text-[color:var(--brand-strong)]">
             03 · The Move You Have Been Missing
           </div>
@@ -143,7 +143,7 @@ export default async function PublicSnapshotReveal({
         </section>
 
         {/* Pillar seeds */}
-        <section className="mb-12 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
+        <section className="mb-12 rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] p-6">
           <h3 className="mb-4 font-mono text-xs uppercase tracking-widest text-[color:var(--brand-strong)]">
             Three pillar seeds (preview · the Full Round names them)
           </h3>
@@ -155,7 +155,7 @@ export default async function PublicSnapshotReveal({
         </section>
 
         {/* CTA: Go deeper inside the app — free */}
-        <section className="rounded-xl bg-[var(--ink)] p-10 text-center">
+        <section className="rounded-[var(--r-lg)] bg-[var(--ink)] p-10 text-center">
           <div className="mb-2 font-mono text-xs uppercase tracking-widest text-[color:var(--brand)]">
             Go deeper · free
           </div>

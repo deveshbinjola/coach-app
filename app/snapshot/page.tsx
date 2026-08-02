@@ -84,7 +84,7 @@ export default async function SnapshotLanding({
           </p>
         </div>
 
-        <form action="/snapshot" method="GET" className="space-y-4 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] p-6">
+        <form action="/snapshot" method="GET" className="space-y-4 rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] p-6">
           <div>
             <label htmlFor="first_name" className="mb-1 block text-sm font-semibold text-[color:var(--text)]">
               First name

@@ -44,7 +44,7 @@ export default function RewarmDeck({ lead, onUseTemplate }: Props) {
 
   return (
     <div
-      className="rounded-xl border p-5 mb-4"
+      className="rounded-[var(--r-lg)] border p-5 mb-4"
       style={{
         backgroundColor: "#0A0F1C",
         borderColor: "#0A0F1C",
@@ -69,7 +69,7 @@ export default function RewarmDeck({ lead, onUseTemplate }: Props) {
 
       {/* Primary */}
       <div
-        className="rounded-lg p-4"
+        className="rounded-[var(--r-md)] p-4"
         style={{ backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
       >
         <div className="flex items-start justify-between gap-3">
@@ -87,7 +87,7 @@ export default function RewarmDeck({ lead, onUseTemplate }: Props) {
           </div>
           <button
             onClick={() => use(primary)}
-            className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 font-extrabold text-xs transition-all hover:opacity-90 whitespace-nowrap"
+            className="inline-flex items-center gap-1 rounded-[var(--r-md)] px-3 py-1.5 font-extrabold text-xs transition-all hover:opacity-90 whitespace-nowrap"
             style={{ backgroundColor: "#4ADE80", color: "#06210D" }}
           >
             Use this →
@@ -129,7 +129,7 @@ export default function RewarmDeck({ lead, onUseTemplate }: Props) {
             if (!p) return null;
             return (
               <div
-                className="mt-3 rounded-lg p-3"
+                className="mt-3 rounded-[var(--r-md)] p-3"
                 style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}
               >
                 <div className="flex items-center justify-between gap-3">

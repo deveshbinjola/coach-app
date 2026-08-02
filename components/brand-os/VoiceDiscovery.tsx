@@ -193,7 +193,7 @@ export default function VoiceDiscovery({ audience }: { audience: string }) {
             className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[80%] px-4 py-3 rounded-2xl text-[length:var(--t-body)] leading-[var(--leading-base)] ${
+              className={`max-w-[80%] px-4 py-3 rounded-[var(--r-xl)] text-[length:var(--t-body)] leading-[var(--leading-base)] ${
                 m.role === "user"
                   ? "bg-[var(--brand)] text-[color:var(--surface)] rounded-br-md"
                   : "border border-[var(--border)] text-[color:var(--text)] rounded-bl-md"
@@ -206,7 +206,7 @@ export default function VoiceDiscovery({ audience }: { audience: string }) {
 
         {state === "processing" && (
           <div className="flex justify-start">
-            <div className="px-4 py-3 border border-[var(--border)] rounded-2xl rounded-bl-md">
+            <div className="px-4 py-3 border border-[var(--border)] rounded-[var(--r-xl)] rounded-bl-md">
               <Loader2 className="w-4 h-4 animate-spin text-[color:var(--text-muted)]" />
             </div>
           </div>

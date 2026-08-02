@@ -365,7 +365,7 @@ function showScreen(name) {
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => router.push("/funnels")}
-              className="shrink-0 p-2 -ml-2 rounded-lg hover:bg-[var(--surface-deep)] transition"
+              className="shrink-0 p-2 -ml-2 rounded-[var(--r-md)] hover:bg-[var(--surface-deep)] transition"
               aria-label="Back to funnels"
             >
               <ArrowLeft size={18} className="text-[color:var(--text-muted)]" />
@@ -526,7 +526,7 @@ function showScreen(name) {
                             }
                             className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[var(--surface-deep)] transition"
                           >
-                            <span className="shrink-0 w-7 h-7 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center text-xs font-extrabold text-[color:var(--brand-strong)]">
+                            <span className="shrink-0 w-7 h-7 rounded-[var(--r-md)] bg-[var(--brand-soft)] flex items-center justify-center text-xs font-extrabold text-[color:var(--brand-strong)]">
                               {qIdx + 1}
                             </span>
                             <span className="flex-1 min-w-0 text-sm font-semibold text-[color:var(--text)] truncate">
@@ -568,7 +568,7 @@ function showScreen(name) {
                                   return (
                                     <div
                                       key={c.key}
-                                      className="rounded-lg border border-[var(--border-faint)] p-3 bg-[var(--surface-elevated)]"
+                                      className="rounded-[var(--r-md)] border border-[var(--border-faint)] p-3 bg-[var(--surface-elevated)]"
                                     >
                                       <div className="flex items-start gap-3">
                                         <span className="shrink-0 w-6 h-6 rounded-full border-2 border-[var(--border)] flex items-center justify-center text-[10px] font-bold text-[color:var(--text-muted)] mt-1">
@@ -646,7 +646,7 @@ function showScreen(name) {
                             }
                             className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[var(--surface-deep)] transition"
                           >
-                            <span className="shrink-0 w-7 h-7 rounded-lg bg-[var(--success-soft)] flex items-center justify-center">
+                            <span className="shrink-0 w-7 h-7 rounded-[var(--r-md)] bg-[var(--success-soft)] flex items-center justify-center">
                               <Sparkles
                                 size={14}
                                 className="text-[color:var(--success)]"
@@ -1011,7 +1011,7 @@ function ColorField({
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
           <div
-            className="w-10 h-10 rounded-lg border-2 border-[var(--border)] cursor-pointer shadow-sm"
+            className="w-10 h-10 rounded-[var(--r-md)] border-2 border-[var(--border)] cursor-pointer shadow-sm"
             style={{ backgroundColor: value }}
           />
         </div>

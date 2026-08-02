@@ -239,7 +239,7 @@ export default function QuizPlayer({ funnelId, config }: Props) {
               </p>
               <button
                 onClick={handleStart}
-                className="mt-8 px-8 py-4 rounded-xl text-lg font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                className="mt-8 px-8 py-4 rounded-[var(--r-lg)] text-lg font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
                 style={{ backgroundColor: primaryColor, color: ctaTextColor }}
               >
                 {intro.cta_label || "Start"}
@@ -264,7 +264,7 @@ export default function QuizPlayer({ funnelId, config }: Props) {
                       key={choice.key}
                       onClick={() => handleChoiceSelect(choice)}
                       disabled={selectedChoice !== null}
-                      className="w-full text-left p-4 sm:p-5 rounded-xl border-2 transition-all duration-200 hover:-translate-y-0.5"
+                      className="w-full text-left p-4 sm:p-5 rounded-[var(--r-lg)] border-2 transition-all duration-200 hover:-translate-y-0.5"
                       style={{
                         borderColor: isSelected ? primaryColor : border,
                         backgroundColor: isSelected ? `${primaryColor}15` : surface,
@@ -315,7 +315,7 @@ export default function QuizPlayer({ funnelId, config }: Props) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="First name (optional)"
-                  className="w-full px-4 py-3 rounded-xl text-base font-medium outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] transition"
+                  className="w-full px-4 py-3 rounded-[var(--r-lg)] text-base font-medium outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] transition"
                   style={{ backgroundColor: inputBg, border: `2px solid ${inputBorder}`, color: textColor }}
                 />
                 <input
@@ -323,7 +323,7 @@ export default function QuizPlayer({ funnelId, config }: Props) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Your email"
-                  className="w-full px-4 py-3 rounded-xl text-base font-medium outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] transition"
+                  className="w-full px-4 py-3 rounded-[var(--r-lg)] text-base font-medium outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] transition"
                   style={{ backgroundColor: inputBg, border: `2px solid ${inputBorder}`, color: textColor }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && email.trim()) handleSubmit(false);
@@ -332,7 +332,7 @@ export default function QuizPlayer({ funnelId, config }: Props) {
                 <button
                   onClick={() => handleSubmit(false)}
                   disabled={submitting || !email.trim()}
-                  className="w-full py-3.5 rounded-xl text-base font-bold transition-all duration-200 disabled:opacity-40"
+                  className="w-full py-3.5 rounded-[var(--r-lg)] text-base font-bold transition-all duration-200 disabled:opacity-40"
                   style={{ backgroundColor: primaryColor, color: ctaTextColor }}
                 >
                   {submitting ? "Loading..." : "See my result"}
@@ -375,7 +375,7 @@ export default function QuizPlayer({ funnelId, config }: Props) {
                   href={result.cta_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block mt-8 px-8 py-4 rounded-xl text-lg font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                  className="inline-block mt-8 px-8 py-4 rounded-[var(--r-lg)] text-lg font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
                   style={{ backgroundColor: primaryColor, color: ctaTextColor }}
                 >
                   {result.cta_text || "Learn more"}
