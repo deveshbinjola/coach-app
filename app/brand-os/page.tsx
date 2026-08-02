@@ -62,7 +62,7 @@ export default async function BrandOsLanding({
 
         {/* Hero */}
         <div className="mb-6">
-          <Badge tone="brand" size="xs" uppercase>Brand OS · v5</Badge>
+          <Badge tone="brand" size="xs" uppercase>The Brand OS Blueprint</Badge>
           <h1 className="font-display text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] mt-2 leading-[var(--leading-tight)]">
             Your voice. Named in ten minutes.
           </h1>

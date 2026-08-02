@@ -10,8 +10,69 @@
     {
       "name": "coach-app",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000
+      "runtimeArgs": ["run", "dev:preview"],
+      "port": 3000,
+      "autoPort": true
+    },
+    {
+      "name": "roberta-launch",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8097", "--directory", "/Users/sunnybinjola/Desktop/Jarvis/Roberta/book-launch"],
+      "port": 8097
+    },
+    {
+      "name": "roberta-design",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8098", "--directory", "/Users/sunnybinjola/Desktop/Jarvis/Roberta/website-design"],
+      "port": 8098
+    },
+    {
+      "name": "necessary-choices",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8096", "--directory", "/Users/sunnybinjola/Desktop/Jarvis/necessary-choices"],
+      "port": 8096
+    },
+    {
+      "name": "practice-tracker",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8099", "--directory", "/Users/sunnybinjola/Desktop/Jarvis/personal-apps/practice-tracker"],
+      "port": 8099
+    },
+    {
+      "name": "jarvis-brain",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8100", "--directory", "/Users/sunnybinjola/Desktop/Jarvis/brain/dashboards"],
+      "port": 8100
+    },
+    {
+      "name": "the-return",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8101", "--directory", "/Users/sunnybinjola/Desktop/Jarvis/personal-apps/the-return"],
+      "port": 8101
+    },
+    {
+      "name": "blooms",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8102", "--directory", "/Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/deliverables/blooms-cafe-site"],
+      "port": 8102
+    },
+    {
+      "name": "elevate-website",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8103", "--directory", "/Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/Website"],
+      "port": 8103
+    },
+    {
+      "name": "edge-journey",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8211", "--directory", "/Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/edge-journey"],
+      "port": 8211
+    },
+    {
+      "name": "elevate-deliverables",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8213", "--directory", "/Users/sunnybinjola/Desktop/Jarvis/elevate-ai-project/deliverables"],
+      "port": 8213
     }
   ]
 }
