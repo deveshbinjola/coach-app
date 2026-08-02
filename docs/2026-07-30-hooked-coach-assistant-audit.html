@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hooked × Coach Assistant · Hook Model Audit · 2026-07-30</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230B6E23' d='M12 2C8 6 4 9 4 14a8 8 0 0 0 16 0c0-5-4-8-8-12z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF8F3;--card:#FFFFFF;--ink:#0A0F1C;--muted:#5A5A52;
+    --green:#0B6E23;--green-soft:#E8F1EA;--line:#E5E1D8;--line-soft:#EFEBE1;--pain:#B23A2E;--gold:#B8860B;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',system-ui,sans-serif;line-height:1.7;font-size:18px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 28px;}
+  h1,h2,h3{font-family:'Playfair Display',Georgia,serif;line-height:1.14;letter-spacing:-0.01em;color:var(--ink);}
+  h2{font-weight:900;font-size:2.05rem;margin:0 0 0.3em;}
+  p{margin:0 0 1.1em;}
+  strong{font-weight:700;}
+  code{font-family:'JetBrains Mono',monospace;font-size:0.86em;background:var(--green-soft);color:var(--green);padding:1px 6px;border-radius:5px;}
+  .muted{color:var(--muted);}
+
+  header.hero{padding:88px 0 54px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#FFFCF5,var(--bg));}
+  .eyebrow{font-family:'Plus Jakarta Sans';font-weight:700;letter-spacing:0.24em;text-transform:uppercase;font-size:0.72rem;color:var(--green);margin-bottom:22px;display:flex;align-items:center;gap:10px;}
+  .eyebrow .leaf{width:14px;height:14px;}
+  header.hero h1{font-weight:900;font-size:clamp(2.3rem,5.4vw,4rem);margin:0 0 0.3em;letter-spacing:-0.02em;}
+  header.hero .sub{font-size:1.2rem;color:var(--muted);max-width:800px;}
+  .meta-row{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px;}
+  .chip{border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:0.76rem;color:var(--muted);background:var(--card);}
+  .chip b{color:var(--green);font-weight:700;}
+
+  section{padding:56px 0;border-bottom:1px solid var(--line-soft);}
+  .sec-num{font-family:'Plus Jakarta Sans';font-weight:700;color:var(--green);font-size:0.78rem;letter-spacing:0.22em;margin-bottom:8px;}
+  .cat-sub{color:var(--muted);font-size:1.02rem;margin:0 0 1.6em;max-width:800px;}
+
+  .phase{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 30px;margin:0 0 18px;position:relative;}
+  .phase-head{display:flex;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+  .phase-num{font-family:'Playfair Display';font-weight:900;font-size:1.1rem;color:#fff;background:var(--green);border-radius:999px;padding:3px 14px;}
+  .phase-num.weak{background:var(--pain);}
+  .phase h3{font-family:'Playfair Display';font-weight:800;font-size:1.4rem;margin:0;}
+  .phase .status{font-size:0.74rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);}
+  .phase .status.weak{color:var(--pain);}
+  .found{background:var(--green-soft);border-radius:10px;padding:12px 16px;margin:10px 0;font-size:0.94rem;}
+  .found b{color:var(--green);}
+  .gap{background:#FBEFEC;border-left:3px solid var(--pain);border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:0.94rem;color:var(--ink);}
+  .gap b{color:var(--pain);}
+
+  .move{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 28px;margin:0 0 16px;position:relative;}
+  .move:before{content:"";position:absolute;top:0;left:0;width:6px;height:100%;background:var(--green);border-radius:16px 0 0 16px;}
+  .move .num{font-family:'Playfair Display';font-weight:900;font-size:1.9rem;color:var(--green-soft);position:absolute;top:14px;right:22px;line-height:1;}
+  .move h3{font-family:'Playfair Display';font-weight:800;font-size:1.22rem;margin:0 0 8px;padding-right:52px;}
+  .move .file{font-size:0.78rem;color:var(--green);font-weight:700;font-family:'JetBrains Mono',monospace;margin-bottom:10px;}
+  .move .body{color:var(--muted);font-size:0.96rem;margin-bottom:0;}
+  .move .body b{color:var(--ink);}
+
+  .ethics{background:linear-gradient(180deg,#FFFCF5,var(--card));border:2px solid var(--green);border-radius:18px;padding:28px 32px;margin:1.4em 0;}
+  .ethics .lbl{font-family:'Plus Jakarta Sans';font-weight:800;font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--green);margin-bottom:10px;}
+  .ethics p{font-size:1.02rem;margin-bottom:10px;}
+  .ethics b{color:var(--green);}
+
+  footer{padding:50px 0 70px;color:var(--muted);font-size:0.88rem;text-align:center;}
+  @media print{
+    body{background:#fff;font-size:11pt;}
+    header.hero{padding:30px 0 20px;background:#fff;}
+    section{padding:26px 0;}
+    .phase,.move,.ethics{break-inside:avoid;border-color:#ddd;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">
+      <svg class="leaf" viewBox="0 0 24 24"><path fill="#0B6E23" d="M12 2C8 6 4 9 4 14a8 8 0 0 0 16 0c0-5-4-8-8-12z"/></svg>
+      Book Research · Hooked (Nir Eyal) · Applied to Coach Assistant
+    </div>
+    <h1>The loop <em style="color:var(--green);">already half-built.</em></h1>
+    <p class="sub">Eyal's Hook Model: Trigger → Action → Variable Reward → Investment, repeated until reaching for the product takes no thought at all. This isn't a generic application, it's mapped against the actual Coach Assistant codebase as it exists today. Two of the four phases are already real and working, coded by name in places. One phase has a hard, findable gap. One is thinner than it looks.</p>
+    <div class="meta-row">
+      <span class="chip"><b>Book:</b> Hooked, Nir Eyal, 2014</span>
+      <span class="chip"><b>Grounded in:</b> real routes + files, not speculation</span>
+      <span class="chip"><b>Date:</b> 2026-07-30</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="sec-num">THE FOUR PHASES, AS THEY ACTUALLY EXIST TODAY</div>
+    <h2>What's built, what's missing.</h2>
+
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-num weak">1</span>
+        <h3>Trigger</h3>
+        <span class="status weak">Weakest phase — real cliff found</span>
+      </div>
+      <div class="found"><b>What's working:</b> a 5-day email drip (<code>lib/email/onboarding-sequence.ts</code> + <code>app/api/cron/onboarding-drip/route.ts</code>) fires Day 0 through Day 4, each subject line teasing the next email. <code>/meet</code> and <code>/win</code> are real top-of-funnel triggers, both emailing a personalized result. One genuine internal-trigger loop already exists: the "your voice has new material, re-tune?" banner on <code>/content</code>, computed by <code>detectCorpusDelta</code> in <code>lib/brand-os/voice-overlay.ts</code>, fires off accumulated investment data.</div>
+      <div class="gap"><b>The gap:</b> the drip stops cold after Day 4. There is no push notification, SMS, unread-count badge, or ongoing nudge anywhere in the codebase for a coach who has already activated. <code>/today</code>, the single most obvious page name for a daily-return trigger, is a dead stub that redirects straight to <code>/command-center</code>. Once the drip ends, the product has no mechanism left to reach out. Every return after day 5 depends entirely on the coach remembering to come back on their own.</div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-num">2</span>
+        <h3>Action</h3>
+        <span class="status">Real, and named correctly in the code</span>
+      </div>
+      <div class="found"><b>What's working:</b> the Welcome flow (<code>components/WelcomeFlow.tsx</code>) has a step literally called "Magic" — paste a real lead message, tap a button, watch the AI draft a reply in the coach's own voice. The code comment calls this "the activation moment," which is exactly right in Fogg's Behavior Model terms: high motivation (a real stuck message), minimal ability required (paste and tap), trigger already present (the flow put it in front of them). This is the cleanest phase in the whole product.</div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-num weak">3</span>
+        <h3>Variable Reward</h3>
+        <span class="status weak">Good instinct, one accidental design flaw</span>
+      </div>
+      <div class="found"><b>What's working:</b> The Mirror (<code>/mirror</code>, <code>lib/mirror.ts</code>) is a strong hunt/self reward, paste a stuck situation, get it classified and named with a "the mistake" / "the move" read. Code comment calls it "day-one sticky, the read lands on use #1." Command Center's Business Pulse (<code>lib/ambient.ts</code>, <code>scoreRightNowItems</code>) surfaces a genuinely changing hero item built from real data, a session coming up, a sequence that failed, a message waiting 48 hours.</div>
+      <div class="gap"><b>The flaw:</b> <code>pickHonestQuestion(now)</code> in <code>lib/ambient.ts</code> rotates through 14 hardcoded questions <b>by day-of-year</b>, deterministically. Eyal's whole point about variable reward is that unpredictability, not the reward itself, is what hooks. A rotation the user could eventually predict is not variable in the sense that matters, it's just a rerun schedule. This is the one place where the instinct was right and the implementation accidentally removed the exact mechanic it was going for.</div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-num">4</span>
+        <h3>Investment</h3>
+        <span class="status">The best-built phase, someone already understood this book</span>
+      </div>
+      <div class="found"><b>What's working:</b> the voice profile/corpus (<code>lib/voice-profiles.ts</code>) compounds with every interview answer or imported writing sample, and directly loads the next Trigger phase (the retune banner). Mirror reads are logged to <code>cp_mirror_reads</code> and the PATCH handler in <code>app/api/mirror/route.ts</code> is explicitly commented <b>"the investment step."</b> Leads, sessions, and payments accumulate and directly sharpen the Business Pulse scoring over time. This phase was clearly built with the Hook Model already in mind, whether or not whoever wrote it had read the book.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-num">SHIP THIS</div>
+    <h2>Four moves, in order of leverage.</h2>
+
+    <div class="move">
+      <div class="num">01</div>
+      <h3>Build the post-Day-4 trigger. This is the single highest-leverage gap in the product.</h3>
+      <div class="file">app/api/cron/onboarding-drip/route.ts · app/today/page.tsx</div>
+      <div class="body">The drip cliff is not a content problem, it's a missing state machine. Extend the cron past Day 4 into an ongoing weekly cadence keyed off Business Pulse data (a session coming up, a lead gone quiet, a sequence that failed) instead of a fixed script, since the ambient scoring already exists in <code>lib/ambient.ts</code> and just isn't being used to trigger anything. Separately, decide honestly whether <code>/today</code> should become a real daily-return surface or get removed as a route, a dead stub with the most Hook-Model-obvious name in the app is worse than no stub at all.</div>
+    </div>
+
+    <div class="move">
+      <div class="num">02</div>
+      <h3>Fix the variable reward that isn't actually variable.</h3>
+      <div class="file">lib/ambient.ts (pickHonestQuestion)</div>
+      <div class="body">Swap the deterministic day-of-year rotation for a weighted-random pick from the same 14-question pool, excluding whatever was shown in the last N visits. Small change, and it closes the one real gap between what this feature was clearly trying to be and what it currently is.</div>
+    </div>
+
+    <div class="move">
+      <div class="num">03</div>
+      <h3>Decide, in writing, whether the disabled progressive-reveal system comes back.</h3>
+      <div class="file">lib/nav-unlocks.ts</div>
+      <div class="body">This file shows a progressive nav-unlock mechanic was built, then deliberately turned off ("Full nav for everyone, no progressive reveal"). That's a real Investment-phase lever sitting dormant, unlocking more of the product as a coach's own data (leads, sessions, voice samples) grows is a clean way to make the app feel like it's becoming more theirs over time. Worth one explicit decision: was it disabled because it tested badly, or because nobody finished wiring it. Different fixes follow from each answer.</div>
+    </div>
+
+    <div class="move">
+      <div class="num">04</div>
+      <h3>Run every new mechanic through Eyal's own two-question test before it ships, not after.</h3>
+      <div class="file">n/a — process, not code</div>
+      <div class="body">Does it materially improve the coach's business. Would Sunny use it himself, running a coaching business, without knowing he wrote it. This matters more here than in most products, because the whole brand promise (presence over compulsion, regulate the nervous system) is the opposite of what a badly-tuned streak or slot-machine mechanic communicates. The book's own ethics chapter is the sharpest available check against accidentally building the thing Sunny's actual coaching work exists to undo.</div>
+    </div>
+  </div>
+</section>
+
+<section style="border-bottom:none">
+  <div class="wrap">
+    <div class="ethics">
+      <div class="lbl">The guardrail, stated plainly</div>
+      <p>Eyal wrote a follow-up book, <b>Indistractable</b>, partly in response to the backlash that Hooked was a manual for building compulsive products. His own Manipulation Matrix (Facilitator, Entertainer, Peddler, Dealer) is graded by the person with the least incentive to fail it, the founder. That's not a reason to ignore the model, the mechanics are real and mostly already half-built here correctly. It's a reason to keep the two-question test written into whatever process gates new features, not left as a book read once. <b>Revenue-outcome-per-coach is the number that matters. Daily-active-use and streak count are not the number.</b></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Book Research · Hooked (Eyal, 2014) applied to Coach Assistant · 2026-07-30 · full distillation at <code>~/Desktop/Jarvis/Books/hooked/8020.html</code>
+  </div>
+</footer>
+
+</body>
+</html>

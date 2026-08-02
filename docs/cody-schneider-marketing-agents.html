@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketing Agents Teardown · Cody Schneider × Your Stack | ElevateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0F1C; --surface:#111827; --surface-2:#1A2035;
+  --border:rgba(255,255,255,0.08);
+  --text:#F0F0F0; --text-dim:#6B7280; --text-mid:#9CA3AF;
+  --green:#00FF41; --green-dark:#00CC34; --green-dim:rgba(0,255,65,0.12);
+  --amber:#F59E0B; --amber-dim:rgba(245,158,11,0.12);
+  --red:#EF4444; --red-dim:rgba(239,68,68,0.12);
+  --blue:#3B82F6; --blue-dim:rgba(59,130,246,0.12);
+  --violet:#A78BFA;
+  --font-body:'Plus Jakarta Sans',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  --radius:12px; --radius-lg:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:0 24px}
+.mono{font-family:var(--font-mono)}
+
+/* nav */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);max-width:940px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:.9rem}
+.leaf{width:22px;height:22px}
+.topmeta{font-family:var(--font-mono);font-size:.68rem;color:var(--text-dim)}
+
+/* hero */
+.hero{padding:56px 0 40px;border-bottom:1px solid var(--border)}
+.eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;color:var(--amber);text-transform:uppercase;margin-bottom:20px}
+.eyebrow::before{content:'— '}
+h1{font-size:2.9rem;line-height:1.08;font-weight:800;letter-spacing:-.02em;margin-bottom:20px}
+h1 .g{color:var(--green)}
+.lede{font-size:1.12rem;color:var(--text-mid);max-width:680px;margin-bottom:26px}
+.lede strong{color:var(--text);font-weight:600}
+.srcrow{display:flex;flex-wrap:wrap;gap:10px}
+.pill{font-family:var(--font-mono);font-size:.68rem;background:var(--surface);border:1px solid var(--border);padding:6px 12px;border-radius:20px;color:var(--text-dim)}
+.pill b{color:var(--green);font-weight:500}
+
+/* section */
+section{padding:44px 0;border-bottom:1px solid var(--border)}
+.shead{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.sline{width:22px;height:2px;background:var(--amber);flex-shrink:0}
+.skicker{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.14em;color:var(--text-dim);text-transform:uppercase}
+h2{font-size:1.75rem;font-weight:800;letter-spacing:-.01em;margin:6px 0 16px}
+.sintro{color:var(--text-mid);max-width:700px;margin-bottom:26px}
+.quote{border-left:2px solid var(--green);padding:4px 0 4px 18px;margin:24px 0;font-size:1.15rem;font-style:italic;color:var(--text)}
+.quote span{display:block;font-style:normal;font-family:var(--font-mono);font-size:.72rem;color:var(--text-dim);margin-top:8px}
+
+/* agent test cards */
+.testgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+.tcard{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.tnum{font-family:var(--font-mono);font-size:.7rem;color:var(--amber);margin-bottom:10px}
+.tcard h3{font-size:1.02rem;margin-bottom:8px}
+.tcard p{font-size:.86rem;color:var(--text-mid);margin-bottom:14px}
+.tmap{font-family:var(--font-mono);font-size:.7rem;color:var(--green);background:var(--green-dim);border-radius:8px;padding:8px 10px;line-height:1.5}
+.tmap b{color:var(--text)}
+
+/* architecture */
+.arch{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px;margin-top:6px;overflow-x:auto}
+.flow{display:flex;flex-direction:column;gap:0;min-width:520px}
+.node{display:flex;align-items:center;gap:16px}
+.nbox{flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.nbox.warehouse{border-color:rgba(0,255,65,0.35);background:linear-gradient(135deg,var(--surface-2),rgba(0,255,65,0.05))}
+.nbox.agent{border-color:rgba(59,130,246,0.35);background:linear-gradient(135deg,var(--surface-2),rgba(59,130,246,0.06))}
+.nlabel{font-weight:700;font-size:.92rem;margin-bottom:3px}
+.ntag{font-family:var(--font-mono);font-size:.66rem;color:var(--text-dim)}
+.ncol{width:150px;flex-shrink:0;font-family:var(--font-mono);font-size:.66rem;color:var(--text-mid);text-align:right}
+.arrow{display:flex;align-items:center;gap:10px;padding:6px 0 6px 0;margin-left:0}
+.arrow .stem{width:2px;height:26px;background:linear-gradient(var(--green),var(--green-dark));margin-left:74px}
+.arrow .lbl{font-family:var(--font-mono);font-size:.66rem;color:var(--green)}
+.archnote{font-family:var(--font-mono);font-size:.7rem;color:var(--amber);margin-top:18px;padding:12px 14px;background:var(--amber-dim);border-radius:8px;line-height:1.6}
+
+/* bracket */
+.bracket{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px}
+.bstep{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.bstep .bn{font-family:var(--font-mono);font-size:1.4rem;font-weight:800;color:var(--green);margin-bottom:8px}
+.bstep h4{font-size:.92rem;margin-bottom:6px}
+.bstep p{font-size:.8rem;color:var(--text-mid)}
+
+/* creative list */
+.painlist{list-style:none;margin-top:8px}
+.painlist li{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.painlist li:last-child{border-bottom:0}
+.pn{font-family:var(--font-mono);font-size:.72rem;color:var(--amber);flex-shrink:0;width:26px;padding-top:2px}
+.painlist h4{font-size:.96rem;margin-bottom:3px}
+.painlist p{font-size:.85rem;color:var(--text-mid)}
+.painlist .tool{font-family:var(--font-mono);font-size:.68rem;color:var(--blue)}
+
+/* xref table */
+.xtable{width:100%;border-collapse:collapse;margin-top:8px;font-size:.86rem}
+.xtable th{text-align:left;font-family:var(--font-mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);padding:0 12px 12px;border-bottom:1px solid var(--border)}
+.xtable td{padding:14px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.xtable tr td:first-child{font-weight:600;width:34%}
+.stat{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:.66rem;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.stat.have{color:var(--green);background:var(--green-dim)}
+.stat.gap{color:var(--amber);background:var(--amber-dim)}
+.stat.new{color:var(--blue);background:var(--blue-dim)}
+.xtable td small{display:block;color:var(--text-dim);font-size:.78rem;margin-top:4px;font-family:var(--font-body)}
+
+/* steal / actions */
+.steal{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.act{display:flex;gap:16px;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:var(--radius);padding:16px 18px}
+.act .rank{font-family:var(--font-mono);font-size:1.3rem;font-weight:800;color:var(--green);flex-shrink:0;width:34px}
+.act h4{font-size:1rem;margin-bottom:5px}
+.act p{font-size:.86rem;color:var(--text-mid)}
+.act .eff{font-family:var(--font-mono);font-size:.66rem;color:var(--amber);margin-top:8px;display:inline-block}
+.act.amberL{border-left-color:var(--amber)}
+.act.amberL .rank{color:var(--amber)}
+.act.blueL{border-left-color:var(--blue)}
+.act.blueL .rank{color:var(--blue)}
+
+/* sowhat */
+.sowhat{background:linear-gradient(135deg,var(--surface),rgba(0,255,65,0.05));border:1px solid rgba(0,255,65,0.25);border-radius:var(--radius-lg);padding:30px}
+.sowhat h2{margin-top:0}
+.sowhat p{color:var(--text-mid);margin-bottom:14px}
+.sowhat p strong{color:var(--text)}
+.twoup{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.uc{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.uc .ut{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px}
+.uc h4{font-size:1.05rem;margin-bottom:8px}
+.uc p{font-size:.85rem;color:var(--text-mid);margin-bottom:0}
+
+footer{padding:34px 0 60px;text-align:center}
+footer p{font-family:var(--font-mono);font-size:.7rem;color:var(--text-dim);line-height:1.8}
+
+@media(max-width:760px){
+  h1{font-size:2.1rem}
+  .testgrid,.bracket,.twoup{grid-template-columns:1fr}
+  .ncol{display:none}
+  .xtable tr td:first-child{width:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <svg class="leaf" viewBox="0 0 32 32" fill="none"><path d="M16 3C9 3 4 9 4 17c0 6 4 11 10 12 0-7 3-13 10-17-5 1-9 4-11 9 1-8 5-13 3-18z" fill="#00FF41"/></svg>
+    Jarvis · Intel Teardown
+  </div>
+  <div class="topmeta">2026-07-27 · agency/tech surface</div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">Playbook teardown · marketing agents</div>
+    <h1>Cody's marketing agent is <span class="g">your brain contract</span><br>pointed at ad spend.</h1>
+    <p class="lede">Same thesis you've been circling for a year — <strong>unified data + decisions on a cadence + learns from results</strong> — just aimed at Facebook Ads instead of strategy. The episode hands you two things you don't have yet: the <strong>spend→revenue warehouse</strong>, and a <strong>Prism-ready ads engine</strong> you can charge for.</p>
+    <div class="srcrow">
+      <span class="pill">Source · <b>Greg Isenberg × Cody Schneider (Graphed)</b></span>
+      <span class="pill">"How I use Claude Code + MCPs to run my marketing"</span>
+      <span class="pill">Cross-ref · <b>brain-as-product · Loop Engineering · Carson</b></span>
+    </div>
+  </div>
+
+  <!-- 1. AGENT TEST -->
+  <section>
+    <div class="shead"><div class="sline"></div><span class="skicker">The definition · 3-part test</span></div>
+    <h2>What makes it an actual agent</h2>
+    <p class="sintro">Cody's bar is strict, and it's the same bar your brain already clears. If a system fails any of the three, it's automation cosplaying as an agent. Here's his test mapped to what you've already built.</p>
+
+    <div class="quote">"An agent is just code under the hood. It's just a decision tree."<span>Cody Schneider · 23:45</span></div>
+
+    <div class="testgrid">
+      <div class="tcard">
+        <div class="tnum">TEST 01</div>
+        <h3>Unified data</h3>
+        <p>One clear path from ad impression → revenue. The agent can see the whole pipeline, not a slice.</p>
+        <div class="tmap"><b>You:</b> brain zones RAW→CURATED→BRIEF→MEMORY. You have the contract; you're missing the $ spine.</div>
+      </div>
+      <div class="tcard">
+        <div class="tnum">TEST 02</div>
+        <h3>Decisions on a cadence</h3>
+        <p>Runs in an autonomous loop. No human trigger. It thinks continuously.</p>
+        <div class="tmap"><b>You:</b> daily brain crons + self-healing nightly loop. This one you already ship.</div>
+      </div>
+      <div class="tcard">
+        <div class="tnum">TEST 03</div>
+        <h3>Learns from results</h3>
+        <p>Reads its own output + performance data, then makes more of what works.</p>
+        <div class="tmap"><b>You:</b> brain learning-loop → what-works.md. Same mechanic, different KPI.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. ARCHITECTURE -->
+  <section>
+    <div class="shead"><div class="sline"></div><span class="skicker">The infrastructure · 17:26</span></div>
+    <h2>The stack that ties spend to revenue</h2>
+    <p class="sintro">This is the part you don't have. Reads happen against a warehouse (fast, no API bans). Writes — pause, publish, scale — go through the platform's own API to stay inside ToS. It's the missing spine under your Loop Engineering frame.</p>
+
+    <div class="arch">
+      <div class="flow">
+        <div class="node">
+          <div class="ncol">CRM · payments · ads</div>
+          <div class="nbox"><div class="nlabel">Data sources</div><div class="ntag">Facebook Ads · GA4 · PostHog · HubSpot · Stripe</div></div>
+        </div>
+        <div class="arrow"><div class="stem"></div><span class="lbl">Airbyte · data pipeline</span></div>
+        <div class="node">
+          <div class="ncol">central repository</div>
+          <div class="nbox warehouse"><div class="nlabel">ClickHouse — data warehouse</div><div class="ntag">every source in one place · spend tied to actual revenue</div></div>
+        </div>
+        <div class="arrow"><div class="stem"></div><span class="lbl">read-only · Claude Code / MCP</span></div>
+        <div class="node">
+          <div class="ncol">the decision tree</div>
+          <div class="nbox agent"><div class="nlabel">AI agent</div><div class="ntag">reads warehouse · decides on a cadence</div></div>
+        </div>
+        <div class="arrow"><div class="stem"></div><span class="lbl">writes via standard platform API →</span></div>
+        <div class="node">
+          <div class="ncol">actions</div>
+          <div class="nbox"><div class="nlabel">Facebook Ads / marketing platforms</div><div class="ntag">pause · publish · scale</div></div>
+        </div>
+      </div>
+      <div class="archnote">The rule that keeps you un-banned: <b>read from the warehouse, write through the official API.</b> Never scrape your own actions. This is the same read/write split as your brain contract's per-agent permissions.</div>
+    </div>
+  </section>
+
+  <!-- 3. ADS MACHINE -->
+  <section>
+    <div class="shead"><div class="sline"></div><span class="skicker">The engine · Facebook Ads · 10:15</span></div>
+    <h2>Creative is the targeting now</h2>
+    <p class="sintro">Post-Andromeda, Facebook reads the image, the on-image text, the video script, and the landing page — then finds the exact people facing that problem. Interest targeting is dead. <strong>The creative carries the targeting.</strong> Which means the whole game becomes: manufacture and test creative at volume.</p>
+
+    <ol class="painlist">
+      <li><span class="pn">01</span><div><h4>Scrape the pain</h4><p>Aggregate real complaints from Reddit / forums. Rank by frequency to find the top ad angles.</p><span class="tool">Perplexity · direct scrapers</span></div></li>
+      <li><span class="pn">02</span><div><h4>Generate static ads</h4><p>Conditioned on a brand style guide (fonts, palette) so output stays on-brand at volume.</p><span class="tool">Kie AI · Nano Banana</span></div></li>
+      <li><span class="pn">03</span><div><h4>Generate video ads</h4><p>AI avatars read scripts written from the real community pain points.</p><span class="tool">HeyGen · Seedance 2.0</span></div></li>
+      <li><span class="pn">04</span><div><h4>Feed new DNA (beat entropy)</h4><p>Agents run out of ideas. Refuel from FB Ads Library (competitors), YouTube/podcast transcripts (angles), viral short-form (formats).</p><span class="tool">Ads Library · Virlo API · transcripts</span></div></li>
+    </ol>
+
+    <h2 style="font-size:1.15rem;margin:34px 0 6px">The elimination bracket · 24:12</h2>
+    <p class="sintro" style="margin-bottom:18px">The testing loop that closes it. This is Build→Measure→Learn on ad creative — your Loop Engineering frame, made concrete.</p>
+    <div class="bracket">
+      <div class="bstep"><div class="bn">1</div><h4>Publish</h4><p>~10 variations/day auto-launched across ad sets.</p></div>
+      <div class="bstep"><div class="bn">2</div><h4>Let run</h4><p>2–3 days untouched to gather real signal.</p></div>
+      <div class="bstep"><div class="bn">3</div><h4>Cut</h4><p>Auto-pause losers on warehouse metrics.</p></div>
+      <div class="bstep"><div class="bn">4</div><h4>Scale + breed</h4><p>Winners to primary pool; prompts fed back to make better variants.</p></div>
+    </div>
+  </section>
+
+  <!-- 4. XREF -->
+  <section>
+    <div class="shead"><div class="sline"></div><span class="skicker">Cross-reference · your stack</span></div>
+    <h2>What you already have vs. the gap</h2>
+    <p class="sintro">You're closer than this episode makes it feel. Three of the four agent muscles are live in the brain. The real gap is a warehouse — and you don't need ClickHouse to start.</p>
+    <table class="xtable">
+      <thead><tr><th>Cody's piece</th><th>Status</th><th>Your equivalent</th></tr></thead>
+      <tbody>
+        <tr><td>Decisions on a cadence</td><td><span class="stat have">✓ HAVE</span></td><td>Daily brain crons + self-healing nightly loop.<small>The autonomous thinking loop already runs.</small></td></tr>
+        <tr><td>Learns from results</td><td><span class="stat have">✓ HAVE</span></td><td>brain learning-loop → what-works.md.<small>Scores acted-on vs ignored; sharpens weekly.</small></td></tr>
+        <tr><td>Read/write permission split</td><td><span class="stat have">✓ HAVE</span></td><td>Brain contract per-agent RAW/CURATED/BRIEF rules.<small>Same discipline as read-warehouse / write-API.</small></td></tr>
+        <tr><td>Unified spend→revenue data</td><td><span class="stat gap">△ GAP</span></td><td>No warehouse tying ad $ to Stripe revenue yet.<small>Start with a Supabase table or DuckDB file, not ClickHouse.</small></td></tr>
+        <tr><td>Creative-at-volume pipeline</td><td><span class="stat gap">△ GAP</span></td><td>You have carousel/reel skills, not an ad-variation engine.<small>Pain-scrape → templated static/video → bracket test.</small></td></tr>
+        <tr><td>Ad-platform write actions</td><td><span class="stat new">+ NEW</span></td><td>No Meta Marketing API wiring.<small>Approval-gated actions (your YC-2026 pattern) fit perfectly.</small></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 5. STEAL -->
+  <section>
+    <div class="shead"><div class="sline"></div><span class="skicker">What to steal · ranked</span></div>
+    <h2>The moves worth your time</h2>
+    <div class="steal">
+      <div class="act">
+        <div class="rank">1</div>
+        <div><h4>Stand up a spend→revenue table (skip ClickHouse)</h4><p>You already run Supabase. One table joining ad spend → sessions → Stripe revenue gives you the warehouse read-layer without new infra. This is the spine that turns your brain from "strategy agent" into "marketing agent" by Cody's own test.</p><span class="eff">effort: ~1 day · unlocks everything downstream</span></div>
+      </div>
+      <div class="act amberL">
+        <div class="rank">2</div>
+        <div><h4>Build the pain-scrape → angle-rank step first</h4><p>Highest-leverage, lowest-risk. Scrape Reddit/forums for your ICP (men's embodiment coaches, and separately Prism's chiropractic/med-spa world), rank complaints by frequency. This feeds ad copy, blog angles, AND video scripts. Pure upside, no ad account needed to start.</p><span class="eff">effort: ~half day · reusable across every channel</span></div>
+      </div>
+      <div class="act amberL">
+        <div class="rank">3</div>
+        <div><h4>Adopt "creative is targeting" as a content law</h4><p>Even before you automate ads: every static/reel should embed the pain in visible text + script so the algorithm can self-target. Bake it into your carousel + men's-work IG engine now. Free lift on organic too.</p><span class="eff">effort: mindset shift · applies to work you're already doing</span></div>
+      </div>
+      <div class="act blueL">
+        <div class="rank">4</div>
+        <div><h4>Wire Meta API writes behind approval gates — later</h4><p>The elimination bracket (publish 10 → run 3 days → cut → scale) is the endgame, but it needs live ad spend and the warehouse first. Keep it approval-gated (your YC-2026 audit-log pattern). Prove it on your own $ before you sell it to Prism.</p><span class="eff">effort: multi-day · sequence AFTER 1 & 2</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. SO WHAT -->
+  <section style="border-bottom:0">
+    <div class="sowhat">
+      <div class="shead"><div class="sline"></div><span class="skicker">The Elevate angle</span></div>
+      <h2>Two places this pays off</h2>
+      <p>You don't build this as a science project. It rides on two things already in motion: your <strong>own</strong> ads loop (own-site-first, the SEO/Ads loops in your Loop Engineering doc) and the <strong>Prism retainer</strong> (~$500K/mo ad spend, already paying you). The warehouse + bracket is a service you can meter.</p>
+      <div class="twoup">
+        <div class="uc">
+          <div class="ut">Runway · your own funnel</div>
+          <h4>Elevate ads loop</h4>
+          <p>Pain-scrape your ICP → creative-as-targeting ads → bracket test → feed winners back. Proves the system on your own dollars before it's a pitch. Ties directly to the free-Blueprint → Society → Build funnel.</p>
+        </div>
+        <div class="uc">
+          <div class="ut">Revenue · Prism</div>
+          <h4>Productized ads engine</h4>
+          <p>Prism is spending ~$500K/mo with a real spend→revenue pain (Kipu billing). A warehouse that ties their ad $ to booked revenue + an elimination-bracket creative engine is a fat, defensible retainer line. Proof-of-concept is already your client.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>JARVIS INTEL TEARDOWN · marketing agents (Cody Schneider / Graphed)<br>
+    cross-referenced to brain-as-product · Loop Engineering · Carson Agent Factory · YC-2026 approval-gated actions<br>
+    next: capture to brain as reference · decide steal #1 + #2 · elevateaisystem.com</p>
+  </footer>
+
+</div>
+</body>
+</html>

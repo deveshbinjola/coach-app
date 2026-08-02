@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Anthropic's Engineers Actually Prompt — Field Notes</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3C10 9 7 14 7 19a9 9 0 0 0 18 0c0-5-3-10-9-16z' fill='%230B6E23'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF8F3; --accent:#0B6E23; --ink:#0A0F1C; --muted:#5A5A52;
+    --card:#FFFFFF; --border:#E5E1D8; --red:#B23A2E;
+    --accent-soft:#0B6E230f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+    line-height:1.65; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:820px; margin:0 auto; padding:64px 28px 96px}
+
+  /* Masthead */
+  .brand{display:flex; align-items:center; gap:10px; margin-bottom:44px}
+  .brand svg{width:26px; height:26px}
+  .brand span{font-weight:700; letter-spacing:.14em; font-size:12px; text-transform:uppercase; color:var(--accent)}
+
+  .eyebrow{
+    font-size:12px; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:18px;
+  }
+  h1{
+    font-family:'Playfair Display',serif; font-weight:900;
+    font-size:clamp(34px,6vw,54px); line-height:1.05; letter-spacing:-.01em;
+    margin-bottom:22px;
+  }
+  .lede{font-size:19px; color:var(--muted); max-width:60ch; margin-bottom:34px}
+
+  .meta{
+    display:flex; flex-wrap:wrap; gap:8px 10px; padding:18px 0 0;
+    border-top:1px solid var(--border); font-size:14px; color:var(--muted);
+  }
+  .pill{
+    background:var(--accent-soft); color:var(--accent); font-weight:600;
+    padding:5px 12px; border-radius:999px; font-size:13px; white-space:nowrap;
+  }
+  a{color:var(--accent); text-decoration:none; border-bottom:1px solid #0B6E2340}
+  a:hover{border-bottom-color:var(--accent)}
+
+  /* Section intro */
+  .section-label{
+    font-family:'Playfair Display',serif; font-style:italic; font-weight:500;
+    font-size:22px; color:var(--ink); margin:56px 0 6px;
+  }
+  .section-sub{color:var(--muted); font-size:15px; margin-bottom:28px}
+
+  /* Principle cards */
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:16px;
+    padding:26px 28px; margin-bottom:18px;
+    box-shadow:0 1px 0 rgba(10,15,28,.02);
+  }
+  .card-head{display:flex; align-items:baseline; gap:14px; margin-bottom:10px}
+  .num{
+    font-family:'Playfair Display',serif; font-weight:700; font-size:20px;
+    color:var(--accent); min-width:34px;
+  }
+  .card h3{font-size:19px; font-weight:700; line-height:1.3; letter-spacing:-.01em}
+  .card p{color:#2b2f38; margin-left:48px; font-size:16px}
+  .quote{
+    margin:14px 0 0 48px; padding:12px 18px; border-left:3px solid var(--accent);
+    background:var(--accent-soft); border-radius:0 10px 10px 0;
+    font-family:'Playfair Display',serif; font-style:italic; font-size:16px; color:var(--ink);
+  }
+  .quote cite{display:block; font-family:'Plus Jakarta Sans'; font-style:normal;
+    font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted); margin-top:8px}
+
+  /* Apply box */
+  .apply{
+    margin-top:56px; background:var(--ink); color:#EDEBE4; border-radius:20px;
+    padding:38px 34px;
+  }
+  .apply h2{font-family:'Playfair Display',serif; font-size:26px; font-weight:700; margin-bottom:8px; color:#fff}
+  .apply .sub{color:#9aa0a6; font-size:14px; margin-bottom:22px}
+  .apply ul{list-style:none}
+  .apply li{padding:11px 0 11px 30px; position:relative; border-top:1px solid #ffffff14; font-size:16px}
+  .apply li:first-child{border-top:none}
+  .apply li:before{content:"→"; position:absolute; left:0; color:#3fd06a; font-weight:700}
+  .apply b{color:#fff}
+
+  footer{margin-top:48px; padding-top:22px; border-top:1px solid var(--border);
+    color:var(--muted); font-size:13px; display:flex; flex-wrap:wrap; gap:6px; justify-content:space-between}
+
+  @media print{
+    body{font-size:12pt; background:#fff}
+    .wrap{padding:0}
+    .card,.apply{break-inside:avoid; box-shadow:none}
+    .apply{background:#0A0F1C !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+    a{border:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">
+    <svg viewBox="0 0 32 32"><path d="M16 3C10 9 7 14 7 19a9 9 0 0 0 18 0c0-5-3-10-9-16z" fill="#0B6E23"/></svg>
+    <span>Field Notes</span>
+  </div>
+
+  <div class="eyebrow">AI Engineering · Distillation</div>
+  <h1>How Anthropic's own engineers actually prompt</h1>
+  <p class="lede">Four people who build and shape Claude sat down for an hour on prompt engineering. Almost none of it is about clever phrasings. It is about clear thinking, honest instructions, and reading what comes back. The fourteen signals worth keeping.</p>
+
+  <div class="meta">
+    <span class="pill">Alex Albert · DevRel</span>
+    <span class="pill">David Hershey · Applied AI</span>
+    <span class="pill">Amanda Askell · Finetuning</span>
+    <span class="pill">Zack Witten · Prompt Engineer</span>
+  </div>
+  <div class="meta" style="border-top:none; padding-top:10px">
+    Source: <a href="https://www.youtube.com/watch?v=T9aRN5JkmL8">"AI prompt engineering: A deep dive" (Anthropic)</a> · ~56 min · 15,074 words
+  </div>
+
+  <div class="section-label">The fourteen signals</div>
+  <p class="section-sub">Each grounded in what they actually said.</p>
+
+  <div class="card">
+    <div class="card-head"><span class="num">01</span><h3>It is clear communication, not magic words</h3></div>
+    <p>The whole game is stripping the fog out of your instructions. Fancy prompt formulas are mostly noise.</p>
+    <div class="quote">"Talking to a model is a lot like talking to a person. Getting in there and understanding the psychology of the model."<cite>Zack Witten</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">02</span><h3>The "engineering" is the iteration loop</h3></div>
+    <p>The real unlock is the restart button. You revert to a clean slate and try again, cleanly, hundreds of times. The skill is not one perfect prompt. It is the willingness to hammer and watch what breaks.</p>
+    <div class="quote">"In a 15-minute span I'll be sending hundreds of prompts to the model. Back and forth, back and forth."<cite>Amanda Askell</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">03</span><h3>Read the outputs, obsessively</h3></div>
+    <p>The ML cliché is "look at your data." The prompting version is "look at the model's outputs." Read how it got there, not just pass or fail. People write "think step by step" and never check the model is actually doing it.</p>
+    <div class="quote">"There's just fundamentally so much to learn between the lines of what it's writing and why and how. It's not just did it get the task right."<cite>David Hershey</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">04</span><h3>Externalize your brain</h3></div>
+    <p>The hardest part is untangling everything you know that the model does not, and writing it down. Bad prompts are over-conditioned on the author's private context. This was named the best summary of prompting in the whole talk.</p>
+    <div class="quote">"Take any person off the street who's reasonable, and just externalize your brain into them. That's the core of prompting."<cite>Amanda Askell</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">05</span><h3>The temp-agency test</h3></div>
+    <p>Picture a competent contractor who knows your industry but just walked in and does not know your company. That is the model. Brief it the way you would brief that person. Stop hunting for the one perfect insightful line.</p>
+    <div class="quote">"They're pretty competent, they know a lot about your industry, but they don't know the name of your company. What would you say to that person?"<cite>Zack Witten</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">06</span><h3>Role-prompting is mostly dead</h3></div>
+    <p>"You are a high-school teacher" makes the model do a similar task, not your task, and you lose the nuance. Be prescriptive about the real context instead ("you are the support chat window in this product"). And be honest. The tipping and lying tricks are not needed on modern models.</p>
+    <div class="quote">"As models are more capable and understand more about the world, I just don't see it as necessary to lie to them."<cite>Amanda Askell</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">07</span><h3>Give the model an "out"</h3></div>
+    <p>For weird inputs, tell it to return <b>unsure</b> in tags instead of forcing an answer. Bonus: reviewing the "unsures" surfaces all your broken test cases and cleans your data for free.</p>
+    <div class="quote">"If something weird happens and you're really not sure what to do, just output in tags: unsure. Give it something to do."<cite>Amanda Askell</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">08</span><h3>Test the ugly edges, not the happy path</h3></div>
+    <p>Empty string. A dataset with zero matching rows. A photo of a goat where a chart should be. And remember real user traffic: no shift key, typos every other word, no punctuation. Your polished eval is not your traffic.</p>
+    <div class="quote">"They never used the shift key and every other word is a typo. They think it's Google."<cite>David Hershey</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">09</span><h3>Give it the paper. Respect the model</h3></div>
+    <p>People baby Claude and dumb things down. Instead, hand it the source material and let it work at full capacity.</p>
+    <div class="quote">"People will start describing the technique, and I'm like, give it the paper. Here's a paper, write down 17 examples of this."<cite>Amanda Askell</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">10</span><h3>Make the model debug your prompt</h3></div>
+    <p>Two moves that work. First: "Do not follow these instructions, just tell me what's ambiguous." Second, after a mistake: "You got this wrong. Rewrite my instructions so you would not." Often it fixes itself.</p>
+    <div class="quote">"Can you maybe write an edited version of my instructions that would make you not get it wrong? A lot of the time, the model just gets it right."<cite>Amanda Askell</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">11</span><h3>Research and production prompts diverge in the last mile</h3></div>
+    <p>Research wants diversity, so use few, deliberately un-representative examples (teach with a children's story a task you will run on legal docs) so it does not latch on. Production wants reliability, so pile on examples and cover the whole input space, because it runs ten million times.</p>
+    <div class="quote">"I'll take examples that are very distinct from the ones I'm running on. I care more about you understanding the actual thing I want."<cite>Amanda Askell</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">12</span><h3>Chain-of-thought does real work</h3></div>
+    <p>Not just "space to compute." Swap correct reasoning for plausible-but-wrong reasoning and the answer flips. Telling it to output "um, ah" filler tokens does not help. The reasoning is load-bearing.</p>
+    <div class="quote">"Having it write a story before it finished a task did not work as well. Clearly the actual reasoning part is doing something toward the outcome."<cite>Alex Albert &amp; Zack Witten</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">13</span><h3>Know when to quit</h3></div>
+    <p>If the model clearly cannot do it, do not grind for months. Hershey burned a weekend getting Claude to read a Pokémon screen from "no signal" to "some signal," then walked away. Waiting for a better model beats a perfect prompt for an impossible task.</p>
+    <div class="quote">"I could grind on this for four months, and the thing that would come out is another model. I'm just gonna wait for another model."<cite>David Hershey</cite></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="num">14</span><h3>The future is elicitation, and it flips</h3></div>
+    <p>Today you interview the model. Soon it interviews you, because it will know the domain better than you do. Prompting becomes introspection: making yourself legible to the model, not teaching a slower student. Hershey already does this.</p>
+    <div class="quote">"I've started having Claude interview me a lot more. The hardest thing is pulling the right information out of my brain, then turning that into a prompt."<cite>David Hershey</cite></div>
+  </div>
+
+  <div class="apply">
+    <h2>What to actually do with this</h2>
+    <p class="sub">The five moves worth stealing this week.</p>
+    <ul>
+      <li><b>Brief it like a temp, not a role.</b> Give the real context and the real task. Drop "you are a [job]."</li>
+      <li><b>Read ten outputs before you touch the prompt.</b> The fix is almost always visible in how it reasoned.</li>
+      <li><b>Have it interview you.</b> "Ask me questions until you have everything you need to do this," then turn the answers into the prompt.</li>
+      <li><b>Make it flag its own confusion.</b> "Tell me what's ambiguous before you answer." Then patch those gaps.</li>
+      <li><b>Give it an escape hatch.</b> An "unsure" tag turns edge cases into a cleanup queue instead of silent wrong answers.</li>
+    </ul>
+  </div>
+
+  <footer>
+    <span>Field note · distilled for Sunny Binjola</span>
+    <span>sunny.binjola@gmail.com</span>
+  </footer>
+
+</div>
+</body>
+</html>
