@@ -91,7 +91,11 @@ export default function Modal({
           "relative w-full sm:w-auto sm:min-w-[400px]",
           SIZE_CLASSES[size],
           "bg-[var(--surface-elevated)] rounded-t-[var(--r-xl)] sm:rounded-[var(--r-xl)]",
+          // outline-none plus a shadow on the same element overwrote the global
+          // :focus-visible glow, so the dialog had no visible focus state at
+          // all. Keep the elevation shadow, put the focus ring back explicitly.
           "shadow-[var(--shadow-lg)] outline-none",
+          "focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]",
           "max-h-[90vh] overflow-y-auto",
           "animate-[slideUp_var(--t-base)_cubic-bezier(0.4,0,0.2,1)]",
         ].join(" ")}

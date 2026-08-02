@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import type { AgentActivity } from "@/lib/types";
 import { ago, methodColor } from "./utils";
+import { SkeletonText } from "@/components/ui/Skeleton";
 
 export default function AgentActivityPanel() {
   const [activity, setActivity] = useState<AgentActivity[] | null>(null);
@@ -48,7 +49,7 @@ export default function AgentActivityPanel() {
       </div>
 
       {loading ? (
-        <p className="text-xs text-gray-500">Loading…</p>
+        <SkeletonText lines={2} />
       ) : !activity || activity.length === 0 ? (
         <p className="text-xs text-gray-500 italic">
           No agent activity yet. When an agent calls the API, every request

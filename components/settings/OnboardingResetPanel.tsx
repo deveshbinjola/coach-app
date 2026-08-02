@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { Badge, Button, Card } from "@/components/ui";
 import type { OnboardingState } from "@/lib/onboarding";
+import { SkeletonText } from "@/components/ui/Skeleton";
 
 export default function OnboardingResetPanel() {
   const [state, setState] = useState<OnboardingState | null>(null);
@@ -55,7 +56,7 @@ export default function OnboardingResetPanel() {
       </div>
 
       {loading ? (
-        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">Loading…</p>
+        <SkeletonText lines={2} />
       ) : state ? (
         <div className="space-y-3">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-[var(--border)]">

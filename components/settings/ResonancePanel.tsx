@@ -26,6 +26,7 @@ import {
   SACRED_ZONE_LABEL,
   type SacredZoneKind,
 } from "@/lib/brand-os/sacred-zones";
+import { SkeletonText } from "@/components/ui/Skeleton";
 
 export default function ResonancePanel() {
   const [painPoints, setPainPoints] = useState<PainPoint[]>([]);
@@ -177,7 +178,7 @@ export default function ResonancePanel() {
       {err && <p className="text-[length:var(--t-caption)] text-[color:var(--danger)] whitespace-pre-wrap">{err}</p>}
 
       {loading ? (
-        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">Loading…</p>
+        <SkeletonText lines={2} />
       ) : (
         <>
           {/* ── Pain points ─────────────────────────────── */}

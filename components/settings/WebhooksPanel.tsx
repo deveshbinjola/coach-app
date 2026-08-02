@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import type { LeadSource, WebhookEndpoint } from "@/lib/types";
 import { Badge, Button, useConfirm } from "@/components/ui";
 import { ago } from "./utils";
+import { SkeletonText } from "@/components/ui/Skeleton";
 
 const WEBHOOK_SOURCES: LeadSource[] = [
   "ig",
@@ -230,7 +231,7 @@ export default function WebhooksPanel() {
 
       <div className="mt-5">
         {loading ? (
-          <p className="text-xs text-gray-500">Loading…</p>
+          <SkeletonText lines={2} />
         ) : !endpoints || endpoints.length === 0 ? (
           <p className="text-xs text-gray-500 italic">
             No webhook URLs yet. Generate one to start piping leads in from

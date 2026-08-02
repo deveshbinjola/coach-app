@@ -10,6 +10,7 @@
 import { useEffect, useState } from "react";
 import { Badge, Button, Card } from "@/components/ui";
 import type { CoachEmailConfigStatus } from "@/app/api/coach/email-config/route";
+import { SkeletonText } from "@/components/ui/Skeleton";
 
 export default function EmailSendingPanel() {
   const [status, setStatus] = useState<CoachEmailConfigStatus | null>(null);
@@ -99,7 +100,7 @@ export default function EmailSendingPanel() {
       <Header />
 
       {loading && !status ? (
-        <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)]">Loading…</p>
+        <SkeletonText lines={2} />
       ) : !status?.connected ? (
         <NotConnected
           status={status}

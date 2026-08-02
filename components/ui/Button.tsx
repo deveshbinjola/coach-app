@@ -39,9 +39,12 @@ const VARIANT_CLASSES: Record<Variant, string> = {
     "bg-transparent text-[color:var(--danger)] font-semibold border border-[var(--danger)] hover:enabled:bg-[var(--danger-soft)] transition disabled:opacity-50 disabled:cursor-not-allowed",
 };
 
+// Padding alone put `sm` at roughly 26px and `md` at 38px, both under the
+// 44px minimum touch target, on the app's canonical button. min-h holds the
+// floor; the padding still drives the resting look on pointer devices.
 const SIZE_CLASSES: Record<Size, string> = {
-  sm: "text-xs px-3 py-1.5 rounded-[var(--r-md)] gap-1.5",
-  md: "text-sm px-5 py-2.5 rounded-[var(--r-md)] gap-2",
+  sm: "text-xs px-3 py-1.5 min-h-11 rounded-[var(--r-md)] gap-1.5",
+  md: "text-sm px-5 py-2.5 min-h-11 rounded-[var(--r-md)] gap-2",
 };
 
 const Button = forwardRef<HTMLButtonElement, Props>(function Button(
