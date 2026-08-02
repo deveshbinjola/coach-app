@@ -15,6 +15,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { signTrialToken } from "@/lib/brand-os/trial-token";
 import { logFunnelEvent } from "@/lib/funnel-log";
+import { DEFAULT_ACCENT_HEX } from "@/lib/brand-kit";
 
 export type StripeSessionForProvision = {
   id: string;
@@ -263,7 +264,7 @@ export async function provisionTripwireBuyer(
 function welcomeEmailHtml(trialUrl: string, email: string): string {
   return `<!doctype html>
 <html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;padding:32px;color:#111;line-height:1.6;">
-  <div style="text-align:left;padding-bottom:24px;border-bottom:2px solid #00FF41;">
+  <div style="text-align:left;padding-bottom:24px;border-bottom:2px solid ${DEFAULT_ACCENT_HEX};">
     <strong style="color:#0A0F1C;font-size:18px;">ElevateAI · Brand OS</strong>
   </div>
 
@@ -271,7 +272,7 @@ function welcomeEmailHtml(trialUrl: string, email: string): string {
   <p>Click below to start. About 90 minutes, one question at a time. We push back when answers read generic. Save this email — same link resumes you from any device.</p>
 
   <p style="margin:28px 0;">
-    <a href="${trialUrl}" style="display:inline-block;background:#00FF41;color:#0A0F1C;padding:14px 24px;border-radius:8px;font-weight:700;text-decoration:none;font-size:16px;">Start Brand OS →</a>
+    <a href="${trialUrl}" style="display:inline-block;background:${DEFAULT_ACCENT_HEX};color:#FAF8F3;padding:14px 24px;border-radius:8px;font-weight:700;text-decoration:none;font-size:16px;">Start Brand OS →</a>
   </p>
 
   <p style="font-size:14px;color:#666;">Bookmark this URL — it's your access for the next 60 days. No password needed.</p>

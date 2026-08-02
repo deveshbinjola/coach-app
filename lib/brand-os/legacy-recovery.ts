@@ -17,6 +17,7 @@
 // Web Crypto API is available globally in edge runtime. No import needed.
 import { createAdminClient } from "@/lib/supabase-admin";
 import { generateSnapshot } from "./snapshot-generator";
+import { DEFAULT_ACCENT_HEX } from "@/lib/brand-kit";
 
 // ============================================================
 // Types
@@ -561,7 +562,7 @@ function recoveryEmailTemplate(
 
   const ctaBlock = `
     <p style="text-align:center; margin: 22px 0;">
-      <a href="${claimUrl}" style="display:inline-block; background:#0A0F1C; color:#00FF41; padding:14px 26px; border-radius:8px; font-weight:700; text-decoration:none;">Read what we saw in you →</a>
+      <a href="${claimUrl}" style="display:inline-block; background:${DEFAULT_ACCENT_HEX}; color:#FAF8F3; padding:14px 26px; border-radius:8px; font-weight:700; text-decoration:none;">Read what we saw in you →</a>
     </p>
   `.trim();
 

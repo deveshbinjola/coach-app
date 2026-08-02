@@ -14,6 +14,7 @@ import { userDisplayName } from "@/lib/user-display";
 import { resolveResendSender, resendSend } from "@/lib/email/coach-resend";
 import { verifyTrialToken } from "@/lib/brand-os/trial-token";
 import type { BrandOsSynthesis } from "@/app/api/brand-os/synthesize/route";
+import { DEFAULT_ACCENT_HEX } from "@/lib/brand-kit";
 
 export const runtime = "edge";
 
@@ -118,11 +119,11 @@ function markdownToBasicHtml(md: string): string {
     const closeList = () => { if (inList) { html.push("</ul>"); inList = false; } };
     const closeQuote = () => { if (inBlockquote) { html.push("</blockquote>"); inBlockquote = false; } };
     if (line.startsWith("# ")) { closeList(); closeQuote(); html.push(`<h1>${esc(line.slice(2))}</h1>`); continue; }
-    if (line.startsWith("## ")) { closeList(); closeQuote(); html.push(`<h2 style="margin-top:32px;border-top:2px solid #00FF41;padding-top:16px;">${esc(line.slice(3))}</h2>`); continue; }
+    if (line.startsWith("## ")) { closeList(); closeQuote(); html.push(`<h2 style="margin-top:32px;border-top:2px solid ${DEFAULT_ACCENT_HEX};padding-top:16px;">${esc(line.slice(3))}</h2>`); continue; }
     if (line.startsWith("### ")) { closeList(); closeQuote(); html.push(`<h3>${esc(line.slice(4))}</h3>`); continue; }
     if (line.startsWith("> ")) {
       closeList();
-      if (!inBlockquote) { html.push(`<blockquote style="border-left:4px solid #00FF41;padding:8px 16px;margin:12px 0;color:#444;font-style:italic;">`); inBlockquote = true; }
+      if (!inBlockquote) { html.push(`<blockquote style="border-left:4px solid ${DEFAULT_ACCENT_HEX};padding:8px 16px;margin:12px 0;color:#444;font-style:italic;">`); inBlockquote = true; }
       html.push(`<p>${inline(line.slice(2))}</p>`);
       continue;
     }
