@@ -32,11 +32,15 @@ export type BrandKit = {
  */
 export const DEFAULT_ACCENT_HEX = "#0B6E23";
 
+/** The product's page colour. Matches --surface in globals.css and the paper
+ *  on the landing, login and /meet, so a coach never sees the tone shift. */
+export const DEFAULT_PAPER_HEX = "#FAF8F3";
+
 /** Brand kit when none configured — neutral, prints anywhere. */
 export const DEFAULT_BRAND_KIT: BrandKit = {
   primaryHex:    "#0A0F1C",
   accentHex:     "#0B6E23",
-  backgroundHex: "#FAFAF8",
+  backgroundHex: DEFAULT_PAPER_HEX,
   textHex:       "#0A0F1C",
   fontFamily:    "Plus Jakarta Sans",
   fontWeight:    "700",

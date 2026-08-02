@@ -24,16 +24,18 @@
    ===================================================================== */
 :root {
   /* ---------- Surface ---------- */
-  --surface:           #FAFAF8;  /* Page background */
+  --surface:           #FAF8F3;  /* Page background — matches landing/login paper */
   --surface-elevated:  #FFFFFF;  /* Cards, modals, popovers */
-  --surface-deep:      #F2F2EE;  /* Subtle inset (input bg, code blocks) */
+  --surface-deep:      #F0EDE4;  /* Subtle inset (input bg, code blocks) */
   --surface-dark:      #0A0F1C;  /* Hero/dark sections */
 
   /* ---------- Text ---------- */
   --text:              #0A0F1C;  /* Primary, body text */
   --text-muted:        #5A5A6E;  /* Secondary, captions */
-  --text-faint:        #9CA3AF;  /* Tertiary, placeholders */
-  --text-inverse:      #FAFAF8;  /* On dark surfaces */
+  --text-faint:        #6A6A60;  /* Tertiary, placeholders. Clears 4.5:1 on all three
+                                    surfaces: 5.15 paper, 5.46 card, 4.67 inset.
+                                    Was #9CA3AF, a cool Tailwind gray at 2.43:1. */
+  --text-inverse:      #FAF8F3;  /* On dark surfaces */
 
   /* ---------- Brand ---------- */
   --brand:             #0B6E23;  /* Primary accent — forest (warm-light brand) */
@@ -52,7 +54,7 @@
   --success:           #00CC34;
   --success-soft:      rgba(0, 204, 52, 0.10);
   --warning:           #5A5A6E;          /* aliased to text-muted (was #D97706) */
-  --warning-soft:      #F2F2EE;          /* aliased to surface-deep (was #FFF3D6) */
+  --warning-soft:      #F0EDE4;          /* aliased to surface-deep (was #FFF3D6) */
   --danger:            #DC2626;
   --danger-soft:       #FEE2E2;
   /* --info un-aliased so the InsightQueue's Investigate lane is visually
@@ -139,12 +141,12 @@ html {
 }
 
 body {
-  /* Atmosphere gradient — flat #FAFAF8 read as "app." A vertical fade
+  /* Atmosphere gradient — flat paper read as "app." A vertical fade
      toward --surface-deep with a faint warm glow at the top right gives
      the page depth without competing with content. min-height ensures
      short pages don't expose a hard bottom edge. */
   background:
-    radial-gradient(ellipse 1200px 600px at 100% -10%, rgba(0, 255, 65, 0.05), transparent 60%),
+    radial-gradient(ellipse 1200px 600px at 100% -10%, rgba(11, 110, 35, 0.06), transparent 60%),
     linear-gradient(180deg, var(--surface) 0%, var(--surface-deep) 100%);
   background-attachment: fixed;
   color: var(--text);

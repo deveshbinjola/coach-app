@@ -16,6 +16,7 @@
 // "Powered by ElevateAI" always shown in footer.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { DEFAULT_PAPER_HEX } from "@/lib/brand-kit";
 
 type Choice = {
   key: string;
@@ -189,7 +190,7 @@ export default function QuizPlayer({ funnelId, config }: Props) {
 
   // ── Adaptive palette from branding ────────────────────────
 
-  const bgColor = branding.background_hex || "#FAFAF8";
+  const bgColor = branding.background_hex || DEFAULT_PAPER_HEX;
   const primaryColor = branding.primary_hex || "#0B6E23";
   const fontFamily = branding.font_family || "Plus Jakarta Sans, sans-serif";
 

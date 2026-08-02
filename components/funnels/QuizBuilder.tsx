@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import { DEFAULT_PAPER_HEX } from "@/lib/brand-kit";
 
 // ── Types ──────────────────────────────────────────────────
 
@@ -259,7 +260,7 @@ export default function QuizBuilder({ funnel: initial }: Props) {
   // button which opens /funnels/[id]/preview rendering the real QuizPlayer.
 
   function buildPreviewHtml(): string {
-    const bg = branding.background_hex || "#FAFAF8";
+    const bg = branding.background_hex || DEFAULT_PAPER_HEX;
     const primary = branding.primary_hex || "#0B6E23";
     const font = branding.font_family || "Plus Jakarta Sans";
     const light = isLightColor(bg);
