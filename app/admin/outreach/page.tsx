@@ -103,19 +103,19 @@ export default function OutreachPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#FAF8F3", color: "#0A0F1C", padding: "48px 16px 96px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "var(--surface)", color: "var(--text)", padding: "48px 16px 96px", fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       <div style={{ maxWidth: 880, margin: "0 auto" }}>
 
         {/* Hero */}
         <div style={{ marginBottom: 32 }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "2.5px", textTransform: "uppercase", color: "#0B6E23", fontWeight: 700, marginBottom: 8 }}>
-            <span style={{ display: "inline-block", width: 8, height: 8, background: "#0B6E23", borderRadius: "50%", verticalAlign: "middle", marginRight: 8 }}></span>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "2.5px", textTransform: "uppercase", color: "var(--brand)", fontWeight: 700, marginBottom: 8 }}>
+            <span style={{ display: "inline-block", width: 8, height: 8, background: "var(--brand)", borderRadius: "50%", verticalAlign: "middle", marginRight: 8 }}></span>
             Admin · Outreach
           </div>
           <h1 style={{ margin: 0, fontSize: 36, fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.05 }}>
             After a call.
           </h1>
-          <p style={{ margin: "12px 0 0", color: "#5A5A52", fontSize: 16, lineHeight: 1.55, maxWidth: 480 }}>
+          <p style={{ margin: "12px 0 0", color: "var(--text-muted)", fontSize: 16, lineHeight: 1.55, maxWidth: 480 }}>
             Paste their name + email. Optionally the one alive thing they said. Hit send. The 5-day drip starts automatically when they sign up.
           </p>
         </div>
@@ -124,25 +124,25 @@ export default function OutreachPage() {
         {history && history.total > 0 && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
             <Kpi label="Total outreach" value={history.total} />
-            <Kpi label="Signed up" value={history.signed_up_count} valueColor="#0B6E23" />
-            <Kpi label="Snapshot done" value={history.snapshot_done_count} valueColor="#0B6E23" />
-            <Kpi label="Referrals" value={history.referral_count} valueColor="#0B6E23" />
+            <Kpi label="Signed up" value={history.signed_up_count} valueColor="var(--brand)" />
+            <Kpi label="Snapshot done" value={history.snapshot_done_count} valueColor="var(--brand)" />
+            <Kpi label="Referrals" value={history.referral_count} valueColor="var(--brand)" />
           </div>
         )}
 
         {/* Referrer leaderboard */}
         {history && history.referrer_leaderboard.length > 0 && (
-          <div style={{ background: "#FFFFFF", border: "1px solid #E5E1D8", borderRadius: 14, padding: 22, marginBottom: 32, maxWidth: 640 }}>
+          <div style={{ background: "var(--surface-elevated)", border: "1px solid var(--border)", borderRadius: 14, padding: 22, marginBottom: 32, maxWidth: 640 }}>
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
-              <h2 style={{ margin: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: "2px", textTransform: "uppercase", color: "#0A0F1C", fontWeight: 700 }}>
+              <h2 style={{ margin: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: "2px", textTransform: "uppercase", color: "var(--text)", fontWeight: 700 }}>
                 Top referrers
               </h2>
-              <span style={{ fontSize: 12, color: "#5A5A52" }}>{history.referrer_leaderboard.length} active</span>
+              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{history.referrer_leaderboard.length} active</span>
             </div>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
-                  <tr style={{ background: "#F0EDE5", borderBottom: "1px solid #E5E1D8" }}>
+                  <tr style={{ background: "var(--surface-deep)", borderBottom: "1px solid var(--border)" }}>
                     <th style={thStyle}>Referrer</th>
                     <th style={thStyle}>Email</th>
                     <th style={thStyle}>Invites</th>
@@ -152,15 +152,15 @@ export default function OutreachPage() {
                 </thead>
                 <tbody>
                   {history.referrer_leaderboard.map((r, i) => (
-                    <tr key={r.email} style={{ borderBottom: "1px solid #F0EDE5" }}>
+                    <tr key={r.email} style={{ borderBottom: "1px solid var(--surface-deep)" }}>
                       <td style={{ ...tdStyle, fontWeight: 700 }}>
                         {i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : `${i + 1}. `}
                         {r.first_name ?? "—"}
                       </td>
-                      <td style={{ ...tdStyle, color: "#5A5A52", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{r.email}</td>
+                      <td style={{ ...tdStyle, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{r.email}</td>
                       <td style={{ ...tdStyle, fontWeight: 700 }}>{r.count}</td>
-                      <td style={{ ...tdStyle, color: r.signups > 0 ? "#0B6E23" : "#5A5A52", fontWeight: r.signups > 0 ? 700 : 400 }}>{r.signups}</td>
-                      <td style={{ ...tdStyle, color: r.snapshots > 0 ? "#0B6E23" : "#5A5A52", fontWeight: r.snapshots > 0 ? 700 : 400 }}>{r.snapshots}</td>
+                      <td style={{ ...tdStyle, color: r.signups > 0 ? "var(--brand)" : "var(--text-muted)", fontWeight: r.signups > 0 ? 700 : 400 }}>{r.signups}</td>
+                      <td style={{ ...tdStyle, color: r.snapshots > 0 ? "var(--brand)" : "var(--text-muted)", fontWeight: r.snapshots > 0 ? 700 : 400 }}>{r.snapshots}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -170,11 +170,11 @@ export default function OutreachPage() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSend} style={{ background: "#FFFFFF", border: "1px solid #E5E1D8", borderRadius: 14, padding: 28, marginBottom: 24, maxWidth: 640 }}>
+        <form onSubmit={handleSend} style={{ background: "var(--surface-elevated)", border: "1px solid var(--border)", borderRadius: 14, padding: 28, marginBottom: 24, maxWidth: 640 }}>
 
           <div style={{ marginBottom: 18 }}>
-            <label htmlFor="first_name" style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#0A0F1C" }}>
-              First name <span style={{ color: "#0B6E23" }}>·</span> required
+            <label htmlFor="first_name" style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "var(--text)" }}>
+              First name <span style={{ color: "var(--brand)" }}>·</span> required
             </label>
             <input
               id="first_name"
@@ -188,8 +188,8 @@ export default function OutreachPage() {
           </div>
 
           <div style={{ marginBottom: 18 }}>
-            <label htmlFor="email" style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#0A0F1C" }}>
-              Email <span style={{ color: "#0B6E23" }}>·</span> required
+            <label htmlFor="email" style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "var(--text)" }}>
+              Email <span style={{ color: "var(--brand)" }}>·</span> required
             </label>
             <input
               id="email"
@@ -203,8 +203,8 @@ export default function OutreachPage() {
           </div>
 
           <div style={{ marginBottom: 24 }}>
-            <label htmlFor="ps" style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#0A0F1C" }}>
-              PS line <span style={{ color: "#5A5A52", fontWeight: 400 }}>· optional, adds a personal callback at the bottom</span>
+            <label htmlFor="ps" style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "var(--text)" }}>
+              PS line <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>· optional, adds a personal callback at the bottom</span>
             </label>
             <input
               id="ps"
@@ -219,7 +219,7 @@ export default function OutreachPage() {
           <button
             type="submit"
             disabled={busy}
-            style={{ width: "100%", padding: "14px 24px", borderRadius: 100, border: "none", background: busy ? "#5A5A52" : "#0B6E23", color: "#FAF8F3", fontSize: 16, fontWeight: 700, fontFamily: "inherit", cursor: busy ? "wait" : "pointer", transition: "background 0.2s" }}
+            style={{ width: "100%", padding: "14px 24px", borderRadius: 100, border: "none", background: busy ? "var(--text-muted)" : "var(--brand)", color: "var(--surface)", fontSize: 16, fontWeight: 700, fontFamily: "inherit", cursor: busy ? "wait" : "pointer", transition: "background 0.2s" }}
           >
             {busy ? "Sending…" : "Send the email →"}
           </button>
@@ -227,7 +227,7 @@ export default function OutreachPage() {
         </form>
 
         {result && (
-          <div style={{ background: result.ok ? "#0B6E23" : "#B23A2E", color: "#FAF8F3", padding: 20, borderRadius: 10, marginBottom: 32, lineHeight: 1.55, maxWidth: 640 }}>
+          <div style={{ background: result.ok ? "var(--brand)" : "var(--danger)", color: "var(--surface)", padding: 20, borderRadius: 10, marginBottom: 32, lineHeight: 1.55, maxWidth: 640 }}>
             {result.ok ? (
               <>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: 2, textTransform: "uppercase", fontWeight: 700, marginBottom: 8, opacity: 0.85 }}>Sent ✓</div>
@@ -248,30 +248,30 @@ export default function OutreachPage() {
         {/* History */}
         <div style={{ marginTop: 48 }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 16 }}>
-            <h2 style={{ margin: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: "2px", textTransform: "uppercase", color: "#0A0F1C", fontWeight: 700 }}>
+            <h2 style={{ margin: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: "2px", textTransform: "uppercase", color: "var(--text)", fontWeight: 700 }}>
               Recent outreach
             </h2>
             <button
               onClick={() => void loadHistory()}
               disabled={historyLoading}
-              style={{ background: "transparent", border: "none", color: "#0B6E23", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ background: "transparent", border: "none", color: "var(--brand)", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}
             >
               {historyLoading ? "Loading…" : "↻ Refresh"}
             </button>
           </div>
 
           {history && history.outreach.length === 0 && (
-            <div style={{ background: "#F0EDE5", borderRadius: 10, padding: 24, textAlign: "center", color: "#5A5A52", fontSize: 14 }}>
+            <div style={{ background: "var(--surface-deep)", borderRadius: 10, padding: 24, textAlign: "center", color: "var(--text-muted)", fontSize: 14 }}>
               No outreach sent yet. Send your first one above.
             </div>
           )}
 
           {history && history.outreach.length > 0 && (
-            <div style={{ background: "#FFFFFF", border: "1px solid #E5E1D8", borderRadius: 14, overflow: "hidden" }}>
+            <div style={{ background: "var(--surface-elevated)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden" }}>
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 820 }}>
                   <thead>
-                    <tr style={{ background: "#F0EDE5", borderBottom: "1px solid #E5E1D8" }}>
+                    <tr style={{ background: "var(--surface-deep)", borderBottom: "1px solid var(--border)" }}>
                       <th style={thStyle}>Sent</th>
                       <th style={thStyle}>Name</th>
                       <th style={thStyle}>Email</th>
@@ -283,43 +283,43 @@ export default function OutreachPage() {
                   </thead>
                   <tbody>
                     {history.outreach.map((r) => (
-                      <tr key={r.id} style={{ borderBottom: "1px solid #F0EDE5" }}>
+                      <tr key={r.id} style={{ borderBottom: "1px solid var(--surface-deep)" }}>
                         <td style={tdStyle}>{formatRelative(r.sent_at)}</td>
                         <td style={{ ...tdStyle, fontWeight: 700 }}>{r.first_name ?? "—"}</td>
-                        <td style={{ ...tdStyle, color: "#5A5A52", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{r.email}</td>
+                        <td style={{ ...tdStyle, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{r.email}</td>
                         <td style={tdStyle}>
                           {r.kind === "referral" && r.referred_by_first_name ? (
                             <span title={r.referred_by_email ?? undefined}>
-                              <Badge color="#0B6E23" bg="#E8F3E8">ref: {r.referred_by_first_name}</Badge>
+                              <Badge color="var(--brand)" bg="var(--brand-soft)">ref: {r.referred_by_first_name}</Badge>
                             </span>
                           ) : r.kind === "referral" ? (
                             <span title={r.referred_by_email ?? undefined}>
-                              <Badge color="#0B6E23" bg="#E8F3E8">referral</Badge>
+                              <Badge color="var(--brand)" bg="var(--brand-soft)">referral</Badge>
                             </span>
                           ) : (
-                            <Badge color="#5A5A52" bg="#F0EDE5">{r.kind ?? "outreach"}</Badge>
+                            <Badge color="var(--text-muted)" bg="var(--surface-deep)">{r.kind ?? "outreach"}</Badge>
                           )}
                         </td>
                         <td style={tdStyle}>
                           {r.signed_up ? (
-                            <Badge color="#0B6E23" bg="#E8F3E8">Signed up</Badge>
+                            <Badge color="var(--brand)" bg="var(--brand-soft)">Signed up</Badge>
                           ) : (
-                            <Badge color="#5A5A52" bg="#F0EDE5">No</Badge>
+                            <Badge color="var(--text-muted)" bg="var(--surface-deep)">No</Badge>
                           )}
                         </td>
                         <td style={tdStyle}>
                           {r.drip_step === 0 ? "—" :
-                           r.drip_step === 99 ? <Badge color="#B23A2E" bg="#FCE7E4">Stopped</Badge> :
-                           r.drip_step === 5 ? <Badge color="#0B6E23" bg="#E8F3E8">Done</Badge> :
-                           <Badge color="#0A0F1C" bg="#F0EDE5">Day {r.drip_step}/5</Badge>}
+                           r.drip_step === 99 ? <Badge color="var(--danger)" bg="var(--danger-soft)">Stopped</Badge> :
+                           r.drip_step === 5 ? <Badge color="var(--brand)" bg="var(--brand-soft)">Done</Badge> :
+                           <Badge color="var(--text)" bg="var(--surface-deep)">Day {r.drip_step}/5</Badge>}
                         </td>
                         <td style={tdStyle}>
                           {r.snapshot_state === "completed" ? (
-                            <Badge color="#0B6E23" bg="#E8F3E8">{r.archetype ?? "Done"}</Badge>
+                            <Badge color="var(--brand)" bg="var(--brand-soft)">{r.archetype ?? "Done"}</Badge>
                           ) : r.snapshot_state === "in_progress" ? (
-                            <Badge color="#0A0F1C" bg="#FFF4D6">In progress</Badge>
+                            <Badge color="var(--text)" bg="var(--warning-soft)">In progress</Badge>
                           ) : (
-                            <span style={{ color: "#5A5A52" }}>—</span>
+                            <span style={{ color: "var(--text-muted)" }}>—</span>
                           )}
                         </td>
                       </tr>
@@ -340,12 +340,12 @@ const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "12px 16px",
   borderRadius: 8,
-  border: "1px solid #E5E1D8",
+  border: "1px solid var(--border)",
   fontSize: 15,
   fontFamily: "inherit",
-  color: "#0A0F1C",
+  color: "var(--text)",
   boxSizing: "border-box",
-  background: "#FFFFFF",
+  background: "var(--surface-elevated)",
 };
 
 const thStyle: React.CSSProperties = {
@@ -355,21 +355,21 @@ const thStyle: React.CSSProperties = {
   fontSize: 10,
   letterSpacing: "1.5px",
   textTransform: "uppercase",
-  color: "#5A5A52",
+  color: "var(--text-muted)",
   fontWeight: 700,
 };
 
 const tdStyle: React.CSSProperties = {
   padding: "12px 14px",
   verticalAlign: "top",
-  color: "#0A0F1C",
+  color: "var(--text)",
 };
 
 function Kpi({ label, value, valueColor }: { label: string; value: number; valueColor?: string }) {
   return (
-    <div style={{ background: "#FFFFFF", border: "1px solid #E5E1D8", borderRadius: 10, padding: "14px 18px" }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "1.5px", textTransform: "uppercase", color: "#5A5A52", fontWeight: 700, marginBottom: 4 }}>{label}</div>
-      <div style={{ fontSize: 28, fontWeight: 800, color: valueColor ?? "#0A0F1C", letterSpacing: "-0.02em" }}>{value}</div>
+    <div style={{ background: "var(--surface-elevated)", border: "1px solid var(--border)", borderRadius: 10, padding: "14px 18px" }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--text-muted)", fontWeight: 700, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 28, fontWeight: 800, color: valueColor ?? "var(--text)", letterSpacing: "-0.02em" }}>{value}</div>
     </div>
   );
 }
