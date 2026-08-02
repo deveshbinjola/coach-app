@@ -33,3 +33,22 @@ qa/reports/*.md
 .claude/worktrees/
 .superpowers/
 .worktrees
+
+# Build output from the verify/preview scripts
+.next-verify
+
+# Installed skills. skills-lock.json is committed; the installed copies are
+# reproducible from it, the same way node_modules is from package-lock.
+.claude/skills/
+
+# Tool working directories. These are caches and generated artifacts, not
+# source: ~52MB between them, they churn constantly, and nothing in the app
+# reads them at build or run time.
+.firecrawl/
+.planning/
+graphify-out/
+.agents/
+
+# Generated QA tickets. qa/reports is already ignored; tickets are the same
+# class of artifact, written by the nightly QA run.
+qa/tickets/
