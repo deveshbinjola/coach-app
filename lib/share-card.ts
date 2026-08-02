@@ -72,10 +72,12 @@ export async function renderShareCard(
   ctx.fillStyle = COLORS.bg;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
 
-  // Subtle aurora-green wash at top (matches marketing site hero).
+  // Warm forest wash at top. Was rgba(0,255,65,...): the palette below had
+  // already moved to the warm-light system, but these two canvas fills were
+  // left behind, so every share card a coach posted carried the retired neon.
   const wash = ctx.createLinearGradient(0, 0, 0, 320);
-  wash.addColorStop(0, "rgba(0, 255, 65, 0.12)");
-  wash.addColorStop(1, "rgba(0, 255, 65, 0.0)");
+  wash.addColorStop(0, "rgba(11, 110, 35, 0.12)");
+  wash.addColorStop(1, "rgba(11, 110, 35, 0.0)");
   ctx.fillStyle = wash;
   ctx.fillRect(0, 0, CARD_W, 320);
 
@@ -315,7 +317,7 @@ function drawCard(ctx: CanvasRenderingContext2D, o: DrawCardOpts) {
   const footerY = o.y + o.h - innerPad - 14;
   // Divider line above footer.
   ctx.strokeStyle = o.accent
-    ? "rgba(0, 255, 65, 0.4)"
+    ? "rgba(11, 110, 35, 0.4)"
     : "rgba(0, 0, 0, 0.08)";
   ctx.lineWidth = 1;
   ctx.beginPath();

@@ -15,7 +15,7 @@ function validConfig(): FunnelConfig {
       { key: "pillar_2", pillar_name: "Two", headline: "H2", body: "B2", cta_text: "Go", cta_url: "" },
       { key: "pillar_3", pillar_name: "Three", headline: "H3", body: "B3", cta_text: "Go", cta_url: "https://y.com" },
     ],
-    branding: { primary_hex: "#00FF41", accent_hex: "#00CC34", background_hex: "#FAFAF8", font_family: "Plus Jakarta Sans" },
+    branding: { primary_hex: "#0B6E23", accent_hex: "#085119", background_hex: "#FAFAF8", font_family: "Plus Jakarta Sans" },
   };
 }
 

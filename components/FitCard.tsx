@@ -186,9 +186,9 @@ export default function FitCard({ lead, onChange }: Props) {
       {fit.missingSignals.length > 0 && fit.band !== "disqualified" && (
         <div
           className="mt-3 rounded-md border p-2 text-[11px]"
-          style={{ backgroundColor: "rgba(0,255,65,0.05)", borderColor: "#86efac" }}
+          style={{ backgroundColor: "var(--brand-soft)", borderColor: "var(--brand)" }}
         >
-          <span className="font-bold" style={{ color: "#0A0F1C" }}>To sharpen this score:</span>{" "}
+          <span className="font-bold" style={{ color: "var(--text)" }}>To sharpen this score:</span>{" "}
           <span className="text-[color:var(--text-muted)]">{fit.missingSignals.join(" · ")}</span>
         </div>
       )}

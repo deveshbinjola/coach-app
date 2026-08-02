@@ -154,8 +154,8 @@ export default function OutreachPage() {
                   {history.referrer_leaderboard.map((r, i) => (
                     <tr key={r.email} style={{ borderBottom: "1px solid var(--surface-deep)" }}>
                       <td style={{ ...tdStyle, fontWeight: 700 }}>
-                        {i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : `${i + 1}. `}
-                        {r.first_name ?? "—"}
+                        {`${i + 1}. `}
+                        {r.first_name ?? "Unknown"}
                       </td>
                       <td style={{ ...tdStyle, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{r.email}</td>
                       <td style={{ ...tdStyle, fontWeight: 700 }}>{r.count}</td>
@@ -285,7 +285,7 @@ export default function OutreachPage() {
                     {history.outreach.map((r) => (
                       <tr key={r.id} style={{ borderBottom: "1px solid var(--surface-deep)" }}>
                         <td style={tdStyle}>{formatRelative(r.sent_at)}</td>
-                        <td style={{ ...tdStyle, fontWeight: 700 }}>{r.first_name ?? "—"}</td>
+                        <td style={{ ...tdStyle, fontWeight: 700 }}>{r.first_name ?? "Unknown"}</td>
                         <td style={{ ...tdStyle, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{r.email}</td>
                         <td style={tdStyle}>
                           {r.kind === "referral" && r.referred_by_first_name ? (
