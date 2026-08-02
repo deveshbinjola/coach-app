@@ -27,11 +27,15 @@ export default function BusinessPulseStrip({ metrics }: Props) {
           warning: false,
         }
       : null,
-    metrics.sessionsThisMonth >= 0
+    // > 0, not >= 0. The old test was always true, so on a quiet month this
+    // was the ONE tile that survived the filter — a zero, alone in a
+    // four-column grid, and the only number anywhere on the coach's home
+    // screen. A month with no sessions yet is not a stat worth leading with.
+    metrics.sessionsThisMonth > 0
       ? {
           label: "Sessions this month",
           value: `${metrics.sessionsThisMonth}`,
-          warning: metrics.sessionsThisMonth === 0,
+          warning: false,
         }
       : null,
     metrics.trustRate !== null
@@ -47,14 +51,17 @@ export default function BusinessPulseStrip({ metrics }: Props) {
   if (visible.length === 0) return null;
 
   return (
+    // flex-wrap, not a fixed 4-column grid. The grid left an orphan tile at
+    // quarter width whenever fewer than four metrics were real. Tiles now
+    // share whatever row they're on, so one, two or four all look deliberate.
     <div
-      className="grid grid-cols-2 lg:grid-cols-4 gap-2.5"
+      className="flex flex-wrap gap-2.5"
       aria-label="Business pulse"
     >
       {visible.map((item, i) => (
         <div
           key={i}
-          className="rounded-[var(--r-md)] bg-[var(--surface-elevated)] border border-[var(--border-faint)] shadow-[var(--shadow-sm)] px-4 py-3"
+          className="flex-1 basis-[calc(50%-0.3125rem)] sm:basis-0 min-w-[9.5rem] rounded-[var(--r-md)] bg-[var(--surface-elevated)] border border-[var(--border-faint)] shadow-[var(--shadow-sm)] px-4 py-3"
         >
           <div className="flex items-baseline gap-1.5">
             <span className="font-display text-[length:var(--t-h3)] font-bold tabular-nums leading-none text-[color:var(--text)]">

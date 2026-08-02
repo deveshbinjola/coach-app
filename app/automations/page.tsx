@@ -8,6 +8,7 @@ import SequenceList from "@/components/SequenceList";
 import { loadNavUnlocks } from "@/lib/nav-unlocks";
 import { cookies } from "next/headers";
 import type { FunnelRow } from "@/app/funnels/page";
+import { PageHeader } from "@/components/ui";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -49,7 +50,16 @@ export default async function AutomationsPage({
         avatarUrl={userAvatarUrl(user.user_metadata)}
         navUnlocks={navUnlocks}
       />
-      <main className="max-w-5xl mx-auto px-3 py-6 sm:px-6 sm:py-10">
+      {/* Title, then tabs, then tab content. The tab bar used to come first,
+          so the screen opened on a switcher with nothing to say what was
+          being switched. Padding matches the other workspaces. */}
+      <main className="max-w-6xl mx-auto px-3 py-4 sm:px-6 sm:py-6">
+        <div className="mb-5">
+          <PageHeader
+            title="Automations"
+            meta="Funnels that capture leads, sequences that follow up."
+          />
+        </div>
         <TabBar active={tab} />
         {tab === "sequences" ? (
           <SequencesTab coachId={user.id} />

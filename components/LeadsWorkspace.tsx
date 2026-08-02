@@ -21,6 +21,7 @@ import LeadList from "@/components/LeadList";
 import LeadSearchBar from "@/components/inbox/LeadSearchBar";
 import ComposeStudio from "@/components/ComposeStudio";
 import Modal from "@/components/ui/Modal";
+import { PageHeader } from "@/components/ui";
 import type { Lead } from "@/lib/types";
 import { assessSla } from "@/lib/lead-sla";
 
@@ -114,27 +115,20 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
   return (
     <>
       <section className="mb-5 space-y-3">
-        {/* Status bar */}
-        <div className="rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 shadow-[var(--shadow-xs)]">
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-faint)] bg-white/70 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)]">
-              Lead Room
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" />
-              Session
-            </div>
-            <span className="text-[length:var(--t-body)] font-extrabold text-[color:var(--text)]">
-              {leadRoomSentence}
-            </span>
-            <div className="flex items-center gap-4 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
-              <span><b className="text-[color:var(--text)]">{activeLeads.length}</b> active</span>
-              <span><b className="text-[color:var(--text)]">{hotLeads.length}</b> hot</span>
-              <span><b className="text-[color:var(--text)]">{needsTouch.length}</b> to touch</span>
-            </div>
-            <div className="ml-auto flex items-center gap-2 flex-wrap">
+        {/* This screen used to open straight onto the status bar with no page
+            title anywhere, the only workspace in the app without one. The
+            room sentence and the two page-level actions now sit in the shared
+            PageHeader, and the bar below keeps just the counts. */}
+        <PageHeader
+          eyebrow="Lead room"
+          title="Leads"
+          meta={leadRoomSentence}
+          actions={
+            <div className="flex items-center gap-2 flex-wrap justify-end">
               <a
                 href="/leads/capture"
                 title="Paste text, speak, or drop a screenshot. AI parses each lead."
-                className="inline-flex items-center justify-center h-8 px-3 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
+                className="inline-flex items-center justify-center h-11 px-4 rounded-[var(--r-md)] bg-[var(--brand)] text-[color:var(--text-inverse)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--brand-strong)] transition"
               >
                 Capture
               </a>
@@ -147,11 +141,19 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
                     ? "Add at least one lead before composing"
                     : "Draft a personalized message to a slice of your book"
                 }
-                className="inline-flex items-center justify-center h-8 min-h-11 px-3 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--surface-deep)] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center h-11 px-4 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] text-[length:var(--t-caption)] font-bold hover:bg-[var(--surface-deep)] transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Draft next move
               </button>
             </div>
+          }
+        />
+
+        <div className="rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 shadow-[var(--shadow-xs)]">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
+            <span><b className="text-[color:var(--text)]">{activeLeads.length}</b> active</span>
+            <span><b className="text-[color:var(--text)]">{hotLeads.length}</b> hot</span>
+            <span><b className="text-[color:var(--text)]">{needsTouch.length}</b> to touch</span>
           </div>
         </div>
 

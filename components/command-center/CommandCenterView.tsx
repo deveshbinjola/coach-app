@@ -7,6 +7,7 @@ import BusinessPulseStrip from "@/components/command-center/BusinessPulseStrip";
 import FirstRunCommandCenter from "@/components/command-center/FirstRunCommandCenter";
 import MirrorCard from "@/components/MirrorCard";
 import MeetInvite from "@/components/command-center/MeetInvite";
+import { PageHeader } from "@/components/ui";
 
 // ── Backward-compatible type export ─────────────────────────────────
 // lib/build-punch-list.ts still imports this type. Keep it exported
@@ -49,18 +50,12 @@ export default function CommandCenterView({ pulse, coachFirstName, toggle, hasAc
 
   if (isFirstRun) {
     return (
-      <div className="max-w-3xl space-y-7">
-        <header className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-display text-[length:var(--t-h1)] font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">
-              Welcome, {coachFirstName}.
-            </h1>
-            <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">
-              Take a breath. &nbsp;In through the nose&hellip; slow exhale.
-            </p>
-          </div>
-          {toggle}
-        </header>
+      <div className="max-w-3xl mx-auto space-y-7">
+        <PageHeader
+          title={<>Welcome, {coachFirstName}.</>}
+          meta={<em>Take a breath. &nbsp;In through the nose&hellip; slow exhale.</em>}
+          actions={toggle}
+        />
 
         <FirstRunCommandCenter />
       </div>
@@ -68,19 +63,18 @@ export default function CommandCenterView({ pulse, coachFirstName, toggle, hasAc
   }
 
   return (
-    <div className="max-w-3xl space-y-7">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-[length:var(--t-h1)] font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">
-            Hey, {coachFirstName}.
-          </h1>
-          <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic">
-            Take a breath before you start. &nbsp;In through the nose&hellip; slow exhale.
-          </p>
-          {!interviewed && <MeetInvite />}
-        </div>
-        {toggle}
-      </header>
+    // mx-auto. Without it this 768px column sat hard against the left edge of
+    // the 1152px <main>, leaving a 384px dead gutter on the right while admin
+    // mode of the same route filled the full width. Centred, the short screen
+    // reads as composed rather than unfinished.
+    <div className="max-w-3xl mx-auto space-y-7">
+      <PageHeader
+        title={<>Hey, {coachFirstName}.</>}
+        meta={<em>Take a breath before you start. &nbsp;In through the nose&hellip; slow exhale.</em>}
+        actions={toggle}
+      >
+        {!interviewed && <MeetInvite />}
+      </PageHeader>
 
       <RightNowList
         heroItem={pulse.heroItem}

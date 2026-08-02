@@ -22,6 +22,7 @@ import Header from "@/components/Header";
 import { loadNavUnlocks } from "@/lib/nav-unlocks";
 import { cookies } from "next/headers";
 import VoiceHomePanel from "@/components/VoiceHomePanel";
+import { PageHeader } from "@/components/ui";
 import type {
   Content,
   Lead,
@@ -114,14 +115,14 @@ export default async function VoicePage() {
         avatarUrl={userAvatarUrl(user.user_metadata)}
         navUnlocks={navUnlocks}
       />
-      <main className="max-w-5xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
-        <div className="mb-4 flex items-baseline gap-3">
-          <h1 className="text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
-            Voice
-          </h1>
-          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-base)]">
-            Source of truth for every AI draft and outreach.
-          </p>
+      <main className="max-w-6xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
+        {/* This title was set at --t-h2 (1.25rem) while every other page used
+            --t-h1 (2.25rem), so Voice read like a subsection of itself. */}
+        <div className="mb-5">
+          <PageHeader
+            title="Voice"
+            meta="Source of truth for every AI draft and outreach."
+          />
         </div>
 
         <VoiceHomePanel

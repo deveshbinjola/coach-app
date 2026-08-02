@@ -26,6 +26,7 @@ import type { CoachSettings, CoachIntegration } from "@/lib/types";
 import type { AudienceSelf, AudienceServes, VoiceProfileSlug } from "@/lib/voice-profiles";
 import { DEFAULT_BRAND_KIT } from "@/lib/brand-kit";
 import { loadNavUnlocks } from "@/lib/nav-unlocks";
+import { PageHeader } from "@/components/ui";
 import { cookies } from "next/headers";
 
 export const runtime = "edge";
@@ -250,20 +251,30 @@ export default async function SettingsPage({
         avatarUrl={userAvatarUrl(user?.user_metadata)}
         navUnlocks={navUnlocks}
       />
-      <main className="max-w-2xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
+      {/* max-w-6xl frame like every other screen, with the form itself held to
+          a max-w-3xl reading column inside it. This page used to set its frame
+          to max-w-2xl, which made it the narrowest surface in the app by a
+          wide margin and broke the shared page rhythm. */}
+      <main className="max-w-6xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
+       <div className="max-w-3xl mx-auto">
 
         <div className="mb-8">
-          <p className="text-[length:var(--t-label)] uppercase tracking-[0.15em] font-bold text-[color:var(--brand-strong)]">
-            Settings
-          </p>
-          <h1 className="font-display text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)] mt-1">
-            {needsAttention.length > 0
-              ? `${needsAttention.length} ${needsAttention.length === 1 ? "thing wants" : "things want"} your attention.`
-              : "Everything's set."}
-          </h1>
-          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-2 leading-relaxed">
-            Items that need you sit at the top of each section. Completed items collapse to the bottom — click to expand. Resonance and sacred zones moved to <a className="underline" href="/leads/resonance">/leads/resonance</a> and <a className="underline" href="/content">/content</a>.
-          </p>
+          <PageHeader
+            eyebrow="Settings"
+            title={
+              needsAttention.length > 0
+                ? `${needsAttention.length} ${needsAttention.length === 1 ? "thing wants" : "things want"} your attention.`
+                : "Everything's set."
+            }
+            meta={
+              <>
+                Items that need you sit at the top of each section. Completed items
+                collapse to the bottom, click to expand. Resonance and sacred zones
+                moved to <a className="underline" href="/leads/resonance">/leads/resonance</a>{" "}
+                and <a className="underline" href="/content">/content</a>.
+              </>
+            }
+          />
         </div>
 
         {error || !settings ? (
@@ -317,6 +328,7 @@ export default async function SettingsPage({
             </EditorialSettingsSection>
           </div>
         )}
+       </div>
       </main>
     </div>
   );

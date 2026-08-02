@@ -12,6 +12,7 @@ import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
 import { loadNavUnlocks } from "@/lib/nav-unlocks";
 import { cookies } from "next/headers";
 import type { CoachingSession } from "@/lib/session-intelligence";
+import { PageHeader } from "@/components/ui";
 import type {
   ClientEvent,
   ClientResource,
@@ -59,7 +60,16 @@ export default async function ClientsPage({
         emphasis={headerEmphasis}
         navUnlocks={navUnlocks}
       />
+      {/* Title, then tabs. This screen opened on a bare tab switcher with no
+          page title anywhere above it. max-w-7xl stays: the clients tab is a
+          sidebar plus detail pane and genuinely needs the width. */}
       <main className="max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
+        <div className="mb-5">
+          <PageHeader
+            title="Clients"
+            meta="Rooms for the people you're already working with."
+          />
+        </div>
         <TabBar active={tab} />
         {tab === "offerings" ? (
           <OfferingsTab coachId={user.id} />

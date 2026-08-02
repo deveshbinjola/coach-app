@@ -13,6 +13,7 @@ import { loadHeaderEmphasis } from "@/lib/nav-emphasis";
 import { loadNavUnlocks } from "@/lib/nav-unlocks";
 import { cookies } from "next/headers";
 import { getContentSignals } from "@/lib/ambient";
+import { PageHeader } from "@/components/ui";
 
 export const runtime = 'edge';
 
@@ -149,6 +150,14 @@ export default async function ContentPage({
         navUnlocks={navUnlocks}
       />
       <main className="max-w-6xl mx-auto px-3 py-4 sm:px-6 sm:py-6 overflow-hidden">
+        {/* The numbered editorial sections below (NO. 01 THE DESK, and so on)
+            were carrying the whole screen with no page title above them. */}
+        <div className="mb-5">
+          <PageHeader
+            title="Content"
+            meta="Compose today's piece, then keep the library moving."
+          />
+        </div>
         <ContentWorkspace
           profile={(profileRes.data as VoiceProfile | null) ?? null}
           leads={(leadsRes.data as Lead[] | null) ?? []}

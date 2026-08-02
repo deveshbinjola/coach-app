@@ -187,7 +187,7 @@ export default function ClientsWorkspace({
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone="brand" size="xs" uppercase>Active client</Badge>
                     </div>
-                    <h2 className="mt-3 break-words text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)]">
+                    <h2 className="mt-3 break-words text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)]">
                       {selectedLead.full_name}
                     </h2>
                     <p className="mt-2 max-w-2xl text-[length:var(--t-caption)] leading-[var(--leading-relaxed)] text-[color:var(--text-muted)]">
@@ -268,7 +268,7 @@ export default function ClientsWorkspace({
           ) : (
             <Card className="flex min-h-[420px] flex-col items-center justify-center text-center">
               <Badge tone="warning" size="xs" uppercase>Room not created</Badge>
-              <h2 className="mt-4 text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)]">
+              <h2 className="mt-4 text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)]">
                 Create {selectedLead.full_name}&apos;s client room.
               </h2>
               <p className="mt-2 max-w-md text-[length:var(--t-body)] leading-[var(--leading-relaxed)] text-[color:var(--text-muted)]">
@@ -294,9 +294,11 @@ function EmptyClients() {
   return (
     <Card className="min-h-[520px] flex flex-col items-center justify-center text-center">
       <Badge tone="muted" size="xs" uppercase>No clients yet</Badge>
-      <h1 className="mt-4 max-w-xl text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)]">
+      {/* h2, not h1. The page-level h1 is now "Clients" in the shared
+          PageHeader, and two h1s on one document is a screen-reader problem. */}
+      <h2 className="mt-4 max-w-xl text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)]">
         Client rooms unlock when a lead becomes a client.
-      </h1>
+      </h2>
       <p className="mt-2 max-w-lg text-[length:var(--t-body)] leading-[var(--leading-relaxed)] text-[color:var(--text-muted)]">
         Move a lead to client from the lead detail page. Then come back here to run the relationship.
       </p>

@@ -111,6 +111,11 @@
   --t-body:            0.9375rem;                      /* Default body */
   --t-caption:         0.8125rem;                      /* Helper text */
   --t-label:           0.8125rem;                      /* aliased — same as --t-caption */
+  /* Section eyebrows ("VITAL SIGNS", "SHIP THIS WEEK"). These were being set
+     ad hoc at 10px and 11px with three different trackings, which put them
+     below --t-caption and off the scale entirely. One size, one tracking. */
+  --t-eyebrow:         0.6875rem;                      /* 11px, uppercase only */
+  --tracking-eyebrow:  0.12em;
 
   --leading-tight:     1.2;
   --leading-snug:      1.4;

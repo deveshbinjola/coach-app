@@ -108,9 +108,9 @@ export default function FunnelsWorkspace({ funnels: initialFunnels, hasBrandOs }
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[var(--surface-deep)] mb-5">
           <Sparkles size={28} className="text-[color:var(--text-muted)]" />
         </div>
-        <h1 className="text-[length:var(--t-h1)] font-extrabold text-[color:var(--text)]">
+        <h2 className="text-[length:var(--t-h2)] font-extrabold text-[color:var(--text)]">
           Quiz Funnels
-        </h1>
+        </h2>
         <p className="text-[length:var(--t-body)] text-[color:var(--text-muted)] mt-2 max-w-md mx-auto">
           Generate a quiz funnel from your Brand OS. Complete Brand OS first to unlock quiz generation.
         </p>
@@ -127,13 +127,15 @@ export default function FunnelsWorkspace({ funnels: initialFunnels, hasBrandOs }
 
   return (
     <div>
-      {/* Page header */}
+      {/* Section heading, not a page heading. The page h1 is "Automations" in
+          app/automations/page.tsx; this used to be a second --t-h1 competing
+          with it on the same screen. */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[length:var(--t-h1)] font-extrabold text-[color:var(--text)]">
+          <h2 className="text-[length:var(--t-h2)] font-extrabold text-[color:var(--text)]">
             Quiz Funnels
-          </h1>
-          <p className="text-sm text-[color:var(--text-muted)] mt-0.5">
+          </h2>
+          <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] mt-0.5">
             Generate quizzes from your Brand OS. Share the link. Capture leads.
           </p>
         </div>
