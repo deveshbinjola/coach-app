@@ -2015,7 +2015,7 @@ function StyleColorInput({
           value={value}
           disabled={disabled}
           onChange={(event) => isValidHex(event.target.value) ? onChange(event.target.value) : undefined}
-          className="min-w-0 flex-1 bg-transparent px-1 text-[length:var(--t-caption)] font-bold text-[color:var(--text)] outline-none disabled:text-[color:var(--text-muted)]"
+          className="min-w-0 flex-1 bg-transparent px-1 text-[length:var(--t-caption)] font-bold text-[color:var(--text)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] disabled:text-[color:var(--text-muted)]"
         />
       </div>
     </label>

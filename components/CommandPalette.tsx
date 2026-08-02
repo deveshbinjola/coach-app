@@ -132,7 +132,7 @@ export default function CommandPalette() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onInputKeyDown}
             placeholder="Type a command or search…"
-            className="flex-1 bg-transparent text-[length:var(--t-body)] text-[color:var(--text)] outline-none placeholder:text-[color:var(--text-faint)]"
+            className="flex-1 bg-transparent text-[length:var(--t-body)] text-[color:var(--text)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] placeholder:text-[color:var(--text-faint)]"
             autoComplete="off"
             spellCheck={false}
           />

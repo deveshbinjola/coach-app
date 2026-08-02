@@ -897,7 +897,7 @@ function LeadSearchBox({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder="Search leads..."
-          className="min-w-0 flex-1 bg-transparent text-[length:var(--t-caption)] font-bold text-[color:var(--text)] outline-none placeholder:text-[color:var(--text-faint)]"
+          className="min-w-0 flex-1 bg-transparent text-[length:var(--t-caption)] font-bold text-[color:var(--text)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] placeholder:text-[color:var(--text-faint)]"
         />
         {active ? (
           <button

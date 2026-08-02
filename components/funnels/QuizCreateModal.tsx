@@ -182,7 +182,7 @@ export default function QuizCreateModal({
                     value={ctaUrls[i] ?? ""}
                     onChange={(e) => setCtaUrls((prev) => prev.map((u, j) => (j === i ? e.target.value : u)))}
                     placeholder="Where should this result send them? (your offer link)"
-                    className={`mt-2 w-full text-[13px] bg-[var(--surface-elevated)] rounded-[var(--r-sm)] px-3 py-2 outline-none border ${ctaUrls[i]?.trim() ? "border-[var(--border-faint)]" : "border-[var(--warning)]"}`}
+                    className={`mt-2 w-full text-[13px] bg-[var(--surface-elevated)] rounded-[var(--r-sm)] px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] border ${ctaUrls[i]?.trim() ? "border-[var(--border-faint)]" : "border-[var(--warning)]"}`}
                   />
                   {!ctaUrls[i]?.trim() && (
                     <div className="text-[11px] text-[color:var(--text-muted)] mt-1">No link yet — add your offer so this result doesn&apos;t dead-end.</div>

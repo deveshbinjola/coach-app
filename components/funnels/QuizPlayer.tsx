@@ -315,7 +315,7 @@ export default function QuizPlayer({ funnelId, config }: Props) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="First name (optional)"
-                  className="w-full px-4 py-3 rounded-xl text-base font-medium outline-none transition"
+                  className="w-full px-4 py-3 rounded-xl text-base font-medium outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] transition"
                   style={{ backgroundColor: inputBg, border: `2px solid ${inputBorder}`, color: textColor }}
                 />
                 <input
@@ -323,7 +323,7 @@ export default function QuizPlayer({ funnelId, config }: Props) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Your email"
-                  className="w-full px-4 py-3 rounded-xl text-base font-medium outline-none transition"
+                  className="w-full px-4 py-3 rounded-xl text-base font-medium outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] transition"
                   style={{ backgroundColor: inputBg, border: `2px solid ${inputBorder}`, color: textColor }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && email.trim()) handleSubmit(false);

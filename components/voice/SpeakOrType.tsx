@@ -34,7 +34,7 @@ export default function SpeakOrType({
         placeholder={placeholder}
         disabled={disabled}
         rows={minRows}
-        className="w-full bg-transparent resize-none outline-none px-4 pt-4 pb-1 text-[15px] leading-relaxed text-[color:var(--text)] placeholder:text-[color:var(--text-faint)]"
+        className="w-full bg-transparent resize-none outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] px-4 pt-4 pb-1 text-[15px] leading-relaxed text-[color:var(--text)] placeholder:text-[color:var(--text-faint)]"
       />
       <div className="flex items-center justify-between px-3 pb-3 pt-1">
         <span className="inline-flex items-center gap-2 text-[length:var(--t-caption)] text-[color:var(--text-muted)] font-semibold">

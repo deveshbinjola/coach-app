@@ -153,7 +153,7 @@ export default function NewSessionForm({ clients }: Props) {
           value={rawNotes}
           onChange={(e) => setRawNotes(e.target.value)}
           rows={14}
-          className="w-full p-5 bg-transparent text-[length:var(--t-body)] text-[color:var(--text)] leading-relaxed outline-none resize-none placeholder:text-[color:var(--text-muted)]"
+          className="w-full p-5 bg-transparent text-[length:var(--t-body)] text-[color:var(--text)] leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] resize-none placeholder:text-[color:var(--text-muted)]"
           placeholder="What happened in the session?
 
 What did you notice in their body? Where was the energy?
@@ -178,7 +178,7 @@ Write freely. The AI will find the structure."
               value={transcript}
               onChange={(e) => setTranscript(e.target.value)}
               rows={8}
-              className="w-full p-5 bg-transparent text-[length:var(--t-body)] text-[color:var(--text-muted)] leading-relaxed outline-none resize-none font-mono text-sm placeholder:text-[color:var(--text-muted)]"
+              className="w-full p-5 bg-transparent text-[length:var(--t-body)] text-[color:var(--text-muted)] leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-elevated)] focus-visible:rounded-[var(--r-sm)] resize-none font-mono text-sm placeholder:text-[color:var(--text-muted)]"
               placeholder="Paste a Granola or Zoom transcript here..."
             />
           </Card>
