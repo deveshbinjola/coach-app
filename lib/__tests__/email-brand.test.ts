@@ -48,13 +48,16 @@ describe("transactional email branding", () => {
 
 describe("the failing greys", () => {
   // #9CA3AF and #9A9A95 both measure about 2.4-2.8:1 on the warm paper. They
-  // were the app token, the /meet and /login tokens, the /win scorecard, the
-  // share card PNG and four email templates. Fixed in every one; pinned here
-  // because a single paste brings them back and nothing else would fail.
+  // were the app token, the /meet and /login tokens, the share card PNG and
+  // four email templates. Fixed in every one; pinned here because a single
+  // paste brings them back and nothing else would fail.
+  //
+  // app/win/ScorecardClient.tsx has the same fix applied on disk but is not
+  // tracked yet (another session's feature), so it cannot be asserted here.
   const FAILING = ["#9CA3" + "AF", "#9A9A" + "95"];
   const SURFACES = [
     "app/globals.css", "app/meet/meet.css", "app/login/login.css",
-    "app/win/ScorecardClient.tsx", "lib/share-card.ts",
+    "lib/share-card.ts",
     "lib/email/daily-brief.ts", "lib/email/archetype-result.ts",
     "app/api/cron/brand-os-digest/route.ts",
   ];
