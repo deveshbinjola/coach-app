@@ -289,7 +289,7 @@ export default function FrameworkGenerator({
           </div>
 
           {genError && (
-            <p className="text-[length:var(--t-caption)] text-red-600 font-medium">
+            <p className="text-[length:var(--t-caption)] text-[color:var(--danger)] font-medium">
               {genError}
             </p>
           )}
@@ -517,7 +517,7 @@ export default function FrameworkGenerator({
           </div>
 
           {saveError && (
-            <p className="text-[length:var(--t-caption)] text-red-600 font-medium">
+            <p className="text-[length:var(--t-caption)] text-[color:var(--danger)] font-medium">
               {saveError}
             </p>
           )}

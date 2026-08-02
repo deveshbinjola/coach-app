@@ -20,7 +20,7 @@ export default function BrandOsIntegrationPanel() {
           <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">
             Brand OS handoff
           </h2>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-[color:var(--text-muted)]">
             Technical import path for Brand OS Agent. Keep this here so normal
             coaches do not see endpoint language on the Voice page.
           </p>

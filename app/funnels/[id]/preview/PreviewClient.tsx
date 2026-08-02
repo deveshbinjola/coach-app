@@ -44,7 +44,7 @@ export default function PreviewClient({ funnelId, config, title, published, slug
   return (
     <div className="relative">
       {/* Preview banner */}
-      <div className="sticky top-0 z-50 bg-amber-500 text-amber-950">
+      <div className="sticky top-0 z-50 bg-[var(--warning)] text-[color:var(--warning)]">
         <div className="max-w-5xl mx-auto px-4 h-10 flex items-center justify-between text-xs font-bold">
           <div className="flex items-center gap-3">
             <button

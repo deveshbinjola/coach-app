@@ -51,12 +51,24 @@
      grays so any leftover usage doesn't blow up — but visually they
      read as quiet muted accents instead of yellow/blue noise. The only
      real semantic colors left are brand (good) and danger (bad). */
-  --success:           #00CC34;
-  --success-soft:      rgba(0, 204, 52, 0.10);
-  --warning:           #5A5A6E;          /* aliased to text-muted (was #D97706) */
-  --warning-soft:      #F0EDE4;          /* aliased to surface-deep (was #FFF3D6) */
+  /* #00CC34 measured 2.04:1 on paper and was used as TEXT in 13 places, so
+     every success message and badge failed WCAG badly. The comment above
+     already says brand is the "good" colour; the bright green contradicted
+     it. Now they agree, and it reads at 6.05:1. */
+  --success:           #0B6E23;
+  --success-soft:      rgba(11, 110, 35, 0.10);
+  /* Un-aliased. It pointed at text-muted so warnings were indistinguishable
+     from ordinary captions, which is why .tag-warm below had hardcoded
+     #936300 to escape it, and why 34 amber-* classes were scattered through
+     components bypassing the token entirely. This is that same ochre, warm
+     enough for the paper system and quiet enough not to be Bootstrap yellow.
+     4.92:1 on paper. */
+  --warning:           #936300;
+  --warning-soft:      #FDF5E6;
+  --warning-border:    #E5CFA0;
   --danger:            #DC2626;
   --danger-soft:       #FEE2E2;
+  --danger-border:     #F0B4B4;
   /* --info un-aliased so the InsightQueue's Investigate lane is visually
      distinct from Ignore. Restrained navy-blue, not a bright UI blue, so
      it still reads as "this app", not "Bootstrap alert." */
@@ -273,7 +285,7 @@ body {
   border: 1px solid var(--border-faint);
 }
 .tag-hot   { background: var(--danger-soft);  color: #B42318; border-color: rgba(180,35,24,0.18); }
-.tag-warm  { background: var(--warning-soft); color: #936300; border-color: rgba(147,99,0,0.18); }
+.tag-warm  { background: var(--warning-soft); color: var(--warning); border-color: var(--warning-border); }
 .tag-cold  { background: var(--info-soft);    color: var(--info); border-color: rgba(25,87,176,0.18); }
 
 /* =====================================================================

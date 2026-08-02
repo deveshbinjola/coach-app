@@ -216,7 +216,7 @@ export default function VoiceDiscovery({ audience }: { audience: string }) {
       {/* Controls */}
       <div className="border-t border-[var(--border)] p-4">
         {error && (
-          <p className="text-red-600 text-[length:var(--t-caption)] mb-3 text-center">{error}</p>
+          <p className="text-[color:var(--danger)] text-[length:var(--t-caption)] mb-3 text-center">{error}</p>
         )}
 
         <div className="flex items-center justify-center gap-4">
@@ -227,9 +227,9 @@ export default function VoiceDiscovery({ audience }: { audience: string }) {
             className={`
               inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-[length:var(--t-body)] transition
               ${state === "recording"
-                ? "bg-red-500 text-white animate-pulse"
+                ? "bg-[var(--danger)] text-white animate-pulse"
                 : state === "speaking"
-                  ? "bg-orange-500 text-white"
+                  ? "bg-[var(--warning)] text-white"
                   : "bg-[var(--brand)] text-[color:var(--surface)] hover:opacity-90"
               }
               disabled:opacity-50 disabled:cursor-not-allowed

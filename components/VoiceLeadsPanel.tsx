@@ -256,7 +256,7 @@ export default function VoiceLeadsPanel() {
         <h2 className="text-xl font-extrabold">
           {savedCount} {savedCount === 1 ? "lead" : "leads"} saved.
         </h2>
-        <p className="text-sm text-gray-600 mt-2">
+        <p className="text-sm text-[color:var(--text-muted)] mt-2">
           Opening Compose with these leads selected. Draft the next real
           message while the context is fresh.
         </p>
@@ -431,7 +431,7 @@ export default function VoiceLeadsPanel() {
             <div className="text-[10px] uppercase tracking-widest font-extrabold text-brand-strong">
               ✨ {leads.length} {leads.length === 1 ? "lead" : "leads"} parsed
             </div>
-            <p className="text-sm text-gray-700 mt-1">
+            <p className="text-sm text-[color:var(--text-muted)] mt-1">
               Review and edit each one. Save All when ready - auto-drafts fire
               per lead. Discard to start over.
             </p>
@@ -456,7 +456,7 @@ export default function VoiceLeadsPanel() {
               type="button"
               onClick={saveAll}
               disabled={saving || leads.length === 0}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[var(--r-md)] bg-brand text-navy font-extrabold text-sm hover:bg-[#00E03A] transition disabled:opacity-50"
             >
               {saving
                 ? "Saving..."
@@ -469,7 +469,7 @@ export default function VoiceLeadsPanel() {
                 setError(null);
               }}
               disabled={saving}
-              className="text-xs font-semibold text-gray-700 hover:text-navy underline decoration-dotted underline-offset-4 disabled:opacity-50"
+              className="text-xs font-semibold text-[color:var(--text-muted)] hover:text-navy underline decoration-dotted underline-offset-4 disabled:opacity-50"
             >
               Discard and try again
             </button>
@@ -478,8 +478,8 @@ export default function VoiceLeadsPanel() {
       )}
 
       {error && (
-        <div className="card p-4 border-red-300 bg-red-50">
-          <p className="text-sm text-red-800">{error}</p>
+        <div className="card p-4 border-[var(--danger-border)] bg-[var(--danger-soft)]">
+          <p className="text-sm text-[color:var(--danger)]">{error}</p>
         </div>
       )}
     </div>
@@ -515,13 +515,13 @@ function LeadCard({
             value={lead.full_name}
             onChange={(e) => onUpdate({ full_name: e.target.value })}
             placeholder="Full name"
-            className="font-bold text-base bg-transparent border-b border-gray-200 focus:outline-none focus:border-brand px-1 py-0.5 min-w-[200px]"
+            className="font-bold text-base bg-transparent border-b border-[var(--border)] focus:outline-none focus:border-brand px-1 py-0.5 min-w-[200px]"
           />
         </div>
         <button
           type="button"
           onClick={onRemove}
-          className="text-xs font-semibold text-gray-500 hover:text-red-700 transition"
+          className="text-xs font-semibold text-[color:var(--text-faint)] hover:text-[color:var(--danger)] transition"
           aria-label={`Remove ${lead.full_name}`}
         >
           Remove
@@ -530,7 +530,7 @@ function LeadCard({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
         <div>
-          <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">
+          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
             Email
           </label>
           <input
@@ -538,17 +538,17 @@ function LeadCard({
             value={lead.email ?? ""}
             onChange={(e) => onUpdate({ email: e.target.value || null })}
             placeholder="optional"
-            className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-brand"
+            className="w-full p-2 rounded border border-[var(--border)] text-sm focus:outline-none focus:border-brand"
           />
         </div>
         <div>
-          <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">
+          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
             Source
           </label>
           <select
             value={lead.source}
             onChange={(e) => onUpdate({ source: e.target.value as LeadSource })}
-            className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-brand font-medium"
+            className="w-full p-2 rounded border border-[var(--border)] text-sm focus:outline-none focus:border-brand font-medium"
           >
             {SOURCES.map((s) => (
               <option key={s} value={s}>
@@ -558,7 +558,7 @@ function LeadCard({
           </select>
         </div>
         <div>
-          <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">
+          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
             Source detail
           </label>
           <input
@@ -568,11 +568,11 @@ function LeadCard({
               onUpdate({ source_detail: e.target.value || null })
             }
             placeholder="e.g. AMLT retreat, IG quiz"
-            className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-brand"
+            className="w-full p-2 rounded border border-[var(--border)] text-sm focus:outline-none focus:border-brand"
           />
         </div>
         <div>
-          <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">
+          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
             Warmth
           </label>
           <select
@@ -580,7 +580,7 @@ function LeadCard({
             onChange={(e) =>
               onUpdate({ temperature: e.target.value as LeadTemperature })
             }
-            className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-brand font-medium"
+            className="w-full p-2 rounded border border-[var(--border)] text-sm focus:outline-none focus:border-brand font-medium"
           >
             {LEAD_TEMPERATURES.map((t) => (
               <option key={t} value={t}>
@@ -592,7 +592,7 @@ function LeadCard({
       </div>
 
       <div className="mb-3">
-        <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1.5">
+        <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1.5">
           Pain signals (click to toggle)
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -605,8 +605,8 @@ function LeadCard({
                 onClick={() => onTogglePain(p)}
                 className={`text-[11px] px-2 py-1 rounded border font-semibold transition ${
                   active
-                    ? "bg-amber-100 text-amber-900 border-amber-300"
-                    : "bg-white text-gray-500 border-gray-200 hover:border-amber-300 hover:text-amber-800"
+                    ? "bg-[var(--warning-soft)] text-[color:var(--warning)] border-[var(--warning-border)]"
+                    : "bg-[var(--surface-elevated)] text-[color:var(--text-faint)] border-[var(--border)] hover:border-[var(--warning-border)] hover:text-[color:var(--warning)]"
                 }`}
               >
                 {active && "✓ "}
@@ -618,14 +618,14 @@ function LeadCard({
       </div>
 
       <div>
-        <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">
+        <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
           Notes
         </label>
         <textarea
           value={lead.notes}
           onChange={(e) => onUpdate({ notes: e.target.value })}
           rows={2}
-          className="w-full p-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-brand leading-relaxed"
+          className="w-full p-2 rounded border border-[var(--border)] text-sm focus:outline-none focus:border-brand leading-relaxed"
         />
       </div>
     </div>

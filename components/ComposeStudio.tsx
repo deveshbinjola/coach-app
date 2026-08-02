@@ -483,7 +483,7 @@ export default function ComposeStudio({
                 className={`px-3 py-1.5 rounded-full border transition ${
                   discoveryFilter === d
                     ? "bg-navy text-white border-navy font-semibold"
-                    : "bg-white text-gray-800 border-gray-300 hover:border-gray-500"
+                    : "bg-[var(--surface-elevated)] text-[color:var(--text)] border-[var(--border)] hover:border-[var(--border-strong)]"
                 }`}
               >
                 {d === "any" ? "Any" : d === "yes" ? "Completed" : "Not yet"}
@@ -721,7 +721,7 @@ function Metric({ label, value }: { label: string; value: string }) {
 function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mt-4 first:mt-0">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-faint)] mb-1.5">
         {label}
       </div>
       {children}
@@ -744,7 +744,7 @@ function Chip({
       className={`text-[11px] px-2.5 py-1 rounded-full border transition ${
         active
           ? "bg-navy text-white border-navy font-semibold"
-          : "bg-white text-gray-800 border-gray-300 hover:border-gray-500"
+          : "bg-[var(--surface-elevated)] text-[color:var(--text)] border-[var(--border)] hover:border-[var(--border-strong)]"
       }`}
     >
       {label}

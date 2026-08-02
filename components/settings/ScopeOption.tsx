@@ -17,10 +17,10 @@ export default function ScopeOption({ active, onClick, title, hint }: Props) {
     <button
       type="button"
       onClick={onClick}
-      className={`text-left p-3 rounded-lg border-2 transition ${
+      className={`text-left p-3 rounded-[var(--r-md)] border-2 transition ${
         active
           ? "border-brand bg-[#F0FFF4]"
-          : "border-gray-200 bg-white hover:border-gray-400"
+          : "border-[var(--border)] bg-[var(--surface-elevated)] hover:border-[var(--border-strong)]"
       }`}
     >
       <div className="flex items-center gap-2 mb-1">
@@ -28,12 +28,12 @@ export default function ScopeOption({ active, onClick, title, hint }: Props) {
           className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${
             active
               ? "border-brand bg-brand"
-              : "border-gray-300 bg-white"
+              : "border-[var(--border)] bg-[var(--surface-elevated)]"
           }`}
         />
         <span className="text-sm font-bold text-navy">{title}</span>
       </div>
-      <p className="text-[11px] text-gray-600 leading-relaxed pl-6">{hint}</p>
+      <p className="text-[11px] text-[color:var(--text-muted)] leading-relaxed pl-6">{hint}</p>
     </button>
   );
 }

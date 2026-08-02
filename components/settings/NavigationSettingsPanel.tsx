@@ -71,7 +71,7 @@ export default function NavigationSettingsPanel({ showAll: initialShowAll, hasLe
           }`}
         >
           <span
-            className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform ${
+            className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-[var(--surface-elevated)] shadow ring-0 transition-transform ${
               showAll ? "translate-x-5" : "translate-x-0"
             }`}
           />

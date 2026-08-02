@@ -121,7 +121,7 @@ export default function WebhooksPanel() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="min-w-0 flex-1">
           <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Inbound webhooks</h2>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-[color:var(--text-muted)]">
             Per-source URLs you can paste into Tally, Typeform, Calendly, or
             anything that POSTs JSON. Leads flow in automatically. The
             Auto-Response Engine drafts a first-touch reply for each.
@@ -135,9 +135,9 @@ export default function WebhooksPanel() {
       </div>
 
       {showCreate && (
-        <div className="mt-4 p-4 rounded-lg bg-surface border border-gray-200 space-y-3">
+        <div className="mt-4 p-4 rounded-[var(--r-md)] bg-surface border border-[var(--border)] space-y-3">
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">
+            <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
               Name (helps you tell endpoints apart)
             </label>
             <input
@@ -146,18 +146,18 @@ export default function WebhooksPanel() {
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Tally — Newsletter signup"
               maxLength={100}
-              className="w-full p-2 rounded border border-gray-300 text-sm focus:outline-none focus:border-brand"
+              className="w-full p-2 rounded border border-[var(--border)] text-sm focus:outline-none focus:border-brand"
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">
+              <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
                 Default source
               </label>
               <select
                 value={newSource}
                 onChange={(e) => setNewSource(e.target.value as LeadSource)}
-                className="w-full p-2 rounded border border-gray-300 text-sm font-medium focus:outline-none focus:border-brand"
+                className="w-full p-2 rounded border border-[var(--border)] text-sm font-medium focus:outline-none focus:border-brand"
               >
                 {WEBHOOK_SOURCES.map((s) => (
                   <option key={s} value={s}>
@@ -167,7 +167,7 @@ export default function WebhooksPanel() {
               </select>
             </div>
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">
+              <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
                 Default source detail (optional)
               </label>
               <input
@@ -176,7 +176,7 @@ export default function WebhooksPanel() {
                 onChange={(e) => setNewDetail(e.target.value)}
                 placeholder="IG quiz — weekly insight"
                 maxLength={200}
-                className="w-full p-2 rounded border border-gray-300 text-sm focus:outline-none focus:border-brand"
+                className="w-full p-2 rounded border border-[var(--border)] text-sm focus:outline-none focus:border-brand"
               />
             </div>
           </div>
@@ -199,11 +199,11 @@ export default function WebhooksPanel() {
       )}
 
       {revealedToken && (
-        <div className="mt-4 p-4 rounded-lg border-2 border-brand bg-[#F0FFF4]">
+        <div className="mt-4 p-4 rounded-[var(--r-md)] border-2 border-brand bg-[#F0FFF4]">
           <p className="text-sm font-extrabold text-navy">
             ✓ Webhook URL ready. Paste this anywhere that POSTs JSON:
           </p>
-          <div className="mt-2 p-3 rounded bg-white border border-gray-200 font-mono text-xs break-all select-all">
+          <div className="mt-2 p-3 rounded bg-[var(--surface-elevated)] border border-[var(--border)] font-mono text-xs break-all select-all">
             {urlFor(revealedToken)}
           </div>
           <div className="mt-2 flex gap-2 flex-wrap">
@@ -224,7 +224,7 @@ export default function WebhooksPanel() {
       )}
 
       {error && (
-        <div className="mt-3 p-3 rounded bg-red-50 border border-red-200 text-sm text-red-800">
+        <div className="mt-3 p-3 rounded bg-[var(--danger-soft)] border border-[var(--danger-border)] text-sm text-[color:var(--danger)]">
           {error}
         </div>
       )}
@@ -233,12 +233,12 @@ export default function WebhooksPanel() {
         {loading ? (
           <SkeletonText lines={2} />
         ) : !endpoints || endpoints.length === 0 ? (
-          <p className="text-xs text-gray-500 italic">
+          <p className="text-xs text-[color:var(--text-faint)] italic">
             No webhook URLs yet. Generate one to start piping leads in from
             external tools.
           </p>
         ) : (
-          <ul className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden">
+          <ul className="divide-y divide-[var(--border-faint)] border border-[var(--border)] rounded-[var(--r-md)] overflow-hidden">
             {endpoints.map((e) => (
               <li
                 key={e.id}
@@ -265,10 +265,10 @@ export default function WebhooksPanel() {
                         : ""}
                     </Badge>
                   </div>
-                  <div className="text-[11px] text-gray-500 mt-0.5 font-mono break-all">
+                  <div className="text-[11px] text-[color:var(--text-faint)] mt-0.5 font-mono break-all">
                     {urlFor(e.token)}
                   </div>
-                  <div className="text-[11px] text-gray-500 mt-0.5">
+                  <div className="text-[11px] text-[color:var(--text-faint)] mt-0.5">
                     {e.total_received} received
                     {e.last_used_at
                       ? ` · last used ${ago(e.last_used_at)}`
@@ -302,11 +302,11 @@ export default function WebhooksPanel() {
       </div>
 
       {endpoints && endpoints.length > 0 && (
-        <p className="text-[11px] text-gray-500 mt-3 leading-relaxed">
-          POST any JSON to a webhook URL. We extract <code className="px-1 bg-gray-100 rounded">full_name</code>,{" "}
-          <code className="px-1 bg-gray-100 rounded">email</code>,{" "}
-          <code className="px-1 bg-gray-100 rounded">phone</code>, and{" "}
-          <code className="px-1 bg-gray-100 rounded">notes</code> from common
+        <p className="text-[11px] text-[color:var(--text-faint)] mt-3 leading-relaxed">
+          POST any JSON to a webhook URL. We extract <code className="px-1 bg-[var(--surface-deep)] rounded">full_name</code>,{" "}
+          <code className="px-1 bg-[var(--surface-deep)] rounded">email</code>,{" "}
+          <code className="px-1 bg-[var(--surface-deep)] rounded">phone</code>, and{" "}
+          <code className="px-1 bg-[var(--surface-deep)] rounded">notes</code> from common
           field name patterns. Tally and Typeform structures are detected
           automatically. Anything we can't parse goes into notes so nothing
           is lost.

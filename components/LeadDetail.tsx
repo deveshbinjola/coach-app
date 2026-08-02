@@ -487,12 +487,12 @@ export default function LeadDetail({
 
         <div className="mt-4 space-y-3 text-sm">
           <div>
-            <label className="block text-xs uppercase font-semibold text-gray-500 mb-1">Status</label>
+            <label className="block text-xs uppercase font-semibold text-[color:var(--text-faint)] mb-1">Status</label>
             <select
               id="status-select"
               value={status}
               onChange={(e) => changeStatus(e.target.value as LeadStatus)}
-              className="w-full p-2 border border-gray-300 rounded-lg"
+              className="w-full p-2 border border-[var(--border)] rounded-[var(--r-md)]"
             >
               {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -506,23 +506,23 @@ export default function LeadDetail({
             </a>
           )}
           <div>
-            <span className="text-xs uppercase font-semibold text-gray-500">Warmth</span>
+            <span className="text-xs uppercase font-semibold text-[color:var(--text-faint)]">Warmth</span>
             <p className="font-semibold">{TEMPERATURE_LABEL[lead.temperature] ?? lead.temperature}</p>
           </div>
           {lead.next_honest_action && (
             <div>
-              <span className="text-xs uppercase font-semibold text-gray-500">Next Honest Action</span>
+              <span className="text-xs uppercase font-semibold text-[color:var(--text-faint)]">Next Honest Action</span>
               <p className="font-semibold">{NEXT_ACTION_LABEL[lead.next_honest_action]}</p>
             </div>
           )}
           {lead.pain_signal?.length > 0 && (
             <div>
-              <span className="text-xs uppercase font-semibold text-gray-500">Pain Signal</span>
+              <span className="text-xs uppercase font-semibold text-[color:var(--text-faint)]">Pain Signal</span>
               <div className="flex flex-wrap gap-1 mt-1">
                 {lead.pain_signal.map((p) => (
                   <span
                     key={p}
-                    className="text-[11px] bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded"
+                    className="text-[11px] bg-[var(--warning-soft)] text-[color:var(--warning)] border border-[var(--warning-border)] px-2 py-0.5 rounded"
                   >
                     {PAIN_SIGNAL_LABEL[p as PainSignal] ?? p}
                   </span>
@@ -531,19 +531,19 @@ export default function LeadDetail({
             </div>
           )}
           <div>
-            <span className="text-xs uppercase font-semibold text-gray-500">Discovery Call</span>
-            <p className={`font-semibold ${lead.discovery_call_completed ? "text-green-700" : "text-gray-500"}`}>
+            <span className="text-xs uppercase font-semibold text-[color:var(--text-faint)]">Discovery Call</span>
+            <p className={`font-semibold ${lead.discovery_call_completed ? "text-[color:var(--success)]" : "text-[color:var(--text-faint)]"}`}>
               {lead.discovery_call_completed ? "✓ Completed" : "Not yet"}
             </p>
           </div>
           <div>
-            <span className="text-xs uppercase font-semibold text-gray-500">Source</span>
+            <span className="text-xs uppercase font-semibold text-[color:var(--text-faint)]">Source</span>
             <p>{lead.source}</p>
             {lead.source_detail && (
-              <p className="text-xs text-gray-600 italic mt-0.5">{lead.source_detail}</p>
+              <p className="text-xs text-[color:var(--text-muted)] italic mt-0.5">{lead.source_detail}</p>
             )}
             {lead.source_url && (
-              <a href={lead.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-green-700 hover:underline mt-0.5 block truncate max-w-[280px]" title={lead.source_url}>
+              <a href={lead.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-[color:var(--success)] hover:underline mt-0.5 block truncate max-w-[280px]" title={lead.source_url}>
                 {lead.source_url}
               </a>
             )}
@@ -552,7 +552,7 @@ export default function LeadDetail({
           {/* Referral chain — upstream: who sent them. */}
           {referrer && (
             <div>
-              <span className="text-xs uppercase font-semibold text-gray-500">Referred by</span>
+              <span className="text-xs uppercase font-semibold text-[color:var(--text-faint)]">Referred by</span>
               <a
                 href={`/leads/${referrer.id}`}
                 className="block font-semibold hover:underline"
@@ -560,7 +560,7 @@ export default function LeadDetail({
               >
                 {referrer.full_name}
                 {referrer.status === "client" && (
-                  <span className="ml-1.5 text-[10px] font-bold uppercase text-amber-700">★ client</span>
+                  <span className="ml-1.5 text-[10px] font-bold uppercase text-[color:var(--warning)]">★ client</span>
                 )}
               </a>
             </div>
@@ -571,7 +571,7 @@ export default function LeadDetail({
               as a trust signal + prompt for the coach to ask for more intros. */}
           {referrals && referrals.length > 0 && (
             <div>
-              <span className="text-xs uppercase font-semibold text-gray-500">
+              <span className="text-xs uppercase font-semibold text-[color:var(--text-faint)]">
                 Referrals from {lead.full_name.split(" ")[0]} ({referrals.length})
               </span>
               <div className="mt-1 space-y-0.5">
@@ -583,7 +583,7 @@ export default function LeadDetail({
                     style={{ color: "#00A12E" }}
                   >
                     → {r.full_name}
-                    <span className="ml-1 text-[11px] text-gray-500">({r.status})</span>
+                    <span className="ml-1 text-[11px] text-[color:var(--text-faint)]">({r.status})</span>
                   </a>
                 ))}
               </div>
@@ -592,7 +592,7 @@ export default function LeadDetail({
 
           {(currentLead.tags ?? []).filter((tag) => !tag.startsWith("memory:")).length > 0 && (
             <div>
-              <span className="text-xs uppercase font-semibold text-gray-500">Tags</span>
+              <span className="text-xs uppercase font-semibold text-[color:var(--text-faint)]">Tags</span>
               <div className="flex flex-wrap gap-1 mt-1">
                 {(currentLead.tags ?? [])
                   .filter((tag) => !tag.startsWith("memory:"))
@@ -602,7 +602,7 @@ export default function LeadDetail({
           )}
           {lead.notes && (
             <div>
-              <span className="text-xs uppercase font-semibold text-gray-500">Notes</span>
+              <span className="text-xs uppercase font-semibold text-[color:var(--text-faint)]">Notes</span>
               <p className="text-sm whitespace-pre-wrap">{lead.notes}</p>
             </div>
           )}

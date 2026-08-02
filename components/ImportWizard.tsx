@@ -642,9 +642,9 @@ export default function ImportWizard({ embedded = false }: { embedded?: boolean 
     <div className={embedded ? "" : "max-w-3xl mx-auto p-6"}>
       {!embedded && (
         <>
-          <a href="/inbox" className="text-sm text-gray-600 hover:underline">Back to Inbox</a>
+          <a href="/inbox" className="text-sm text-[color:var(--text-muted)] hover:underline">Back to Inbox</a>
           <h1 className="text-2xl font-extrabold mt-2 mb-1">Import Leads</h1>
-          <p className="text-sm text-gray-600 mb-6">
+          <p className="text-sm text-[color:var(--text-muted)] mb-6">
             CSV, Excel, PDF, or a public Google Sheet. All columns are mappable.
           </p>
         </>
@@ -653,7 +653,7 @@ export default function ImportWizard({ embedded = false }: { embedded?: boolean 
       <StepBar step={step} />
 
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-800">
+        <div className="mb-4 p-3 rounded-[var(--r-md)] bg-[var(--danger-soft)] border border-[var(--danger-border)] text-sm text-[color:var(--danger)]">
           {error}
         </div>
       )}
@@ -719,13 +719,13 @@ function StepBar({ step }: { step: Step }) {
         <div key={s.key} className="flex items-center gap-2">
           <div
             className={`w-6 h-6 rounded-full flex items-center justify-center ${
-              i <= currentIdx ? "bg-brand text-navy" : "bg-gray-200 text-gray-500"
+              i <= currentIdx ? "bg-brand text-navy" : "bg-[var(--border)] text-[color:var(--text-faint)]"
             }`}
           >
             {i + 1}
           </div>
-          <span className={i <= currentIdx ? "text-navy" : "text-gray-500"}>{s.label}</span>
-          {i < steps.length - 1 && <span className="text-gray-400">→</span>}
+          <span className={i <= currentIdx ? "text-navy" : "text-[color:var(--text-faint)]"}>{s.label}</span>
+          {i < steps.length - 1 && <span className="text-[color:var(--text-faint)]">→</span>}
         </div>
       ))}
     </div>
@@ -758,12 +758,12 @@ function UploadStep({
           if (f) onFile(f);
         }}
         className={`card p-10 text-center border-2 border-dashed ${
-          dragOver ? "border-brand bg-green-50" : "border-gray-300"
+          dragOver ? "border-brand bg-[var(--success-soft)]" : "border-[var(--border)]"
         }`}
       >
         <div className="text-4xl mb-2">📤</div>
         <h2 className="text-lg font-bold mb-1">Drop a CSV, Excel, or PDF</h2>
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-[color:var(--text-muted)] mb-4">
           .csv, .xlsx, .xls, or <strong>.pdf</strong> (tables auto-detected; profile sheets become one row per page)
         </p>
         <label className="btn-primary inline-block cursor-pointer">
@@ -781,11 +781,11 @@ function UploadStep({
         </label>
       </div>
 
-      <div className="text-center text-sm text-gray-500">— or —</div>
+      <div className="text-center text-sm text-[color:var(--text-faint)]">— or —</div>
 
       <div className="card p-6">
         <h3 className="font-bold mb-1">Import from Google Sheets</h3>
-        <p className="text-sm text-gray-600 mb-3">
+        <p className="text-sm text-[color:var(--text-muted)] mb-3">
           In your sheet: <strong>Share → General access → Anyone with the link → Viewer</strong>. Then paste the URL below.
         </p>
         <div className="flex gap-2">
@@ -794,13 +794,13 @@ function UploadStep({
             placeholder="https://docs.google.com/spreadsheets/d/..."
             value={gsheetUrl}
             onChange={(e) => setGsheetUrl(e.target.value)}
-            className="flex-1 p-2 border border-gray-300 rounded-lg text-sm"
+            className="flex-1 p-2 border border-[var(--border)] rounded-[var(--r-md)] text-sm"
           />
           <button onClick={onGsheet} disabled={loading || !gsheetUrl.trim()} className="btn-primary">
             {loading ? "Loading..." : "Load Sheet"}
           </button>
         </div>
-        <p className="text-xs text-gray-500 mt-2">
+        <p className="text-xs text-[color:var(--text-faint)] mt-2">
           Reads the first tab. The sheet must be public-readable for now. Private sheets (OAuth) coming later.
         </p>
       </div>
@@ -844,7 +844,7 @@ function MapStep({
             <div key={f.key} className="flex items-center gap-3">
               <label className="w-56 text-sm font-semibold">
                 {f.label}
-                {f.required && <span className="text-red-600"> *</span>}
+                {f.required && <span className="text-[color:var(--danger)]"> *</span>}
               </label>
               <select
                 value={mapping[f.key] ?? ""}
@@ -852,7 +852,7 @@ function MapStep({
                   const v = e.target.value;
                   setMapping({ ...mapping, [f.key]: v || undefined });
                 }}
-                className="flex-1 p-2 border border-gray-300 rounded-lg text-sm"
+                className="flex-1 p-2 border border-[var(--border)] rounded-[var(--r-md)] text-sm"
               >
                 <option value="">— Skip —</option>
                 {columns.map((c) => (
@@ -868,7 +868,7 @@ function MapStep({
         <h3 className="font-bold mb-3">Preview (first {previewRows.length} rows)</h3>
         <table className="text-xs w-full">
           <thead>
-            <tr className="border-b border-gray-200">
+            <tr className="border-b border-[var(--border)]">
               {columns.map((c) => (
                 <th key={c} className="text-left p-2 font-semibold">{c}</th>
               ))}
@@ -876,9 +876,9 @@ function MapStep({
           </thead>
           <tbody>
             {previewRows.map((r, i) => (
-              <tr key={i} className="border-b border-gray-100">
+              <tr key={i} className="border-b border-[var(--border-faint)]">
                 {columns.map((c) => (
-                  <td key={c} className="p-2 text-gray-700 truncate max-w-[200px]">{r[c]}</td>
+                  <td key={c} className="p-2 text-[color:var(--text-muted)] truncate max-w-[200px]">{r[c]}</td>
                 ))}
               </tr>
             ))}
@@ -887,12 +887,12 @@ function MapStep({
       </div>
 
       {!validation.ok && (
-        <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-900">
+        <div className="p-3 rounded-[var(--r-md)] bg-[var(--warning-soft)] border border-[var(--warning-border)] text-sm text-[color:var(--warning)]">
           {validation.msg}
         </div>
       )}
       {validation.ok && (validation.missingName ?? 0) > 0 && (
-        <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-900">
+        <div className="p-3 rounded-[var(--r-md)] bg-[var(--warning-soft)] border border-[var(--warning-border)] text-sm text-[color:var(--warning)]">
           Heads up — {validation.missingName} rows have no Full Name. They'll be skipped.
         </div>
       )}
@@ -934,16 +934,16 @@ function ReviewStep({
       <div className="card p-6">
         <h3 className="font-bold mb-3">Ready to import</h3>
         <dl className="grid grid-cols-2 gap-3 text-sm">
-          <dt className="text-gray-600">Total rows in source</dt>
+          <dt className="text-[color:var(--text-muted)]">Total rows in source</dt>
           <dd className="font-semibold">{rows.length}</dd>
-          <dt className="text-gray-600">Rows to import</dt>
+          <dt className="text-[color:var(--text-muted)]">Rows to import</dt>
           <dd className="font-semibold text-navy">{willImport}</dd>
-          <dt className="text-gray-600">Rows skipped (no name)</dt>
-          <dd className="font-semibold text-amber-700">{validation.missingName ?? 0}</dd>
-          <dt className="text-gray-600">Fields mapped</dt>
+          <dt className="text-[color:var(--text-muted)]">Rows skipped (no name)</dt>
+          <dd className="font-semibold text-[color:var(--warning)]">{validation.missingName ?? 0}</dd>
+          <dt className="text-[color:var(--text-muted)]">Fields mapped</dt>
           <dd className="font-semibold">{mapped} / {TARGET_FIELDS.length}</dd>
         </dl>
-        <p className="text-xs text-gray-500 mt-4">
+        <p className="text-xs text-[color:var(--text-faint)] mt-4">
           Duplicates (same email within this file) will be skipped. Leads default to status <code>new</code>,
           source <code>other</code>, temperature <code>warm</code> unless mapped.
         </p>
@@ -952,7 +952,7 @@ function ReviewStep({
       {diagnostics.length > 0 && <DiagnosticsPanel diagnostics={diagnostics} compact />}
 
       {totalUnmatched > 0 && (
-        <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-900">
+        <div className="p-3 rounded-[var(--r-md)] bg-[var(--warning-soft)] border border-[var(--warning-border)] text-sm text-[color:var(--warning)]">
           <strong>{totalUnmatched} values</strong> didn't match a known enum and will fall back to their default.
           Scroll up to see which column — if these should all be a specific value, go back and remap the column or clean up the source file.
         </div>
@@ -976,7 +976,7 @@ function DiagnosticsPanel({ diagnostics, compact = false }: { diagnostics: Field
   return (
     <div className="card p-6">
       <h3 className="font-bold mb-1">How your values will coerce</h3>
-      <p className="text-xs text-gray-500 mb-4">
+      <p className="text-xs text-[color:var(--text-faint)] mb-4">
         Each column is mapped to a fixed set of enum values. Anything that doesn't match falls back to the default.
       </p>
       <div className="space-y-4">
@@ -984,43 +984,43 @@ function DiagnosticsPanel({ diagnostics, compact = false }: { diagnostics: Field
           const distEntries = Object.entries(d.distribution).sort((a, b) => b[1] - a[1]);
           const hasUnmatched = d.unmatched > 0;
           return (
-            <div key={d.field} className={`rounded-lg border p-3 ${hasUnmatched ? "border-amber-300 bg-amber-50" : "border-gray-200"}`}>
+            <div key={d.field} className={`rounded-[var(--r-md)] border p-3 ${hasUnmatched ? "border-[var(--warning-border)] bg-[var(--warning-soft)]" : "border-[var(--border)]"}`}>
               <div className="flex items-baseline justify-between mb-2">
                 <div>
                   <span className="font-semibold">{d.label}</span>
-                  <span className="text-gray-500 text-xs ml-2">(from column “{d.column}”)</span>
+                  <span className="text-[color:var(--text-faint)] text-xs ml-2">(from column “{d.column}”)</span>
                 </div>
                 <div className="text-xs">
-                  <span className="text-green-700 font-semibold">{d.matched} matched</span>
-                  {hasUnmatched && <span className="text-amber-800 font-semibold ml-3">{d.unmatched} unmatched</span>}
-                  {d.empty > 0 && <span className="text-gray-500 ml-3">{d.empty} empty</span>}
+                  <span className="text-[color:var(--success)] font-semibold">{d.matched} matched</span>
+                  {hasUnmatched && <span className="text-[color:var(--warning)] font-semibold ml-3">{d.unmatched} unmatched</span>}
+                  {d.empty > 0 && <span className="text-[color:var(--text-faint)] ml-3">{d.empty} empty</span>}
                 </div>
               </div>
               {distEntries.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {distEntries.map(([val, count]) => (
-                    <span key={val} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-white border border-gray-200">
+                    <span key={val} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-[var(--surface-elevated)] border border-[var(--border)]">
                       <code className="font-semibold">{val}</code>
-                      <span className="text-gray-500">× {count}</span>
+                      <span className="text-[color:var(--text-faint)]">× {count}</span>
                     </span>
                   ))}
                 </div>
               )}
               {hasUnmatched && !compact && (
-                <div className="text-xs text-amber-900 mt-2">
+                <div className="text-xs text-[color:var(--warning)] mt-2">
                   <span className="font-semibold">Unmatched samples:</span>{" "}
                   {d.unmatchedSamples.map((s, i) => (
-                    <span key={i} className="inline-block px-1.5 py-0.5 rounded bg-white border border-amber-300 mr-1 mb-1">
+                    <span key={i} className="inline-block px-1.5 py-0.5 rounded bg-[var(--surface-elevated)] border border-[var(--warning-border)] mr-1 mb-1">
                       <code>{s || "(empty)"}</code>
                     </span>
                   ))}
-                  <div className="mt-1 text-gray-700">
+                  <div className="mt-1 text-[color:var(--text-muted)]">
                     These will default to the fallback for {d.label.toLowerCase()}. Go back and remap, or clean up the source file.
                   </div>
                 </div>
               )}
               {hasUnmatched && compact && (
-                <div className="text-xs text-amber-900 mt-1">
+                <div className="text-xs text-[color:var(--warning)] mt-1">
                   {d.unmatched} values unmatched — e.g. {d.unmatchedSamples.slice(0, 3).map((s) => `"${s}"`).join(", ")}
                   {d.unmatchedSamples.length > 3 ? "..." : ""}
                 </div>
@@ -1046,7 +1046,7 @@ function DoneStep({
     <div className="card p-10 text-center">
       <div className="text-5xl mb-3">✅</div>
       <h2 className="text-xl font-extrabold mb-2">Imported {inserted} leads</h2>
-      {skipped > 0 && <p className="text-sm text-gray-600 mb-4">{skipped} rows skipped (missing name or duplicate email).</p>}
+      {skipped > 0 && <p className="text-sm text-[color:var(--text-muted)] mb-4">{skipped} rows skipped (missing name or duplicate email).</p>}
       <button onClick={onViewInbox} className="btn-primary">Go to Inbox →</button>
     </div>
   );

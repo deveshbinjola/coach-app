@@ -379,12 +379,12 @@ function showScreen(name) {
               </p>
             </div>
             {!saved && (
-              <span className="shrink-0 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+              <span className="shrink-0 text-[10px] font-bold text-[color:var(--warning)] bg-[var(--warning-soft)] px-2 py-0.5 rounded-full">
                 Unsaved
               </span>
             )}
             {successMsg && (
-              <span className="shrink-0 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+              <span className="shrink-0 text-[10px] font-bold text-[color:var(--success)] bg-[var(--success-soft)] px-2 py-0.5 rounded-full">
                 {successMsg}
               </span>
             )}
@@ -459,7 +459,7 @@ function showScreen(name) {
       {/* ── Error banner ─────────────────────────────────── */}
       {error && (
         <div className="max-w-6xl mx-auto px-4 mt-4">
-          <div className="p-3 rounded-[var(--r-md)] bg-red-50 text-red-700 text-sm font-semibold border border-red-100">
+          <div className="p-3 rounded-[var(--r-md)] bg-[var(--danger-soft)] text-[color:var(--danger)] text-sm font-semibold border border-[var(--danger-border)]">
             {error}
           </div>
         </div>
@@ -646,10 +646,10 @@ function showScreen(name) {
                             }
                             className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[var(--surface-deep)] transition"
                           >
-                            <span className="shrink-0 w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <span className="shrink-0 w-7 h-7 rounded-lg bg-[var(--success-soft)] flex items-center justify-center">
                               <Sparkles
                                 size={14}
-                                className="text-emerald-600"
+                                className="text-[color:var(--success)]"
                               />
                             </span>
                             <div className="flex-1 min-w-0">
@@ -854,7 +854,7 @@ function showScreen(name) {
                     >
                       <span
                         className={[
-                          "absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform",
+                          "absolute top-0.5 w-5 h-5 rounded-full bg-[var(--surface-elevated)] shadow transition-transform",
                           published
                             ? "translate-x-[22px]"
                             : "translate-x-0.5",
@@ -875,9 +875,9 @@ function showScreen(name) {
                   {/* Browser chrome */}
                   <div className="px-3 py-2.5 bg-[var(--surface-deep)] border-b border-[var(--border-faint)] flex items-center gap-2">
                     <div className="flex gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-red-300" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-300" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-green-300" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-[var(--danger)]" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-[var(--warning)]" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-[var(--success)]" />
                     </div>
                     <div className="flex-1 mx-4 px-3 py-1 rounded-md bg-[var(--surface)] text-[10px] font-mono text-[color:var(--text-muted)] text-center truncate border border-[var(--border-faint)]">
                       yoursite.com/q/{slug}

@@ -41,10 +41,10 @@ export default function NumberField({
         max={max}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
-        className="w-24 px-3 py-2 rounded-lg border border-gray-300 text-center font-bold tabular-nums focus:outline-none focus:border-brand"
+        className="w-24 px-3 py-2 rounded-[var(--r-md)] border border-[var(--border)] text-center font-bold tabular-nums focus:outline-none focus:border-brand"
       />
       {suffix && (
-        <span className="text-sm text-gray-600 font-medium">{suffix}</span>
+        <span className="text-sm text-[color:var(--text-muted)] font-medium">{suffix}</span>
       )}
       <Button
         disabled={!dirty || saving}

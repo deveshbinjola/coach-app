@@ -107,7 +107,7 @@ export default function FitCard({ lead, onChange }: Props) {
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between">
-        <span className="text-xs uppercase font-semibold text-gray-500">Fit assessment</span>
+        <span className="text-xs uppercase font-semibold text-[color:var(--text-faint)]">Fit assessment</span>
         <span
           className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full border"
           style={bandStyle}
@@ -117,12 +117,12 @@ export default function FitCard({ lead, onChange }: Props) {
         </span>
       </div>
 
-      <p className="text-xs text-gray-600 italic mt-2">{FIT_BAND_TIP[fit.band]}</p>
+      <p className="text-xs text-[color:var(--text-muted)] italic mt-2">{FIT_BAND_TIP[fit.band]}</p>
 
       {fit.reasons.length > 0 && (
         <ul className="mt-2 space-y-0.5">
           {fit.reasons.map((r, i) => (
-            <li key={i} className="text-[11px] text-gray-600 flex items-start gap-1">
+            <li key={i} className="text-[11px] text-[color:var(--text-muted)] flex items-start gap-1">
               <span style={{ color: "#00A12E" }}>·</span>
               <span>{r}</span>
             </li>
@@ -133,14 +133,14 @@ export default function FitCard({ lead, onChange }: Props) {
       {/* Inline editors — save on change/blur, no submit button needed. */}
       <div className="mt-3 space-y-2">
         <div>
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-0.5">
+          <label className="block text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)] mb-0.5">
             Income band
-            {savingField === "income" && <span className="ml-1 text-[10px] normal-case text-gray-400">saving…</span>}
+            {savingField === "income" && <span className="ml-1 text-[10px] normal-case text-[color:var(--text-faint)]">saving…</span>}
           </label>
           <select
             value={income}
             onChange={(e) => handleIncomeChange(e.target.value)}
-            className="w-full p-1.5 border border-gray-300 rounded-lg text-sm"
+            className="w-full p-1.5 border border-[var(--border)] rounded-[var(--r-md)] text-sm"
           >
             <option value="">— not set —</option>
             {LEAD_INCOME_BANDS.map((b) => (
@@ -150,14 +150,14 @@ export default function FitCard({ lead, onChange }: Props) {
         </div>
 
         <div>
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-0.5">
+          <label className="block text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)] mb-0.5">
             Readiness
-            {savingField === "readiness" && <span className="ml-1 text-[10px] normal-case text-gray-400">saving…</span>}
+            {savingField === "readiness" && <span className="ml-1 text-[10px] normal-case text-[color:var(--text-faint)]">saving…</span>}
           </label>
           <select
             value={readiness}
             onChange={(e) => handleReadinessChange(e.target.value)}
-            className="w-full p-1.5 border border-gray-300 rounded-lg text-sm"
+            className="w-full p-1.5 border border-[var(--border)] rounded-[var(--r-md)] text-sm"
           >
             <option value="">— not set —</option>
             {LEAD_READINESS_SIGNALS.map((r) => (
@@ -167,9 +167,9 @@ export default function FitCard({ lead, onChange }: Props) {
         </div>
 
         <div>
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-0.5">
+          <label className="block text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)] mb-0.5">
             Fit notes
-            {savingField === "notes" && <span className="ml-1 text-[10px] normal-case text-gray-400">saving…</span>}
+            {savingField === "notes" && <span className="ml-1 text-[10px] normal-case text-[color:var(--text-faint)]">saving…</span>}
           </label>
           <textarea
             value={fitNotes}
@@ -177,7 +177,7 @@ export default function FitCard({ lead, onChange }: Props) {
             onBlur={handleFitNotesBlur}
             rows={2}
             placeholder="Your read — not the data, the feel."
-            className="w-full p-1.5 border border-gray-300 rounded-lg text-xs"
+            className="w-full p-1.5 border border-[var(--border)] rounded-[var(--r-md)] text-xs"
           />
         </div>
       </div>
@@ -189,20 +189,20 @@ export default function FitCard({ lead, onChange }: Props) {
           style={{ backgroundColor: "rgba(0,255,65,0.05)", borderColor: "#86efac" }}
         >
           <span className="font-bold" style={{ color: "#0A0F1C" }}>To sharpen this score:</span>{" "}
-          <span className="text-gray-700">{fit.missingSignals.join(" · ")}</span>
+          <span className="text-[color:var(--text-muted)]">{fit.missingSignals.join(" · ")}</span>
         </div>
       )}
 
       {/* Disqualify escape hatch */}
-      <div className="mt-3 pt-3 border-t border-gray-100">
+      <div className="mt-3 pt-3 border-t border-[var(--border-faint)]">
         {fit.band === "disqualified" ? (
           <div>
-            <p className="text-xs font-semibold text-red-800">Disqualified</p>
-            <p className="text-[11px] text-gray-700 mt-0.5 italic">{disqReason}</p>
+            <p className="text-xs font-semibold text-[color:var(--danger)]">Disqualified</p>
+            <p className="text-[11px] text-[color:var(--text-muted)] mt-0.5 italic">{disqReason}</p>
             <button
               onClick={handleClearDisqualify}
               disabled={savingField === "clear-dq"}
-              className="text-[11px] text-gray-500 hover:underline mt-2"
+              className="text-[11px] text-[color:var(--text-faint)] hover:underline mt-2"
             >
               {savingField === "clear-dq" ? "Clearing…" : "Clear disqualification"}
             </button>
@@ -210,7 +210,7 @@ export default function FitCard({ lead, onChange }: Props) {
         ) : !showDq ? (
           <button
             onClick={() => setShowDq(true)}
-            className="text-[11px] text-gray-500 hover:text-red-700 hover:underline"
+            className="text-[11px] text-[color:var(--text-faint)] hover:text-[color:var(--danger)] hover:underline"
           >
             Not a fit? Disqualify →
           </button>
@@ -221,13 +221,13 @@ export default function FitCard({ lead, onChange }: Props) {
               value={disqReason}
               onChange={(e) => setDisqReason(e.target.value)}
               placeholder="Reason — keep it honest (e.g. below budget, wrong stage)"
-              className="w-full p-1.5 border border-gray-300 rounded-lg text-xs"
+              className="w-full p-1.5 border border-[var(--border)] rounded-[var(--r-md)] text-xs"
             />
             <div className="flex gap-2">
               <button
                 onClick={handleDisqualify}
                 disabled={savingField === "disqualify"}
-                className="flex-1 px-3 py-1.5 rounded-lg border border-red-300 text-red-800 font-semibold text-xs hover:bg-red-50 disabled:opacity-50"
+                className="flex-1 px-3 py-1.5 rounded-[var(--r-md)] border border-[var(--danger-border)] text-[color:var(--danger)] font-semibold text-xs hover:bg-[var(--danger-soft)] disabled:opacity-50"
               >
                 {savingField === "disqualify" ? "Disqualifying…" : "Disqualify & close loop"}
               </button>
@@ -236,7 +236,7 @@ export default function FitCard({ lead, onChange }: Props) {
                   setShowDq(false);
                   setDisqReason("");
                 }}
-                className="px-3 py-1.5 text-xs text-gray-500 hover:underline"
+                className="px-3 py-1.5 text-xs text-[color:var(--text-faint)] hover:underline"
               >
                 Cancel
               </button>

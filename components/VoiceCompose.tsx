@@ -130,7 +130,7 @@ export default function VoiceCompose({
         className={`
           inline-flex items-center gap-2 px-3 py-2 rounded-[var(--r-md)] text-[length:var(--t-sm)] font-bold transition
           ${state === "recording"
-            ? "bg-red-500 text-white hover:bg-red-600 animate-pulse"
+            ? "bg-[var(--danger)] text-white hover:bg-[var(--danger)] animate-pulse"
             : state === "processing"
               ? "bg-[var(--surface-deep)] text-[color:var(--text-muted)] cursor-wait"
               : "bg-[var(--surface-deep)] text-[color:var(--text)] hover:bg-[var(--border)] hover:text-[color:var(--text)]"
@@ -149,7 +149,7 @@ export default function VoiceCompose({
       </button>
 
       {error && (
-        <span className="text-[length:var(--t-caption)] text-red-600">{error}</span>
+        <span className="text-[length:var(--t-caption)] text-[color:var(--danger)]">{error}</span>
       )}
 
       {state === "recording" && (

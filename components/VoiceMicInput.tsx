@@ -110,7 +110,7 @@ export default function VoiceMicInput({ onTranscript, disabled = false, classNam
         className={`
           inline-flex items-center justify-center w-8 h-8 rounded-full transition
           ${state === "recording"
-            ? "bg-red-500 text-white animate-pulse"
+            ? "bg-[var(--danger)] text-white animate-pulse"
             : state === "processing"
               ? "bg-[var(--surface-deep)] text-[color:var(--text-muted)] cursor-wait"
               : "bg-[var(--surface-deep)] text-[color:var(--text-muted)] hover:bg-[var(--border)] hover:text-[color:var(--text)]"
@@ -127,7 +127,7 @@ export default function VoiceMicInput({ onTranscript, disabled = false, classNam
         )}
       </button>
       {error && (
-        <span className="text-[length:var(--t-caption)] text-red-600">{error}</span>
+        <span className="text-[length:var(--t-caption)] text-[color:var(--danger)]">{error}</span>
       )}
     </span>
   );

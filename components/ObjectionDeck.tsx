@@ -61,11 +61,11 @@ export default function ObjectionDeck({ lead, onUseTemplate, voiceProfileSlug }:
     <div className="card p-5">
       <div className="flex items-center justify-between mb-1">
         <h3 className="font-bold">Rehearsed reframes</h3>
-        <span className="text-[11px] uppercase font-semibold text-gray-500">
+        <span className="text-[11px] uppercase font-semibold text-[color:var(--text-faint)]">
           Ranked for this lead
         </span>
       </div>
-      <p className="text-xs text-gray-600 italic mb-3">
+      <p className="text-xs text-[color:var(--text-muted)] italic mb-3">
         When they push back — honor it, reflect it, open a real question. Click to expand, tap
         &ldquo;Use this&rdquo; to draft in Compose.
       </p>
@@ -76,17 +76,17 @@ export default function ObjectionDeck({ lead, onUseTemplate, voiceProfileSlug }:
           return (
             <div
               key={p.id}
-              className={`border rounded-lg overflow-hidden transition-colors ${
-                isOpen ? "border-navy" : "border-gray-200"
+              className={`border rounded-[var(--r-md)] overflow-hidden transition-colors ${
+                isOpen ? "border-navy" : "border-[var(--border)]"
               }`}
             >
               <button
                 onClick={() => setExpanded(isOpen ? null : p.id)}
-                className="w-full flex items-start justify-between gap-3 p-3 text-left hover:bg-gray-50"
+                className="w-full flex items-start justify-between gap-3 p-3 text-left hover:bg-[var(--surface-deep)]"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-faint)]">
                       {p.label}
                     </span>
                   </div>
@@ -95,7 +95,7 @@ export default function ObjectionDeck({ lead, onUseTemplate, voiceProfileSlug }:
                   </p>
                 </div>
                 <span
-                  className="text-xs text-gray-400 mt-1 flex-shrink-0"
+                  className="text-xs text-[color:var(--text-faint)] mt-1 flex-shrink-0"
                   aria-hidden="true"
                 >
                   {isOpen ? "−" : "+"}
@@ -103,12 +103,12 @@ export default function ObjectionDeck({ lead, onUseTemplate, voiceProfileSlug }:
               </button>
 
               {isOpen && (
-                <div className="px-3 pb-3 pt-1 border-t border-gray-100 space-y-3">
+                <div className="px-3 pb-3 pt-1 border-t border-[var(--border-faint)] space-y-3">
                   <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)]">
                       What it usually means
                     </span>
-                    <p className="text-xs text-gray-700 italic mt-0.5">{p.whatItMeans}</p>
+                    <p className="text-xs text-[color:var(--text-muted)] italic mt-0.5">{p.whatItMeans}</p>
                   </div>
 
                   {(() => {
@@ -116,14 +116,14 @@ export default function ObjectionDeck({ lead, onUseTemplate, voiceProfileSlug }:
                     return (
                       <>
                         <div>
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)]">
                             Reframe
                           </span>
                           <p className="text-sm whitespace-pre-wrap mt-0.5">{v.reframe}</p>
                         </div>
 
                         <div>
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)]">
                             Follow-up question
                           </span>
                           <p
@@ -160,14 +160,14 @@ export default function ObjectionDeck({ lead, onUseTemplate, voiceProfileSlug }:
       {ranked.length > 4 && (
         <button
           onClick={() => setShowAll(!showAll)}
-          className="mt-3 text-[11px] text-gray-500 hover:text-navy hover:underline"
+          className="mt-3 text-[11px] text-[color:var(--text-faint)] hover:text-navy hover:underline"
         >
           {showAll ? "Show top 4 only" : `Show all ${ranked.length} patterns →`}
         </button>
       )}
 
       {OBJECTION_PATTERNS.length === 0 && (
-        <p className="text-sm text-gray-500 italic">No patterns configured.</p>
+        <p className="text-sm text-[color:var(--text-faint)] italic">No patterns configured.</p>
       )}
     </div>
   );

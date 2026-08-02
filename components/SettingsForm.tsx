@@ -247,7 +247,7 @@ export default function SettingsForm({
               saving={savingKey === "auto_draft_on_new_lead"}
             />
 
-            <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="mt-4 pt-4 border-t border-[var(--border-faint)]">
               <Toggle
                 label="Email me when a draft is ready"
                 hint="Off keeps things quiet. Drafts still appear in Home."
@@ -257,7 +257,7 @@ export default function SettingsForm({
                 disabled={!settings.auto_draft_on_new_lead}
               />
               {!settings.auto_draft_on_new_lead && (
-                <p className="text-[11px] text-gray-500 italic mt-1 ml-1">
+                <p className="text-[11px] text-[color:var(--text-faint)] italic mt-1 ml-1">
                   Auto response is off, so notifications will stay quiet.
                 </p>
               )}
@@ -314,7 +314,7 @@ export default function SettingsForm({
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div className="min-w-0 flex-1">
                 <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">Gmail</h2>
-                <p className="text-sm text-gray-600 mb-1">
+                <p className="text-sm text-[color:var(--text-muted)] mb-1">
                   Log lead emails automatically. Outbound counts toward reach,
                   inbound resets the reply clock. The app does not send email for
                   you from here.
@@ -328,16 +328,16 @@ export default function SettingsForm({
             </div>
 
             {gmail ? (
-              <div className="mt-4 p-4 rounded-lg bg-surface border border-gray-200">
+              <div className="mt-4 p-4 rounded-[var(--r-md)] bg-surface border border-[var(--border)]">
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="min-w-0">
-                    <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
+                    <div className="text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold">
                       Connected as
                     </div>
                     <div className="text-sm font-bold text-navy mt-0.5 truncate">
                       {gmail.account_email ?? "Gmail account"}
                     </div>
-                    <div className="text-[11px] text-gray-500 mt-1">
+                    <div className="text-[11px] text-[color:var(--text-faint)] mt-1">
                       Connected{" "}
                       {new Date(gmail.connected_at).toLocaleDateString(undefined, {
                         year: "numeric",
@@ -371,7 +371,7 @@ export default function SettingsForm({
                     </button>
                     <a
                       href="/api/integrations/gmail/connect"
-                      className="text-xs font-semibold text-gray-700 hover:text-navy underline decoration-dotted underline-offset-4"
+                      className="text-xs font-semibold text-[color:var(--text-muted)] hover:text-navy underline decoration-dotted underline-offset-4"
                     >
                       Reconnect
                     </a>
@@ -379,7 +379,7 @@ export default function SettingsForm({
                       type="button"
                       onClick={disconnectGmail}
                       disabled={disconnecting || syncing}
-                      className="text-xs font-semibold text-red-700 hover:text-red-900 disabled:opacity-50"
+                      className="text-xs font-semibold text-[color:var(--danger)] hover:text-[color:var(--danger)] disabled:opacity-50"
                     >
                       {disconnecting ? "Disconnecting…" : "Disconnect"}
                     </button>
@@ -390,10 +390,10 @@ export default function SettingsForm({
                   <div
                     className={`mt-3 p-3 rounded-md text-xs ${
                       syncResult.kind === "success"
-                        ? "bg-brand-soft text-green-900 border border-[color-mix(in_srgb,var(--brand)_40%,transparent)]"
+                        ? "bg-brand-soft text-[color:var(--success)] border border-[color-mix(in_srgb,var(--brand)_40%,transparent)]"
                         : syncResult.kind === "info"
-                          ? "bg-gray-100 text-gray-700 border border-gray-200"
-                          : "bg-red-50 text-red-800 border border-red-200"
+                          ? "bg-[var(--surface-deep)] text-[color:var(--text-muted)] border border-[var(--border)]"
+                          : "bg-[var(--danger-soft)] text-[color:var(--danger)] border border-[var(--danger-border)]"
                     }`}
                   >
                     {syncResult.message}
@@ -404,12 +404,12 @@ export default function SettingsForm({
               <div className="mt-4">
                 <a
                   href="/api/integrations/gmail/connect"
-                  className="inline-flex items-center gap-3 p-3 rounded-lg border-2 border-gray-300 bg-white text-gray-800 font-semibold hover:bg-gray-50 hover:border-gray-400 transition"
+                  className="inline-flex items-center gap-3 p-3 rounded-[var(--r-md)] border-2 border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] font-semibold hover:bg-[var(--surface-deep)] hover:border-[var(--border-strong)] transition"
                 >
                   <GoogleIcon />
                   <span>Connect Gmail</span>
                 </a>
-                <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
+                <p className="text-[11px] text-[color:var(--text-faint)] mt-2 leading-relaxed">
                   You&apos;ll be redirected to Google to grant read-only access. We
                   never see your password and you can disconnect any time.
                 </p>

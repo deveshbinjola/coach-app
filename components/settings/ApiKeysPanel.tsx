@@ -111,7 +111,7 @@ export default function ApiKeysPanel() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="min-w-0 flex-1">
           <h2 className="text-[length:var(--t-h2)] font-extrabold mb-1 text-[color:var(--text)] leading-[var(--leading-tight)]">API keys</h2>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-[color:var(--text-muted)]">
             Keys for plugging your AI agent (Claude Desktop, Cursor, n8n,
             custom GPTs, anything) into Coach Platform. Read your focus
             queue, log messages, create leads — agent-first.
@@ -126,8 +126,8 @@ export default function ApiKeysPanel() {
 
       {/* Create form */}
       {showCreate && (
-        <div className="mt-4 p-4 rounded-lg bg-surface border border-gray-200">
-          <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">
+        <div className="mt-4 p-4 rounded-[var(--r-md)] bg-surface border border-[var(--border)]">
+          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
             Key name (helps you tell keys apart)
           </label>
           <input
@@ -136,10 +136,10 @@ export default function ApiKeysPanel() {
             onChange={(e) => setNewKeyName(e.target.value)}
             placeholder="Claude Desktop"
             maxLength={100}
-            className="w-full p-2 rounded border border-gray-300 text-sm focus:outline-none focus:border-brand"
+            className="w-full p-2 rounded border border-[var(--border)] text-sm focus:outline-none focus:border-brand"
           />
 
-          <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mt-3 mb-1">
+          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mt-3 mb-1">
             Scope
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -178,15 +178,15 @@ export default function ApiKeysPanel() {
       {/* Just-created flash — shows the raw key ONCE, plus an install
           snippet pre-filled with that key (also won't be available again). */}
       {justCreated && (
-        <div className="mt-4 p-4 rounded-lg border-2 border-brand bg-[#F0FFF4]">
+        <div className="mt-4 p-4 rounded-[var(--r-md)] border-2 border-brand bg-[#F0FFF4]">
           <p className="text-sm font-extrabold text-navy">
             🔑 Save this key now — we won't show it again.
           </p>
 
-          <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold mt-3 mb-1">
+          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mt-3 mb-1">
             Raw key
           </label>
-          <div className="p-3 rounded bg-white border border-gray-200 font-mono text-xs break-all select-all">
+          <div className="p-3 rounded bg-[var(--surface-elevated)] border border-[var(--border)] font-mono text-xs break-all select-all">
             {justCreated.raw}
           </div>
           <Button
@@ -205,19 +205,19 @@ export default function ApiKeysPanel() {
               ⚡ Connect to Claude Desktop / Cursor →
             </summary>
             <div className="mt-3">
-              <p className="text-xs text-gray-700 leading-relaxed mb-2">
+              <p className="text-xs text-[color:var(--text-muted)] leading-relaxed mb-2">
                 Paste the snippet below into your MCP client config:
               </p>
-              <ul className="text-[11px] text-gray-600 space-y-0.5 mb-3 list-disc pl-5">
+              <ul className="text-[11px] text-[color:var(--text-muted)] space-y-0.5 mb-3 list-disc pl-5">
                 <li>
                   <b>Claude Desktop (macOS):</b>{" "}
-                  <code className="px-1 bg-gray-100 rounded">
+                  <code className="px-1 bg-[var(--surface-deep)] rounded">
                     ~/Library/Application Support/Claude/claude_desktop_config.json
                   </code>
                 </li>
                 <li>
                   <b>Cursor:</b>{" "}
-                  <code className="px-1 bg-gray-100 rounded">
+                  <code className="px-1 bg-[var(--surface-deep)] rounded">
                     ~/.cursor/mcp.json
                   </code>
                 </li>
@@ -255,14 +255,14 @@ export default function ApiKeysPanel() {
               >
                 Copy MCP config
               </Button>
-              <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
+              <p className="text-[11px] text-[color:var(--text-faint)] mt-2 leading-relaxed">
                 Restart Claude Desktop / Cursor after saving. The MCP server
                 auto-installs on first run via npx. You'll see tools like{" "}
-                <code className="px-1 bg-gray-100 rounded">
+                <code className="px-1 bg-[var(--surface-deep)] rounded">
                   get_focus_queue
                 </code>{" "}
                 and{" "}
-                <code className="px-1 bg-gray-100 rounded">create_lead</code>{" "}
+                <code className="px-1 bg-[var(--surface-deep)] rounded">create_lead</code>{" "}
                 appear in your agent's tool list.
               </p>
             </div>
@@ -280,7 +280,7 @@ export default function ApiKeysPanel() {
       )}
 
       {error && (
-        <div className="mt-3 p-3 rounded bg-red-50 border border-red-200 text-sm text-red-800">
+        <div className="mt-3 p-3 rounded bg-[var(--danger-soft)] border border-[var(--danger-border)] text-sm text-[color:var(--danger)]">
           {error}
         </div>
       )}
@@ -288,13 +288,13 @@ export default function ApiKeysPanel() {
       {/* Key list */}
       <div className="mt-5">
         {loading ? (
-          <p className="text-xs text-gray-500">Loading keys…</p>
+          <p className="text-xs text-[color:var(--text-faint)]">Loading keys…</p>
         ) : !keys || keys.length === 0 ? (
-          <p className="text-xs text-gray-500 italic">
+          <p className="text-xs text-[color:var(--text-faint)] italic">
             No keys yet. Generate one to start plugging agents in.
           </p>
         ) : (
-          <ul className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden">
+          <ul className="divide-y divide-[var(--border-faint)] border border-[var(--border)] rounded-[var(--r-md)] overflow-hidden">
             {keys.map((k) => (
               <li key={k.id} className="flex items-center justify-between gap-4 p-3 flex-wrap">
                 <div className="min-w-0 flex-1">
@@ -312,10 +312,10 @@ export default function ApiKeysPanel() {
                       </Badge>
                     )}
                   </div>
-                  <div className="text-[11px] text-gray-500 mt-0.5 font-mono">
+                  <div className="text-[11px] text-[color:var(--text-faint)] mt-0.5 font-mono">
                     {k.key_prefix}… · {(k.scopes ?? []).join(" + ")}
                   </div>
-                  <div className="text-[11px] text-gray-500 mt-0.5">
+                  <div className="text-[11px] text-[color:var(--text-faint)] mt-0.5">
                     Created {new Date(k.created_at).toLocaleDateString()}
                     {k.last_used_at && (
                       <> · last used {new Date(k.last_used_at).toLocaleDateString()}</>
@@ -339,9 +339,9 @@ export default function ApiKeysPanel() {
         )}
       </div>
 
-      <p className="text-[11px] text-gray-500 mt-3 leading-relaxed">
-        Use as <code className="px-1 bg-gray-100 rounded">Authorization: Bearer cp_live_…</code> on any{" "}
-        <code className="px-1 bg-gray-100 rounded">/api/v1/*</code> endpoint.
+      <p className="text-[11px] text-[color:var(--text-faint)] mt-3 leading-relaxed">
+        Use as <code className="px-1 bg-[var(--surface-deep)] rounded">Authorization: Bearer cp_live_…</code> on any{" "}
+        <code className="px-1 bg-[var(--surface-deep)] rounded">/api/v1/*</code> endpoint.
         Full reference and MCP tool list:{" "}
         <a
           href="/api/docs"

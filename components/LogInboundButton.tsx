@@ -74,7 +74,7 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold transition hover:opacity-90"
+        className="inline-flex items-center gap-1.5 rounded-[var(--r-md)] border px-3 py-1.5 text-xs font-bold transition hover:opacity-90"
         style={{
           backgroundColor: "#FFFFFF",
           borderColor: "#0B6E23",
@@ -93,7 +93,7 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
 
   return (
     <div
-      className="rounded-xl border p-4 mb-4"
+      className="rounded-[var(--r-lg)] border p-4 mb-4"
       style={{
         backgroundColor: "rgba(11,110,35,0.07)",
         borderColor: "#0B6E23",
@@ -104,7 +104,7 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
           <div className="text-xs font-extrabold uppercase tracking-widest text-navy">
             Log inbound reply
           </div>
-          <p className="text-[11px] text-gray-600 mt-0.5">
+          <p className="text-[11px] text-[color:var(--text-muted)] mt-0.5">
             Resets the SLA clock and {lead.status === "new" ? "promotes status → contacted" : "keeps status where it is"}.
           </p>
         </div>
@@ -114,14 +114,14 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
             setContent("");
           }}
           disabled={saving}
-          className="text-xs text-gray-500 hover:text-navy"
+          className="text-xs text-[color:var(--text-faint)] hover:text-navy"
         >
           Cancel
         </button>
       </div>
 
       <div className="mb-2">
-        <label className="block text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-1">
+        <label className="block text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)] mb-1">
           Channel
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -133,7 +133,7 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
               className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition ${
                 channel === c.id
                   ? "bg-navy text-white border-navy"
-                  : "bg-white text-gray-800 border-gray-300 hover:border-gray-500"
+                  : "bg-[var(--surface-elevated)] text-[color:var(--text)] border-[var(--border)] hover:border-[var(--border-strong)]"
               }`}
             >
               {c.label}
@@ -149,7 +149,7 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
           rows={3}
           disabled={saving}
           placeholder="What did they say? (optional — leave blank to just log that a reply came in)"
-          className="w-full p-2.5 pr-10 border border-gray-300 rounded-lg text-sm"
+          className="w-full p-2.5 pr-10 border border-[var(--border)] rounded-[var(--r-md)] text-sm"
         />
         <VoiceMicInput
           onTranscript={(t) => setContent((prev) => prev ? prev + " " + t : t)}
@@ -162,7 +162,7 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
         <button
           onClick={save}
           disabled={saving}
-          className="inline-flex items-center gap-1 rounded-lg px-4 py-2 font-extrabold text-xs transition hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center gap-1 rounded-[var(--r-md)] px-4 py-2 font-extrabold text-xs transition hover:opacity-90 disabled:opacity-50"
           style={{ backgroundColor: "#0B6E23", color: "#FAF8F3" }}
         >
           {saving ? "Logging..." : "Log reply →"}

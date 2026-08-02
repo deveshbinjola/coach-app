@@ -35,13 +35,13 @@ export default function AgentActivityPanel() {
   }, []);
 
   return (
-    <div className="mt-6 pt-5 border-t border-gray-200">
+    <div className="mt-6 pt-5 border-t border-[var(--border)]">
       <div className="flex items-baseline justify-between gap-3 mb-3 flex-wrap">
         <div>
           <h3 className="text-sm font-extrabold text-navy">
             Recent agent activity
           </h3>
-          <p className="text-[11px] text-gray-500">
+          <p className="text-[11px] text-[color:var(--text-faint)]">
             Last 20 calls from your agents. Trust feature — verify what
             they're doing.
           </p>
@@ -51,12 +51,12 @@ export default function AgentActivityPanel() {
       {loading ? (
         <SkeletonText lines={2} />
       ) : !activity || activity.length === 0 ? (
-        <p className="text-xs text-gray-500 italic">
+        <p className="text-xs text-[color:var(--text-faint)] italic">
           No agent activity yet. When an agent calls the API, every request
           shows up here.
         </p>
       ) : (
-        <ul className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden text-xs">
+        <ul className="divide-y divide-[var(--border-faint)] border border-[var(--border)] rounded-[var(--r-md)] overflow-hidden text-xs">
           {activity.map((a) => (
             <li
               key={a.id}
@@ -70,7 +70,7 @@ export default function AgentActivityPanel() {
               <code className="font-mono text-[11px] truncate min-w-0 flex-1 text-navy">
                 {a.path}
               </code>
-              <span className="text-[10px] text-gray-500 shrink-0 tabular-nums">
+              <span className="text-[10px] text-[color:var(--text-faint)] shrink-0 tabular-nums">
                 {ago(a.created_at)}
               </span>
             </li>
