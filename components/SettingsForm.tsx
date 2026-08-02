@@ -187,7 +187,7 @@ export default function SettingsForm({
         <section className="rounded-[var(--r-lg)] border border-[color-mix(in_srgb,var(--brand)_34%,var(--border))] bg-[linear-gradient(135deg,var(--surface-elevated)_0%,var(--surface-elevated)_66%,var(--brand-soft)_100%)] p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0 max-w-lg">
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+              <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                 Voice imports
               </div>
               <h2 className="mt-2 text-[length:var(--t-h2)] font-extrabold text-[color:var(--text)] leading-[var(--leading-tight)]">
@@ -321,7 +321,7 @@ export default function SettingsForm({
                 </p>
               </div>
               {gmail && gmail.status === "active" && (
-                <span className="inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider bg-brand text-navy px-2 py-0.5 rounded">
+                <span className="inline-flex items-center text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] bg-brand text-navy px-2 py-0.5 rounded">
                   ✓ Connected
                 </span>
               )}
@@ -331,7 +331,7 @@ export default function SettingsForm({
               <div className="mt-4 p-4 rounded-[var(--r-md)] bg-surface border border-[var(--border)]">
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="min-w-0">
-                    <div className="text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold">
+                    <div className="text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold">
                       Connected as
                     </div>
                     <div className="text-sm font-bold text-navy mt-0.5 truncate">

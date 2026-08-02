@@ -1,8 +1,8 @@
 "use client";
 
 // FunnelCard — one row in the funnels list. Shows title, slug, stats strip,
-// and publish/edit/delete actions. Stats use the same compact layout as the
-// command-center StatsStrip.
+// and publish/edit/delete actions. The stats layout is defined inline below;
+// it used to point at a command-center StatsStrip that nothing imported.
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -210,7 +210,7 @@ function StatCell({ icon, label, value }: { icon: React.ReactNode; label: string
     <div className="text-center">
       <div className="flex items-center justify-center gap-1 text-[color:var(--text-muted)]">
         {icon}
-        <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
+        <span className="text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)]">{label}</span>
       </div>
       <p className="text-sm font-extrabold text-[color:var(--text)] mt-0.5">{value}</p>
     </div>

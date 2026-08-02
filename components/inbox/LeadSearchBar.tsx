@@ -83,7 +83,7 @@ export default function LeadSearchBar({ leads, onFiltered }: Props) {
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+        <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
           Filter
         </span>
         {TEMP_FILTERS.map((filter) => {

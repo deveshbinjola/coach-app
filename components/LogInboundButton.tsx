@@ -121,7 +121,7 @@ export default function LogInboundButton({ lead, onLogged }: Props) {
       </div>
 
       <div className="mb-2">
-        <label className="block text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)] mb-1">
+        <label className="block text-[length:var(--t-eyebrow)] uppercase font-bold tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] mb-1">
           Channel
         </label>
         <div className="flex flex-wrap gap-1.5">

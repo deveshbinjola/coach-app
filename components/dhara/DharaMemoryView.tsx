@@ -26,7 +26,7 @@ export default function DharaMemoryView() {
         <div key={m.id} className="rounded-[var(--r-md)] border border-[var(--border-faint)] px-3 py-2.5">
           <div className="text-[length:var(--t-body)] text-[color:var(--text)]">{m.text}</div>
           <div className="flex items-center justify-between mt-1.5">
-            <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${m.confidence === "confirmed" ? "bg-[var(--brand-soft)] text-[color:var(--brand-strong)]" : "bg-[var(--surface-deep)] text-[color:var(--text-faint)]"}`}>
+            <span className={`text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] px-2 py-0.5 rounded-full ${m.confidence === "confirmed" ? "bg-[var(--brand-soft)] text-[color:var(--brand-strong)]" : "bg-[var(--surface-deep)] text-[color:var(--text-faint)]"}`}>
               {CONF_LABEL[m.confidence] ?? m.confidence}
             </span>
             <span className="flex gap-2 text-[11px] font-bold">

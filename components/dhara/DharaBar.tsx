@@ -28,7 +28,7 @@ export default function DharaBar() {
     <>
       {!open && (
         <button onClick={() => setOpen(true)}
-          className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-[var(--navy)] text-white px-4 py-3 shadow-[var(--shadow-lg)] hover:bg-[var(--navy-soft)] transition"
+          className="fixed bottom-[var(--dock-1)] right-[var(--dock-right)] z-40 inline-flex items-center gap-2 rounded-full bg-[var(--navy)] text-white px-4 py-3 shadow-[var(--shadow-lg)] hover:bg-[var(--navy-soft)] transition"
           aria-label="Open Dhara">
           <span className="h-2 w-2 rounded-full bg-[var(--brand)]" />
           <span className="text-[length:var(--t-caption)] font-extrabold">Dhara</span>

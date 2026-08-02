@@ -909,7 +909,7 @@ function LeadSearchBox({
             <X size={15} aria-hidden />
           </button>
         ) : null}
-        <span className="hidden shrink-0 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)] sm:inline">
+        <span className="hidden shrink-0 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] sm:inline">
           {active ? `${resultCount}/${totalCount}` : `${totalCount}`}
         </span>
       </div>

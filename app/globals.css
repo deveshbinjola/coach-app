@@ -148,6 +148,29 @@
   --container-md:      720px;
   --container-lg:      1100px;
   --container-xl:      1280px;
+
+  /* ---------- Bottom-right floating dock ----------
+     Three things want this corner: the Dhara bar, the bug-report button, and
+     the Brand OS run toast. They each picked their own offset, so the bug
+     button landed on the Dhara bar at desktop widths, the toast landed on it
+     at every width, and on mobile the Dhara bar sat inside the tab bar.
+
+     --dock-base is the floor: 20px normally, but the MobileTabBar is h-16
+     (64px) at bottom-0 and md:hidden, so below md the floor has to clear it.
+     Each slot stacks upward from there. Anything fixed to this corner uses a
+     slot; nothing hardcodes a bottom offset. */
+  --dock-base:         calc(4rem + 1.25rem);   /* tab bar + inset */
+  --dock-1:            var(--dock-base);        /* Dhara bar */
+  --dock-2:            calc(var(--dock-base) + 3.75rem);  /* bug button */
+  --dock-3:            calc(var(--dock-base) + 7.5rem);   /* transient toast */
+  --dock-right:        1.25rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    /* No tab bar at md and up, so the floor drops to the plain inset. */
+    --dock-base: 1.25rem;
+  }
 }
 
 /* =====================================================================

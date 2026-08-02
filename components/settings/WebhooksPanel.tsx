@@ -137,7 +137,7 @@ export default function WebhooksPanel() {
       {showCreate && (
         <div className="mt-4 p-4 rounded-[var(--r-md)] bg-surface border border-[var(--border)] space-y-3">
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
+            <label className="block text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold mb-1">
               Name (helps you tell endpoints apart)
             </label>
             <input
@@ -151,7 +151,7 @@ export default function WebhooksPanel() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
+              <label className="block text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold mb-1">
                 Default source
               </label>
               <select
@@ -167,7 +167,7 @@ export default function WebhooksPanel() {
               </select>
             </div>
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
+              <label className="block text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold mb-1">
                 Default source detail (optional)
               </label>
               <input

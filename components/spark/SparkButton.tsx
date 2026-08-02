@@ -22,7 +22,7 @@ export default function SparkButton({ text, brandKit, className = "" }: Props) {
         type="button"
         onClick={() => setOpen(true)}
         title="Generate visual"
-        className={`group inline-flex items-center gap-1.5 rounded-full border border-[var(--border-faint)] bg-[var(--surface-elevated)] px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)] transition hover:border-[var(--brand-strong)] hover:bg-[var(--brand-soft)] hover:text-[color:var(--brand-strong)] ${className}`}
+        className={`group inline-flex items-center gap-1.5 rounded-full border border-[var(--border-faint)] bg-[var(--surface-elevated)] px-2.5 py-1.5 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-muted)] transition hover:border-[var(--brand-strong)] hover:bg-[var(--brand-soft)] hover:text-[color:var(--brand-strong)] ${className}`}
       >
         <Sparkles size={12} className="transition group-hover:text-[color:var(--brand-strong)]" aria-hidden />
         Visualize

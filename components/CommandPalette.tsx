@@ -151,7 +151,7 @@ export default function CommandPalette() {
 
           {navigateItems.length > 0 && (
             <div>
-              <p className="px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+              <p className="px-2 py-1.5 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                 Navigate
               </p>
               {navigateItems.map((item) => {
@@ -179,7 +179,7 @@ export default function CommandPalette() {
 
           {actionItems.length > 0 && (
             <div className={navigateItems.length > 0 ? "mt-2" : ""}>
-              <p className="px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+              <p className="px-2 py-1.5 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                 Actions
               </p>
               {actionItems.map((item) => {

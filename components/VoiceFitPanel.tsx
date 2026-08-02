@@ -47,7 +47,7 @@ export default function VoiceFitPanel({
           </div>
         </div>
         <span
-          className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider ${tone.chip}`}
+          className={`inline-flex items-center rounded-full px-2.5 py-1 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] ${tone.chip}`}
         >
           {tone.label}
         </span>
@@ -87,7 +87,7 @@ export default function VoiceFitPanel({
         <div className="mt-3 rounded-[var(--r-md)] border border-[var(--border-faint)] bg-[var(--surface-elevated)] p-3">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+              <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                 Push back mode
               </div>
               <div className="mt-1 text-[length:var(--t-caption)] font-extrabold text-[color:var(--text)]">
@@ -121,7 +121,7 @@ export default function VoiceFitPanel({
             type="button"
             onClick={onImprove}
             disabled={improving}
-            className="inline-flex items-center justify-center h-8 min-h-11 px-3 rounded-[var(--r-sm)] bg-[var(--navy)] text-[color:var(--brand-bright)] text-[11px] font-extrabold uppercase tracking-wider hover:opacity-90 disabled:opacity-50 transition"
+            className="inline-flex items-center justify-center h-8 min-h-11 px-3 rounded-[var(--r-sm)] bg-[var(--navy)] text-[color:var(--brand-bright)] text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] hover:opacity-90 disabled:opacity-50 transition"
           >
             {improving ? "Fixing..." : "Fix voice"}
           </button>

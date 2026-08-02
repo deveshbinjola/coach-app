@@ -141,7 +141,7 @@ export default function HomeworkCard({
                     {task.title}
                   </span>
                   {task.due_at && (
-                    <div className={`mt-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider ${
+                    <div className={`mt-1 flex items-center gap-1 text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] ${
                       overdue ? "text-[color:var(--danger)]" : "text-[color:var(--text-faint)]"
                     }`}>
                       {overdue && <AlertCircle size={10} aria-hidden />}

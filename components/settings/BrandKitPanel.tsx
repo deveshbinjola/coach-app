@@ -377,7 +377,7 @@ function BrandKitPreview({ values }: { values: BrandKitFormValues }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={values.logoUrl} alt="" className="w-7 h-7 object-contain" />
           )}
-          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: values.primary }}>
+          <span className="text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)]" style={{ color: values.primary }}>
             Your brand
           </span>
         </div>

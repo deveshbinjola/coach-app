@@ -63,7 +63,7 @@ export default function AgentActivityPanel() {
               className="flex items-center gap-3 p-2.5 hover:bg-surface"
             >
               <span
-                className={`text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${methodColor(a.method)}`}
+                className={`text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] px-1.5 py-0.5 rounded shrink-0 ${methodColor(a.method)}`}
               >
                 {a.method}
               </span>

@@ -77,7 +77,7 @@ export default function ContactTimeline({ events }: { events: TimelineEvent[] })
       {/* Day groups */}
       {groups.map((group) => (
         <div key={group.date} className="mb-5">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-faint)] pb-1.5 mb-3 border-b border-[var(--border-faint)]">
+          <div className="text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] pb-1.5 mb-3 border-b border-[var(--border-faint)]">
             {group.label}
           </div>
           <div className="space-y-2">

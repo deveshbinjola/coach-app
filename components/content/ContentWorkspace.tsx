@@ -874,7 +874,7 @@ export default function ContentWorkspace({
               {profile ? (
                 <Badge tone="brand" size="xs" uppercase>Voice active</Badge>
               ) : (
-                <a href="/voice" className="inline-flex items-center gap-1.5 rounded-full bg-[var(--warning-soft)] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--warning)] transition hover:bg-[color-mix(in_srgb,var(--warning)_18%,transparent)]">
+                <a href="/voice" className="inline-flex items-center gap-1.5 rounded-full bg-[var(--warning-soft)] px-2.5 py-1 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--warning)] transition hover:bg-[color-mix(in_srgb,var(--warning)_18%,transparent)]">
                   Voice needed — set up
                   <ArrowRight size={11} aria-hidden />
                 </a>
@@ -1287,7 +1287,9 @@ function VoiceLearnedToast({
 }) {
   return (
     <div
-      className="fixed bottom-4 right-4 z-50 max-w-sm rounded-[var(--r-lg)] border border-[var(--brand-strong)] bg-[var(--surface-elevated)] shadow-[var(--shadow-lg)] p-4 space-y-2 animate-in fade-in slide-in-from-bottom-2"
+      // Dock slot 3. At bottom-4 right-4 this landed squarely on the Dhara
+      // bar, and at z-50 against its z-40 it covered it.
+      className="fixed bottom-[var(--dock-3)] right-[var(--dock-right)] z-50 max-w-sm rounded-[var(--r-lg)] border border-[var(--brand-strong)] bg-[var(--surface-elevated)] shadow-[var(--shadow-lg)] p-4 space-y-2 animate-in fade-in slide-in-from-bottom-2"
       role="status"
     >
       <div className="flex items-start justify-between gap-2">
@@ -1353,7 +1355,7 @@ function seedLeadSignal(lead: Lead | null): string {
 function SignalTile({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
     <div className="rounded-[var(--r-lg)] border border-[var(--border-faint)] bg-[color-mix(in_srgb,var(--surface-elevated)_84%,transparent)] p-4 shadow-[var(--shadow-sm)]">
-      <p className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+      <p className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
         {label}
       </p>
       <p className="mt-2 text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)]">
@@ -1571,15 +1573,15 @@ function CarouselWizardStep({
       >
         <div className="grid gap-3 sm:grid-cols-[1fr_1fr_110px]">
           <label className="space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">Brand name</span>
+            <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">Brand name</span>
             <input value={brandName} onChange={(event) => onBrandNameChange(event.target.value)} className="min-h-11 w-full rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] px-3 text-[length:var(--t-caption)] font-bold text-[color:var(--text)] focus:outline-none focus:border-[var(--brand-strong)]" />
           </label>
           <label className="space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">Handle</span>
+            <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">Handle</span>
             <input value={handle} onChange={(event) => onHandleChange(event.target.value)} className="min-h-11 w-full rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] px-3 text-[length:var(--t-caption)] font-bold text-[color:var(--text)] focus:outline-none focus:border-[var(--brand-strong)]" />
           </label>
           <label className="space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">Accent</span>
+            <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">Accent</span>
             <input type="color" value={isValidHex(accentColor) ? accentColor : DEFAULT_ACCENT_HEX} onChange={(event) => onAccentColorChange(event.target.value)} className="min-h-11 w-full rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-1" />
           </label>
         </div>
@@ -1692,7 +1694,7 @@ function WizardPanel({
 }) {
   return (
     <section className="min-w-0">
-      <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">{eyebrow}</div>
+      <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">{eyebrow}</div>
       <h3 className="mt-1 break-words text-[length:var(--t-h2)] font-extrabold tracking-tight text-[color:var(--text)]">{title}</h3>
       <p className="mt-1 max-w-2xl text-[length:var(--t-caption)] leading-[var(--leading-base)] text-[color:var(--text-muted)]">{description}</p>
       <div className="mt-4">{children}</div>
@@ -1933,7 +1935,7 @@ function StyleDnaReview({
           <StyleColorInput label="Highlight" value={dna.highlightColor} onChange={(value) => onChange({ highlightColor: value }, { accent: value })} />
           <StyleColorInput label="Handle" value={dna.handleColor} onChange={(value) => onChange({ handleColor: value })} />
           <div className="rounded-[var(--r-md)] border border-[var(--border-faint)] bg-[var(--surface-elevated)] p-3">
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+            <p className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
               Imported palette
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -1968,7 +1970,7 @@ function StyleSelect({
 }) {
   return (
     <label className="space-y-1">
-      <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+      <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
         {label}
       </span>
       <select
@@ -1999,7 +2001,7 @@ function StyleColorInput({
 }) {
   return (
     <label className="space-y-1">
-      <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+      <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
         {label}
       </span>
       <div className="flex min-h-10 items-center gap-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] p-1.5">
@@ -2110,7 +2112,7 @@ function CarouselBuilderControls({
         </p>
         <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_1fr_96px]">
           <label className="space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+            <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
               Brand name
             </span>
             <input
@@ -2121,7 +2123,7 @@ function CarouselBuilderControls({
             />
           </label>
           <label className="space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+            <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
               Handle
             </span>
             <input
@@ -2132,7 +2134,7 @@ function CarouselBuilderControls({
             />
           </label>
           <label className="space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+            <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
               Accent
             </span>
             <input
@@ -2192,7 +2194,7 @@ function ChoiceGroup<T extends string>({
                   {option.label}
                 </span>
                 {option.bestFor ? (
-                  <span className="rounded-full bg-[var(--surface-deep)] px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+                  <span className="rounded-full bg-[var(--surface-deep)] px-2 py-0.5 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                     {option.bestFor}
                   </span>
                 ) : null}
@@ -2322,7 +2324,7 @@ function CarouselSlideEditor({
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="min-w-0">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+                <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                   Slide {index + 1} · {CAROUSEL_SLIDE_ROLES[index]?.role ?? "Slide"}
                 </span>
                 <p className="mt-0.5 text-[length:var(--t-caption)] text-[color:var(--text-muted)]">
@@ -2387,7 +2389,7 @@ function CarouselChecklist({ slides }: { slides: CarouselSlide[] }) {
           research (50%+ swipe-through, 5-10% saves) so the coach knows
           what "good" looks like when they ship. */}
       <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-[var(--border-faint)] pt-3">
-        <span className="text-[10px] font-extrabold uppercase tracking-widest text-[color:var(--text-faint)]">
+        <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
           After publish, aim for:
         </span>
         <Badge tone="brand" size="xs" uppercase>

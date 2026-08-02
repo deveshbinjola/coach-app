@@ -48,7 +48,7 @@ export default function EditorialMasthead({ date, issueNumber, tiles }: Props) {
     >
       <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2">
         {/* Left — wordmark + dateline */}
-        <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.16em] text-[color:var(--text-faint)]">
+        <div className="flex items-center gap-3 text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
           <span className="inline-flex items-baseline gap-1.5">
             <span className="font-extrabold text-[color:var(--text)]">Elevate</span>
             <span className="opacity-40">·</span>
@@ -66,7 +66,7 @@ export default function EditorialMasthead({ date, issueNumber, tiles }: Props) {
               className="flex items-center gap-1.5 rounded-[var(--r-sm)] border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5"
               title={`${t.label}: ${t.value} — ${t.detail}`}
             >
-              <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-faint)] hidden sm:inline">
+              <span className="text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] hidden sm:inline">
                 {t.label}
               </span>
               <span className="text-[length:var(--t-caption)] font-extrabold text-[color:var(--text)]">

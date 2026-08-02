@@ -146,7 +146,7 @@ export default function VoiceTrustCard({
               className="w-full h-12"
               tone="dark"
             />
-            <div className="mt-1 flex justify-between text-[10px] uppercase tracking-widest font-bold text-[color:var(--text-faint)]">
+            <div className="mt-1 flex justify-between text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] font-bold text-[color:var(--text-faint)]">
               <span>4w ago</span>
               <span>3w</span>
               <span>2w</span>
@@ -255,7 +255,7 @@ function Gauge({ pct, size = 160 }: { pct: number; size?: number }) {
           {clamped}
           <span className="text-2xl text-[color:var(--brand-bright)] font-bold ml-0.5">%</span>
         </div>
-        <div className="mt-2 text-[10px] font-extrabold uppercase tracking-widest text-[color:var(--brand-bright)]">
+        <div className="mt-2 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand-bright)]">
           Voice trust
         </div>
       </div>

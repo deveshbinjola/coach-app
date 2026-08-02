@@ -59,7 +59,7 @@ export default function RewarmDeck({ lead, onUseTemplate }: Props) {
             style={{ backgroundColor: accent }}
           />
           <span
-            className="text-[10px] font-extrabold uppercase tracking-widest opacity-90"
+            className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] opacity-90"
           >
             Re-warm suggestion · {tone}
           </span>
@@ -104,7 +104,7 @@ export default function RewarmDeck({ lead, onUseTemplate }: Props) {
       {/* Alternates — thin chip row, expand to preview */}
       {alternates.length > 0 && (
         <div className="mt-3">
-          <div className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-2">
+          <div className="text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] opacity-60 mb-2">
             Other angles
           </div>
           <div className="flex flex-wrap gap-1.5">

@@ -543,7 +543,7 @@ export default function ComposeStudio({
 
         {originalAiTemplate !== null && (
           <div className="flex items-center justify-between mb-2 mt-4">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand)]">
+            <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand)]">
               AI Draft · your voice
             </span>
             <button
@@ -708,7 +708,7 @@ export default function ComposeStudio({
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-[78px] rounded-[var(--r-md)] border border-white/10 bg-white/[0.06] px-3 py-2">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-white/45">
+      <div className="text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] text-white/45">
         {label}
       </div>
       <div className="mt-1 text-lg font-extrabold tabular-nums text-[color:var(--text-inverse)]">
@@ -721,7 +721,7 @@ function Metric({ label, value }: { label: string; value: string }) {
 function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mt-4 first:mt-0">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-faint)] mb-1.5">
+      <div className="text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] mb-1.5">
         {label}
       </div>
       {children}

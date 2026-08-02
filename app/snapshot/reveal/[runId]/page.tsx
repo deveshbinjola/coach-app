@@ -92,7 +92,7 @@ export default async function PublicSnapshotReveal({
 
       <main className="mx-auto max-w-2xl px-6 py-16">
         <div className="mb-8">
-          <span className="inline-block text-[11px] font-bold uppercase tracking-[0.18em] text-[color:var(--brand-strong)]">
+          <span className="inline-block text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand-strong)]">
             Brand OS · Snapshot · for {data.firstName ?? "you"}
           </span>
           <h1 className="mt-3 font-display text-4xl font-bold leading-tight text-[color:var(--text)]">
@@ -187,7 +187,7 @@ export default async function PublicSnapshotReveal({
 function PillarSeed({ label, text }: { label: string; text: string }) {
   return (
     <li>
-      <div className="mb-1 font-mono text-[10px] uppercase tracking-widest text-[color:var(--brand-strong)]">{label}</div>
+      <div className="mb-1 font-mono text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand-strong)]">{label}</div>
       <div className="text-[color:var(--text)]">{text}</div>
     </li>
   );

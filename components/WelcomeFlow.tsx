@@ -1208,7 +1208,7 @@ function OnboardingInstagramImport({
                       key={`${pattern.label}:${pattern.text}`}
                       className="rounded-[var(--r-md)] bg-[var(--surface-elevated)] p-3"
                     >
-                      <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+                      <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                         {pattern.label}
                       </div>
                       <div className="mt-1 text-[length:var(--t-caption)] font-bold leading-[var(--leading-base)] text-[color:var(--text)]">
@@ -1224,7 +1224,7 @@ function OnboardingInstagramImport({
 
         <div className="rounded-[var(--r-lg)] bg-[var(--navy)] p-4 text-[color:var(--text-inverse)] flex flex-col justify-between gap-5">
           <div>
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand-bright)]">
+            <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand-bright)]">
               Why this is first
             </div>
             <div className="mt-3 space-y-2">

@@ -576,7 +576,7 @@ function VoiceMemoryPanel({
             coach approves, then future draft tuning reads them from the active profile.
           </p>
         </div>
-        <span className="text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+        <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
           {approved.length} approved
         </span>
       </div>
@@ -618,7 +618,7 @@ function VoiceMemoryPanel({
                 </div>
               )}
               <div className="mt-3 flex items-center justify-between gap-3">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+                <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                   {rule.confidence === "real" ? "Real signal" : "Early signal"}
                 </span>
                 <div className="flex items-center gap-1.5">
@@ -627,7 +627,7 @@ function VoiceMemoryPanel({
                       type="button"
                       onClick={() => approveRule(rule, editText)}
                       disabled={savingId === rule.id || !editText.trim()}
-                      className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--brand-bright)] hover:opacity-90 disabled:opacity-50 transition"
+                      className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand-bright)] hover:opacity-90 disabled:opacity-50 transition"
                     >
                       {savingId === rule.id ? "Saving..." : "Save"}
                     </button>
@@ -639,7 +639,7 @@ function VoiceMemoryPanel({
                           setEditingId(rule.id);
                           setEditText(rule.text);
                         }}
-                        className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] border border-[var(--border)] px-3 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)] hover:text-[color:var(--text)] transition"
+                        className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] border border-[var(--border)] px-3 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-muted)] hover:text-[color:var(--text)] transition"
                       >
                         Edit
                       </button>
@@ -647,7 +647,7 @@ function VoiceMemoryPanel({
                         type="button"
                         onClick={() => ignoreRule(rule)}
                         disabled={savingId === rule.id}
-                        className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] border border-[var(--border)] px-3 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)] hover:text-[color:var(--text)] disabled:opacity-50 transition"
+                        className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] border border-[var(--border)] px-3 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-muted)] hover:text-[color:var(--text)] disabled:opacity-50 transition"
                       >
                         Ignore
                       </button>
@@ -655,7 +655,7 @@ function VoiceMemoryPanel({
                         type="button"
                         onClick={() => approveRule(rule)}
                         disabled={savingId === rule.id}
-                        className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--brand-bright)] hover:opacity-90 disabled:opacity-50 transition"
+                        className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand-bright)] hover:opacity-90 disabled:opacity-50 transition"
                       >
                         {savingId === rule.id ? "Saving..." : "Approve"}
                       </button>
@@ -689,13 +689,13 @@ function EditExampleCard({
         <div className="text-[length:var(--t-caption)] font-bold text-[color:var(--text)]">
           Coach edit
         </div>
-        <span className="text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+        <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
           {example.changeLabel}
         </span>
       </div>
       <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
         <div className="rounded-[var(--r-sm)] bg-[var(--surface-deep)] p-3">
-          <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+          <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
             AI draft
           </div>
           <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text-muted)] leading-[var(--leading-base)]">
@@ -703,7 +703,7 @@ function EditExampleCard({
           </p>
         </div>
         <div className="rounded-[var(--r-sm)] bg-[var(--brand-soft)] p-3">
-          <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+          <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
             You sent
           </div>
           <p className="mt-1 text-[length:var(--t-caption)] text-[color:var(--text)] leading-[var(--leading-base)]">
@@ -1085,7 +1085,7 @@ function VoiceImportPanel({
                       key={`${pattern.label}:${pattern.text}`}
                       className="rounded-[var(--r-md)] bg-[var(--surface-elevated)] p-3"
                     >
-                      <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+                      <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                         {pattern.label}
                       </div>
                       <div className="mt-1 text-[length:var(--t-caption)] font-bold leading-[var(--leading-base)] text-[color:var(--text)]">
@@ -1101,7 +1101,7 @@ function VoiceImportPanel({
 
         <div className="rounded-[var(--r-lg)] bg-[var(--surface-deep)] p-4 flex flex-col justify-between gap-5">
           <div>
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+            <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
               What this trains
             </div>
             <div className="mt-3 space-y-2">
@@ -1301,7 +1301,7 @@ function TranscriptSignalPanel({
 
         <div className="rounded-[var(--r-lg)] bg-[var(--surface-deep)] p-4 flex flex-col justify-between gap-5">
           <div>
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+            <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
               What this updates
             </div>
             <div className="mt-3 space-y-2">
@@ -1475,7 +1475,7 @@ function TrainingHistoryPanel({
                     {source.audio_filename ? ` · ${source.audio_filename}` : ""}
                   </div>
                 </div>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+                <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                   {source.approved_rule_ids?.length ?? 0} approved
                 </span>
               </div>
@@ -1499,11 +1499,11 @@ function TrainingHistoryPanel({
                         <div className="mt-3 flex items-center justify-between gap-3">
                           <div className="flex flex-wrap items-center gap-2">
                             {rule.category && (
-                              <span className="rounded-full bg-[var(--surface-deep)] px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)]">
+                              <span className="rounded-full bg-[var(--surface-deep)] px-2 py-0.5 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-muted)]">
                                 {rule.category}
                               </span>
                             )}
-                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+                            <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                               {rule.confidence === "real" ? "Real signal" : "Early signal"}
                             </span>
                           </div>
@@ -1511,7 +1511,7 @@ function TrainingHistoryPanel({
                             type="button"
                             disabled={approved || approvingId === `${source.id}:${rule.id}`}
                             onClick={() => approveRule(source, rule)}
-                            className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--brand-bright)] hover:opacity-90 disabled:opacity-50 transition"
+                            className="inline-flex h-8 items-center justify-center rounded-[var(--r-sm)] bg-[var(--navy)] px-3 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand-bright)] hover:opacity-90 disabled:opacity-50 transition"
                           >
                             {approved
                               ? "Approved"

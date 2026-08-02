@@ -109,7 +109,7 @@ export default function FitCard({ lead, onChange }: Props) {
       <div className="flex items-center justify-between">
         <span className="text-xs uppercase font-semibold text-[color:var(--text-faint)]">Fit assessment</span>
         <span
-          className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full border"
+          className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] px-2 py-0.5 rounded-full border"
           style={bandStyle}
           title={`Score: ${fit.score}/100`}
         >
@@ -133,7 +133,7 @@ export default function FitCard({ lead, onChange }: Props) {
       {/* Inline editors — save on change/blur, no submit button needed. */}
       <div className="mt-3 space-y-2">
         <div>
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)] mb-0.5">
+          <label className="block text-[length:var(--t-eyebrow)] uppercase font-bold tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] mb-0.5">
             Income band
             {savingField === "income" && <span className="ml-1 text-[10px] normal-case text-[color:var(--text-faint)]">saving…</span>}
           </label>
@@ -150,7 +150,7 @@ export default function FitCard({ lead, onChange }: Props) {
         </div>
 
         <div>
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)] mb-0.5">
+          <label className="block text-[length:var(--t-eyebrow)] uppercase font-bold tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] mb-0.5">
             Readiness
             {savingField === "readiness" && <span className="ml-1 text-[10px] normal-case text-[color:var(--text-faint)]">saving…</span>}
           </label>
@@ -167,7 +167,7 @@ export default function FitCard({ lead, onChange }: Props) {
         </div>
 
         <div>
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)] mb-0.5">
+          <label className="block text-[length:var(--t-eyebrow)] uppercase font-bold tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] mb-0.5">
             Fit notes
             {savingField === "notes" && <span className="ml-1 text-[10px] normal-case text-[color:var(--text-faint)]">saving…</span>}
           </label>

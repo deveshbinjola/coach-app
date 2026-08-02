@@ -25,7 +25,7 @@ export default function BrandOsIntegrationPanel() {
             coaches do not see endpoint language on the Voice page.
           </p>
         </div>
-        <span className="inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider bg-[var(--brand-soft)] text-[color:var(--success)] border border-[color-mix(in_srgb,var(--brand)_30%,transparent)] px-2 py-1 rounded">
+        <span className="inline-flex items-center text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] bg-[var(--brand-soft)] text-[color:var(--success)] border border-[color-mix(in_srgb,var(--brand)_30%,transparent)] px-2 py-1 rounded">
           Advanced
         </span>
       </div>

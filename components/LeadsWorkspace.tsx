@@ -161,7 +161,7 @@ export default function LeadsWorkspace({ leads, now, coachId }: Props) {
         {rescueStack.length > 0 && (
           <div className="flex items-center gap-2 overflow-x-auto">
             <div className="shrink-0 rounded-[var(--r-md)] bg-[var(--navy)] px-3 py-2 text-[color:var(--text-inverse)]">
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand-bright)]">Rescue</div>
+              <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand-bright)]">Rescue</div>
               <div className="text-[length:var(--t-caption)] font-extrabold">{sessionMinutes} min</div>
             </div>
             {rescueStack.map((lead) => (

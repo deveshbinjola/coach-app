@@ -90,7 +90,7 @@ export default function MirrorCard({ variant = "card" }: { variant?: MirrorVaria
     if (read.needs_clarification && read.clarifying_question) {
       return (
         <div className="rounded-[var(--r-xl)] border border-[var(--border)] bg-[var(--surface-elevated)] p-6 shadow-[var(--shadow-md)]">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--text-faint)]">One thing first</p>
+          <p className="text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] text-[var(--text-faint)]">One thing first</p>
           <p className="mt-2 font-[family-name:var(--font-display)] text-xl leading-snug text-[var(--text)]">
             {read.clarifying_question}
           </p>
@@ -142,14 +142,14 @@ export default function MirrorCard({ variant = "card" }: { variant?: MirrorVaria
 
         {read.the_mistake && (
           <div className="mt-4 rounded-[var(--r-md)] border-l-[3px] border-[var(--warning)] bg-[var(--warning-soft)] p-3.5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--text-faint)]">The mistake</p>
+            <p className="text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] text-[var(--text-faint)]">The mistake</p>
             <p className="mt-1 text-[0.95rem] leading-relaxed text-[var(--text)]">{read.the_mistake}</p>
           </div>
         )}
 
         {read.the_move && (
           <div className="mt-4">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--text-faint)]">The move</p>
+            <p className="text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] text-[var(--text-faint)]">The move</p>
             <p className="mt-1 text-[0.95rem] leading-relaxed text-[var(--text-muted)]">{read.the_move}</p>
           </div>
         )}
@@ -199,7 +199,7 @@ export default function MirrorCard({ variant = "card" }: { variant?: MirrorVaria
   // ── Input ───────────────────────────────────────────────────────────
   return (
     <div className="rounded-[var(--r-xl)] border border-[var(--border)] bg-[var(--surface-elevated)] p-6 shadow-[var(--shadow-md)]">
-      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--brand)]">◇ The Mirror</p>
+      <p className="text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] text-[var(--brand)]">◇ The Mirror</p>
       <h2 className="mt-2 font-[family-name:var(--font-display)] text-2xl leading-tight text-[var(--text)]">
         What are you working through right now?
       </h2>

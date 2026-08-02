@@ -44,7 +44,7 @@ export default function GlobalError({ error, reset }: Props) {
         />
 
         <div className="relative">
-          <div className="text-[10px] font-extrabold uppercase tracking-widest text-[color:var(--brand-strong)]">
+          <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand-strong)]">
             Something broke
           </div>
           <h1 className="font-display mt-3 text-3xl sm:text-4xl font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">

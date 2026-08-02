@@ -61,7 +61,7 @@ export default function ObjectionDeck({ lead, onUseTemplate, voiceProfileSlug }:
     <div className="card p-5">
       <div className="flex items-center justify-between mb-1">
         <h3 className="font-bold">Rehearsed reframes</h3>
-        <span className="text-[11px] uppercase font-semibold text-[color:var(--text-faint)]">
+        <span className="text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] font-semibold text-[color:var(--text-faint)]">
           Ranked for this lead
         </span>
       </div>
@@ -86,7 +86,7 @@ export default function ObjectionDeck({ lead, onUseTemplate, voiceProfileSlug }:
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-faint)]">
+                    <span className="text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                       {p.label}
                     </span>
                   </div>
@@ -105,7 +105,7 @@ export default function ObjectionDeck({ lead, onUseTemplate, voiceProfileSlug }:
               {isOpen && (
                 <div className="px-3 pb-3 pt-1 border-t border-[var(--border-faint)] space-y-3">
                   <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)]">
+                    <span className="text-[length:var(--t-eyebrow)] uppercase font-bold tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                       What it usually means
                     </span>
                     <p className="text-xs text-[color:var(--text-muted)] italic mt-0.5">{p.whatItMeans}</p>
@@ -116,14 +116,14 @@ export default function ObjectionDeck({ lead, onUseTemplate, voiceProfileSlug }:
                     return (
                       <>
                         <div>
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)]">
+                          <span className="text-[length:var(--t-eyebrow)] uppercase font-bold tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                             Reframe
                           </span>
                           <p className="text-sm whitespace-pre-wrap mt-0.5">{v.reframe}</p>
                         </div>
 
                         <div>
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-[color:var(--text-faint)]">
+                          <span className="text-[length:var(--t-eyebrow)] uppercase font-bold tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                             Follow-up question
                           </span>
                           <p

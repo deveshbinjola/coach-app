@@ -561,7 +561,7 @@ export default function LeadDetail({
               >
                 {referrer.full_name}
                 {referrer.status === "client" && (
-                  <span className="ml-1.5 text-[10px] font-bold uppercase text-[color:var(--warning)]">★ client</span>
+                  <span className="ml-1.5 text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--warning)]">★ client</span>
                 )}
               </a>
             </div>
@@ -939,7 +939,7 @@ function LeadMemoryCard({
             What to remember here.
           </h3>
         </div>
-        <span className="text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+        <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
           {approved.length} saved
         </span>
       </div>
@@ -972,7 +972,7 @@ function LeadMemoryCard({
                 {memory.text}
               </div>
               <div className="mt-2 flex items-center justify-between gap-2">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+                <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                   Suggested
                 </span>
                 <Button

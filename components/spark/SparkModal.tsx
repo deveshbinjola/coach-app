@@ -144,7 +144,7 @@ export default function SparkModal({ text, brandKit, onClose }: Props) {
               <Card className="p-4">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+                    <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
                       Size
                     </span>
                     {(Object.entries(EXPORT_SIZES) as [ExportSize, { label: string }][]).map(([key, val]) => (

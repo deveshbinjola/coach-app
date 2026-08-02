@@ -429,7 +429,7 @@ export default function VoiceLeadsPanel() {
       {leads && (
         <>
           <div className="card p-5 bg-[#F0FFF4] border-2 border-brand">
-            <div className="text-[10px] uppercase tracking-widest font-extrabold text-brand-strong">
+            <div className="text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] font-extrabold text-brand-strong">
               <Sparkles size={12} strokeWidth={2.2} className="mr-1 inline align-[-1px]" aria-hidden />{leads.length} {leads.length === 1 ? "lead" : "leads"} parsed
             </div>
             <p className="text-sm text-[color:var(--text-muted)] mt-1">
@@ -508,7 +508,7 @@ function LeadCard({
     <div className="card p-5">
       <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider bg-navy text-brand px-2 py-0.5 rounded">
+          <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] bg-navy text-brand px-2 py-0.5 rounded">
             #{index + 1} of {total}
           </span>
           <input
@@ -531,7 +531,7 @@ function LeadCard({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
         <div>
-          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
+          <label className="block text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold mb-1">
             Email
           </label>
           <input
@@ -543,7 +543,7 @@ function LeadCard({
           />
         </div>
         <div>
-          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
+          <label className="block text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold mb-1">
             Source
           </label>
           <select
@@ -559,7 +559,7 @@ function LeadCard({
           </select>
         </div>
         <div>
-          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
+          <label className="block text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold mb-1">
             Source detail
           </label>
           <input
@@ -573,7 +573,7 @@ function LeadCard({
           />
         </div>
         <div>
-          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
+          <label className="block text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold mb-1">
             Warmth
           </label>
           <select
@@ -593,7 +593,7 @@ function LeadCard({
       </div>
 
       <div className="mb-3">
-        <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1.5">
+        <label className="block text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold mb-1.5">
           Pain signals (click to toggle)
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -619,7 +619,7 @@ function LeadCard({
       </div>
 
       <div>
-        <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
+        <label className="block text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold mb-1">
           Notes
         </label>
         <textarea

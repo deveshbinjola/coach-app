@@ -1,7 +1,7 @@
 // Tests for lib/lead-sla.ts
 //
 // SLA state drives the Lead Rescue queue, the SlaBadge color, and the
-// "going cold" copy in CommandHero. Threshold drift would silently
+// "going cold" copy in LeadList. Threshold drift would silently
 // move what gets surfaced for action — exactly the kind of regression
 // these tests block.
 

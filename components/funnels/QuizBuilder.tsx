@@ -560,7 +560,7 @@ function showScreen(name) {
                                 />
                               </div>
                               <div className="space-y-3">
-                                <p className="text-[10px] font-bold text-[color:var(--text-muted)] uppercase tracking-wider">
+                                <p className="text-[length:var(--t-eyebrow)] font-bold text-[color:var(--text-muted)] uppercase tracking-[var(--tracking-eyebrow)]">
                                   Choices
                                 </p>
                                 {q.choices.map((c, cIdx) => {
@@ -589,7 +589,7 @@ function showScreen(name) {
                                             className="w-full px-3 py-2 rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface)] text-[color:var(--text)] text-sm focus:outline-none focus:border-[var(--brand)] transition"
                                           />
                                           <div className="flex items-center gap-2">
-                                            <span className="text-[10px] font-bold text-[color:var(--text-muted)] uppercase tracking-wider whitespace-nowrap">
+                                            <span className="text-[length:var(--t-eyebrow)] font-bold text-[color:var(--text-muted)] uppercase tracking-[var(--tracking-eyebrow)] whitespace-nowrap">
                                               Maps to:
                                             </span>
                                             <select

@@ -119,7 +119,7 @@ export default function QuizCreateModal({
       >
         {phase === "ask" && (
           <div className="p-6 sm:p-8">
-            <span className="inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)] bg-[var(--surface-deep)] rounded-full px-3 py-1.5">
+            <span className="inline-flex items-center gap-2 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-muted)] bg-[var(--surface-deep)] rounded-full px-3 py-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" /> New quiz
             </span>
             <h1 className="font-display text-[length:var(--t-h1)] font-bold tracking-tight leading-tight mt-4 text-[color:var(--text)]">
@@ -153,10 +153,10 @@ export default function QuizCreateModal({
         {phase === "review" && draft && (
           <div className="p-6 sm:p-8">
             <div className="flex items-start justify-between gap-3">
-              <span className="inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)] bg-[var(--surface-deep)] rounded-full px-3 py-1.5">
+              <span className="inline-flex items-center gap-2 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-muted)] bg-[var(--surface-deep)] rounded-full px-3 py-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" /> New quiz
               </span>
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[color:var(--brand-strong)] bg-[var(--brand-soft)] rounded-full px-2.5 py-1">Draft</span>
+              <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand-strong)] bg-[var(--brand-soft)] rounded-full px-2.5 py-1">Draft</span>
             </div>
             <input
               value={title}

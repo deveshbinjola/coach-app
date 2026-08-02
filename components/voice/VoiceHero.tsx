@@ -88,7 +88,7 @@ export function VoiceStatusHero({
     <section className="rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 shadow-[var(--shadow-xs)]">
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
         {/* Status pill */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-faint)] bg-white/70 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-muted)]">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-faint)] bg-white/70 px-3 py-1 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-muted)]">
           Voice OS
           <span className={`h-1.5 w-1.5 rounded-full ${hasProfile ? "bg-[var(--brand)]" : "bg-[var(--text-faint)]"}`} />
           {hasProfile ? "Active" : "Missing"}
@@ -118,7 +118,7 @@ export function VoiceStatusHero({
 
         {/* Signal trail */}
         {signals.length > 0 && (
-          <div className="ml-auto text-[10px] font-mono uppercase tracking-wider text-[color:var(--text-faint)] hidden lg:block">
+          <div className="ml-auto text-[length:var(--t-eyebrow)] font-mono uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] hidden lg:block">
             {signals.join(" · ")}
           </div>
         )}
@@ -174,7 +174,7 @@ export function VoiceAssetPanel({
       {/* Compact voice asset bar */}
       <div className="rounded-[var(--r-lg)] border border-[color-mix(in_srgb,var(--brand)_28%,var(--border))] bg-[var(--surface-elevated)] px-4 py-3 shadow-[var(--shadow-xs)]">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--brand)_35%,transparent)] bg-[var(--brand-soft)] px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text)]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--brand)_35%,transparent)] bg-[var(--brand-soft)] px-3 py-1 text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text)]">
             Voice Asset
             <span className="h-1 w-1 rounded-full bg-[var(--brand)]" />
             {stats.confidence}
@@ -196,7 +196,7 @@ export function VoiceAssetPanel({
         aria-label={`${sessionTitle}: ${sessionMeta}`}
       >
         <div className="min-w-0">
-          <div className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)]">
+          <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)]">
             Next training session
           </div>
           <p className="mt-0.5 text-[length:var(--t-caption)] font-bold text-[color:var(--text)]">

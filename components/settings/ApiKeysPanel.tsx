@@ -128,7 +128,7 @@ export default function ApiKeysPanel() {
       {/* Create form */}
       {showCreate && (
         <div className="mt-4 p-4 rounded-[var(--r-md)] bg-surface border border-[var(--border)]">
-          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mb-1">
+          <label className="block text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold mb-1">
             Key name (helps you tell keys apart)
           </label>
           <input
@@ -140,7 +140,7 @@ export default function ApiKeysPanel() {
             className="w-full p-2 rounded border border-[var(--border)] text-sm focus:outline-none focus:border-brand"
           />
 
-          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mt-3 mb-1">
+          <label className="block text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold mt-3 mb-1">
             Scope
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -184,7 +184,7 @@ export default function ApiKeysPanel() {
             <Key size={14} strokeWidth={2.2} className="mr-1.5 inline align-[-2px]" aria-hidden />Save this key now — we won't show it again.
           </p>
 
-          <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mt-3 mb-1">
+          <label className="block text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] font-bold mt-3 mb-1">
             Raw key
           </label>
           <div className="p-3 rounded bg-[var(--surface-elevated)] border border-[var(--border)] font-mono text-xs break-all select-all">

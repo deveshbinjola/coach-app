@@ -303,7 +303,7 @@ export default function VoiceSetupFlow({
       {stepIndex === 0 && variant === "standalone" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="rounded-[var(--r-md)] border border-[var(--border-faint)] bg-[var(--surface-deep)] p-4">
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--text-faint)] mb-2">
+            <p className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--text-faint)] mb-2">
               Without voice training
             </p>
             <p className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] italic leading-[var(--leading-relaxed)]">
@@ -311,7 +311,7 @@ export default function VoiceSetupFlow({
             </p>
           </div>
           <div className="rounded-[var(--r-md)] border border-[var(--brand)] bg-[var(--brand-soft)] p-4">
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-[color:var(--brand)] mb-2">
+            <p className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand)] mb-2">
               With voice training
             </p>
             <p className="text-[length:var(--t-caption)] text-[color:var(--text)] italic leading-[var(--leading-relaxed)]">

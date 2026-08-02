@@ -103,7 +103,7 @@ export default function SacredZonesInline() {
                   {SACRED_ZONE_LABEL[kind]}
                 </span>
               </span>
-              <span className={`text-[10px] uppercase tracking-[0.12em] font-bold ${on ? "text-[color:var(--brand-strong)]" : "text-[color:var(--text-faint)]"}`}>
+              <span className={`text-[length:var(--t-eyebrow)] uppercase tracking-[var(--tracking-eyebrow)] font-bold ${on ? "text-[color:var(--brand-strong)]" : "text-[color:var(--text-faint)]"}`}>
                 {on ? "Sacred" : "Open"}
               </span>
             </button>

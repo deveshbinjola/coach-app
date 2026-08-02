@@ -161,7 +161,7 @@ export default function AnalyticsClient({ funnelId, funnelTitle, funnelSlug }: P
                     <p className="text-lg font-extrabold text-[color:var(--text)]">
                       {q.responseCount}
                     </p>
-                    <p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-wider">
+                    <p className="text-[length:var(--t-eyebrow)] text-[color:var(--text-muted)] uppercase tracking-[var(--tracking-eyebrow)]">
                       responses
                     </p>
                     {q.dropOff > 0 && (

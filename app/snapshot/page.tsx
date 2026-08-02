@@ -73,7 +73,7 @@ export default async function SnapshotLanding({
     <div className="min-h-screen bg-[var(--surface)]">
       <main className="mx-auto max-w-xl px-6 py-20">
         <div className="mb-8 text-center">
-          <span className="inline-block text-[11px] font-bold uppercase tracking-[0.18em] text-[color:var(--brand-strong)]">
+          <span className="inline-block text-[length:var(--t-eyebrow)] font-bold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand-strong)]">
             Brand OS · Free
           </span>
           <h1 className="mt-3 font-display text-4xl font-bold leading-tight text-[color:var(--text)]">

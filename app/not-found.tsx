@@ -46,7 +46,7 @@ export default function NotFound() {
       <Header email="" />
       <main className="min-h-screen flex items-center justify-center p-6">
         <div className="w-full max-w-2xl">
-          <div className="text-[10px] font-extrabold uppercase tracking-widest text-[color:var(--brand-strong)]">
+          <div className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)] text-[color:var(--brand-strong)]">
             404 · Not found
           </div>
           <h1 className="font-display mt-3 text-4xl sm:text-5xl font-bold tracking-tight leading-[var(--leading-tight)] text-[color:var(--text)]">

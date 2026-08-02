@@ -84,7 +84,9 @@ export default function BugReportButton() {
         type="button"
         aria-label="Report a bug"
         onClick={() => setOpen(true)}
-        className="fixed bottom-20 right-4 z-[60] flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--text-muted)] shadow-lg transition-colors hover:border-[color-mix(in_srgb,var(--brand)_45%,transparent)] hover:text-[color:var(--brand)] md:bottom-6 md:right-6"
+        // Dock slot 2, directly above the Dhara bar. This used to be
+        // md:bottom-6, which landed on top of the bar at desktop widths.
+        className="fixed bottom-[var(--dock-2)] right-[var(--dock-right)] z-[60] flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--text-muted)] shadow-lg transition-colors hover:border-[color-mix(in_srgb,var(--brand)_45%,transparent)] hover:text-[color:var(--brand)]"
       >
         <Bug className="h-5 w-5" />
       </button>

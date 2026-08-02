@@ -317,7 +317,7 @@ function RoomMetric({ icon, label, value }: { icon: ReactNode; label: string; va
     <div className="rounded-[var(--r-md)] border border-[var(--border-faint)] bg-[var(--surface)] p-3">
       <div className="flex items-center gap-1.5 text-[color:var(--text-muted)]">
         {icon}
-        <span className="text-[10px] font-extrabold uppercase tracking-wider">{label}</span>
+        <span className="text-[length:var(--t-eyebrow)] font-extrabold uppercase tracking-[var(--tracking-eyebrow)]">{label}</span>
       </div>
       <div className="mt-2 truncate text-[length:var(--t-caption)] font-extrabold text-[color:var(--text)]">
         {value}
