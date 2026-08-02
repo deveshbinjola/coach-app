@@ -24,6 +24,7 @@ import {
   type LeadTemperature,
   type PainSignal,
 } from "@/lib/types";
+import { Sparkles } from "lucide-react";
 
 type ParsedLead = {
   full_name: string;
@@ -429,7 +430,7 @@ export default function VoiceLeadsPanel() {
         <>
           <div className="card p-5 bg-[#F0FFF4] border-2 border-brand">
             <div className="text-[10px] uppercase tracking-widest font-extrabold text-brand-strong">
-              ✨ {leads.length} {leads.length === 1 ? "lead" : "leads"} parsed
+              <Sparkles size={12} strokeWidth={2.2} className="mr-1 inline align-[-1px]" aria-hidden />{leads.length} {leads.length === 1 ? "lead" : "leads"} parsed
             </div>
             <p className="text-sm text-[color:var(--text-muted)] mt-1">
               Review and edit each one. Save All when ready - auto-drafts fire

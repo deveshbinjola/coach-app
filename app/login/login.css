@@ -169,7 +169,7 @@
 
 .lp-trust { display: flex; justify-content: center; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; }
 .lp-trust-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
-.lp-trust-icon { color: var(--forest); font-size: 0.7rem; }
+.lp-trust-icon { color: var(--forest); flex: none; }
 
 .lp-terms { margin-top: 1.5rem; text-align: center; font-size: 0.78rem; color: var(--faint); }
 .lp-terms a { color: var(--muted); text-decoration: none; }

@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui";
 import type { TimelineEvent, TimelineEventKind, DayGroup } from "@/lib/timeline";
 import { groupByDay } from "@/lib/timeline";
+import { ArrowDown, ArrowUp, BarChart3, Brain, CreditCard, FileText, Plus, RefreshCw, Zap } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 // ── Filter types ──────────────────────────────────────────────────────
 
@@ -91,44 +93,47 @@ export default function ContactTimeline({ events }: { events: TimelineEvent[] })
 
 // ── Event card renderer ───────────────────────────────────────────────
 
-const ICONS: Record<TimelineEventKind, string> = {
-  session: "🧠",
-  payment: "💳",
-  brand_os: "📊",
-  quiz: "📝",
-  message_outbound: "↑",
-  message_inbound: "↓",
-  status_change: "⟳",
-  lead_created: "+",
-  automation_email: "⚡",
+// Timeline marks. Were OS emoji (🧠 💳 📊 📝 ⚡) mixed with typographic
+// arrows, so the row icons rendered at three different weights and changed
+// shape per platform. One family, one stroke weight.
+const ICONS: Record<TimelineEventKind, LucideIcon> = {
+  session: Brain,
+  payment: CreditCard,
+  brand_os: BarChart3,
+  quiz: FileText,
+  message_outbound: ArrowUp,
+  message_inbound: ArrowDown,
+  status_change: RefreshCw,
+  lead_created: Plus,
+  automation_email: Zap,
 };
 
 const ACCENT_BORDER: Record<TimelineEvent["accent"], string> = {
   green: "border-l-[3px] border-l-[var(--brand)] bg-[color-mix(in_srgb,var(--brand)_4%,var(--surface-elevated))]",
-  indigo: "border-l-[3px] border-l-[#6366f1] bg-[color-mix(in_srgb,#6366f1_4%,var(--surface-elevated))]",
-  amber: "border-l-[3px] border-l-[#fbbf24] bg-[color-mix(in_srgb,#fbbf24_4%,var(--surface-elevated))]",
+  indigo: "border-l-[3px] border-l-[var(--info)] bg-[color-mix(in_srgb,var(--info)_4%,var(--surface-elevated))]",
+  amber: "border-l-[3px] border-l-[var(--warning)] bg-[color-mix(in_srgb,var(--warning)_4%,var(--surface-elevated))]",
   blue: "border-l-[3px] border-l-[var(--info)] bg-[color-mix(in_srgb,var(--info)_4%,var(--surface-elevated))]",
   none: "bg-[var(--surface-deep)]",
 };
 
 const ICON_BG: Record<TimelineEvent["accent"], string> = {
   green: "bg-[color-mix(in_srgb,var(--brand)_10%,var(--surface-elevated))] text-[color:var(--brand)]",
-  indigo: "bg-[color-mix(in_srgb,#6366f1_10%,var(--surface-elevated))] text-[#6366f1]",
-  amber: "bg-[color-mix(in_srgb,#fbbf24_10%,var(--surface-elevated))] text-[#fbbf24]",
+  indigo: "bg-[color-mix(in_srgb,var(--info)_10%,var(--surface-elevated))] text-[var(--info)]",
+  amber: "bg-[color-mix(in_srgb,var(--warning)_10%,var(--surface-elevated))] text-[var(--warning)]",
   blue: "bg-[color-mix(in_srgb,var(--info)_10%,var(--surface-elevated))] text-[color:var(--info)]",
   none: "bg-[var(--surface-deep)] text-[color:var(--text-faint)]",
 };
 
 function EventCard({ event }: { event: TimelineEvent }) {
   const isMinimal = event.kind === "status_change" || event.kind === "lead_created";
-  const icon = ICONS[event.kind];
+  const Icon = ICONS[event.kind];
   const time = formatTime(event.timestamp);
 
   if (isMinimal) {
     return (
       <div className="flex gap-3 items-center px-3 py-1.5">
         <div className="w-7 h-7 rounded-md bg-[var(--surface-deep)] flex items-center justify-center text-[13px] text-[color:var(--text-faint)] shrink-0">
-          {icon}
+          <Icon size={14} strokeWidth={1.9} aria-hidden />
         </div>
         <div className="text-[length:var(--t-caption)] text-[color:var(--text-muted)] flex-1">
           {event.title}
@@ -146,7 +151,7 @@ function EventCard({ event }: { event: TimelineEvent }) {
   return (
     <div className={`flex gap-3 items-start p-3 rounded-[var(--r-md)] ${ACCENT_BORDER[accent]}`}>
       <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[15px] shrink-0 ${ICON_BG[accent]}`}>
-        {icon}
+        <Icon size={15} strokeWidth={1.9} aria-hidden />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-baseline gap-2">
@@ -202,7 +207,7 @@ function EventCard({ event }: { event: TimelineEvent }) {
                 key={step}
                 className={`w-4 h-1 rounded-full ${
                   step <= (event.metadata!.step as number)
-                    ? "bg-[#6366f1]"
+                    ? "bg-[var(--info)]"
                     : "bg-[var(--border-faint)]"
                 }`}
               />
@@ -213,7 +218,7 @@ function EventCard({ event }: { event: TimelineEvent }) {
           <a
             href={event.linkTo}
             className="text-[11px] font-bold mt-2 inline-block transition-colors"
-            style={{ color: accent === "indigo" ? "#6366f1" : accent === "amber" ? "#fbbf24" : "var(--brand)" }}
+            style={{ color: accent === "indigo" ? "var(--info)" : accent === "amber" ? "var(--warning)" : "var(--brand)" }}
           >
             → View details
           </a>

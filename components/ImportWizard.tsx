@@ -15,6 +15,7 @@ import {
   type LeadTemperature,
   type PainSignal,
 } from "@/lib/types";
+import { CheckCircle2, Upload } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Fields on cp_leads that a coach can map from their import source.
@@ -761,7 +762,7 @@ function UploadStep({
           dragOver ? "border-brand bg-[var(--success-soft)]" : "border-[var(--border)]"
         }`}
       >
-        <div className="text-4xl mb-2">📤</div>
+        <Upload size={34} strokeWidth={1.6} className="mx-auto mb-2 text-[color:var(--text-faint)]" aria-hidden />
         <h2 className="text-lg font-bold mb-1">Drop a CSV, Excel, or PDF</h2>
         <p className="text-sm text-[color:var(--text-muted)] mb-4">
           .csv, .xlsx, .xls, or <strong>.pdf</strong> (tables auto-detected; profile sheets become one row per page)
@@ -1044,7 +1045,7 @@ function DoneStep({
 }) {
   return (
     <div className="card p-10 text-center">
-      <div className="text-5xl mb-3">✅</div>
+      <CheckCircle2 size={44} strokeWidth={1.6} className="mx-auto mb-3 text-[color:var(--success)]" aria-hidden />
       <h2 className="text-xl font-extrabold mb-2">Imported {inserted} leads</h2>
       {skipped > 0 && <p className="text-sm text-[color:var(--text-muted)] mb-4">{skipped} rows skipped (missing name or duplicate email).</p>}
       <button onClick={onViewInbox} className="btn-primary">Go to Inbox →</button>

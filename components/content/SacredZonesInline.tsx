@@ -14,6 +14,7 @@ import {
   SACRED_ZONE_LABEL,
   type SacredZoneKind,
 } from "@/lib/brand-os/sacred-zones";
+import { Lock, Pencil } from "lucide-react";
 
 export default function SacredZonesInline() {
   const [sacred, setSacred] = useState<SacredZoneKind[]>([]);
@@ -96,7 +97,7 @@ export default function SacredZonesInline() {
                   aria-hidden
                   className={`text-[14px] leading-none ${on ? "text-[color:var(--brand-strong)]" : "text-[color:var(--text-faint)]"}`}
                 >
-                  {on ? "🔒" : "✎"}
+                  {on ? <Lock size={13} strokeWidth={2} aria-hidden /> : <Pencil size={13} strokeWidth={2} aria-hidden />}
                 </span>
                 <span className="text-[length:var(--t-caption)] font-bold text-[color:var(--text)] truncate">
                   {SACRED_ZONE_LABEL[kind]}

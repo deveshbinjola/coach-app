@@ -1,14 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, ArrowRight, Check } from "lucide-react";
+import { ArrowRight, ChefHat, Check, Flame, Loader2, Puzzle, Sprout } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { MirrorRead, SystemType } from "@/lib/mirror";
 
-const TYPE_META: Record<SystemType, { emoji: string; label: string; tint: string; soft: string }> = {
-  recipe: { emoji: "🍳", label: "A Recipe", tint: "var(--success)", soft: "var(--success-soft)" },
-  puzzle: { emoji: "🧩", label: "A Puzzle", tint: "var(--info)", soft: "var(--info-soft)" },
-  garden: { emoji: "🌱", label: "A Garden", tint: "var(--brand)", soft: "var(--brand-soft)" },
-  fire:   { emoji: "🔥", label: "A Fire",   tint: "var(--danger)", soft: "var(--danger-soft)" },
+// These four marks ARE the payoff of /mirror, so they were the worst place in
+// the app to be rendering OS emoji: 🍳🧩🌱🔥 draw differently on macOS, Windows
+// and Android, ignore the surrounding stroke weight, and read as placeholder
+// art next to the lucide iconography on every other screen.
+const TYPE_META: Record<SystemType, { Icon: LucideIcon; label: string; tint: string; soft: string }> = {
+  recipe: { Icon: ChefHat, label: "A Recipe", tint: "var(--success)", soft: "var(--success-soft)" },
+  puzzle: { Icon: Puzzle,  label: "A Puzzle", tint: "var(--info)",    soft: "var(--info-soft)" },
+  garden: { Icon: Sprout,  label: "A Garden", tint: "var(--brand)",   soft: "var(--brand-soft)" },
+  fire:   { Icon: Flame,   label: "A Fire",   tint: "var(--danger)",  soft: "var(--danger-soft)" },
 };
 
 type Phase = "idle" | "loading" | "result" | "error";
@@ -124,7 +129,8 @@ export default function MirrorCard({ variant = "card" }: { variant?: MirrorVaria
             className="inline-flex items-center gap-2 rounded-[var(--r-pill)] px-3 py-1.5 text-sm font-bold"
             style={{ background: meta.soft, color: meta.tint }}
           >
-            {meta.emoji} {meta.label}
+            <meta.Icon size={16} strokeWidth={2} aria-hidden />
+            {meta.label}
           </span>
         )}
 

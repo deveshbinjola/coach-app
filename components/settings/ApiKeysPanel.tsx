@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import type { ApiKey } from "@/lib/types";
 import { Badge, Button, useConfirm } from "@/components/ui";
 import ScopeOption from "./ScopeOption";
+import { BookOpen, Key, Zap } from "lucide-react";
 
 export default function ApiKeysPanel() {
   const { ConfirmDialog, askConfirm } = useConfirm();
@@ -180,7 +181,7 @@ export default function ApiKeysPanel() {
       {justCreated && (
         <div className="mt-4 p-4 rounded-[var(--r-md)] border-2 border-brand bg-[#F0FFF4]">
           <p className="text-sm font-extrabold text-navy">
-            🔑 Save this key now — we won't show it again.
+            <Key size={14} strokeWidth={2.2} className="mr-1.5 inline align-[-2px]" aria-hidden />Save this key now — we won't show it again.
           </p>
 
           <label className="block text-[10px] uppercase tracking-wider text-[color:var(--text-faint)] font-bold mt-3 mb-1">
@@ -202,7 +203,7 @@ export default function ApiKeysPanel() {
               their agent is connected. Two clicks total. */}
           <details className="mt-4">
             <summary className="cursor-pointer text-sm font-bold text-navy hover:text-brand-strong">
-              ⚡ Connect to Claude Desktop / Cursor →
+              <Zap size={14} strokeWidth={2.2} className="mr-1.5 inline align-[-2px]" aria-hidden />Connect to Claude Desktop / Cursor
             </summary>
             <div className="mt-3">
               <p className="text-xs text-[color:var(--text-muted)] leading-relaxed mb-2">
@@ -349,7 +350,7 @@ export default function ApiKeysPanel() {
           rel="noopener"
           className="text-brand-strong font-bold underline decoration-dotted hover:text-navy"
         >
-          📚 API docs →
+          <BookOpen size={14} strokeWidth={2.2} className="mr-1.5 inline align-[-2px]" aria-hidden />API docs
         </a>
       </p>
 

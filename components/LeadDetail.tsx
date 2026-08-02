@@ -46,6 +46,7 @@ import {
   type TimelineSession,
 } from "@/lib/timeline";
 import { Badge, Button, Card, Modal, useError } from "@/components/ui";
+import { Check, PartyPopper } from "lucide-react";
 
 const STATUSES: LeadStatus[] = ["new", "contacted", "qualified", "booked", "client", "closed_lost"];
 
@@ -1303,7 +1304,11 @@ function ConversionCelebration({
       >
         <div className="flex items-start justify-between gap-3">
           <Badge tone="brand" size="xs" uppercase>
-            {isFirst ? "🎉 First client" : "✓ Converted"}
+            {isFirst ? (
+              <><PartyPopper size={12} strokeWidth={2.2} aria-hidden /> First client</>
+            ) : (
+              <><Check size={12} strokeWidth={2.6} aria-hidden /> Converted</>
+            )}
           </Badge>
           <button
             onClick={onDismiss}

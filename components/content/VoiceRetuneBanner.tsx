@@ -8,6 +8,7 @@
 
 import { useState } from "react";
 import { Badge, Button, Card } from "@/components/ui";
+import { Mic } from "lucide-react";
 
 type Props = {
   newSources: number;
@@ -107,7 +108,7 @@ export default function VoiceRetuneBanner({ newSources, newChars }: Props) {
     <Card className="p-4 sm:p-5 space-y-3 border-[var(--warning)] bg-[var(--warning-soft)]">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex items-start gap-3 min-w-0 flex-1">
-          <span className="text-xl shrink-0" aria-hidden>🎙</span>
+          <Mic size={19} strokeWidth={1.9} className="shrink-0 text-[color:var(--brand)]" aria-hidden />
           <div className="min-w-0 space-y-1">
             <p className="font-bold text-[color:var(--text)]">
               Your voice has new material — re-tune?

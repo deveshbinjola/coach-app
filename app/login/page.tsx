@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import "./login.css";
+import { CreditCard, Infinity, Lock } from "lucide-react";
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
@@ -193,9 +194,12 @@ export default function LoginPage() {
               {error && <p className="lp-error" role="alert">{error}</p>}
 
               <div className="lp-trust">
-                <span className="lp-trust-item"><span className="lp-trust-icon">🔒</span> Secure sign-in</span>
-                <span className="lp-trust-item"><span className="lp-trust-icon">✦</span> No credit card</span>
-                <span className="lp-trust-item"><span className="lp-trust-icon">∞</span> 500 leads free</span>
+                {/* Was 🔒 ✦ ∞: an OS emoji next to two typographic glyphs, so
+                    the three trust marks rendered at three different weights
+                    and the lock changed shape per platform. */}
+                <span className="lp-trust-item"><Lock size={12} strokeWidth={2.2} className="lp-trust-icon" aria-hidden /> Secure sign-in</span>
+                <span className="lp-trust-item"><CreditCard size={12} strokeWidth={2.2} className="lp-trust-icon" aria-hidden /> No credit card</span>
+                <span className="lp-trust-item"><Infinity size={12} strokeWidth={2.2} className="lp-trust-icon" aria-hidden /> 500 leads free</span>
               </div>
 
               <p className="lp-terms">

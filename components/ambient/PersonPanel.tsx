@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Badge } from "@/components/ui";
 import type { PersonSignals } from "@/lib/ambient";
+import { DollarSign, MessageCircle, Package, RefreshCw, Target } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 type Props = {
   leadId: string | null;
@@ -119,7 +121,7 @@ export default function PersonPanel({ leadId, onClose }: Props) {
               <div className="space-y-3">
                 {signals.lastMessage && (
                   <SignalLine
-                    icon="💬"
+                    icon={MessageCircle}
                     warning={signals.flags.messageWaiting}
                     text={`${signals.lastMessage.direction === "outbound" ? "You sent" : "They sent"} a message · ${formatDaysAgo(signals.lastMessage.date)}`}
                   />
@@ -128,7 +130,7 @@ export default function PersonPanel({ leadId, onClose }: Props) {
                 {signals.lastSession && (
                   <div>
                     <SignalLine
-                      icon="🎯"
+                      icon={Target}
                       warning={signals.flags.sessionOverdue}
                       text={`Last session ${formatDaysAgo(signals.lastSession.date)} · ${signals.lastSession.keyTopics.slice(0, 2).join(", ") || "no topics"}`}
                     />
@@ -141,21 +143,21 @@ export default function PersonPanel({ leadId, onClose }: Props) {
 
                 {signals.offering && (
                   <SignalLine
-                    icon="📦"
+                    icon={Package}
                     text={`${signals.offering.name} · month ${signals.offering.monthsIn}${signals.offering.totalMonths ? ` of ${signals.offering.totalMonths}` : ""}`}
                   />
                 )}
 
                 {signals.sequence && (
                   <SignalLine
-                    icon="🔄"
+                    icon={RefreshCw}
                     text={`${signals.sequence.name}${signals.sequence.totalSteps > 0 ? ` · step ${signals.sequence.currentStep} of ${signals.sequence.totalSteps}` : ""}`}
                   />
                 )}
 
                 {signals.lifetimePaid > 0 && (
                   <SignalLine
-                    icon="💰"
+                    icon={DollarSign}
                     text={`$${(signals.lifetimePaid / 100).toLocaleString()} lifetime`}
                   />
                 )}
@@ -193,17 +195,17 @@ export default function PersonPanel({ leadId, onClose }: Props) {
 }
 
 function SignalLine({
-  icon,
+  icon: Icon,
   text,
   warning = false,
 }: {
-  icon: string;
+  icon: LucideIcon;
   text: string;
   warning?: boolean;
 }) {
   return (
     <div className="flex items-start gap-2">
-      <span className="text-[14px] shrink-0 mt-0.5">{icon}</span>
+      <Icon size={14} strokeWidth={1.9} className="mt-0.5 shrink-0 text-[color:var(--text-muted)]" aria-hidden />
       <span
         className={`text-[length:var(--t-caption)] ${
           warning ? "text-[color:var(--warning)]" : "text-[color:var(--text)]"
