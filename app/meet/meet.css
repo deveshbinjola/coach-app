@@ -67,9 +67,8 @@
 
 /* ── Header ── */
 .mq-logo { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 3rem; text-decoration: none; }
-.mq-logo svg { width: 28px; height: 28px; }
-.mq-logo-text { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; font-variation-settings: "SOFT" 30, "opsz" 144; color: var(--ink); }
-.mq-logo-text span { color: var(--forest); }
+/* The wordmark rules that lived here moved into components/BrandLogo, which
+   both quizzes now render. */
 
 /* ── Progress ── */
 .mq-progress { display: flex; gap: 6px; margin-bottom: 2.25rem; max-width: 200px; }

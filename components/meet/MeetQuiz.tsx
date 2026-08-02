@@ -22,14 +22,17 @@ import {
 import { renderArchetypeCard } from "@/lib/meet-share-card";
 import { shareOrDownload } from "@/lib/share-card";
 import ArchetypeMark from "@/components/meet/ArchetypeMark";
+import BrandLogo, { LEAF_PATH, LEAF_STEM_PATH } from "@/components/BrandLogo";
 
 type Screen = "intro" | "q1" | "q2" | "q3" | "result";
 
+// The circle background is on .mq-reaction-av in CSS, so this renders the
+// leaf paths only, from the shared source rather than a second copy.
 const AssistantAvatar = () => (
   <span className="mq-reaction-av" aria-hidden>
     <svg viewBox="0 0 48 48" fill="none">
-      <path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#FAF8F3" />
-      <path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#FAF8F3" strokeWidth="2.7" strokeLinecap="round" />
+      <path d={LEAF_PATH} fill="#FAF8F3" />
+      <path d={LEAF_STEM_PATH} stroke="#FAF8F3" strokeWidth="2.7" strokeLinecap="round" />
     </svg>
   </span>
 );
@@ -189,13 +192,9 @@ export default function MeetQuiz() {
   return (
     <div className="mq">
       <div className="mq-inner">
-        <a href="/login" className="mq-logo">
-          <svg viewBox="0 0 48 48" fill="none" aria-hidden>
-            <rect x="3" y="4" width="39" height="39" rx="9.8" fill="#0B6E23" />
-            <path d="M14.2 30.5C13.6 24 15.2 18.8 19.9 15.6C23.5 13.2 27.7 13.4 32.1 10.2C33.9 18.5 31.6 25.6 25.7 28.8C21.9 30.9 18 30.7 15.4 29.6L14.2 30.5Z" fill="#FAF8F3" />
-            <path d="M13.4 32.1C15.8 26.9 19.8 22.9 25.3 20.1" stroke="#FAF8F3" strokeWidth="2.7" strokeLinecap="round" />
-          </svg>
-          <span className="mq-logo-text">Coach <span>Assistant</span></span>
+        {/* The shared mark, not a fifth inlined copy of the leaf. */}
+        <a href="/login" className="mq-logo" aria-label="Coach Assistant home">
+          <BrandLogo iconSize={28} />
         </a>
 
         {/* key={screen} remounts the block so each question slides in fresh. */}
