@@ -18,6 +18,7 @@ import {
   type LeadNextAction,
   type MessagePurpose,
   type VoiceProfile,
+  STATUS_LABEL,
 } from "@/lib/types";
 import { computeLeadScore, sortByScore, scoreTier, SCORE_TIER_CLASS } from "@/lib/lead-score";
 import { computeWasEdited, scoreVoiceFit } from "@/lib/voice-trust";
@@ -26,15 +27,6 @@ import { Badge, Button, useError, useConfirm } from "@/components/ui";
 import VoiceCompose from "@/components/VoiceCompose";
 
 const STATUSES: LeadStatus[] = ["new", "contacted", "qualified", "booked", "client", "closed_lost"];
-const STATUS_LABEL: Record<LeadStatus, string> = {
-  new: "New",
-  contacted: "Contacted",
-  qualified: "Qualified",
-  booked: "Booked",
-  client: "Client",
-  closed_lost: "Closed (lost)",
-};
-
 type DiscoveryFilter = "any" | "yes" | "no";
 
 export default function ComposeStudio({

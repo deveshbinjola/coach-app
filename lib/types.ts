@@ -89,6 +89,29 @@ export const PAIN_SIGNAL_LABEL: Record<PainSignal, string> = {
   burnout: "Burnout",
 };
 
+/** The missing sibling of the other label maps. Without it the lead forms
+ *  rendered raw enum values in the Source dropdown, so a coach picked
+ *  "in_person" rather than "In person". */
+export const SOURCE_LABEL: Record<LeadSource, string> = {
+  ig: "Instagram",
+  linkedin: "LinkedIn",
+  referral: "Referral",
+  quiz: "Quiz",
+  in_person: "In person",
+  podcast: "Podcast",
+  newsletter: "Newsletter",
+  other: "Other",
+};
+
+export const STATUS_LABEL: Record<LeadStatus, string> = {
+  new: "New",
+  contacted: "Contacted",
+  qualified: "Qualified",
+  booked: "Booked",
+  client: "Client",
+  closed_lost: "Closed (lost)",
+};
+
 export const TEMPERATURE_LABEL: Record<LeadTemperature, string> = {
   on_fire: "🔥 On fire",
   hot: "Hot",

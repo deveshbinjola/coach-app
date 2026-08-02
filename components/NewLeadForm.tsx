@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import VoiceMicInput from "@/components/VoiceMicInput";
+import { Input, Select, Textarea } from "@/components/ui/Input";
 import {
   INCOME_BAND_LABEL,
   LEAD_INCOME_BANDS,
@@ -14,6 +15,7 @@ import {
   PAIN_SIGNALS,
   PAIN_SIGNAL_LABEL,
   READINESS_LABEL,
+  SOURCE_LABEL,
   TEMPERATURE_LABEL,
   type LeadIncomeBand,
   type LeadNextAction,
@@ -179,81 +181,89 @@ export default function NewLeadForm() {
   return (
     <div className="max-w-xl">
       <form onSubmit={save} className="card p-6 space-y-4">
-        <Input label="Full Name" value={form.full_name} onChange={(v) => setForm({ ...form, full_name: v })} required />
-        <Input label="Email" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
-        <Input label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
+        <Input
+          name="full_name"
+          label="Full name"
+          value={form.full_name}
+          onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+          required
+        />
+        <Input
+          name="email"
+          label="Email"
+          type="email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+        />
+        <Input
+          name="phone"
+          label="Phone"
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+        />
 
         <div className="grid grid-cols-2 gap-3">
           <Select
+            name="source"
             label="Source"
             value={form.source}
-            options={SOURCES}
-            onChange={(v) => setForm({ ...form, source: v as LeadSource })}
-          />
-          <div>
-            <label className="block text-xs font-semibold uppercase mb-1">Warmth</label>
-            <select
-              value={form.temperature}
-              onChange={(e) => setForm({ ...form, temperature: e.target.value as LeadTemperature })}
-              className="w-full p-2 border border-gray-300 rounded-lg"
-            >
-              {LEAD_TEMPERATURES.map((t) => (
-                <option key={t} value={t}>{TEMPERATURE_LABEL[t]}</option>
-              ))}
-            </select>
-          </div>
+            onChange={(e) => setForm({ ...form, source: e.target.value as LeadSource })}
+          >
+            {SOURCES.map((o) => (
+              <option key={o} value={o}>{SOURCE_LABEL[o]}</option>
+            ))}
+          </Select>
+          <Select
+            name="temperature"
+            label="Warmth"
+            value={form.temperature}
+            onChange={(e) => setForm({ ...form, temperature: e.target.value as LeadTemperature })}
+          >
+            {LEAD_TEMPERATURES.map((t) => (
+              <option key={t} value={t}>{TEMPERATURE_LABEL[t]}</option>
+            ))}
+          </Select>
         </div>
 
         {/* Attribution - source_detail is the "which post/reel/podcast/etc"
             atom. Fuels the attribution block on the dashboard. */}
-        <div>
-          <label className="block text-xs font-semibold uppercase mb-1">
-            Source detail <span className="text-gray-400 font-normal normal-case">(optional but high-ROI)</span>
-          </label>
-          <input
-            type="text"
-            value={form.source_detail}
-            onChange={(e) => setForm({ ...form, source_detail: e.target.value })}
-            placeholder={SOURCE_DETAIL_PLACEHOLDER[form.source]}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-          <p className="text-[11px] text-gray-500 mt-1">
-            The specific post, reel, newsletter, or conversation that brought them in.
-          </p>
-        </div>
+        <Input
+          name="source_detail"
+          label="Source detail"
+          value={form.source_detail}
+          onChange={(e) => setForm({ ...form, source_detail: e.target.value })}
+          placeholder={SOURCE_DETAIL_PLACEHOLDER[form.source]}
+          hint="The specific post, reel, newsletter, or conversation that brought them in."
+        />
 
-        <div>
-          <label className="block text-xs font-semibold uppercase mb-1">
-            Source URL <span className="text-gray-400 font-normal normal-case">(optional — auto-detects pain)</span>
-          </label>
-          <input
+        <div className="space-y-1">
+          <Input
+            name="source_url"
+            label="Source URL"
             type="url"
             value={form.source_url}
             onChange={(e) => setForm({ ...form, source_url: e.target.value })}
             placeholder="e.g. https://elevateaisystem.com/blog/healing-after-heartbreak"
-            className="w-full p-2 border border-gray-300 rounded-lg"
+            hint="Paste the page they came from. Pain signals are inferred from the topic."
           />
           {form.source_url && inferPainFromUrl(form.source_url).length > 0 && (
-            <p className="text-[11px] text-green-600 mt-1 font-semibold">
+            <p className="text-[length:var(--t-caption)] font-semibold text-[color:var(--brand)]">
               Auto-detected pain: {inferPainFromUrl(form.source_url).map((p) => PAIN_SIGNAL_LABEL[p]).join(", ")}
             </p>
           )}
-          <p className="text-[11px] text-gray-500 mt-1">
-            Paste the blog post or landing page URL they came from. Pain signals are inferred automatically from the article topic.
-          </p>
         </div>
 
         {/* Referrer picker - only shown when source='referral'. Self-FK
             lets us build referral chains and credit the referrer later. */}
         {form.source === "referral" && (
-          <div>
-            <label className="block text-xs font-semibold uppercase mb-1">Referred by</label>
-            <select
-              value={form.referred_by_lead_id}
-              onChange={(e) => setForm({ ...form, referred_by_lead_id: e.target.value })}
-              className="w-full p-2 border border-gray-300 rounded-lg"
-            >
-              <option value="">- not linked to an existing lead -</option>
+          <Select
+            name="referred_by_lead_id"
+            label="Referred by"
+            value={form.referred_by_lead_id}
+            onChange={(e) => setForm({ ...form, referred_by_lead_id: e.target.value })}
+            hint="Linking the referrer unlocks a thank-them-and-ask-again prompt on their profile."
+          >
+            <option value="">Not linked to an existing lead</option>
               {potentialReferrers.map((r) => {
                 const tag =
                   r.status === "client"
@@ -267,26 +277,20 @@ export default function NewLeadForm() {
                   </option>
                 );
               })}
-            </select>
-            <p className="text-[11px] text-gray-500 mt-1">
-              Linking the referrer unlocks a "thank them + ask for another intro" prompt on their profile.
-            </p>
-          </div>
+          </Select>
         )}
 
-        <div>
-          <label className="block text-xs font-semibold uppercase mb-1">Next Honest Action</label>
-          <select
-            value={form.next_honest_action}
-            onChange={(e) => setForm({ ...form, next_honest_action: e.target.value as LeadNextAction | "" })}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          >
-            <option value="">- none -</option>
-            {LEAD_NEXT_ACTIONS.map((a) => (
-              <option key={a} value={a}>{NEXT_ACTION_LABEL[a]}</option>
-            ))}
-          </select>
-        </div>
+        <Select
+          name="next_honest_action"
+          label="Next honest action"
+          value={form.next_honest_action}
+          onChange={(e) => setForm({ ...form, next_honest_action: e.target.value as LeadNextAction | "" })}
+        >
+          <option value="">None</option>
+          {LEAD_NEXT_ACTIONS.map((a) => (
+            <option key={a} value={a}>{NEXT_ACTION_LABEL[a]}</option>
+          ))}
+        </Select>
 
         <div>
           <label className="block text-xs font-semibold uppercase mb-1">Pain Signal</label>
@@ -298,10 +302,11 @@ export default function NewLeadForm() {
                   key={s}
                   type="button"
                   onClick={() => togglePain(s)}
-                  className={`text-left text-xs px-3 py-2 rounded-lg border transition ${
+                  aria-pressed={active}
+                  className={`min-h-11 cursor-pointer rounded-[var(--r-md)] border px-3 py-2 text-left text-xs transition ${
                     active
-                      ? "bg-navy text-white border-navy font-semibold"
-                      : "bg-white text-gray-800 border-gray-300 hover:border-gray-500"
+                      ? "border-[var(--brand)] bg-[var(--brand)] font-semibold text-[color:var(--text-inverse)]"
+                      : "border-[var(--border)] bg-[var(--surface-elevated)] text-[color:var(--text)] hover:border-[var(--border-strong)]"
                   }`}
                 >
                   {PAIN_SIGNAL_LABEL[s]}
@@ -311,11 +316,12 @@ export default function NewLeadForm() {
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-sm cursor-pointer">
+        <label className="flex min-h-11 cursor-pointer items-center gap-2.5 text-[length:var(--t-body)]">
           <input
             type="checkbox"
             checked={form.discovery_call_completed}
             onChange={(e) => setForm({ ...form, discovery_call_completed: e.target.checked })}
+            className="h-4 w-4 cursor-pointer accent-[var(--brand)]"
           />
           <span>Discovery call completed</span>
         </label>
@@ -323,66 +329,65 @@ export default function NewLeadForm() {
         {/* P4: Qualification snapshot - optional at intake. Most coaches
             won't know income band on first contact, so these stay blank
             until the discovery call surfaces them. */}
-        <div className="pt-3 border-t border-gray-100">
-          <div className="mb-2">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700">
-              Qualification <span className="text-gray-400 font-normal normal-case">(optional - fill after discovery)</span>
-            </h4>
-          </div>
+        <div className="border-t border-[var(--border-faint)] pt-4">
+          <h4 className="mb-2 text-[length:var(--t-caption)] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">
+            Qualification{" "}
+            <span className="font-normal normal-case text-[color:var(--text-faint)]">
+              (optional, fill after discovery)
+            </span>
+          </h4>
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold uppercase mb-1">Income Band</label>
-              <select
-                value={form.income_band}
-                onChange={(e) => setForm({ ...form, income_band: e.target.value as LeadIncomeBand | "" })}
-                className="w-full p-2 border border-gray-300 rounded-lg"
-              >
-                <option value="">- not set -</option>
-                {LEAD_INCOME_BANDS.map((b) => (
-                  <option key={b} value={b}>{INCOME_BAND_LABEL[b]}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase mb-1">Readiness</label>
-              <select
-                value={form.readiness_signal}
-                onChange={(e) => setForm({ ...form, readiness_signal: e.target.value as LeadReadiness | "" })}
-                className="w-full p-2 border border-gray-300 rounded-lg"
-              >
-                <option value="">- not set -</option>
-                {LEAD_READINESS_SIGNALS.map((r) => (
-                  <option key={r} value={r}>{READINESS_LABEL[r]}</option>
-                ))}
-              </select>
-            </div>
+            <Select
+              name="income_band"
+              label="Income band"
+              value={form.income_band}
+              onChange={(e) => setForm({ ...form, income_band: e.target.value as LeadIncomeBand | "" })}
+            >
+              <option value="">Not set</option>
+              {LEAD_INCOME_BANDS.map((b) => (
+                <option key={b} value={b}>{INCOME_BAND_LABEL[b]}</option>
+              ))}
+            </Select>
+            <Select
+              name="readiness_signal"
+              label="Readiness"
+              value={form.readiness_signal}
+              onChange={(e) => setForm({ ...form, readiness_signal: e.target.value as LeadReadiness | "" })}
+            >
+              <option value="">Not set</option>
+              {LEAD_READINESS_SIGNALS.map((r) => (
+                <option key={r} value={r}>{READINESS_LABEL[r]}</option>
+              ))}
+            </Select>
           </div>
           <div className="mt-3">
-            <label className="block text-xs font-semibold uppercase mb-1">
-              Fit Notes
-            </label>
-            <input
-              type="text"
+            <Input
+              name="fit_notes"
+              label="Fit notes"
               value={form.fit_notes}
               onChange={(e) => setForm({ ...form, fit_notes: e.target.value })}
-              placeholder="Your read - the feel, not the data"
-              className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+              placeholder="Your read. The feel, not the data."
             />
           </div>
         </div>
 
-        <div>
-          <label className="flex items-center gap-2 text-xs font-semibold uppercase mb-1">
-            Notes
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="notes"
+              className="block text-[length:var(--t-caption)] font-bold text-[color:var(--text-muted)]"
+            >
+              Notes
+            </label>
             <VoiceMicInput
               onTranscript={(t) => setForm((f) => ({ ...f, notes: f.notes ? f.notes + " " + t : t }))}
             />
-          </label>
-          <textarea
+          </div>
+          <Textarea
+            name="notes"
             value={form.notes}
             onChange={(e) => setForm({ ...form, notes: e.target.value })}
             rows={4}
-            className="w-full p-2 border border-gray-300 rounded-lg"
           />
         </div>
 
@@ -390,58 +395,6 @@ export default function NewLeadForm() {
           {saving ? "Saving..." : "Save Lead"}
         </button>
       </form>
-    </div>
-  );
-}
-
-function Input({
-  label,
-  value,
-  onChange,
-  type = "text",
-  required = false,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string;
-  required?: boolean;
-}) {
-  return (
-    <div>
-      <label className="block text-xs font-semibold uppercase mb-1">{label}</label>
-      <input
-        type={type}
-        required={required}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full p-2 border border-gray-300 rounded-lg"
-      />
-    </div>
-  );
-}
-
-function Select<T extends string>({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: T;
-  options: readonly T[];
-  onChange: (value: T) => void;
-}) {
-  return (
-    <div>
-      <label className="block text-xs font-semibold uppercase mb-1">{label}</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as T)}
-        className="w-full p-2 border border-gray-300 rounded-lg"
-      >
-        {options.map((o) => <option key={o} value={o}>{o}</option>)}
-      </select>
     </div>
   );
 }
