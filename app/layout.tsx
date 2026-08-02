@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import MobileTabBar from "@/components/MobileTabBar";
 import CommandPalette from "@/components/CommandPalette";
+import BugReportButton from "@/components/BugReportButton";
 import PersonPanelProvider from "@/components/ambient/PersonPanelProvider";
 import DharaProvider from "@/components/dhara/DharaProvider";
 import DharaBar from "@/components/dhara/DharaBar";
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
             <MobileTabBar />
             <CommandPalette />
+            <BugReportButton />
           </PersonPanelProvider>
           <DharaBar />
         </DharaProvider>
