@@ -12,6 +12,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { resendSend, type ResendSender } from "@/lib/email/coach-resend";
 import { syncBuyersToNotion, type BuyerPerson } from "@/lib/notion/buyers-sync";
+import { requireCronAuth } from "@/lib/cron/auth";
 
 export const runtime = "edge";
 
@@ -40,19 +41,8 @@ const STATUS_LABEL: Record<RunStatus, string> = {
 };
 
 export async function GET(request: NextRequest) {
-  // ── Auth ──────────────────────────────────────────────
-  const secret = process.env.CRON_SECRET;
-  if (!secret) {
-    return NextResponse.json({ error: "CRON_SECRET not configured" }, { status: 503 });
-  }
-  const url = new URL(request.url);
-  const provided =
-    url.searchParams.get("key") ??
-    request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
-    "";
-  if (provided !== secret) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = requireCronAuth(request);
+  if (authError) return authError;
 
   const admin = createAdminClient();
   const sinceMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
