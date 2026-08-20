@@ -24,11 +24,13 @@
 // The flow auto-skips Voice if the coach already has a profile (force=1
 // case where they came back to replay activation but already had voice).
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Share2 } from "lucide-react";
 import { Badge, Button, Card } from "@/components/ui";
 import VoiceSetupFlow from "@/components/VoiceSetupFlow";
+import { AssistantAvatarIcon } from "@/components/BrandLogo";
+import { parseRows, reflectOnRows, IMPORT_HANDOFF } from "@/lib/lead-import";
 import { createClient } from "@/lib/supabase-browser";
 import { readInvokeError } from "@/lib/voice/invoke-error";
 import { renderShareCard, shareOrDownload } from "@/lib/share-card";
@@ -50,10 +52,11 @@ import {
   clearInterviewAnswers,
   reflectionLine,
   type InterviewAnswers,
+  type Stage,
   type Desire,
 } from "@/lib/assistant-interview";
 
-type Step = "audience" | "interview" | "hello" | "voice" | "magic" | "done";
+type Step = "audience" | "interview" | "hello" | "voice" | "magic" | "leads" | "done";
 type OnboardingImportSource = "instagram" | "linkedin" | "newsletter";
 type ImportedVoiceSignal = {
   source: OnboardingImportSource;
@@ -101,6 +104,7 @@ export default function WelcomeFlow({
   // Set when the interview completes — the Hello step reflects the coach's
   // own answers back so personalization is felt immediately, not claimed.
   const [reflection, setReflection] = useState<string | null>(null);
+  const [stage, setStage] = useState<Stage | null>(null);
 
   // Audience-question state (only used during 'audience' step).
   const [audienceSelf, setAudienceSelf] = useState<AudienceSelf | null>(null);
@@ -234,6 +238,7 @@ export default function WelcomeFlow({
           firstName={coachFirstName}
           onDone={(answers) => {
             setReflection(answers ? reflectionLine(answers) : null);
+            setStage(answers?.stage ?? null);
             setStep("hello");
           }}
         />
@@ -298,7 +303,7 @@ export default function WelcomeFlow({
           importedSignal={importedSignal}
           error={draftError}
           onGenerate={generateDemoDraft}
-          onContinue={() => setStep("done")}
+          onContinue={() => setStep("leads")}
           onTryAgain={() => {
             setDraft(null);
             setGenericDraft(null);
@@ -307,6 +312,10 @@ export default function WelcomeFlow({
           }}
           coachFirstName={coachFirstName}
         />
+      )}
+
+      {step === "leads" && (
+        <LeadsStep stage={stage} onContinue={() => setStep("done")} />
       )}
 
       {step === "done" && <DoneStep firstName={coachFirstName} />}
@@ -475,9 +484,32 @@ function InterviewStep({
     if (next) setSub(next);
   }
 
-  function pickAndAdvance<K extends "niche" | "stage" | "tone">(key: K, value: InterviewAnswers[K]) {
+  // Hold a beat on the reaction before moving on, so the coach can read what
+  // the assistant said back. Options with a null reaction (tone) advance
+  // immediately, exactly as they did before this existed.
+  const [reaction, setReaction] = useState<string | null>(null);
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+  }, []);
+
+  function pickAndAdvance<K extends "niche" | "stage" | "tone">(
+    key: K,
+    value: InterviewAnswers[K],
+    said?: string | null,
+  ) {
     setAnswers((cur) => ({ ...cur, [key]: value }));
-    advance();
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    if (!said) {
+      setReaction(null);
+      advance();
+      return;
+    }
+    setReaction(said);
+    advanceTimer.current = setTimeout(() => {
+      setReaction(null);
+      advance();
+    }, 2100);
   }
 
   function toggleDesire(d: Desire) {
@@ -566,7 +598,7 @@ function InterviewStep({
               key={o.value}
               label={o.label}
               active={answers.niche === o.value}
-              onClick={() => pickAndAdvance("niche", o.value)}
+              onClick={() => pickAndAdvance("niche", o.value, o.reaction)}
             />
           ))}
         </div>
@@ -579,7 +611,7 @@ function InterviewStep({
               key={o.value}
               label={o.label}
               active={answers.stage === o.value}
-              onClick={() => pickAndAdvance("stage", o.value)}
+              onClick={() => pickAndAdvance("stage", o.value, o.reaction)}
             />
           ))}
         </div>
@@ -592,11 +624,13 @@ function InterviewStep({
               key={o.value}
               label={o.label}
               active={answers.tone === o.value}
-              onClick={() => pickAndAdvance("tone", o.value)}
+              onClick={() => pickAndAdvance("tone", o.value, o.reaction)}
             />
           ))}
         </div>
       )}
+
+      {reaction && <InterviewReaction text={reaction} />}
 
       {sub === "desires" && (
         <>
@@ -656,6 +690,33 @@ function InterviewStep({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// The assistant's answer to what the coach just picked. Same rhythm as the
+// /meet teaser: a short typing beat so the reply reads as a reply, not as
+// copy that was already on the page.
+//
+// Options whose reaction is null render nothing and skip the beat entirely.
+// That is deliberate: tone is a preference, not a pattern, and there is
+// nothing true to say back about it. See lib/assistant-interview.ts.
+function InterviewReaction({ text }: { text: string }) {
+  const [typing, setTyping] = useState(true);
+  useEffect(() => {
+    setTyping(true);
+    const t = setTimeout(() => setTyping(false), 420);
+    return () => clearTimeout(t);
+  }, [text]);
+  return (
+    <div
+      role="status"
+      className="rise-in flex items-start gap-3 rounded-[var(--r-lg)] border border-[var(--border-faint)] bg-[var(--surface-elevated)] px-4 py-3 shadow-[var(--shadow-sm)]"
+    >
+      <span className="shrink-0 mt-0.5"><AssistantAvatarIcon size={22} /></span>
+      <p className="text-[length:var(--t-body)] leading-[var(--leading-relaxed)] text-[color:var(--text)] min-w-0">
+        {typing ? <span className="text-[color:var(--text-faint)]">&hellip;</span> : text}
+      </p>
     </div>
   );
 }
@@ -1687,6 +1748,177 @@ function MagicStep({
 }
 
 // ── Step 4: Done ───────────────────────────────────────────────────────────
+
+// ── Leads ────────────────────────────────────────────────────────────────
+//
+// Sits between magic and done on purpose. The coach has just watched their
+// own voice draft a reply, so "who would I send that to" is already the
+// question in their head. Asking anywhere else costs more.
+//
+// The "not really" branch does NOT go quiet. A coach who is just starting
+// almost always answers no and is usually wrong, which is exactly what the
+// reframe is for. Answering no and meaning it stays one click.
+//
+// Deliberately NOT calling /api/coach/onboarding to set has_leads_to_import:
+// saveOnboardingAnswers takes all four reality answers at once, derives
+// emphasis flags from the set, and stamps completed_at. Writing one field
+// from here would null the other three and mark a different flow finished.
+// The imported leads are the durable signal anyway.
+
+const LEADS_COPY = {
+  title: "Anyone you could be talking to?",
+  sub: "You just watched your voice write a reply. Let's give it someone to write to.",
+  yes: "Yes, a few",
+  no: "Not really",
+  yesHelp:
+    "Anyone you've worked with before.\n" +
+    "Anyone who asked what you do and actually listened.\n" +
+    "Anyone you thought about messaging and didn't.\n\n" +
+    "One name is enough to start.",
+  reframe:
+    "Most coaches say no here. Then they remember three people.\n\n" +
+    "Someone who asked what you do and actually listened.\n" +
+    "A client who went quiet and you never followed up.\n" +
+    "The friend who said we should talk about this properly.\n\n" +
+    "That's not a stranger you have to convince. That's a conversation you already started.",
+  reframeAsk: "Anyone come to mind?",
+  placeholder:
+    "Marcus, asked about the work twice\nDana, old client, went quiet in March\nSam from the retreat",
+  add: "Add them",
+  laterYes: "I'll do this later",
+  laterNo: "Nothing yet. Keep going.",
+  next: "Continue",
+} as const;
+
+// Swapped by interview stage. Established coaches do not need to find
+// someone, they need to notice who they dropped.
+const STAGE_LINE: Record<Stage, string> = {
+  starting: "Even one name. This is how it actually starts, not with a funnel.",
+  building: "Who went quiet that you meant to circle back to?",
+  established: "Who's in your book you haven't touched in ninety days?",
+};
+
+function LeadsStep({ stage, onContinue }: { stage: Stage | null; onContinue: () => void }) {
+  const [mode, setMode] = useState<"ask" | "yes" | "no">("ask");
+  const [text, setText] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [said, setSaid] = useState<string | null>(null);
+
+  const rows = parseRows(text);
+
+  async function add() {
+    if (rows.length === 0) return;
+    setSaving(true);
+    setErr(null);
+    try {
+      const res = await fetch("/api/coach/import-leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows, asClients: false }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? `HTTP ${res.status}`);
+      setSaid(reflectOnRows(rows));
+      setText("");
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Could not add them. Try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // After a successful import the assistant reflects the coach's own words
+  // back rather than reporting a count.
+  if (said) {
+    return (
+      <div className="rise-in space-y-7 max-w-2xl mx-auto flex flex-col justify-center min-h-[calc(100dvh-320px)] w-full">
+        <InterviewReaction text={said} />
+        <p className="text-[length:var(--t-body)] leading-[var(--leading-relaxed)] text-[color:var(--text-muted)]">
+          {IMPORT_HANDOFF}
+        </p>
+        <div><Button onClick={onContinue}>{LEADS_COPY.next}</Button></div>
+      </div>
+    );
+  }
+
+  const paste = (
+    <div className="space-y-3">
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={5}
+        placeholder={LEADS_COPY.placeholder}
+        aria-label="One person per line"
+        className="w-full rounded-[var(--r-md)] border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 text-[length:var(--t-body)] leading-[var(--leading-relaxed)] text-[color:var(--text)] placeholder:text-[color:var(--text-faint)]"
+      />
+      {err && (
+        <p className="text-[length:var(--t-caption)] text-[color:var(--danger)]">{err}</p>
+      )}
+      <div className="flex items-center gap-4 flex-wrap">
+        <Button onClick={add} disabled={rows.length === 0 || saving}>
+          {saving ? "Adding…" : LEADS_COPY.add}
+        </Button>
+        <button
+          type="button"
+          onClick={onContinue}
+          className="min-h-11 text-[length:var(--t-caption)] text-[color:var(--text-muted)] underline hover:text-[color:var(--text)]"
+        >
+          {mode === "no" ? LEADS_COPY.laterNo : LEADS_COPY.laterYes}
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="rise-in space-y-7 max-w-2xl mx-auto flex flex-col justify-center min-h-[calc(100dvh-320px)] w-full">
+      <div className="space-y-3">
+        <Badge tone="brand" size="xs" uppercase>Step 5 of 5 &middot; Your people</Badge>
+        <h2 className="text-[length:var(--t-h1)] font-extrabold tracking-tight text-[color:var(--text)] leading-[var(--leading-tight)]">
+          {LEADS_COPY.title}
+        </h2>
+        <p className="text-[length:var(--t-body)] text-[color:var(--text-muted)] leading-[var(--leading-relaxed)]">
+          {LEADS_COPY.sub}
+        </p>
+      </div>
+
+      {mode === "ask" && (
+        <div className="flex gap-3 flex-wrap">
+          <Button onClick={() => setMode("yes")}>{LEADS_COPY.yes}</Button>
+          <Button variant="ghost" onClick={() => setMode("no")}>{LEADS_COPY.no}</Button>
+        </div>
+      )}
+
+      {mode === "yes" && (
+        <div className="space-y-5">
+          <p className="whitespace-pre-line text-[length:var(--t-body)] leading-[var(--leading-relaxed)] text-[color:var(--text)]">
+            {LEADS_COPY.yesHelp}
+          </p>
+          {stage && (
+            <p className="text-[length:var(--t-body)] font-semibold text-[color:var(--text)]">
+              {STAGE_LINE[stage]}
+            </p>
+          )}
+          {paste}
+        </div>
+      )}
+
+      {mode === "no" && (
+        <div className="space-y-5">
+          <div className="border-l-2 border-[var(--brand)] pl-5">
+            <p className="whitespace-pre-line text-[length:var(--t-body)] leading-[var(--leading-relaxed)] text-[color:var(--text)]">
+              {LEADS_COPY.reframe}
+            </p>
+          </div>
+          <p className="text-[length:var(--t-body)] font-semibold text-[color:var(--text)]">
+            {LEADS_COPY.reframeAsk}
+          </p>
+          {paste}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function DoneStep({ firstName }: { firstName: string }) {
   return (

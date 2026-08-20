@@ -53,51 +53,55 @@ export const EMPTY_ANSWERS: InterviewAnswers = {
 export type Option<V extends string> = {
   value: V;
   label: string;
-  /** The assistant's instant one-liner when this option is tapped. */
-  reaction: string;
+  /** The assistant's instant one-liner when this option is tapped.
+   *  null means DELIBERATELY silent: there is nothing true to teach a coach
+   *  about this answer, and filler dressed as insight is worse than quiet.
+   *  An empty string is always a bug — a test pins that. Null also means the
+   *  UI should not hold a beat before advancing. */
+  reaction: string | null;
 };
 
 export const TIME_DRAIN_OPTIONS: Option<TimeDrain>[] = [
-  { value: "leads_dms", label: "Chasing leads in the DMs", reaction: "Noted. Lead follow-up is exactly the kind of thing I never drop." },
-  { value: "content", label: "Writing content nobody sees", reaction: "Heard. Writing in your voice is my favorite part of the job." },
-  { value: "client_admin", label: "Client admin and follow-ups", reaction: "Good to know. Check-ins and follow-through are where I shine." },
-  { value: "everything", label: "All of it, honestly", reaction: "Respect the honesty. That's why you need an assistant, not another app." },
+  { value: "leads_dms", label: "Chasing leads in the DMs", reaction: "That one eats the most and shows the least. Most coaches lose more people to a slow reply than to a weak offer." },
+  { value: "content", label: "Writing content nobody sees", reaction: "That's usually not a reach problem. It's that the writing sounds like everyone else's." },
+  { value: "client_admin", label: "Client admin and follow-ups", reaction: "The invisible tax. It never feels urgent, so it quietly eats the hours you meant to spend on the actual work." },
+  { value: "everything", label: "All of it, honestly", reaction: "That's honest, and it's most coaches at some point. It usually means the business is running you instead of the other way round." },
 ];
 
 export const HAND_OFF_OPTIONS: Option<HandOffFirst>[] = [
-  { value: "followups", label: "Following up with every lead", reaction: "Done. No lead goes cold on my watch." },
-  { value: "drafting", label: "Drafting my content in my voice", reaction: "I'll learn your voice first. Then I write, you approve." },
-  { value: "clients", label: "Keeping clients on track", reaction: "I'll watch every client thread so nothing slips." },
-  { value: "briefing", label: "Telling me what actually matters each morning", reaction: "One clear brief every morning. No noise." },
+  { value: "followups", label: "Following up with every lead", reaction: "Good instinct. Most deals die in the gap between interested and forgotten, not at the price conversation." },
+  { value: "drafting", label: "Drafting my content in my voice", reaction: "Then the voice has to come first. A draft that isn't yours costs more to fix than to write from scratch." },
+  { value: "clients", label: "Keeping clients on track", reaction: "That's retention work, and it's cheaper than finding new people. Most coaches spend it the other way around." },
+  { value: "briefing", label: "Telling me what actually matters each morning", reaction: "The hard part was never knowing what to do. It's deciding it again every morning from scratch." },
 ];
 
 export const DESIRE_OPTIONS: Option<Desire>[] = [
-  { value: "sounds_like_me", label: "Sounds like me, not a robot", reaction: "" },
-  { value: "never_cold", label: "Never lets a lead go cold", reaction: "" },
-  { value: "consistent", label: "Keeps me consistent when life hits", reaction: "" },
-  { value: "knows_business", label: "Knows my business cold", reaction: "" },
-  { value: "accountability", label: "Calls me out when I drift", reaction: "" },
+  { value: "sounds_like_me", label: "Sounds like me, not a robot", reaction: "Your voice is the one thing a competitor can't copy. Worth protecting before it gets averaged out." },
+  { value: "never_cold", label: "Never lets a lead go cold", reaction: "Cold usually isn't rejection. It's just time passing while you were busy with something else." },
+  { value: "consistent", label: "Keeps me consistent when life hits", reaction: "Consistency isn't discipline. It's having something that keeps moving on the weeks you can't." },
+  { value: "knows_business", label: "Knows my business cold", reaction: "That takes feeding. What you put in over the first month is what you get back for the next year." },
+  { value: "accountability", label: "Calls me out when I drift", reaction: "Most people don't ask for that one. It's the only thing on this list that actually changes behaviour." },
 ];
 
 export const NICHE_OPTIONS: Option<Niche>[] = [
-  { value: "mens_work", label: "Men's work / embodiment", reaction: "" },
-  { value: "life", label: "Life / mindset", reaction: "" },
-  { value: "business", label: "Business / career", reaction: "" },
-  { value: "health", label: "Health / fitness", reaction: "" },
-  { value: "relationship", label: "Relationship / intimacy", reaction: "" },
-  { value: "other", label: "My own lane", reaction: "" },
+  { value: "mens_work", label: "Men's work / embodiment", reaction: "Narrow is the advantage here. The men who need this work recognise the language the moment they hear it." },
+  { value: "life", label: "Life / mindset", reaction: "The widest lane on this list, which means your words have to do more work. Specific beats broad every time." },
+  { value: "business", label: "Business / career", reaction: "Your people can measure the outcome, so proof travels further here than positioning does." },
+  { value: "health", label: "Health / fitness", reaction: "Crowded, and mostly competing on tactics. The ones who stand out sell the relationship with the body, not the protocol." },
+  { value: "relationship", label: "Relationship / intimacy", reaction: "People arrive here already exposed. Trust gets built in how you write, long before the first call." },
+  { value: "other", label: "My own lane", reaction: "Good. Harder to explain, much harder to compete with." },
 ];
 
 export const STAGE_OPTIONS: Option<Stage>[] = [
-  { value: "starting", label: "Just getting started", reaction: "" },
-  { value: "building", label: "Some clients, building momentum", reaction: "" },
-  { value: "established", label: "Established, ready to scale", reaction: "" },
+  { value: "starting", label: "Just getting started", reaction: "Then your whole job right now is conversations, not systems. Ten real ones beats a funnel." },
+  { value: "building", label: "Some clients, building momentum", reaction: "This is where most coaches stall. Not from a lack of leads. From dropping the ones they already have." },
+  { value: "established", label: "Established, ready to scale", reaction: "At this point the constraint is usually your attention, not your pipeline." },
 ];
 
 export const TONE_OPTIONS: Option<Tone>[] = [
-  { value: "direct", label: "Direct. No fluff.", reaction: "" },
-  { value: "warm", label: "Warm and encouraging", reaction: "" },
-  { value: "playful", label: "Keep it fun", reaction: "" },
+  { value: "direct", label: "Direct. No fluff.", reaction: null },
+  { value: "warm", label: "Warm and encouraging", reaction: null },
+  { value: "playful", label: "Keep it fun", reaction: null },
 ];
 
 /** Allowed values per question, derived from the option registry so API

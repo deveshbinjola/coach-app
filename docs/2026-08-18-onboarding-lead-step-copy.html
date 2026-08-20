@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onboarding · The lead step · Copy draft</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#FAF8F3;--card:#FFFFFF;--ink:#0A0F1C;--muted:#5A5A52;
+    --green:#0B6E23;--green-soft:#E8F1EA;--border:#E5E1D8;--line-soft:#EFEBE1;
+    --red:#B23A2E;--amber:#B58A1E;--amber-soft:#FBF3DF;
+  }
+  body{background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',system-ui;
+       line-height:1.6;padding:56px 24px 96px}
+  .wrap{max-width:820px;margin:0 auto}
+  h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(2rem,4vw,2.9rem);
+     font-weight:700;line-height:1.15;letter-spacing:-.02em;margin-bottom:10px}
+  .eyebrow{font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;
+           font-weight:700;color:var(--green);margin-bottom:14px}
+  .lede{color:var(--muted);font-size:1.05rem;max-width:62ch}
+  h2{font-family:'Playfair Display',Georgia,serif;font-size:1.6rem;font-weight:700;
+     margin:52px 0 6px;letter-spacing:-.01em}
+  h3{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;
+     color:var(--muted);margin:30px 0 10px}
+  p{margin-bottom:12px;max-width:66ch}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+        padding:26px 28px;margin:18px 0;box-shadow:0 1px 2px rgba(10,15,28,.04)}
+  .card.accent{border-left:3px solid var(--green)}
+  .card.warn{border-left:3px solid var(--amber);background:var(--amber-soft)}
+  .copy{font-size:1.08rem;line-height:1.72;white-space:pre-line;color:var(--ink)}
+  .copy.big{font-family:'Playfair Display',Georgia,serif;font-size:1.9rem;
+            font-weight:700;line-height:1.2;letter-spacing:-.015em;white-space:normal}
+  .sub{color:var(--muted);font-size:1rem;margin-top:8px}
+  .btns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .btn{border-radius:9px;padding:11px 20px;font-weight:700;font-size:.95rem;
+       border:1px solid var(--green);background:var(--green);color:#fff}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--border)}
+  .btn.link{background:none;border:none;color:var(--muted);text-decoration:underline;padding-left:0}
+  .ph{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85rem;
+      color:var(--muted);background:#FBFAF6;border:1px dashed var(--border);
+      border-radius:9px;padding:14px 16px;white-space:pre-line;line-height:1.75}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.95rem}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  th{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
+  td code{font-family:ui-monospace,monospace;font-size:.85rem;background:var(--green-soft);
+          padding:1px 6px;border-radius:4px;color:var(--green)}
+  .note{color:var(--muted);font-size:.92rem}
+  .rule{height:1px;background:var(--line-soft);margin:44px 0}
+  ul{margin:0 0 12px 20px}li{margin-bottom:7px;max-width:66ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Coach Assistant · Onboarding</div>
+  <h1>Anyone you could be talking to?</h1>
+  <p class="lede">Copy draft for a new welcome step, placed between <strong>magic</strong> and <strong>done</strong>.
+  Every string below is final-intent, not placeholder. Edit directly on this page and I will wire exactly what survives.</p>
+
+  <div class="card warn">
+    <strong>One deliberate change from the brief.</strong>
+    <p class="note" style="margin-top:6px">You said if they answer no, do nothing. This draft gives the no branch
+    a reframe and a soft door instead. A coach who is just starting almost always says no, and is almost always wrong,
+    which is exactly what your yes-branch script is about. Leaving no empty means the coaching only reaches people
+    who did not need it. The skip is still one click and carries no guilt.</p>
+  </div>
+
+  <div class="rule"></div>
+
+  <h2>The ask</h2>
+  <p class="note">Shown right after they watch their own voice draft a reply. The question is already in their head.</p>
+  <div class="card accent">
+    <div class="eyebrow" style="margin-bottom:10px">One more thing</div>
+    <div class="copy big">Anyone you could be talking to?</div>
+    <p class="sub">You just watched your voice write a reply. Let's give it someone to write to.</p>
+    <div class="btns">
+      <span class="btn">Yes, a few</span>
+      <span class="btn ghost">Not really</span>
+    </div>
+  </div>
+
+  <div class="rule"></div>
+
+  <h2>If they say yes</h2>
+  <div class="card accent">
+    <div class="copy">Anyone you've worked with before.
+Anyone who asked what you do and actually listened.
+Anyone you thought about messaging and didn't.
+
+One name is enough to start.</div>
+    <h3 style="margin-top:22px">Paste box placeholder</h3>
+    <div class="ph">Marcus, asked about the work twice
+Dana, old client, went quiet in March
+Sam from the retreat</div>
+    <div class="btns">
+      <span class="btn">Add them</span>
+      <span class="btn link">I'll do this later</span>
+    </div>
+  </div>
+
+  <h3>Stage variants</h3>
+  <p class="note">Swap the closing line only. <code>stage</code> is already captured two steps earlier in <code>InterviewAnswers</code>, so this costs nothing.</p>
+  <table>
+    <tr><th>stage</th><th>closing line</th></tr>
+    <tr><td><code>starting</code></td><td>Even one name. This is how it actually starts, not with a funnel.</td></tr>
+    <tr><td><code>building</code></td><td>Who went quiet that you meant to circle back to?</td></tr>
+    <tr><td><code>established</code></td><td>Who's in your book you haven't touched in ninety days?</td></tr>
+  </table>
+  <p class="note">The established line is the one that earns its place. Those coaches don't need to find someone.
+  They need to notice who they dropped.</p>
+
+  <div class="rule"></div>
+
+  <h2>If they say not really</h2>
+  <p class="note">The reframe. No form until after it lands.</p>
+  <div class="card accent">
+    <div class="copy">Most coaches say no here. Then they remember three people.
+
+Someone who asked what you do and actually listened.
+A client who went quiet and you never followed up.
+The friend who said we should talk about this properly.
+
+That's not a stranger you have to convince. That's a conversation you already started.</div>
+    <p class="sub" style="margin-top:20px;color:var(--ink);font-weight:600">Anyone come to mind?</p>
+    <div class="ph">One name is fine. Add a few words about them if you remember.</div>
+    <div class="btns">
+      <span class="btn">Add them</span>
+      <span class="btn link">Nothing yet. Keep going.</span>
+    </div>
+  </div>
+
+  <div class="rule"></div>
+
+  <h2>After they paste: the coaching</h2>
+  <p class="note">This is the part you asked for. Not a success toast. The assistant reflects back what they typed,
+  using the words they used.</p>
+
+  <div class="card">
+    <table>
+      <tr><th>if the note says</th><th>the assistant says</th></tr>
+      <tr><td>repeat interest<br><span class="note">asked, keeps asking, twice</span></td>
+          <td>{Name} already asked. That's not a cold lead. That's someone waiting.</td></tr>
+      <tr><td>went quiet<br><span class="note">quiet, ghosted, stopped, dropped off</span></td>
+          <td>{Name} went quiet. That usually isn't a no. It's usually life.</td></tr>
+      <tr><td>past client<br><span class="note">old client, used to, worked with</span></td>
+          <td>{Name} already knows what you're like to work with. That's the shortest distance you have.</td></tr>
+      <tr><td>no note</td>
+          <td>{N} names. That's {N} conversations you can pick back up.<br><span class="note">Single name reads "One name. That's one conversation you can pick back up."</span></td></tr>
+    </table>
+    <p class="note" style="margin-top:14px"><strong>Pronouns.</strong> None of these lines assume the lead's gender. The coach typed a name and a fragment; we know nothing else about them. A test pins it.</p>
+    <p style="margin-top:16px;font-weight:600">Closing line, every path:</p>
+    <div class="copy" style="margin-top:6px">They're in your Leads room now. Tomorrow morning I'll tell you who to start with.</div>
+    <p class="note" style="margin-top:10px">That last line hands off to the daily brief, so the loop closes on a real
+    trigger with a real payoff rather than a manufactured one.</p>
+  </div>
+
+  <div class="rule"></div>
+
+  <h2>Wiring notes</h2>
+  <ul>
+    <li>New <code>leads</code> step in <code>components/WelcomeFlow.tsx</code>, between <code>magic</code> and <code>done</code>.</li>
+    <li>Paste block and POST already exist: reuse <code>PasteImportBlock</code> and <code>/api/coach/import-leads</code>.</li>
+    <li>Set <code>has_leads_to_import</code> on the answer either way. The field already exists in <code>OnboardingAnswers</code>.</li>
+    <li>Read <code>stage</code> from <code>InterviewAnswers</code> for the variant. No new capture needed.</li>
+    <li><strong>Open question:</strong> <code>LeadSource</code> has no value for "someone I already know."
+        Closest are <code>in_person</code>, <code>referral</code>, <code>other</code>. These leads deserve their own
+        source so the Leads room can treat warm history differently from cold inbound. Suggest adding <code>past_contact</code>.</li>
+    <li>No streaks, no counters, no scarcity. The skip stays one click on both branches.</li>
+  </ul>
+
+  <div class="rule"></div>
+
+  <h1 style="font-size:clamp(1.7rem,3.2vw,2.3rem);margin-top:8px">The interview script</h1>
+  <p class="lede">All 25 options in <code>lib/assistant-interview.ts</code>. One shared table feeds both
+  <code>/meet</code> (public teaser) and <code>/welcome</code> (signed-in interview).
+  Today 8 are written and all 8 are capability pitches. 17 are empty strings.</p>
+
+  <div class="card accent" style="margin-top:22px">
+    <strong>The rule for every line below</strong>
+    <p class="note" style="margin-top:6px">Name the pattern, then the help. The first sentence has to be true and
+    useful to the coach even if they never buy anything. The assistant's capability comes second, quieter, or not at all.
+    The moment "here's what I can do" leads the sentence, it stops being a reward and becomes an ad.</p>
+  </div>
+
+  <h2>Time drain <span class="note" style="font-weight:400">· /meet · rewriting existing pitches</span></h2>
+  <table>
+    <tr><th style="width:34%">option</th><th>reaction</th></tr>
+    <tr><td>Chasing leads in the DMs<br><code>leads_dms</code></td>
+        <td>That one eats the most and shows the least. Most coaches lose more people to a slow reply than to a weak offer.</td></tr>
+    <tr><td>Writing content nobody sees<br><code>content</code></td>
+        <td>That's usually not a reach problem. It's that the writing sounds like everyone else's.</td></tr>
+    <tr><td>Client admin and follow-ups<br><code>client_admin</code></td>
+        <td>The invisible tax. It never feels urgent, so it quietly eats the hours you meant to spend on the actual work.</td></tr>
+    <tr><td>All of it, honestly<br><code>everything</code></td>
+        <td>That's honest, and it's most coaches at some point. It usually means the business is running you instead of the other way round.</td></tr>
+  </table>
+
+  <h2>Hand off first <span class="note" style="font-weight:400">· /meet · rewriting existing pitches</span></h2>
+  <table>
+    <tr><th style="width:34%">option</th><th>reaction</th></tr>
+    <tr><td>Following up with every lead<br><code>followups</code></td>
+        <td>Good instinct. Most deals die in the gap between interested and forgotten, not at the price conversation.</td></tr>
+    <tr><td>Drafting my content in my voice<br><code>drafting</code></td>
+        <td>Then the voice has to come first. A draft that isn't yours costs more to fix than to write from scratch.</td></tr>
+    <tr><td>Keeping clients on track<br><code>clients</code></td>
+        <td>That's retention work, and it's cheaper than finding new people. Most coaches spend it the other way around.</td></tr>
+    <tr><td>Telling me what actually matters each morning<br><code>briefing</code></td>
+        <td>The hard part was never knowing what to do. It's deciding it again every morning from scratch.</td></tr>
+  </table>
+
+  <h2>What they want <span class="note" style="font-weight:400">· both surfaces · currently silent</span></h2>
+  <table>
+    <tr><th style="width:34%">option</th><th>reaction</th></tr>
+    <tr><td>Sounds like me, not a robot<br><code>sounds_like_me</code></td>
+        <td>Your voice is the one thing a competitor can't copy. Worth protecting before it gets averaged out.</td></tr>
+    <tr><td>Never lets a lead go cold<br><code>never_cold</code></td>
+        <td>Cold usually isn't rejection. It's just time passing while you were busy with something else.</td></tr>
+    <tr><td>Keeps me consistent when life hits<br><code>consistent</code></td>
+        <td>Consistency isn't discipline. It's having something that keeps moving on the weeks you can't.</td></tr>
+    <tr><td>Knows my business cold<br><code>knows_business</code></td>
+        <td>That takes feeding. What you put in over the first month is what you get back for the next year.</td></tr>
+    <tr><td>Calls me out when I drift<br><code>accountability</code></td>
+        <td>Most people don't ask for that one. It's the only thing on this list that actually changes behaviour.</td></tr>
+  </table>
+
+  <h2>Niche <span class="note" style="font-weight:400">· /welcome · currently silent · richest coaching surface</span></h2>
+  <table>
+    <tr><th style="width:34%">option</th><th>reaction</th></tr>
+    <tr><td>Men's work / embodiment<br><code>mens_work</code></td>
+        <td>Narrow is the advantage here. The men who need this work recognise the language the moment they hear it.</td></tr>
+    <tr><td>Life / mindset<br><code>life</code></td>
+        <td>The widest lane on this list, which means your words have to do more work. Specific beats broad every time.</td></tr>
+    <tr><td>Business / career<br><code>business</code></td>
+        <td>Your people can measure the outcome, so proof travels further here than positioning does.</td></tr>
+    <tr><td>Health / fitness<br><code>health</code></td>
+        <td>Crowded, and mostly competing on tactics. The ones who stand out sell the relationship with the body, not the protocol.</td></tr>
+    <tr><td>Relationship / intimacy<br><code>relationship</code></td>
+        <td>People arrive here already exposed. Trust gets built in how you write, long before the first call.</td></tr>
+    <tr><td>My own lane<br><code>other</code></td>
+        <td>Good. Harder to explain, much harder to compete with.</td></tr>
+  </table>
+
+  <h2>Stage <span class="note" style="font-weight:400">· /welcome · currently silent · most actionable</span></h2>
+  <table>
+    <tr><th style="width:34%">option</th><th>reaction</th></tr>
+    <tr><td>Just getting started<br><code>starting</code></td>
+        <td>Then your whole job right now is conversations, not systems. Ten real ones beats a funnel.</td></tr>
+    <tr><td>Some clients, building momentum<br><code>building</code></td>
+        <td>This is where most coaches stall. Not from a lack of leads. From dropping the ones they already have.</td></tr>
+    <tr><td>Established, ready to scale<br><code>established</code></td>
+        <td>At this point the constraint is usually your attention, not your pipeline.</td></tr>
+  </table>
+
+  <h2>Tone <span class="note" style="font-weight:400">· /welcome · deliberately silent</span></h2>
+  <div class="card warn">
+    <strong>All three stay blank on purpose.</strong>
+    <p class="note" style="margin-top:6px">Tone is a preference, not a pattern. There is nothing true to teach a coach
+    about having chosen "warm" over "direct", and a line here would be filler dressed as insight. Writing one and
+    leaving two blank would also read as broken rather than restrained, so the whole set stays quiet.
+    This is the caution applied, not an oversight.</p>
+  </div>
+  <table>
+    <tr><th style="width:34%">option</th><th>reaction</th></tr>
+    <tr><td>Direct. No fluff.<br><code>direct</code></td><td class="note">deliberately silent</td></tr>
+    <tr><td>Warm and encouraging<br><code>warm</code></td><td class="note">deliberately silent</td></tr>
+    <tr><td>Keep it fun<br><code>playful</code></td><td class="note">deliberately silent</td></tr>
+  </table>
+
+  <p class="note" style="margin-top:18px"><strong>Totals:</strong> 22 written, 3 deliberately silent, 0 left empty by accident.</p>
+
+  <div class="rule"></div>
+
+  <h1 style="font-size:clamp(1.7rem,3.2vw,2.3rem)">Council of mentors</h1>
+  <p class="lede">Standing panel, run on this work before any code is written.</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">Karpathy · engineering rigor</h3>
+    <p>Approves the shape. This is a data table, not logic. <code>Option.reaction</code> already exists and both
+    surfaces already render it, so there is no new subsystem, no branching, and nothing new to test.</p>
+    <p><strong>One real catch.</strong> An empty string cannot tell you whether a reaction is "not written yet" or
+    "deliberately silent". After this pass those three tone blanks look identical to the seventeen accidental
+    blanks they replaced, and the next contributor will helpfully fill them.
+    Fix: type it as <code>reaction: string | null</code> where <code>null</code> means intentionally quiet and
+    <code>""</code> is a bug, then a one-line test asserts no option is ever <code>""</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Naval · is the promise true, does it compound</h3>
+    <p>True, and this is the rare change that makes the product more honest rather than more persuasive. Right now
+    the interview extracts value and gives nothing back until the end. After this it gives something useful before
+    asking for anything.</p>
+    <p><strong>Does it compound?</strong> No. It is a fixed table, written once. It does not get better with use.
+    What it does is raise the perceived worth of the thing that <em>does</em> compound, which is the coach's captured
+    context. Cheap, durable, no maintenance. Fine to build, but do not mistake it for the moat.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Isenberg · funnel, positioning, distribution</h3>
+    <p><strong>Names the leak precisely.</strong> The free public teaser talks back. The signed-in product is silent.
+    That is exactly backwards. The moment after signup is when a coach is deciding whether this was real, and right now
+    it goes quiet on them.</p>
+    <p><strong>Free distribution.</strong> The stage and niche lines are quotable on their own.
+    "This is where most coaches stall. Not from a lack of leads. From dropping the ones they already have."
+    is a post. The table is a content asset as well as a product surface, so write it to that bar.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Eyal · hook model plus the ethics gate</h3>
+    <p><strong>Hook:</strong> Trigger (the question) to Action (answer) to Variable Reward (the reaction, genuinely
+    different each time and informative) to Investment (answering shapes what they get later). That is a clean loop
+    and the reward is the honest kind. No streaks, counters or scarcity anywhere in it.</p>
+    <p><strong>Gate, question one:</strong> does it materially improve the coach's business? The stage and niche lines
+    are real advice they can act on today. Yes.<br>
+    <strong>Gate, question two:</strong> would Sunny use this without knowing he built it? He would read the stage lines
+    and recognise himself. Yes.</p>
+    <p><strong>The standing risk:</strong> every one of these lines is one edit away from becoming a soft upsell.
+    The eight that exist today already crossed that line once. If a future edit puts the capability first, the reward
+    becomes an ad and the loop turns manipulative.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Stone · one click out</h3>
+    <p><strong>On the table:</strong> this is the same pattern as the page-header consolidation. One shared file feeds
+    two surfaces and it drifted because nobody owned the whole. Filling the strings fixes today. The paved path is the
+    rule that any new option ships with a reaction or an explicit null, enforced by the test above. Without that
+    the table drifts again the next time someone adds a question.</p>
+    <p><strong>The bigger assumption worth naming:</strong> is the interview the right place for coaching at all?
+    It happens once. The daily brief happens every morning. If coaching is genuinely the product, the brief is where it
+    lives and the interview is intake. These 22 lines are a taste, not the meal, and they are worth writing on that
+    understanding rather than as the coaching feature itself.</p>
+  </div>
+
+  <div class="card accent">
+    <strong>Panel verdict</strong>
+    <p class="note" style="margin-top:6px">Build it. Cheap, honest, fixes a real leak. Two conditions carried forward
+    from the panel: type the deliberate blanks as <code>null</code> with a test pinning it, and keep the capability
+    sentence second or absent so the reward never becomes an ad.</p>
+  </div>
+
+</div>
+</body>
+</html>
