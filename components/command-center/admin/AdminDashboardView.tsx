@@ -7,6 +7,7 @@ import ThingsToHandle from "@/components/command-center/admin/ThingsToHandle";
 import ContentPipeline from "@/components/command-center/admin/ContentPipeline";
 import RevenueByOffering from "@/components/command-center/admin/RevenueByOffering";
 import LeadPipeline from "@/components/command-center/admin/LeadPipeline";
+import FunnelStrip from "@/components/command-center/admin/FunnelStrip";
 import ThisWeek from "@/components/command-center/admin/ThisWeek";
 import { PageHeader } from "@/components/ui";
 
@@ -82,7 +83,10 @@ export default function AdminDashboardView({ data, toggle }: { data: AdminDashbo
               <RevenueByOffering offerings={data.revenueByOffering} />
               <ThisWeek events={data.thisWeek} />
             </div>
-            <LeadPipeline pipeline={data.leadPipeline} />
+            <div className="space-y-3">
+              <LeadPipeline pipeline={data.leadPipeline} />
+              <FunnelStrip stages={data.leadFunnel} />
+            </div>
           </div>
         </>
       )}

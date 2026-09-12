@@ -21,10 +21,24 @@ export type RightNowItem = {
   source: "session" | "sequence" | "message" | "overdue" | "content" | "content_suggestion" | "lead";
 };
 
+/** What the machine handled in the last 24h without the coach lifting a
+ *  finger. Rendered in the Morning Brief as "Handled for you" — the trust
+ *  half of the brief: not what needs you, but what didn't need you. */
+export type MachineDid = {
+  sequenceEmailsSent: number;
+  newLeadsCaptured: number;
+  paymentsReceivedCents: number;
+};
+
 export type BusinessPulse = {
   heroItem: RightNowItem | null;
   quietList: RightNowItem[];
   daySummary: { sessions: number; draftsReady: number; leadsWaiting: number };
+  machineDid: MachineDid;
+  /** How many decisions sit in the Approval Queue (/queue) right now:
+   *  pending first-response drafts + stalled enrollments + content drafts.
+   *  Definition mirrors lib/queue.ts buildQueue — one item, one decision. */
+  decisionsWaiting: number;
   metrics: {
     revenue: { amount: number; trend: "up" | "down" | "flat" };
     activeMembers: number;
@@ -308,6 +322,37 @@ export function computeMetrics(data: {
 
 // ── Day summary ───────────────────────────────────────────────────────
 
+/** Pure: counts of what ran on its own in the window since `sinceIso`.
+ *  Sequence sends and new leads arrive pre-filtered to the window by the
+ *  caller's queries; payments come as the wider revenue window and are
+ *  filtered here so no extra query is needed. */
+export function computeMachineDid(input: {
+  sentStepLogs: number;
+  newLeads: number;
+  paymentsWindow: { amount_cents: number | null; created_at: string }[];
+  sinceIso: string;
+}): MachineDid {
+  const paymentsReceivedCents = input.paymentsWindow
+    .filter((p) => p.created_at >= input.sinceIso)
+    .reduce((sum, p) => sum + (p.amount_cents ?? 0), 0);
+  return {
+    sequenceEmailsSent: input.sentStepLogs,
+    newLeadsCaptured: input.newLeads,
+    paymentsReceivedCents,
+  };
+}
+
+/** Pure: the queue size the Brief reports. Must stay in lockstep with what
+ *  lib/queue.ts buildQueue actually lists, or the email promises decisions
+ *  the screen doesn't show. */
+export function computeDecisionsWaiting(counts: {
+  pendingDraftReplies: number;
+  failedEnrollments: number;
+  contentDrafts: number;
+}): number {
+  return counts.pendingDraftReplies + counts.failedEnrollments + counts.contentDrafts;
+}
+
 export function computeDaySummary(
   items: RightNowItem[],
   capturedToday: number,
@@ -484,10 +529,13 @@ export async function getBusinessPulse(coachId: string, now: number): Promise<Bu
   // Trust window: 28 days
   const trustWindowStart = new Date(now - 28 * 86_400_000).toISOString();
 
+  // Machine-did window: the last 24h, for the brief's "Handled for you".
+  const dayAgoIso = new Date(now - 86_400_000).toISOString();
+
   const [
     eventsRes, capturedRes, monthSessionsRes, clientsRes,
     messagesRes, enrollmentsRes, paymentsRes, membersRes,
-    contentRes, roomsRes, trustRes,
+    contentRes, roomsRes, trustRes, stepLogsRes, newLeadsRes, pendingDraftsRes,
   ] = await Promise.all([
     supabase.from("cp_client_events")
       .select("id, title, starts_at, meeting_url, client_room_id")
@@ -535,6 +583,19 @@ export async function getBusinessPulse(coachId: string, now: number): Promise<Bu
       .eq("ai_drafted", true)
       .not("sent_at", "is", null)
       .gte("sent_at", trustWindowStart),
+    supabase.from("cp_sequence_step_logs")
+      .select("id, status, created_at")
+      .eq("coach_id", coachId)
+      .eq("status", "sent")
+      .gte("created_at", dayAgoIso),
+    supabase.from("cp_leads")
+      .select("id, created_at")
+      .eq("coach_id", coachId)
+      .gte("created_at", dayAgoIso),
+    supabase.from("cp_lead_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("coach_id", coachId)
+      .eq("direction", "draft"),
   ]);
 
   const rawData: RawPulseData = {
@@ -576,10 +637,25 @@ export async function getBusinessPulse(coachId: string, now: number): Promise<Bu
     rawData.draftContent.length,
   );
 
+  const machineDid = computeMachineDid({
+    sentStepLogs: (stepLogsRes.data ?? []).length,
+    newLeads: (newLeadsRes.data ?? []).length,
+    paymentsWindow: rawData.paymentsWindow,
+    sinceIso: dayAgoIso,
+  });
+
+  const decisionsWaiting = computeDecisionsWaiting({
+    pendingDraftReplies: pendingDraftsRes.count ?? 0,
+    failedEnrollments: rawData.failedEnrollments.length,
+    contentDrafts: rawData.draftContent.length,
+  });
+
   return {
     heroItem: items[0] ?? null,
     quietList: items.slice(1, 6),
     daySummary,
+    machineDid,
+    decisionsWaiting,
     metrics,
     honestQuestion: pickHonestQuestion(now, coachId),
   };

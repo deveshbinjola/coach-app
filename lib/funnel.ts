@@ -26,6 +26,102 @@ export function isFunnelEvent(name: string): name is FunnelEventName {
   return (FUNNEL_EVENTS as readonly string[]).includes(name);
 }
 
+// ---------------------------------------------------------------------------
+// Lead funnel (P0 slice 5) — the COACH's pipeline, not the coach onboarding
+// funnel above. Events are written by DB triggers (see
+// supabase/migrations/20260911_lead_funnel_triggers.sql), never by app code:
+// the queue and lead pages update cp_leads straight from the browser, so
+// only the database sees every transition.
+// ---------------------------------------------------------------------------
+
+/** Ordered stages for the "where men fall off" strip. */
+export const LEAD_FUNNEL_STAGES = [
+  "lead_created",
+  "lead_contacted",
+  "lead_booked",
+  "lead_became_client",
+  "payment_received",
+] as const;
+
+export type LeadFunnelStage = (typeof LEAD_FUNNEL_STAGES)[number];
+
+/** Everything the triggers may write, stages plus off-ladder transitions. */
+export const LEAD_FUNNEL_EVENTS = [
+  ...LEAD_FUNNEL_STAGES,
+  "lead_qualified",
+  "lead_closed_lost",
+  "lead_enrolled",
+] as const;
+
+export type LeadFunnelEventName = (typeof LEAD_FUNNEL_EVENTS)[number];
+
+export type LeadFunnelEventRow = {
+  name: string;
+  created_at: string;
+  meta: { lead_id?: string | null } | null;
+};
+
+export type LeadFunnelStageStat = {
+  stage: LeadFunnelStage;
+  /** Distinct leads that reached this stage inside the window. */
+  leads: number;
+  pctOfStart: number;
+  dropFromPrev: number;
+};
+
+const LEAD_STAGE_LABELS: Record<LeadFunnelStage, string> = {
+  lead_created: "New",
+  lead_contacted: "Contacted",
+  lead_booked: "Booked",
+  lead_became_client: "Client",
+  payment_received: "Paid",
+};
+
+export function leadStageLabel(stage: LeadFunnelStage): string {
+  return LEAD_STAGE_LABELS[stage];
+}
+
+/** Distinct-lead counts per stage over a trailing window. Rows without a
+ *  lead_id in meta (e.g. payments not yet linked to a lead) each count
+ *  once — undercounting linkage must not hide real money. */
+export function computeLeadFunnel(
+  rows: LeadFunnelEventRow[],
+  now: number,
+  windowDays: number = 30,
+): LeadFunnelStageStat[] {
+  const cutoff = now - windowDays * DAY_MS;
+
+  const counts = new Map<LeadFunnelStage, { ids: Set<string>; unlinked: number }>(
+    LEAD_FUNNEL_STAGES.map((s) => [s, { ids: new Set<string>(), unlinked: 0 }]),
+  );
+
+  for (const row of rows) {
+    const bucket = counts.get(row.name as LeadFunnelStage);
+    if (!bucket) continue;
+    const t = Date.parse(row.created_at);
+    if (!Number.isFinite(t) || t < cutoff) continue;
+    const leadId = row.meta?.lead_id;
+    if (leadId) bucket.ids.add(leadId);
+    else bucket.unlinked += 1;
+  }
+
+  const totals = LEAD_FUNNEL_STAGES.map(
+    (s) => counts.get(s)!.ids.size + counts.get(s)!.unlinked,
+  );
+  const start = totals[0] ?? 0;
+
+  return LEAD_FUNNEL_STAGES.map((stage, i) => {
+    const leads = totals[i]!;
+    const prev = i === 0 ? leads : totals[i - 1]!;
+    return {
+      stage,
+      leads,
+      pctOfStart: pct(leads, start),
+      dropFromPrev: i === 0 ? 0 : pct(prev - leads, prev),
+    };
+  });
+}
+
 export type FunnelEventRow = {
   coach_id: string;
   name: string;

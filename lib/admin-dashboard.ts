@@ -6,6 +6,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { summarizeTrust } from "@/lib/voice-trust";
 import { scoreRightNowItems, type RightNowItem, type RawPulseData } from "@/lib/ambient";
+import { computeLeadFunnel, LEAD_FUNNEL_EVENTS, type LeadFunnelStageStat } from "@/lib/funnel";
 
 // ── Types ─────────────────────────────────────────────────────────────
 
@@ -36,6 +37,10 @@ export type AdminDashboard = {
     projectedCents: number | null;
   }>;
   leadPipeline: { new: number; contacted: number; qualified: number; booked: number; won: number };
+  /** "Where men fall off" — distinct leads per funnel stage, last 30 days.
+   *  Fed by the lead_funnel DB triggers; empty until the migration runs
+   *  and events accumulate. */
+  leadFunnel: LeadFunnelStageStat[];
   thisWeek: Array<{ id: string; title: string; startsAt: string; clientName: string | null; meetingUrl: string | null }>;
 };
 
@@ -224,9 +229,11 @@ export async function getAdminDashboard(coachId: string, now: number): Promise<A
   const sixMonthsAgo = new Date(now - 186 * 86_400_000).toISOString();
   const weekEnd = new Date(now + 7 * 86_400_000).toISOString();
 
+  const thirtyDaysAgo = new Date(now - 30 * 86_400_000).toISOString();
+
   const [
     eventsRes, sessionsRes, leadsRes, messagesRes, enrollmentsRes,
-    paymentsRes, membersRes, contentRes, roomsRes, offeringsRes, trustRes,
+    paymentsRes, membersRes, contentRes, roomsRes, offeringsRes, trustRes, funnelRes,
   ] = await Promise.all([
     supabase.from("cp_client_events").select("id, title, starts_at, meeting_url, client_room_id").eq("coach_id", coachId),
     supabase.from("cp_coaching_sessions").select("id, client_id, session_date, key_topics").eq("coach_id", coachId).gte("session_date", monthStart.toISOString()),
@@ -240,6 +247,7 @@ export async function getAdminDashboard(coachId: string, now: number): Promise<A
     supabase.from("cp_client_rooms").select("id, lead_id").eq("coach_id", coachId),
     supabase.from("cp_offerings").select("id, name, status, price_cents, capacity").eq("coach_id", coachId),
     supabase.from("cp_lead_messages").select("id, lead_id, coach_id, channel, direction, content, ai_drafted, sent_at, purpose, external_id, synced_from, original_draft, was_edited, created_at").eq("coach_id", coachId).eq("ai_drafted", true).not("sent_at", "is", null),
+    supabase.from("cp_funnel_events").select("name, meta, created_at").eq("coach_id", coachId).in("name", [...LEAD_FUNNEL_EVENTS]).gte("created_at", thirtyDaysAgo),
   ]);
 
   const events = eventsRes.data ?? [];
@@ -298,6 +306,10 @@ export async function getAdminDashboard(coachId: string, now: number): Promise<A
     content: computeContentPipeline(content, now),
     revenueByOffering: computeRevenueByOffering(offerings, members, payments, now),
     leadPipeline: computeLeadPipeline(leads),
+    leadFunnel: computeLeadFunnel(
+      (funnelRes.data ?? []) as Array<{ name: string; created_at: string; meta: { lead_id?: string | null } | null }>,
+      now,
+    ),
     thisWeek: computeThisWeek(events, rooms, leads, now),
   };
 }

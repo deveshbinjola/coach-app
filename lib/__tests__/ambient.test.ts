@@ -1,6 +1,31 @@
 // lib/__tests__/ambient.test.ts
 import { describe, it, expect } from "vitest";
-import { scoreRightNowItems, computeMetrics, computeDaySummary, detectSessionRhythm, pickHonestQuestion, extractUntappedTopics, generatePostSessionDraft, type RawPulseData } from "@/lib/ambient";
+import { scoreRightNowItems, computeMetrics, computeDaySummary, computeMachineDid, detectSessionRhythm, pickHonestQuestion, extractUntappedTopics, generatePostSessionDraft, type RawPulseData } from "@/lib/ambient";
+
+describe("computeMachineDid", () => {
+  it("passes through pre-windowed counts and filters payments to the window", () => {
+    const result = computeMachineDid({
+      sentStepLogs: 4,
+      newLeads: 2,
+      paymentsWindow: [
+        { amount_cents: 5000, created_at: "2026-09-11T08:00:00Z" },
+        { amount_cents: 9900, created_at: "2026-08-01T08:00:00Z" },
+        { amount_cents: null, created_at: "2026-09-11T09:00:00Z" },
+      ],
+      sinceIso: "2026-09-10T12:00:00Z",
+    });
+    expect(result).toEqual({
+      sequenceEmailsSent: 4,
+      newLeadsCaptured: 2,
+      paymentsReceivedCents: 5000,
+    });
+  });
+
+  it("returns zeros on a quiet day", () => {
+    expect(computeMachineDid({ sentStepLogs: 0, newLeads: 0, paymentsWindow: [], sinceIso: "2026-09-10T00:00:00Z" }))
+      .toEqual({ sequenceEmailsSent: 0, newLeadsCaptured: 0, paymentsReceivedCents: 0 });
+  });
+});
 
 describe("generatePostSessionDraft", () => {
   it("returns null when no API key is set", async () => {

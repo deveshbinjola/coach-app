@@ -14,7 +14,7 @@
 // cadence. See feedback-mentor-panel: Facilitator quadrant only, no
 // streaks, no counters, no manufactured urgency.
 
-import type { BusinessPulse, RightNowItem } from "@/lib/ambient";
+import type { BusinessPulse, MachineDid, RightNowItem } from "@/lib/ambient";
 
 const APP_ORIGIN = process.env.NEXT_PUBLIC_APP_ORIGIN ?? "https://app.elevateaisystem.com";
 const FROM_EMAIL = "Coach Assistant <brand-os@elevateaisystem.com>";
@@ -50,6 +50,7 @@ function escape(s: string): string {
 export function hasSomethingToSay(pulse: BusinessPulse): boolean {
   if (pulse.heroItem) return true;
   if (pulse.quietList.length > 0) return true;
+  if (pulse.decisionsWaiting > 0) return true;
   const d = pulse.daySummary;
   return d.sessions > 0 || d.leadsWaiting > 0 || d.draftsReady > 0;
 }
@@ -58,11 +59,14 @@ export function hasSomethingToSay(pulse: BusinessPulse): boolean {
  *  preview alone is useful even if they never open it. */
 export function briefSubject(pulse: BusinessPulse): string {
   const hero = pulse.heroItem;
+  const n = pulse.decisionsWaiting;
   if (hero) {
     const who = hero.leadName?.trim();
+    if (n > 0 && who) return `${n} decision${n === 1 ? "" : "s"} + ${who} needs you`;
     if (who) return `${who} needs you today`;
     return hero.reason.length <= 60 ? hero.reason : "One thing needs you today";
   }
+  if (n > 0) return n === 1 ? "One decision is waiting" : `${n} decisions are waiting`;
   const d = pulse.daySummary;
   if (d.sessions > 0) {
     return d.sessions === 1 ? "One session today" : `${d.sessions} sessions today`;
@@ -82,6 +86,24 @@ function itemRow(item: RightNowItem): string {
   </tr>`;
 }
 
+/** Human lines for the "Handled for you" section. Pure and exported so the
+ *  copy stays pinned by tests. Empty array means the section is omitted —
+ *  the brief never brags about zero. */
+export function handledLines(m: MachineDid): string[] {
+  const lines: string[] = [];
+  if (m.sequenceEmailsSent > 0) {
+    lines.push(`${m.sequenceEmailsSent} sequence email${m.sequenceEmailsSent === 1 ? "" : "s"} sent`);
+  }
+  if (m.newLeadsCaptured > 0) {
+    lines.push(`${m.newLeadsCaptured} new lead${m.newLeadsCaptured === 1 ? "" : "s"} captured`);
+  }
+  if (m.paymentsReceivedCents > 0) {
+    const dollars = Math.round(m.paymentsReceivedCents / 100).toLocaleString("en-US");
+    lines.push(`$${dollars} collected`);
+  }
+  return lines;
+}
+
 function pillButton(href: string, label: string): string {
   return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:0 auto;">
     <tr><td align="center" bgcolor="#0B6E23" style="background-color:#0B6E23;border-radius:100px;">
@@ -98,10 +120,14 @@ export function renderBrief(input: BriefInput): RenderedBrief {
 
   const hello = firstName.trim() ? `${escape(firstName.trim())},` : "Morning,";
 
+  // When decisions wait, they subsume the drafts-ready bit (content drafts
+  // are counted inside decisionsWaiting) — never show the same fact twice.
+  const nDecisions = pulse.decisionsWaiting;
   const summaryBits = [
+    nDecisions > 0 ? `${nDecisions} decision${nDecisions === 1 ? "" : "s"} waiting` : "",
     d.sessions > 0 ? `${d.sessions} session${d.sessions === 1 ? "" : "s"}` : "",
     d.leadsWaiting > 0 ? `${d.leadsWaiting} lead${d.leadsWaiting === 1 ? "" : "s"} waiting` : "",
-    d.draftsReady > 0 ? `${d.draftsReady} draft${d.draftsReady === 1 ? "" : "s"} ready` : "",
+    nDecisions === 0 && d.draftsReady > 0 ? `${d.draftsReady} draft${d.draftsReady === 1 ? "" : "s"} ready` : "",
   ].filter(Boolean);
 
   const heroHtml = hero
@@ -121,6 +147,15 @@ export function renderBrief(input: BriefInput): RenderedBrief {
       <tr><td style="height:18px;"></td></tr>`
     : "";
 
+  const handled = handledLines(pulse.machineDid);
+  const handledHtml = handled.length
+    ? `<tr><td style="background:#F2F6F0;border-radius:16px;padding:16px 24px;">
+        <div style="font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#0B6E23;font-weight:700;padding-bottom:6px;">Handled for you</div>
+        <div style="font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#3C5A42;">${handled.map(escape).join(" &middot; ")}</div>
+      </td></tr>
+      <tr><td style="height:18px;"></td></tr>`
+    : "";
+
   const html = `<!doctype html>
 <html><body style="margin:0;padding:0;background:#FAF8F3;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#FAF8F3;">
@@ -131,7 +166,12 @@ export function renderBrief(input: BriefInput): RenderedBrief {
     <tr><td style="font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#5A5A52;padding-bottom:20px;">${summaryBits.length ? escape(summaryBits.join(" · ")) : "Here is where things stand."}</td></tr>
     ${heroHtml}
     ${restHtml}
-    <tr><td align="center" style="padding:6px 0 26px;">${pillButton(`${APP_ORIGIN}/command-center`, "Open the app")}</td></tr>
+    ${handledHtml}
+    <tr><td align="center" style="padding:6px 0 26px;">${
+      nDecisions > 0
+        ? pillButton(`${APP_ORIGIN}/queue`, nDecisions === 1 ? "Clear the decision" : `Clear ${nDecisions} decisions`)
+        : pillButton(`${APP_ORIGIN}/command-center`, "Open the app")
+    }</td></tr>
     <tr><td style="border-top:1px solid #E5E1D8;padding-top:18px;font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#0A0F1C;font-style:italic;">${escape(pulse.honestQuestion)}</td></tr>
     <tr><td align="center" style="padding-top:26px;font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;font-size:12px;color:#6A6A60;line-height:1.6;">
       You only get this when something needs you.<br/>
@@ -147,8 +187,11 @@ export function renderBrief(input: BriefInput): RenderedBrief {
     "",
     hero ? `FIRST THING\n${hero.leadName?.trim() ? `${hero.leadName.trim()}: ` : ""}${hero.reason}${hero.context ? `\n${hero.context}` : ""}` : "",
     rest.length ? `\nALSO TODAY\n${rest.map((i) => `- ${i.leadName?.trim() ? `${i.leadName.trim()}: ` : ""}${i.reason}`).join("\n")}` : "",
+    handled.length ? `\nHANDLED FOR YOU\n${handled.map((l) => `- ${l}`).join("\n")}` : "",
     "",
-    `Open the app: ${APP_ORIGIN}/command-center`,
+    nDecisions > 0
+      ? `Clear the queue: ${APP_ORIGIN}/queue`
+      : `Open the app: ${APP_ORIGIN}/command-center`,
     "",
     pulse.honestQuestion,
     "",
