@@ -1,0 +1,176 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offering extraction · design</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#FAF8F3;--card:#FFF;--ink:#0A0F1C;--muted:#5A5A52;--green:#0B6E23;
+      --green-soft:#E8F1EA;--border:#E5E1D8;--line:#EFEBE1;--red:#B23A2E;--amber:#B58A1E;--amber-soft:#FBF3DF}
+body{background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',system-ui;line-height:1.62;padding:52px 22px 90px}
+.w{max-width:860px;margin:0 auto}
+h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(2rem,4vw,2.7rem);font-weight:700;line-height:1.14;letter-spacing:-.02em;margin-bottom:10px}
+h2{font-family:'Playfair Display',Georgia,serif;font-size:1.5rem;font-weight:700;margin:46px 0 8px;letter-spacing:-.01em}
+h3{font-size:1rem;font-weight:800;margin:22px 0 6px}
+.eyebrow{font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--green);margin-bottom:12px}
+.lede{color:var(--muted);font-size:1.03rem;max-width:64ch}
+p{margin-bottom:12px;max-width:68ch}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin:15px 0}
+.card.a{border-left:3px solid var(--green)}
+.card.w2{border-left:3px solid var(--amber);background:var(--amber-soft)}
+.card.r{border-left:3px solid var(--red)}
+table{width:100%;border-collapse:collapse;margin:13px 0;font-size:.92rem}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.67rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.83rem;background:var(--green-soft);padding:1px 5px;border-radius:4px;color:var(--green)}
+.quote{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:12px;
+       padding:18px 20px;margin:14px 0;white-space:pre-line;line-height:1.7}
+.note{color:var(--muted);font-size:.89rem}
+.rule{height:1px;background:var(--line);margin:38px 0}
+ul{margin:0 0 12px 20px}li{margin-bottom:6px;max-width:68ch}
+.no{color:var(--red);font-weight:800}.yes{color:var(--green);font-weight:800}
+</style></head><body><div class="w">
+
+<div class="eyebrow">Coach Assistant · Design spec · 11 Sep 2026</div>
+<h1>Offering extraction</h1>
+<p class="lede">Turn "workflows living in the founder's head" into real
+<code>cp_offerings</code> rows, in one box, in about sixty seconds, without the coach ever
+filling in a form. Precondition for P1 Enrollment Lifecycle.</p>
+
+<div class="card a">
+<b>North star gate.</b> The coach never operates software. A wizard with five cards of fields
+fails this gate even though it produces perfect data. Every decision below is made against it.
+</div>
+
+<h2>1 · What already exists (do not rebuild)</h2>
+<p>The object model is further along than the P1 plan implies. Verified in
+<code>lib/types.ts</code> today:</p>
+<table>
+<tr><th>Field</th><th>Status</th></tr>
+<tr><td><code>OfferingKind</code></td><td><span class="yes">Exists.</span> Eight values, already shaped for live containers: <code>one_on_one</code>, <code>private_intensive</code>, <code>mens_group</code>, <code>womens_group</code>, <code>mixed_group</code>, <code>private_retreat</code>, <code>online_retreat</code>, <code>custom</code></td></tr>
+<tr><td><code>capacity</code>, <code>price_cents</code>, <code>starts_at</code>, <code>ends_at</code></td><td><span class="yes">Exist</span> on <code>Offering</code></td></tr>
+<tr><td><code>OfferingMemberStatus</code></td><td><span class="yes">Exists:</span> <code>active | paused | completed | dropped</code>. Most of an enrollment lifecycle</td></tr>
+<tr><td>Waitlist, <code>interested</code>, <code>alumni</code></td><td><span class="no">Missing.</span> P1 territory, out of scope here</td></tr>
+<tr><td>Promise / waiver</td><td><span class="no">Missing entirely.</span> See §7, this is a hard dependency</td></tr>
+</table>
+<p class="note">Usage check: <code>OfferingKind</code> is referenced in exactly two files,
+<code>lib/types.ts</code> and <code>components/clients/AddOfferingForm.tsx</code>. The vocabulary
+is built and almost nothing uses it. This spec is largely about feeding it.</p>
+
+<h2>2 · The decisions</h2>
+<table>
+<tr><th>Question</th><th>Decision</th></tr>
+<tr><td>What are the answers for?</td><td>Create real objects. The interview writes <code>cp_offerings</code> rows, it is not a profile</td></tr>
+<tr><td>How do we collect them?</td><td>One box. Speak or type, AI parses. Same pattern as <code>/leads/capture</code></td></tr>
+<tr><td>How much do we ask?</td><td>Infer policy from shape, confirm exceptions. Do not ask what the shape already tells us</td></tr>
+<tr><td>Where does it live?</td><td>In the welcome flow, between <code>magic</code> and <code>leads</code></td></tr>
+<tr><td>How does confirm work?</td><td>One plain-language summary, one confirm, with editable cards as the escape hatch</td></tr>
+</table>
+<p>Placement reasoning: "what do you run" is the easiest question a coach can answer, it is their
+identity. "Who could you be talking to" is emotionally harder, which is why that step needed a
+reframe. Easy before hard. Offerings also give the leads step somewhere to point.</p>
+
+<h2>3 · The flow</h2>
+<h3>Step A, the ask</h3>
+<div class="quote">What do you actually run?
+
+Say it however it comes out. A circle, a retreat, 1:1 work, all of it. I'll sort the details.</div>
+<p class="note">One textarea plus the existing voice input. No fields, no add-another button.</p>
+
+<h3>Step B, the parse</h3>
+<p>Model call returns a draft array of offerings. Each draft carries <code>name</code>,
+<code>kind</code>, <code>capacity</code>, <code>price_cents</code>, cadence, and a
+<code>confidence</code> flag per field. Nothing is written yet.</p>
+
+<h3>Step C, the summary and the assumptions</h3>
+<div class="quote">So: a Tuesday men's circle, 8 men, $200 a month. A retreat twice a year. And 1:1 work.
+
+Here is what I'll assume unless you tell me otherwise. The retreat takes a deposit<span style="background:#FBF3DF;border-bottom:2px solid #B58A1E"> and needs a waiver signed before anyone travels</span>. The circle keeps a waitlist once it is full. The 1:1 work needs neither.
+
+<b>Sound right?</b>   ·   Let me fix that</div>
+<p class="note" style="margin-top:-4px"><b>Highlighted text is gated.</b> The waiver clause ships only once the Promise object exists. Until then the summary omits it. See §7.</p>
+<p><b>Showing the assumptions back is the point, not a courtesy.</b> It is how the coach learns
+what the machine will do on their behalf, and it is what makes inference safe rather than
+presumptuous. Assumptions buried in settings are a different product.</p>
+
+<h3>Step D, the escape hatch</h3>
+<p>"Let me fix that" reveals one editable card per offering: name, shape, capacity, price, dates,
+and the policy toggles. Add and remove rows. This is approach A from the options, available to
+everyone and paid for by nobody who does not need it.</p>
+
+<h2>4 · The inference table</h2>
+<p>Shape drives defaults. This table is the whole of the "workflow extraction" claim.</p>
+<table>
+<tr><th>Kind</th><th>Capacity</th><th>Billing</th><th>Deposit</th><th>Waiver</th></tr>
+<tr><td><code>one_on_one</code></td><td>none</td><td>package or recurring</td><td>no</td><td>no</td></tr>
+<tr><td><code>private_intensive</code></td><td>none</td><td>one-off</td><td>yes</td><td>yes</td></tr>
+<tr><td><code>mens_group</code> / <code>womens_group</code> / <code>mixed_group</code></td><td>yes, waitlist when full</td><td>recurring</td><td>no</td><td>once, at join</td></tr>
+<tr><td><code>private_retreat</code></td><td>yes</td><td>deposit then balance</td><td>yes</td><td>yes, blocks attendance</td></tr>
+<tr><td><code>online_retreat</code></td><td>yes</td><td>one-off or deposit</td><td>sometimes</td><td>no, nobody travels</td></tr>
+<tr><td><code>custom</code></td><td colspan="4">infer nothing, ask the four questions directly</td></tr>
+</table>
+
+<h2>5 · Data flow</h2>
+<ul>
+<li>Parse is a <b>pure mapping</b> from model JSON to draft rows, in <code>lib/offering-extract.ts</code>. No I/O, fully testable.</li>
+<li>Inference is a second pure function, <code>inferPolicy(kind)</code>, returning the row above.</li>
+<li>Only on confirm does the component POST to a new <code>/api/coach/import-offerings</code>, mirroring <code>/api/coach/import-leads</code>.</li>
+<li>Policies are stored on the offering. Until the Promise object exists (§7) the waiver flag is <b>recorded, not acted on.</b></li>
+<li>Skip writes nothing and is always one click.</li>
+</ul>
+
+<h2>6 · Error handling</h2>
+<p>Both failure shapes below are likely, not hypothetical.</p>
+<table>
+<tr><th>Input</th><th>Behaviour</th></tr>
+<tr><td>One word: "coaching"</td><td>Not enough to guess a shape. Fall back to three chips: <i>Mostly 1:1</i> · <i>A group or circle</i> · <i>Retreats</i>. One tap creates one offering with defaults and a placeholder name the coach can rename later</td></tr>
+<tr><td>A paragraph of philosophy with no offerings in it</td><td>Parse returns empty. Say so plainly and show the same three chips. Never invent an offering from vibes</td></tr>
+<tr><td>Model call fails or times out</td><td>Same three chips, plus the raw text preserved in the box so nothing the coach typed is lost</td></tr>
+<tr><td>Parse returns a shape we do not have</td><td>Map to <code>custom</code> and keep their words as the name</td></tr>
+<tr><td>Ten offerings claimed</td><td>Show the first five, collapse the rest behind "and 5 more". Do not block</td></tr>
+</table>
+
+<h2>7 · The dependency that must not be fudged</h2>
+<div class="card r">
+<p>Step C tells the coach <b>"the retreat needs a waiver signed before anyone travels."</b> The
+Promise object does not exist. <code>cp_waiver</code> and <code>cp_agreement</code> have zero
+references in the repo.</p>
+<p>If we ship that sentence before Promise exists, the product has made a commitment it cannot
+keep, on the screen whose entire purpose is earning trust.</p>
+<p><b>Ruling:</b> until Promise ships, the summary says only what the app can do today. Waiver
+inference is stored on the offering and stays silent in the copy. The sentence turns on the day
+the chase does.</p>
+</div>
+
+<h2>8 · Testing</h2>
+<ul>
+<li><code>lib/__tests__/offering-extract.test.ts</code>: model JSON to draft rows, including the unknown-kind and empty cases</li>
+<li><code>inferPolicy</code>: one assertion per kind, pinning the §4 table</li>
+<li>A test asserting the summary copy contains no waiver language while the Promise flag is off, so §7 cannot regress quietly</li>
+<li>Fixtures from real messy input: "tuesday circle 8 guys 200/mo", "I run men's work", "coaching"</li>
+</ul>
+
+<h2>9 · Deliberately not built</h2>
+<ul>
+<li>Waitlist mechanics. Inference records the intent, P1 builds the behaviour</li>
+<li>Session or calendar scheduling. Different object, different spec</li>
+<li>Editing offerings after onboarding. <code>AddOfferingForm</code> already exists for that</li>
+<li>Importing from Stripe, a website, or a calendar. Depends on integrations that do not exist</li>
+</ul>
+
+<div class="rule"></div>
+<h2>Next spec, not this one: the Promise wedge</h2>
+<p>Separate subsystem, separate brainstorm. Shape only, so the dependency in §7 has a visible path:</p>
+<ul>
+<li><b>Object:</b> a Promise is a document attached to an enrollment, with a state of <code>unsent</code>, <code>sent</code>, <code>signed</code>, or <code>expired</code></li>
+<li><b>Signing:</b> click-to-sign with a typed name plus a timestamped PDF receipt emailed to both sides. Not DocuSign, not a legal product</li>
+<li><b>The chase:</b> unsigned promises surface in the Queue as decisions, and block attendance flags in the Brief</li>
+<li><b>Why it is the wedge:</b> Kajabi, Practice and Paperbell all do payments. None chase signatures, because none are shaped for live containers. A retreat legally cannot run without one. It is the single line of Speed's spec where no incumbent competes</li>
+<li><b>Open question for that brainstorm:</b> how much legal weight the receipt claims. There is a real difference between "we recorded that they agreed" and "this is an enforceable e-signature," and the second carries obligations we should not take on by accident</li>
+</ul>
+
+<div class="rule"></div>
+<p class="note">Decisions in §2 confirmed with Sunny 11 Sep 2026. Repo facts verified same day
+against <code>lib/types.ts</code>, <code>components/clients/AddOfferingForm.tsx</code>, and a grep
+for <code>cp_waiver</code> / <code>cp_agreement</code> / <code>cp_enrollment</code>.</p>
+
+</div></body></html>

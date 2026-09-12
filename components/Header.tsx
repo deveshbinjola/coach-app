@@ -20,6 +20,7 @@ import { ChevronDown, LogOut, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
 import BrandLogo from "@/components/BrandLogo";
 import type { NavUnlocks } from "@/lib/nav-unlocks";
+import { PRIMARY_NAV, MORE_NAV } from "@/lib/nav-items";
 
 // Turn an email into a friendly display name when we don't have a real one
 // from user_metadata.
@@ -45,14 +46,11 @@ function toDisplayName(email: string, name?: string): string {
 // Brand OS lives on /voice (it's voice tooling) + standalone /brand-os
 // for the $7 public funnel. Removed from main nav 2026-05-13 — coaches
 // access it via the Voice page CTA card after Brand OS MVP completes.
-const NAV_ITEMS: Array<{ href: string; label: string }> = [
-  { href: "/command-center", label: "Home" },
-  { href: "/inbox", label: "Leads" },
-  { href: "/clients", label: "Clients" },
-  { href: "/voice", label: "Voice" },
-  { href: "/content", label: "Content" },
-  { href: "/automations", label: "Automations" },
-];
+// P0 One Surface (roadmap/p0-one-surface.md, slice 4): the primary row is
+// the daily loop only — Brief (Home), Queue, and the people rooms. Voice,
+// Content, and Automations still exist, one click away under "More"; they
+// are hidden from the primary eye-line, not removed, so this is fully
+// reversible by moving an entry back up.
 
 type Props = {
   email: string;
@@ -80,8 +78,10 @@ export default function Header({ email, name, avatarUrl, emphasis, navUnlocks }:
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [avatarFailed, setAvatarFailed] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
 
   const [visitedTabs, setVisitedTabs] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
@@ -101,16 +101,22 @@ export default function Header({ email, name, avatarUrl, emphasis, navUnlocks }:
     });
   }
 
-  // Close dropdown on outside click or Escape.
+  // Close dropdowns (account + More) on outside click or Escape.
   useEffect(() => {
-    if (!menuOpen) return;
+    if (!menuOpen && !moreOpen) return;
     function onDocClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      if (menuOpen && menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
+      }
+      if (moreOpen && moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
       }
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setMenuOpen(false);
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+        setMoreOpen(false);
+      }
     }
     document.addEventListener("mousedown", onDocClick);
     document.addEventListener("keydown", onKey);
@@ -118,7 +124,7 @@ export default function Header({ email, name, avatarUrl, emphasis, navUnlocks }:
       document.removeEventListener("mousedown", onDocClick);
       document.removeEventListener("keydown", onKey);
     };
-  }, [menuOpen]);
+  }, [menuOpen, moreOpen]);
 
   useEffect(() => {
     setAvatarFailed(false);
@@ -140,7 +146,7 @@ export default function Header({ email, name, avatarUrl, emphasis, navUnlocks }:
     .join("");
   const showAvatar = !!avatarUrl && !avatarFailed;
 
-  const visibleNavItems = NAV_ITEMS.filter((item) => {
+  const visibleMoreItems = MORE_NAV.filter((item) => {
     if (!navUnlocks) return true;
     if (item.href === "/voice") return navUnlocks.voice;
     if (item.href === "/content") return navUnlocks.content;
@@ -174,17 +180,73 @@ export default function Header({ email, name, avatarUrl, emphasis, navUnlocks }:
           className="hidden md:flex items-center gap-1 rounded-[var(--r-pill)] border border-[var(--border-faint)] bg-[var(--surface-deep)] p-1 text-[length:var(--t-caption)]"
           aria-label="Primary navigation"
         >
-          {visibleNavItems.map((item) => (
+          {PRIMARY_NAV.map((item) => (
             <NavLink
               key={item.href}
               href={item.href}
               label={item.label}
               active={isActive(item.href)}
               quiet={isQuiet(item.href)}
-              isNew={navUnlocks !== undefined && !visitedTabs.has(item.href) && (item.href === "/voice" || item.href === "/content")}
               onNavigate={() => markTabVisited(item.href)}
             />
           ))}
+          {visibleMoreItems.length > 0 && (
+            <div className="relative" ref={moreRef}>
+              <button
+                type="button"
+                onClick={() => setMoreOpen((v) => !v)}
+                className={`flex h-10 items-center gap-1 px-4 rounded-[var(--r-pill)] text-[length:var(--t-caption)] font-bold transition ${
+                  visibleMoreItems.some((i) => isActive(i.href))
+                    ? "bg-[var(--surface-elevated)] text-[color:var(--text)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border)]"
+                    : "text-[color:var(--text-muted)] hover:bg-[color-mix(in_srgb,var(--surface-elevated)_70%,transparent)] hover:text-[color:var(--text)]"
+                }`}
+                aria-haspopup="menu"
+                aria-expanded={moreOpen}
+                aria-label="More sections"
+              >
+                More
+                <ChevronDown
+                  size={13}
+                  strokeWidth={2.4}
+                  className={`transition-transform ${moreOpen ? "rotate-180" : ""}`}
+                  aria-hidden
+                />
+              </button>
+              {moreOpen && (
+                <div
+                  role="menu"
+                  className="absolute left-0 mt-2 w-44 bg-[var(--surface-elevated)] rounded-[var(--r-lg)] border border-[var(--border)] shadow-[var(--shadow-lg)] overflow-hidden z-50 p-1.5"
+                >
+                  {visibleMoreItems.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      role="menuitem"
+                      onClick={() => {
+                        markTabVisited(item.href);
+                        setMoreOpen(false);
+                      }}
+                      className={`flex items-center gap-1.5 px-3 h-11 rounded-[var(--r-md)] text-[length:var(--t-caption)] font-bold ${
+                        isActive(item.href)
+                          ? "bg-[var(--surface-deep)] text-[color:var(--text)]"
+                          : "text-[color:var(--text-muted)] hover:bg-[var(--surface-deep)] hover:text-[color:var(--text)]"
+                      } ${isQuiet(item.href) && !isActive(item.href) ? "opacity-50 hover:opacity-100" : ""}`}
+                      aria-current={isActive(item.href) ? "page" : undefined}
+                    >
+                      {item.label}
+                      {navUnlocks !== undefined &&
+                        !visitedTabs.has(item.href) &&
+                        (item.href === "/voice" || item.href === "/content") && (
+                          <span className="inline-flex items-center rounded-full bg-[var(--brand)] px-1.5 py-0.5 text-[length:var(--t-micro)] font-extrabold text-[var(--brand-strong)]">
+                            NEW
+                          </span>
+                        )}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </nav>
 
         {/* Right side: account dropdown */}
