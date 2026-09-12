@@ -56,9 +56,16 @@ Clients — the daily loop) and MORE_NAV (Voice, Content, Automations) behind a
 "More" disclosure pill. The More button lights active when a folded section is
 the current page; nav-unlocks filtering, quiet-emphasis dimming, and NEW badges
 all moved inside the menu intact. Fully reversible — move an entry between the
-two arrays. Note: there is no mobile nav at all (pre-existing; primary nav is
-hidden below md) — a mobile surface is its own future decision, not part of P0.
-Not yet eyeballed in a logged-in browser.
+two arrays.
+
+CORRECTED 2026-09-11 (commit f80eb67): this note previously said there is no
+mobile nav at all. That was wrong. components/MobileTabBar.tsx exists, is fixed
+to the bottom, md:hidden, and declared its OWN TAB_ITEMS array — so slice 4
+changed only the desktop half. On a phone the old nav survived and /queue, one
+of the two moments, had no entry at all while Voice and Content stayed primary.
+Root cause was the split being declared twice; lib/nav-items.ts is now the one
+definition and both surfaces import it. Mobile gained a More sheet.
+Verified at 375px and through the DOM, not yet in a logged-in browser.
 
 ### 5. Funnel event instrumentation — CODE DONE (2026-09-11), MIGRATION NOT APPLIED
 Design decision: DB triggers, not app code — the queue and lead pages write
